@@ -15,7 +15,6 @@
 
 const apm = require('../').start({
   serviceName: 'example-trace-elasticsearch7',
-  logUncaughtExceptions: true,
 });
 
 // Note that version 7 is *not* installed by default. To use v7 you'll need to:

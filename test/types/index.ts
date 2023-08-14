@@ -21,7 +21,7 @@ import assert from 'assert'
 
 const agentOpts: AgentConfigOptions = {
   captureExceptions: false,
-  metricsInterval: '0',
+  metricsInterval: '0s',
   centralConfig: false
 }
 apm.start(agentOpts)

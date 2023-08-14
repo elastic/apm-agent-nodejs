@@ -12,7 +12,6 @@
 
 const apm = require('../').start({
   serviceName: 'example-trace-cassandra-driver',
-  logUncaughtExceptions: true,
 });
 
 const cassandra = require('cassandra-driver');

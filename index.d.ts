@@ -209,7 +209,6 @@ declare namespace apm {
     apiKey?: string;
     apiRequestSize?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
     apiRequestTime?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
-    asyncHooks?: boolean;
     breakdownMetrics?: boolean;
     captureBody?: CaptureBody;
     captureErrorLogStackTraces?: CaptureErrorLogStackTraces;
@@ -249,7 +248,6 @@ declare namespace apm {
     kubernetesPodName?: string;
     kubernetesPodUID?: string;
     logLevel?: LogLevel;
-    logUncaughtExceptions?: boolean;
     logger?: Logger; // Notably this Logger interface matches the Pino Logger.
     longFieldMaxLength?: number;
     maxQueueSize?: number;

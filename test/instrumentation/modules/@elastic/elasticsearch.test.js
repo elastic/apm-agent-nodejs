@@ -24,7 +24,6 @@ const agent = require('../../../..').start({
 
 const { URL } = require('url');
 
-const { CONTEXT_MANAGER_PATCH } = require('../../../../lib/config/schema');
 const { safeGetPackageVersion } = require('../../../_utils');
 
 // Support running these tests with a different package name -- typically
@@ -479,12 +478,8 @@ if (semver.gte(process.version, '10.0.0')) {
   // Test the determination of the Elasticsearch cluster name from the
   // "x-found-handling-cluster" header included in Elastic Cloud.  (Only test
   // with client versions >=8 to avoid the product-check complications in 7.x
-  // clients. Also cannot test with contextManager="patch", because of the
-  // limitation described in "modules/@elastic/elasticsearch.js".)
-  if (
-    semver.satisfies(esVersion, '>=8') &&
-    agent._conf.contextManager !== CONTEXT_MANAGER_PATCH
-  ) {
+  // clients.)
+  if (semver.satisfies(esVersion, '>=8')) {
     test('cluster name from "x-found-handling-cluster"', function (t) {
       // Create a mock Elasticsearch server that mimics a search response from
       // a cloud instance.
@@ -1210,27 +1205,15 @@ function checkDataAndEnd(
       );
     }
 
-    // With @elastic/elasticsearch >=8 and `contextManager="patch"` there is
-    // a limitation such that some HTTP context fields cannot be captured.
-    // (See "Limitations" section in the instrumentation code.)
-    if (
-      semver.satisfies(esVersion, '>=8', { includePrerelease: true }) &&
-      agent._conf.contextManager === CONTEXT_MANAGER_PATCH
-    ) {
-      t.comment(
-        'skip span.context.http.{status_code,response} check because of contextManager="patch" + esVersion>=8 limitation',
-      );
-    } else {
-      t.equal(
-        esSpan.context.http.status_code,
-        expectedStatusCode,
-        'context.http.status_code',
-      );
-      t.ok(
-        esSpan.context.http.response.encoded_body_size,
-        'context.http.response.encoded_body_size is present',
-      );
-    }
+    t.equal(
+      esSpan.context.http.status_code,
+      expectedStatusCode,
+      'context.http.status_code',
+    );
+    t.ok(
+      esSpan.context.http.response.encoded_body_size,
+      'context.http.response.encoded_body_size is present',
+    );
 
     t.end();
   };

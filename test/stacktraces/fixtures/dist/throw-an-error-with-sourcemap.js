@@ -13,7 +13,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const __1 = __importDefault(require("../../../../"));
 __1.default.start({
     serviceName: 'test-throw-an-error-with-sourcemap',
-    logUncaughtExceptions: true,
     metricsInterval: '0',
     centralConfig: false,
     logLevel: 'off',

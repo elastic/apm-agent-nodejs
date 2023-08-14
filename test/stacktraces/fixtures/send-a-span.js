@@ -8,7 +8,6 @@
 
 const agent = require('../../../').start({
   serviceName: 'test-send-a-span',
-  logUncaughtExceptions: true,
   metricsInterval: 0,
   centralConfig: false,
   logLevel: 'off',
