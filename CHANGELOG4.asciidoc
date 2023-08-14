@@ -47,6 +47,7 @@ See the <<upgrade-to-v4>> guide.
   This also impacts <<apm-start-transaction>> and `transaction.setType(...)`,
   both of which now no longer accept `subtype` and `action` parameters.
   These two properties were deprecated in v3.25.0.
+  ({issues}3557[#3557])
 
 [float]
 ===== Features
