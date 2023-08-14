@@ -309,7 +309,7 @@ test('#duration() - un-ended transaction', function (t) {
 
 test('custom start time', function (t) {
   var startTime = Date.now() - 1000;
-  var trans = new Transaction(agent, { startTime });
+  var trans = new Transaction(agent, 'a-trans-name', { startTime });
   trans.end();
 
   var duration = trans.duration();
@@ -325,7 +325,7 @@ test('custom start time', function (t) {
 test('#end(time)', function (t) {
   var startTime = Date.now() - 1000;
   var endTime = startTime + 2000.123;
-  var trans = new Transaction(agent, { startTime });
+  var trans = new Transaction(agent, 'a-trans-name', { startTime });
   trans.end(null, endTime);
 
   t.strictEqual(trans.duration(), 2000.123);
