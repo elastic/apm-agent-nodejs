@@ -354,6 +354,29 @@ const cases = [
       );
     },
   },
+  {
+    script: 'await-agent-destroy.js',
+    checkOutput: async (t, stdout, _stderr) => {
+      // Ensure there is no log.warn line: "cannot flush agent before it is started".
+      // https://github.com/elastic/apm-agent-nodejs/pull/3547#discussion_r1283430790
+      const warnLines = stdout
+        .split('\n')
+        .filter((ln) => ~ln.indexOf('"log.level":"warn"'))
+        // Skip a log.warn about this being a pre-release version.
+        .filter((ln) => !~ln.indexOf('pre-release'));
+      t.equal(warnLines.length, 0, `no log.warn lines: warnLines=${warnLines}`);
+    },
+    checkEvents: async (t, events) => {
+      t.ok(events[0].metadata, 'APM server got event metadata object');
+
+      // Check that got at least one 'test_counter' metricset.
+      const metricset = findObjInArray(
+        events,
+        'metricset.samples.test_counter',
+      ).metricset;
+      t.ok(metricset, 'got a "test_counter" metricset');
+    },
+  },
 ];
 
 cases.forEach((c) => {
