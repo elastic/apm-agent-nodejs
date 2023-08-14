@@ -49,6 +49,14 @@ npm install elastic-apm-node --save
 - [Upgrading](https://www.elastic.co/guide/en/apm/agent/nodejs/current/upgrading.html)
 - [Troubleshooting](https://www.elastic.co/guide/en/apm/agent/nodejs/current/troubleshooting.html)
 
+
+## Active release branches
+
+Currently the only active release branch is the
+["main" branch](https://github.com/elastic/apm-agent-nodejs/tree/main), which is
+used for 3.x versions.
+
+
 ## Contributing
 
 Contributions are welcome,

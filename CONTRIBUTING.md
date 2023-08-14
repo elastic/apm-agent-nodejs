@@ -62,7 +62,7 @@ Once your changes are ready to submit for review:
     choose a title which sums up the changes that you have made,
     and in the body provide more details about what your changes do.
     Also mention the number of the issue where discussion has taken place,
-    e.g. "Closes #123".
+    e.g. "Closes: #123".
 
 5. Be patient
 
@@ -116,32 +116,30 @@ Of these guidelines, #1 and #3 are the most important. A succinct description
 and a body that answers "what" and "why" will best help future maintainers of
 the software.
 
+An example:
+
+```
+feat: initial ESM support
+
+This adds initial and ECMAScript Module (ESM) support, i.e. `import ...`,
+via the `--experimental-loader=elastic-apm-node/loader.mjs` node option.
+This instruments a subset of modules -- more will follow in subsequent changes.
+
+Other changes:
+- Fixes a fastify instrumentation issue where the exported `fastify.errorCodes`
+  was broken by instrumentation (both CJS and ESM).
+- Adds a `runTestFixtures` utility that should be useful for running out of
+  process instrumentation/agent tests.
+
+Closes: #1952
+Refs: #2343
+```
+
 
 ### Testing
 
-For information about how to run the test suite,
-see [TESTING.md](TESTING.md).
+For information about how to run the test suite, see [TESTING.md](TESTING.md).
 
-
-### Backporting
-
-If a PR is marked with a `backport:*` label,
-it should be backported to the branch specified by the label after it has been merged.
-
-To backport a commit,
-run the following command and follow the instructions in the terminal:
-
-```
-npm run backport
-```
-
-### Workflow
-
-All feature development and most bug fixes hit the main branch first.
-Pull requests should be reviewed by someone with commit access.
-Once approved, the author of the pull request,
-or reviewer if the author does not have commit access,
-should "Squash and merge".
 
 ### Adding support for new modules
 
@@ -167,13 +165,32 @@ The following is an overview of what's required in order to add support to the a
 
 ## Releasing
 
-If you have access to make releases, the process is as follows:
+At a given time there may be one or more active git branches:
+- the `main` branch is used for releases of the current major, and
+- there may be zero or more maintenance branches for past major versions.
 
-### Current major
+See the [Active release branches](https://github.com/elastic/apm-agent-nodejs#active-release-branches)
+section in the main README.
 
-1. Be sure you have checked out the `main` branch and have pulled latest
-   changes.
-2. Make a PR titled "x.y.z" (the new version) which updates:
+A release involves the following published artifacts:
+
+- **npm**: A new release to <https://www.npmjs.com/package/elastic-apm-node>.
+  If the release is for the current major version, the "latest" npm dist-tag is applied.
+  Maintenance releases use a "latest-<major>" npm dist-tag, e.g. "latest-2".
+- **docker image**: A new "docker.elastic.co/observability/apm-agent-nodejs:<version>"
+  Docker image is published. If the release is for the current major, then the
+  "latest" Docker tag is also applied.
+- **AWS Lambda layers**: A new AWS Lambda layer for the APM agent is published
+  in each AWS region. For example, "arn:aws:lambda:us-east-1:267093732750:layer:elastic-apm-node-ver-3-49-1:1"
+  for the 3.49.1 version in the us-east-1 AWS region.
+- **GitHub release**: A new release entry is added to <https://github.com/elastic/apm-agent-nodejs/releases/>.
+  If the release is for the current major version, the "latest" tag is applied.
+
+
+### Release process
+
+1. Make a PR titled "x.y.z" (the new version) targetting the appropriate active
+   branch, which updates:
     - the version in `package.json`,
     - the version in `package-lock.json` (by running `npm install`),
     - all cases of "REPLACEME" in docs and comments,
@@ -183,22 +200,25 @@ If you have access to make releases, the process is as follows:
         [[release-notes-x.y.z]]
         ==== x.y.z - YYYY/MM/DD
         ```
-3. Ensure PR checks pass, then merge to main.
-4. Working on the elastic repo now (not a fork), tag the merged-to-main commit
-   with `git tag vx.y.x && git push origin vx.y.z`. For example: `git tag
-   v1.2.3 && git push origin v1.2.3`.
+   If there are particular highlights for the release, then it can be helpful
+   to point those out in the PR description.
+2. Get your PR reviewed, ensure PR checks pass, then merge.
+3. Working on the elastic repo now (not a fork), tag the merged commit with:
+   `git tag vx.y.x && git push origin vx.y.z`.
+   For example: `git tag v1.2.3 && git push origin v1.2.3`.
    (The GitHub Actions CI "release" workflow will handle all the release
    steps -- including the `npm publish`. See the appropriate run at:
    https://github.com/elastic/apm-agent-nodejs/actions/workflows/release.yml)
-5. Reset the latest major branch (currently `3.x`) to point to the current
-   main, e.g. `git branch -f 3.x main && git push origin 3.x`.
+4. If this is the for the latest major (currently `3.x`), then reset the latest
+   major branch to point to the current main, e.g.:
+   `git branch -f 3.x main && git push origin 3.x`
    (The periodic [docs CI job](https://elasticsearch-ci.elastic.co/view/Docs/job/elastic+docs+master+build/)
    uses this branch to update the [published docs](https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-3.x.html).)
-6. For major releases, [create an issue](https://github.com/elastic/website-requests/issues/new) to request an update of the [EOL table](https://www.elastic.co/support/eol).
 
-### Past major
+If this is a new major release, then:
 
-This is not currently supported. Until [this issue](#2668) is resolved one
-**must not** push a "vX.Y.Z" version tag to the repository on GitHub that is
-for a version other than the current major.
-
+- [Create an issue](https://github.com/elastic/website-requests/issues/new) to request an update of the [EOL table](https://www.elastic.co/support/eol).
+- Update the "Active release branches" section of the main README.
+- Update the "release.yml" for the new "N.x" *maintenance* branch as follows:
+    - The `npm publish ...` call must include a `--tag=latest-<major>` option.
+    - The `gh release create ...` call must include a `--latest=false` option.
