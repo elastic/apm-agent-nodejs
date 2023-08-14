@@ -15,7 +15,6 @@
 
 const apm = require('../').start({
   serviceName: 'example-trace-elasticsearch8',
-  logUncaughtExceptions: true,
 });
 
 // eslint-disable-next-line no-unused-vars

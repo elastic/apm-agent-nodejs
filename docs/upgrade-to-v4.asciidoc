@@ -54,6 +54,16 @@ This was a limited async context management that predated the preferred
 related and deprecated `asyncHooks` config option has been removed. Both were
 deprecated in v3.37.0.
 
+===== `logUncaughtExceptions`
+
+The `logUncaughtExceptions` config option has been removed. In v3 and earlier,
+when the APM agent was <<capture-exceptions,capturing an uncaught exception>>
+setting `logUncaughtExceptions: true` would tell the agent to print the error
+details to stderr before exiting; but `logUncaughtExceptions` was `false` by
+default. In v4, printing the error to stderr is done by default (to mimic the
+default Node.js uncaught exception behavior) and there is no option to disable
+that.
+
 
 [[v4-api-changes]]
 ==== API changes

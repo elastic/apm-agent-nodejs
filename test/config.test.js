@@ -150,7 +150,6 @@ var optionFixtures = [
   ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
   ['kubernetesPodUID', 'KUBERNETES_POD_UID'],
   ['logLevel', 'ELASTIC_APM_LOG_LEVEL', 'info'],
-  ['logUncaughtExceptions', 'ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS', false],
   ['longFieldMaxLength', 'ELASTIC_APM_LONG_FIELD_MAX_LENGTH', 10000],
   ['maxQueueSize', 'ELASTIC_APM_MAX_QUEUE_SIZE', 1024],
   ['metricsInterval', 'ELASTIC_APM_METRICS_INTERVAL', 30],

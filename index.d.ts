@@ -275,7 +275,6 @@ declare namespace apm {
     kubernetesPodName?: string;
     kubernetesPodUID?: string;
     logLevel?: LogLevel;
-    logUncaughtExceptions?: boolean;
     logger?: Logger; // Notably this Logger interface matches the Pino Logger.
     longFieldMaxLength?: number;
     maxQueueSize?: number;
