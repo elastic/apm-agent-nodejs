@@ -67,25 +67,6 @@ declare namespace apm {
       type: string | null,
       options?: TransactionOptions
     ): Transaction | null;
-    /**
-     * @deprecated Transaction 'subtype' is not used.
-     */
-    startTransaction(
-      name: string | null,
-      type: string | null,
-      subtype: string | null,
-      options?: TransactionOptions
-    ): Transaction | null;
-    /**
-     * @deprecated Transaction 'subtype' and 'action' are not used.
-     */
-    startTransaction(
-      name: string | null,
-      type: string | null,
-      subtype: string | null,
-      action: string | null,
-      options?: TransactionOptions
-    ): Transaction;
     setTransactionName (name: string): void;
     endTransaction (result?: string | number, endTime?: number): void;
     currentTransaction: Transaction | null;
@@ -154,14 +135,6 @@ declare namespace apm {
 
     name: string;
     type: string | null;
-    /**
-     * @deprecated Transaction 'subtype' is not used.
-     */
-    subtype: string | null;
-    /**
-     * @deprecated Transaction 'action' is not used.
-     */
-    action: string | null;
     traceparent: string;
     outcome: Outcome;
     result: string | number;
@@ -170,7 +143,7 @@ declare namespace apm {
       'transaction.id': string;
     }
 
-    setType (type?: string | null, subtype?: string | null, action?: string | null): void;
+    setType (type?: string | null): void;
     setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
     addLabels (labels: Labels, stringify?: boolean): boolean;
     setOutcome(outcome: Outcome): void;

@@ -208,17 +208,15 @@ test('#startTransaction()', function (t) {
     },
   );
 
-  t.test('name, type, subtype and action', function (t) {
+  t.test('name, type', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport);
-    var trans = agent.startTransaction('foo', 'type', 'subtype', 'action');
+    var trans = agent.startTransaction('foo', 'type');
     t.ok(
       !(trans instanceof NoopTransaction),
       'agent retuns a real transaction',
     );
     t.strictEqual(trans.name, 'foo');
     t.strictEqual(trans.type, 'type');
-    t.strictEqual(trans.subtype, 'subtype');
-    t.strictEqual(trans.action, 'action');
     agent.destroy();
     t.end();
   });
