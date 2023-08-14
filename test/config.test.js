@@ -1976,7 +1976,6 @@ test('spanStackTraceMinDuration', (suite) => {
   suite.end();
 });
 
-// `contextManager` is synthesized from itself and `asyncHooks`.
 test('contextManager', (suite) => {
   const contextManagerTestScenarios = [
     {
@@ -1984,14 +1983,6 @@ test('contextManager', (suite) => {
       startOpts: {},
       env: {},
       expectedVal: undefined,
-    },
-    {
-      name: 'contextManager=patch is valid',
-      startOpts: {
-        contextManager: 'patch',
-      },
-      env: {},
-      expectedVal: 'patch',
     },
     {
       name: 'contextManager=asynchooks is valid',
@@ -2025,39 +2016,6 @@ test('contextManager', (suite) => {
       env: {},
       expectedVal: undefined,
     },
-    {
-      name: 'both asyncHooks and contextManager ignores the former',
-      startOpts: {
-        asyncHooks: false,
-        contextManager: 'asynchooks',
-      },
-      env: {},
-      expectedVal: 'asynchooks',
-    },
-    {
-      name: 'asyncHooks=false sets contextManager="patch"',
-      startOpts: {
-        asyncHooks: false,
-      },
-      env: {},
-      expectedVal: 'patch',
-    },
-    {
-      name: 'asyncHooks=true sets contextManager=undefined',
-      startOpts: {
-        asyncHooks: true,
-      },
-      env: {},
-      expectedVal: undefined,
-    },
-    {
-      name: 'asyncHooks=bogus sets contextManager=undefined',
-      startOpts: {
-        asyncHooks: 'bogus',
-      },
-      env: {},
-      expectedVal: undefined,
-    },
   ];
 
   contextManagerTestScenarios.forEach((scenario) => {
@@ -2074,10 +2032,6 @@ test('contextManager', (suite) => {
         Object.assign({}, agentOptsNoopTransport, scenario.startOpts),
       );
 
-      t.notOk(
-        'asyncHooks' in agent._conf,
-        'asyncHooks is not set on agent._conf',
-      );
       t.strictEqual(
         agent._conf.contextManager,
         scenario.expectedVal,
