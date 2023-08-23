@@ -164,6 +164,7 @@ test('await MongoClient.connect(url)', async function (t) {
   agent.startTransaction('t0');
   await client.db('elasticapm').collection('test').findOne({ a: 1 });
   agent.endTransaction();
+
   await promisify(agent.flush.bind(agent))().then(function (err) {
     t.error(err, 'no error from agent.flush()');
     const data = agent._apmClient._writes;
