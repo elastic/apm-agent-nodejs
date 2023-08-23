@@ -34,6 +34,7 @@ const test = require('tape');
 
 const mockClient = require('../../_mock_http_client');
 const mockClientStates = require('../../_mock_http_client_states');
+const { spyOn } = require('../../_spy_method');
 
 const mongodbSupportsCallbacks = semver.satisfies(
   require('mongodb/package.json').version,
@@ -153,12 +154,16 @@ test('await MongoClient.connect(url)', async function (t) {
   // *after* the test async function resolves. Instead we make a Promise for
   // `agent.flush(cb)`, do all assertions when that is complete, and await that.
   resetAgent(2, function noop() {});
+  const clientOnSpy = spyOn(t, MongoClient.prototype, 'on');
 
   const client = await MongoClient.connect(url);
+
+  // Make sure we register the handlers once
+  t.ok(clientOnSpy.hasBeenCalled(3), 'handlers registered once');
+
   agent.startTransaction('t0');
   await client.db('elasticapm').collection('test').findOne({ a: 1 });
   agent.endTransaction();
-
   await promisify(agent.flush.bind(agent))().then(function (err) {
     t.error(err, 'no error from agent.flush()');
     const data = agent._apmClient._writes;
@@ -174,10 +179,14 @@ test('await MongoClient.connect(url)', async function (t) {
 
 test('ensure run context', async function (t) {
   resetAgent(5, function noop() {});
+  const clientOnSpy = spyOn(t, MongoClient.prototype, 'on');
 
   const client = await MongoClient.connect(url);
   agent.startTransaction('t0');
   const collection = client.db('elasticapm').collection('test');
+
+  // Make sure we register the handlers once
+  t.ok(clientOnSpy.hasBeenCalled(3), 'handlers registered once');
 
   // There was a time when the spans created for Mongo client commands, while
   // one command was already inflight, would be a child of the inflight span.
