@@ -9,10 +9,9 @@
 const kOrigFunction = Symbol('kOrigFunction');
 
 class SpyObject {
-  /**
-   * @type {any[][]}
-   */
-  calls = [];
+  constructor() {
+    this.calls = [];
+  }
 
   /**
    * Tells if the spied function has been called. If a positive number
