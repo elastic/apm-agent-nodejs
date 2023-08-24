@@ -159,7 +159,10 @@ test('await MongoClient.connect(url)', async function (t) {
   const client = await MongoClient.connect(url);
 
   // Make sure we register the handlers once
-  t.ok(clientOnSpy.hasBeenCalled(3), 'handlers registered once');
+  t.ok(
+    clientOnSpy.hasBeenCalled(3),
+    `3 event handlers registered: actual ${clientOnSpy.calls.length}`,
+  );
 
   agent.startTransaction('t0');
   await client.db('elasticapm').collection('test').findOne({ a: 1 });
@@ -187,7 +190,10 @@ test('ensure run context', async function (t) {
   const collection = client.db('elasticapm').collection('test');
 
   // Make sure we register the handlers once
-  t.ok(clientOnSpy.hasBeenCalled(3), 'handlers registered once');
+  t.ok(
+    clientOnSpy.hasBeenCalled(3),
+    `3 event handlers registered: actual ${clientOnSpy.calls.length}`,
+  );
 
   // There was a time when the spans created for Mongo client commands, while
   // one command was already inflight, would be a child of the inflight span.
