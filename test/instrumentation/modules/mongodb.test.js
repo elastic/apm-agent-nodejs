@@ -154,15 +154,9 @@ test('await MongoClient.connect(url)', async function (t) {
   // *after* the test async function resolves. Instead we make a Promise for
   // `agent.flush(cb)`, do all assertions when that is complete, and await that.
   resetAgent(2, function noop() {});
-  const clientOnSpy = spyOn(t, MongoClient.prototype, 'on');
+  const createSpanSpy = spyOn(t, agent._instrumentation, 'createSpan');
 
   const client = await MongoClient.connect(url);
-
-  // Make sure we register the handlers once
-  t.ok(
-    clientOnSpy.hasBeenCalled(3),
-    `3 event handlers registered: actual ${clientOnSpy.calls.length}`,
-  );
 
   agent.startTransaction('t0');
   await client.db('elasticapm').collection('test').findOne({ a: 1 });
@@ -176,6 +170,12 @@ test('await MongoClient.connect(url)', async function (t) {
     t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name');
     t.equal(data.spans[0].subtype, 'mongodb', 'span.subtype');
     t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id');
+
+    // Internal calls to `createSpan` are not duplicated
+    t.ok(
+      createSpanSpy.hasBeenCalled(1),
+      `spans created: expected 1, actual ${createSpanSpy.calls.length}`,
+    );
   });
   await client.close();
   t.end();
@@ -183,17 +183,11 @@ test('await MongoClient.connect(url)', async function (t) {
 
 test('ensure run context', async function (t) {
   resetAgent(5, function noop() {});
-  const clientOnSpy = spyOn(t, MongoClient.prototype, 'on');
+  const createSpanSpy = spyOn(t, agent._instrumentation, 'createSpan');
 
   const client = await MongoClient.connect(url);
   agent.startTransaction('t0');
   const collection = client.db('elasticapm').collection('test');
-
-  // Make sure we register the handlers once
-  t.ok(
-    clientOnSpy.hasBeenCalled(3),
-    `3 event handlers registered: actual ${clientOnSpy.calls.length}`,
-  );
 
   // There was a time when the spans created for Mongo client commands, while
   // one command was already inflight, would be a child of the inflight span.
@@ -222,6 +216,11 @@ test('ensure run context', async function (t) {
         `span ${s.type}.${s.subtype} "${s.name}" is a child of the transaction`,
       );
     });
+    // Internal calls to `createSpan` are not duplicated
+    t.ok(
+      createSpanSpy.hasBeenCalled(3),
+      `spans created: expected 3, actual ${createSpanSpy.calls.length}`,
+    );
   });
   await client.close();
   t.end();
