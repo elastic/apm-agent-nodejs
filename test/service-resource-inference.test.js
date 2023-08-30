@@ -23,7 +23,6 @@ const apm = require('..').start({
 });
 
 const test = require('tape');
-const { URL } = require('url');
 
 test('setup: current trans', (t) => {
   apm.startTransaction('aTrans', 'manual');
@@ -48,24 +47,7 @@ testData.forEach((testDatum) => {
         span.setDbContext(testDatum.span.context.db);
       }
       if (testDatum.span.context.http) {
-        // service_resource_inference.json oddly provides context.http.url as
-        // an object with "host" and "port" fields, rather than as a URL string
-        // as accepted by the intake API. So we need to construct it.
-        // UPDATE: there is a PR fixing it https://github.com/elastic/apm-agent-nodejs/pull/3589
-        // making this test fail so for a short period we need to accept both cases
-        // before removing this tweak.
-        const httpContext = Object.assign({}, testDatum.span.context.http);
-        if (httpContext.url && typeof httpContext.url !== 'string') {
-          const u = new URL('', 'http://example.com');
-          if (httpContext.url.host) {
-            u.hostname = httpContext.url.host;
-          }
-          if (httpContext.url.port) {
-            u.port = httpContext.url.port;
-          }
-          httpContext.url = u.href;
-        }
-        span.setHttpContext(httpContext);
+        span.setHttpContext(testDatum.span.context.http);
       }
       if (testDatum.span.context.message) {
         span.setMessageContext(testDatum.span.context.message);
