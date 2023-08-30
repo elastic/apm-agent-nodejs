@@ -196,15 +196,15 @@
         "http": {
           "url": {
             "host": "my-cluster.com",
-            "port": -1
+            "port": "80"
           }
         }
       }
     },
-    "expected_resource": "my-cluster.com",
+    "expected_resource": "my-cluster.com:80",
     "expected_service_target": {
       "type": "http",
-      "name": "my-cluster.com"
+      "name": "my-cluster.com:80"
     },
     "failure_message": "Negative `context.http.url.port` should be omitted from output"
   },
@@ -216,15 +216,16 @@
       "context": {
         "http": {
           "url": {
-            "host": "my-cluster.com"
+            "host": "my-cluster.com",
+            "port": "80"
           }
         }
       }
     },
-    "expected_resource": "my-cluster.com",
+    "expected_resource": "my-cluster.com:80",
     "expected_service_target": {
       "type": "http",
-      "name": "my-cluster.com"
+      "name": "my-cluster.com:80"
     },
     "failure_message": "If `context.http.url.port` does not exist, output should be `${context.http.url.host}`"
   },
