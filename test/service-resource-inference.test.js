@@ -23,7 +23,6 @@ const apm = require('..').start({
 });
 
 const test = require('tape');
-const { URL } = require('url');
 
 test('setup: current trans', (t) => {
   apm.startTransaction('aTrans', 'manual');
