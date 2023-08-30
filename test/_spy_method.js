@@ -46,7 +46,7 @@ function spyOn(test, target, method) {
     throw Error(`spyOn: method ${method} is not a function`);
   }
   if (typeof target[method][kOrigFunction] === 'function') {
-    throw Error(`spyOn: method ${method} is already used`);
+    throw Error(`spyOn: method ${method} is already being spied on`);
   }
 
   const orig = target[method];
