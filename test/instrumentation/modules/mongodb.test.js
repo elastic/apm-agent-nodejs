@@ -34,7 +34,6 @@ const test = require('tape');
 
 const mockClient = require('../../_mock_http_client');
 const mockClientStates = require('../../_mock_http_client_states');
-const { spyOn } = require('../../_spy_method');
 
 const mongodbSupportsCallbacks = semver.satisfies(
   require('mongodb/package.json').version,
@@ -154,7 +153,6 @@ test('await MongoClient.connect(url)', async function (t) {
   // *after* the test async function resolves. Instead we make a Promise for
   // `agent.flush(cb)`, do all assertions when that is complete, and await that.
   resetAgent(2, function noop() {});
-  const createSpanSpy = spyOn(t, agent._instrumentation, 'createSpan');
 
   const client = await MongoClient.connect(url);
 
@@ -165,17 +163,17 @@ test('await MongoClient.connect(url)', async function (t) {
   await promisify(agent.flush.bind(agent))().then(function (err) {
     t.error(err, 'no error from agent.flush()');
     const data = agent._apmClient._writes;
-    t.equal(data.transactions[0].name, 't0', 'transaction.name');
+    const trans = data.transactions[0];
+    t.equal(trans.name, 't0', 'transaction.name');
+    t.equal(
+      trans.span_count.started,
+      1,
+      'transaction.span_count.started (no duplicate started spans)',
+    );
     t.equal(data.spans.length, 1);
     t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name');
     t.equal(data.spans[0].subtype, 'mongodb', 'span.subtype');
     t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id');
-
-    // Internal calls to `createSpan` are not duplicated
-    t.ok(
-      createSpanSpy.hasBeenCalled(1),
-      `spans created: expected 1, actual ${createSpanSpy.calls.length}`,
-    );
   });
   await client.close();
   t.end();
@@ -183,7 +181,6 @@ test('await MongoClient.connect(url)', async function (t) {
 
 test('ensure run context', async function (t) {
   resetAgent(5, function noop() {});
-  const createSpanSpy = spyOn(t, agent._instrumentation, 'createSpan');
 
   const client = await MongoClient.connect(url);
   agent.startTransaction('t0');
@@ -207,7 +204,13 @@ test('ensure run context', async function (t) {
   await promisify(agent.flush.bind(agent))().then(function (err) {
     t.error(err, 'no error from agent.flush()');
     const data = agent._apmClient._writes;
-    t.equal(data.transactions[0].name, 't0', 'transaction.name');
+    const trans = data.transactions[0];
+    t.equal(trans.name, 't0', 'transaction.name');
+    t.equal(
+      trans.span_count.started,
+      4,
+      'transaction.span_count.started (no duplicate started spans)',
+    );
     t.equal(data.spans.length, 4);
     data.spans.forEach((s) => {
       t.equal(
@@ -216,11 +219,6 @@ test('ensure run context', async function (t) {
         `span ${s.type}.${s.subtype} "${s.name}" is a child of the transaction`,
       );
     });
-    // Internal calls to `createSpan` are not duplicated
-    t.ok(
-      createSpanSpy.hasBeenCalled(3),
-      `spans created: expected 3, actual ${createSpanSpy.calls.length}`,
-    );
   });
   await client.close();
   t.end();
