@@ -98,9 +98,8 @@ create-arn-file: validate-release-notes-url
 
 github-release: validate-ref-name
 	@gh release list
-	@gh \
-		release \
-		create $(GITHUB_REF_NAME) \
+	@gh release create $(GITHUB_REF_NAME) \
+		--latest \
 		--title '$(GITHUB_REF_NAME)' \
 		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE)
 
