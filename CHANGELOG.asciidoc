@@ -37,6 +37,8 @@ Notes:
 [float]
 ===== Features
 
+* Support instrumenting `mongodb` v6. ({pull}3596[#3596])
+
 [float]
 ===== Bug fixes
 
