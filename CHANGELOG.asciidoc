@@ -40,6 +40,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix instrumentation of `mongodb` to avoid multiple command handler
+  registrations when client is created via `MongoClient.connect` static
+  method. ({pull}3586[#3586])
+
 [float]
 ===== Chores
 
