@@ -19,7 +19,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 'v16.15.1'
+          node-version: 'v16.20.2'
 
       - uses: elastic/apm-pipeline-library/.github/actions/docker-login@current
         with:
