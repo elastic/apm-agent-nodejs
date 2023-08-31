@@ -31,6 +31,27 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Support instrumenting `mongodb` v6. ({pull}3596[#3596])
+
+[float]
+===== Bug fixes
+
+* Fix instrumentation of `mongodb` to avoid multiple command handler
+  registrations when client is created via `MongoClient.connect` static
+  method. ({pull}3586[#3586])
+
+[float]
+===== Chores
+
+* Add default ports into `context.service.target.name` for HTTP spans conforming to the
+  spec update done in https://github.com/elastic/apm/pull/700 ({pull}3590[#3590])
+
 
 [[release-notes-3.49.1]]
 ==== 3.49.1 - 2023/08/09
