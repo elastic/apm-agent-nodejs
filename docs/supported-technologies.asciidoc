@@ -20,7 +20,9 @@ Versions of Node.js past their end-of-life date are not supported.
 
 image::./images/node_release_schedule.svg[Node.js release schedule]
 
-The current APM agent version (3.x) works with Node.js versions back to v8.6. We will only break support for older Node.js versions with a major version release of the APM agent.
+APM agent 4.x releases work with Node.js versions 14.5.0 and later.
+APM agent 3.x maintenance releases work with Node.js versions 8.6 and later.
+We will only break support for older Node.js versions with a major version release of the APM agent.
 
 [float]
 [[compatibility-esm]]
