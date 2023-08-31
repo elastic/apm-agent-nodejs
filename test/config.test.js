@@ -187,7 +187,6 @@ var optionFixtures = [
     false,
   ],
   ['verifyServerCert', 'ELASTIC_APM_VERIFY_SERVER_CERT', true],
-  // XXX ELASTIC_APM_
 ];
 
 var falsyValues = [false, 'false'];
