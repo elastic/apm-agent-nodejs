@@ -1,5 +1,5 @@
 {
-  "versions": [ 20, 19, 18, 16, 14, 12, 10, 8 ],
+  "versions": [ 20, 18, 16, 14, 12, 10, 8 ],
   "// modules": [
     "List of instrumented modules with the min Node version supported.",
     "minVersion for each module should be kept in sync with .tav.yml"

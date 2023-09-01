@@ -60,7 +60,6 @@ jobs:
         node:
           - "21"
           - "20"
-          - "19"
           - "18"
           - "16"
         contextManager: [ 'patch', '' ]
