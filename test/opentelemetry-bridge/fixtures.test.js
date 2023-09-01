@@ -739,7 +739,6 @@ cases.forEach((c) => {
               ELASTIC_APM_CENTRAL_CONFIG: 'false',
               ELASTIC_APM_CLOUD_PROVIDER: 'none',
               ELASTIC_APM_METRICS_INTERVAL: '0s',
-              ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS: 'true',
             }),
           },
           function done(err, _stdout, _stderr) {

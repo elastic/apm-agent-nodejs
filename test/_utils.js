@@ -256,7 +256,6 @@ function runTestFixtures(suite, testFixtures) {
     ELASTIC_APM_CENTRAL_CONFIG: 'false',
     ELASTIC_APM_CLOUD_PROVIDER: 'none',
     ELASTIC_APM_METRICS_INTERVAL: '0s',
-    ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS: 'true',
   };
   testFixtures.forEach((tf) => {
     const testName = tf.name ? `${tf.name} (${tf.script})` : tf.script;
