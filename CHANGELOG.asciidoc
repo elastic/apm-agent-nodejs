@@ -28,14 +28,69 @@ Notes:
         ==== x.x.x - YYYY/MM/DD
 ////
 
-[[release-notes-3.x]]
-=== Node.js Agent version 3.x
+[[release-notes-4.x]]
+=== Node.js Agent version 4.x
+
+See the <<upgrade-to-v4>> guide.
+
+==== Unreleased
 
 [float]
 ===== Breaking changes
 
+* Set the new minimum supported Node.js to version 14.5.0.
+  Users of earlier Node.js versions can use elastic-apm-node v3.x, which
+  supports back to Node.js v8.6.
+
+* Ignore a `timer` option passed to `startTransaction()` and `startSpan()` APIs.
+  This option was never documented. It would be surprising if any user is
+  impacted by this.
+
+* Remove long deprecated support for the `ELASTIC_APM_`-prefixed environment
+  variables for the <<kubernetes-node-name,Kubernetes config options>>. For
+  example, one must use `KUBERNETES_POD_NAME` and not
+  `ELASTIC_APM_KUBERNETES_POD_NAME`. ({issues}2661[#2661])
+
+* The config option `filterHttpHeaders` is now _removed_. ({pull}3539[#3539])
+
+* Remove the deprecated `span.toString()` and `transaction.toString()` APIs.
+  See <<v4-api-to-string,the upgrading doc>> for details. ({issues}2348[#2348])
+
+* Remove instrumentation support for the old 'hapi' package -- the current
+  '@hapi/hapi' package is still instrumented. ({issues}2691[#2691])
+
+* Change `apm.startTransaction()` api to return a noop transaction instead of
+  null, if the agent is not yet started. ({issues}2429[#2429])
+
+* Drop support for the obsolete "patch" context manager, i.e. the
+  `contextManager: "patch"` config option. This was a limited async context
+  management that predated the preferred `AsyncLocalStorage` core Node.js
+  mechanism for context tracking. It was deprecated in v3.37.0.  As well, the
+  related and deprecated `asyncHooks` config option has been removed.
+  ({issues}3529[#3529])
+
+* Remove the `logUncaughtExceptions` config option.
+  See <<v4-config-options,Upgrading to v4>> for details.
+  ({issues}2412[#2412])
+
+* Remove `transaction.subtype` and `transaction.action` properties from API.
+  This also impacts <<apm-start-transaction>> and `transaction.setType(...)`,
+  both of which now no longer accept `subtype` and `action` parameters.
+  These two properties were deprecated in v3.25.0.
+  ({issues}3557[#3557])
+
+* Remove support for the erroneous `ELASTIC_SANITIZE_FIELD_NAMES` and
+  `ELASTIC_IGNORE_MESSAGE_QUEUES` config environment variables. The correct env
+  vars are `ELASTIC_APM_SANITIZE_FIELD_NAMES` and
+  `ELASTIC_APM_IGNORE_MESSAGE_QUEUES`, respectively, and were supported starting
+  in v3.36.0.
+
 [float]
 ===== Features
+
+* The `apm.destroy()` method is now async. Almost no users should need to use
+  this method. However, if used, to be sure to wait for APM agent shutdown to
+  be complete, one can now `await apm.destroy()`. ({issues}3222[#3222])
 
 * Support instrumenting `mongodb` v6. ({pull}3596[#3596])
 
@@ -49,9 +104,24 @@ Notes:
 [float]
 ===== Chores
 
+* Add a warning message when a duration or size config option is provided
+  without units. ({issues}2121[#2121])
+
+* Change default value of `useElasticTraceparentHeader` config option to `false`.
+  This means that for outgoing HTTP requests, the APM agent will no longer add the
+  `elastic-apm-traceparent` header. This vendor-specific header was used in the past
+  while the https://w3c.github.io/trace-context/[W3C trace-context] spec was still
+  in development. Now that it is in wide use, the `elastic-apm-traceparent` header is
+  only useful for interaction with very old Elastic APM agents.
+
 * Add default ports into `context.service.target.name` for HTTP spans conforming to the
   spec update done in https://github.com/elastic/apm/pull/700 ({pull}3590[#3590])
 
+
+[[release-notes-3.x]]
+=== Node.js Agent version 3.x
+
+// To see the changelog for later 3.x release, see the "3.x" branch: <https://github.com/elastic/apm-agent-nodejs/blob/3.x/CHANGELOG.asciidoc>
 
 [[release-notes-3.49.1]]
 ==== 3.49.1 - 2023/08/09
@@ -236,7 +306,7 @@ in a Worker will *not* start the APM agent. Instead, one must use:
 [float]
 ===== Chores
 
-* The config option <<filter-http-headers, filterHttpHeaders>> is now *deprecated*. It will be
+* The config option `filterHttpHeaders` is now *deprecated*. It will be
   removed in a future major version. ({pull}3333[#3333])
 
 * Add cookie map in transactions' request context and redact cookie header ({pull}3322[#3322])
@@ -617,7 +687,7 @@ paths are considered for request body capture. ({pull}2873[#2873])
 +
 This also adds a new <<context-manager,`contextManager`>> configuration option
 to control which mechanism the agent uses for run-context tracking. It replaces
-the, now deprecated, <<async-hooks,`asyncHooks`>> configuration option. If
+the, now deprecated, `asyncHooks` configuration option. If
 you experience problems with the new AsyncLocalStorage-based tracking, you can
 restore the older behavior with `contextManager: "asynchooks"`.
 
@@ -1254,9 +1324,8 @@ added to multiple events.
   of (re)implementing Lambda support ({pull}2363[#2363]). Some fixes for better
   flushing of data at the end of a Lambda invocation.
 
-* <<span-to-string,`span.toString()`>> and <<transaction-to-string,`transaction.toString()`>>
-  have been *deprecated*. The exact string output may change in v4 of the
-  agent.
+* `span.toString()` and `transaction.toString()` have been *deprecated*. The
+  exact string output may change in v4 of the agent.
 
 * Add `Span.ids` and `Transaction.ids` to TypeScript types. ({pull}2347[#2347])
 

@@ -26,7 +26,7 @@ npm install elastic-apm-node --save
 [[hapi-initialization]]
 ==== Initialization
 
-It's important that the agent is started before you require *any* other modules in your Node.js application - i.e. before `hapi`, `http`, etc.
+It's important that the agent is started before you require *any* other modules in your Node.js application - i.e. before `@hapi/hapi`, `http`, etc.
 
 This means that you should probably require and start the agent in your application's main file (usually `index.js`, `server.js` or `app.js`).
 

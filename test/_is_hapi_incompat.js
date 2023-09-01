@@ -8,11 +8,10 @@
 
 var semver = require('semver');
 
-// 'hapi' and '@hapi/hapi' versions have some challenges with compat with
-// various versions of node. This method tells you if the current versions
-// are incompatible.
-function isHapiIncompat(moduleName) {
-  var hapiVersion = require(`${moduleName}/package.json`).version;
+// '@hapi/hapi' versions have some challenges with compat with various versions
+// of node. This method tells you if the current versions are incompatible.
+function isHapiIncompat() {
+  var hapiVersion = require(`@hapi/hapi/package.json`).version;
 
   // hapi 17+ requires Node.js 8.9.0 or higher
   if (

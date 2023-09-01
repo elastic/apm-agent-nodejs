@@ -38,12 +38,9 @@ jobs:
       fail-fast: false
       matrix:
         node: [ "21" ]
-        contextManager: [ 'patch', '' ]
     steps:
       - uses: actions/checkout@v3
       - run: .ci/scripts/test.sh -b "nightly" "${{ matrix.node }}"
-        env:
-          ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}
 
   # This should list all the Node.js major versions listed at
   # https://nodejs.org/en/about/releases/, plus the next version (for which
@@ -62,10 +59,8 @@ jobs:
           - "20"
           - "18"
           - "16"
-        contextManager: [ 'patch', '' ]
     steps:
       - uses: actions/checkout@v3
       - run: .ci/scripts/test.sh -b "rc" "${{ matrix.node }}"
         env:
           VERSION: ${{ matrix.node }}
-          ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}

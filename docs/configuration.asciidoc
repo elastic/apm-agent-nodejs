@@ -228,7 +228,8 @@ More information is available in {kibana-ref}/agent-configuration.html[APM Agent
 [[context-manager]]
 ==== `contextManager`
 
-[small]#Added in: v3.37.0#
+[small]#Added in: v3.37.0# +
+[small]#The "patch" context manager was removed in: v4.0.0#
 
 * *Type:* String
 * *Env:* `ELASTIC_APM_CONTEXT_MANAGER`
@@ -236,8 +237,8 @@ More information is available in {kibana-ref}/agent-configuration.html[APM Agent
 This configuration option provides a way to override the APM agent's default
 technique for tracking Node.js asynchronous tasks; sometimes referred to as "run
 context", "async context", or just "context". Most users should not need to
-change this setting. This setting replaces the older
-<<async-hooks,`asyncHooks`>> configuration option.
+change this setting. This setting replaces the older `asyncHooks` configuration
+option.
 
 To effectively trace an application, the APM agent needs to track the logical
 thread of control through asynchronous tasks. The preferred mechanism for this
@@ -245,32 +246,12 @@ is https://nodejs.org/api/async_context.html#class-asynclocalstorage[`AsyncLocal
 usable in Node.js versions >=14.5 and >=12.19. In older versions of Node, the APM
 agent will fallback to using
 https://nodejs.org/api/async_hooks.html[`async_hooks`], which can have a higher
-performance overhead, especially in Promise-heavy applications. Finally, the APM
-agent supports a limited tracking mechanism (named "patch") that monkey-patches
-much of the core Node.js API to attempt to follow asynchronous calls. The
-"patch" mechanism is limited in usage and coverage (for example, it cannot
-track `async/await` usage), is *deprecated* and will be removed in a future
-major version.
+performance overhead, especially in Promise-heavy applications.
 
 Supported values for `contextManager` are:
 
 - `"asynclocalstorage"` - Use the `AsyncLocalStorage` mechanism, if able. Otherwise it will fallback to using `async_hooks`.
 - `"asynchooks"` - Use the `async_hooks` mechanism. (Using this value will restore the agent behavior from before v3.37.0.)
-- `"patch"` - Use the limited monkey-patching mechanism. Note that this mechanism is now *deprecated*. (Using this value is the equivalent of using `asyncHooks: false` in agent versions before v3.37.0.)
-
-
-[[async-hooks]]
-==== `asyncHooks`
-
-[small]#Deprecated in: v3.37.0, use <<context-manager,`contextManager`>>#
-
-* *Type:* Boolean
-* *Env:* `ELASTIC_APM_ASYNC_HOOKS`
-
-This option is *deprecated* -- use <<context-manager,`contextManager`>> instead.
-
-The equivalent to `asyncHooks: false` is `contextManager: 'patch'`.
-The equivalent to `asyncHooks: true` is to leave both `asyncHooks` and `contextManager` empty, for the default behavior.
 
 
 [[transaction-ignore-urls]]
@@ -569,39 +550,40 @@ require('elastic-apm-node').start({
 [[capture-exceptions]]
 ==== `captureExceptions`
 
+[small]#As of v4.0.0 a captured exception will always be printed to stderr.#
+
 * *Type:* Boolean
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_CAPTURE_EXCEPTIONS`
 
-Whether or not the agent should monitor for uncaught exceptions
+Whether or not the APM agent should monitor for uncaught exceptions
 (https://nodejs.org/api/process.html#event-uncaughtexception[`uncaughtException`])
-and send them to the APM Server automatically.
+and send them to the APM Server automatically. This also includes unhandled
+rejections (https://nodejs.org/api/process.html#event-unhandledrejection[`unhandledRejection`]),
+when the node process is started with `--unhandled-rejections=throw`, which is
+the default Node.js behavior since v15 (https://nodejs.org/api/cli.html#--unhandled-rejectionsmode[reference]).
 
-After sending the error information to APM Server, then agent will
-`process.exit(1)`.  This is to mimic the default Node.js behavior of exiting
-when there is an uncaught exception and no `uncaughtException` handler. The
-agent's process exit can interfere with an `uncaughtException` handler from your
-application. You can use <<apm-handle-uncaught-exceptions, `apm.handleUncaughtExceptions(callback)`>>
-to have the APM agent capture error information, then call your handler.
+When `captureExceptions` is true and an `uncaughtException` event is emitted,
+the APM agent will: capture error details, send that error (and buffered
+APM data) to APM server, and `process.exit(1)` (https://nodejs.org/api/process.html#warning-using-uncaughtexception-correctly[as `uncaughtException` handlers should]).
+Some things to be aware of:
 
-Another side-effect is that the APM agent does not log the uncaught exception
-to stderr by default. Use <<log-uncaught-exceptions, `logUncaughtExceptions: true`>>
-to have the agent print the exception to stderr before exiting.
+- Because the APM agent's handler will `process.exit(1)`, to use your own
+  `uncaughtException` handler, you must pass your handler to
+  <<apm-handle-uncaught-exceptions>>. The APM agent will capture and send the
+  error, and then call your handler. It is then up to your handler to
+  `process.exit(1)`.
+- The APM agent's handler is async, so there is a short period while it is
+  sending error details while the Node.js event loop will still be executing.
+- When the exception and stack trace are printed to stderr, the exact format
+  differs from https://github.com/nodejs/node/blob/v20.5.0/src/node_errors.cc#L246-L266[the Node.js core formatter].
+- Using Node.js's https://nodejs.org/api/process.html#processsetuncaughtexceptioncapturecallbackfn[`process.setUncaughtExceptionCaptureCallback(fn)`]
+  results in `uncaughtException` not being called, so the APM agent's capturing
+  will not work.
 
-Unhandled rejections (https://nodejs.org/api/process.html#event-unhandledrejection[`unhandledRejection`])
-will also be captured if your node process starts with `--unhandled-rejections` mode set to
-`strict` or `throw`. If your application run on Node.js 15+ you don't need to explicitly set the mode
-since `throw` is the default (https://nodejs.org/api/cli.html#--unhandled-rejectionsmode[reference]).
+Set `captureExceptions: false` to disable this, and get the default Node.js
+behavior for uncaught exceptions.
 
-[[log-uncaught-exceptions]]
-==== `logUncaughtExceptions`
-
-* *Type:* Boolean
-* *Default:* `false`
-* *Env:* `ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS`
-
-By default the stack trace of a uncaught exception is not written to STDERR when the agent is active.
-Set this config option to `true` to have the agent write stack traces of uncaught exceptions to STDERR.
 
 [[capture-error-log-stack-traces]]
 ==== `captureErrorLogStackTraces`
@@ -973,26 +955,6 @@ case-insensitive by default. You may make wildcard searches case-sensitive by
 using the `(?-i)` prefix. These patterns apply to the request and response HTTP headers, HTTP request cookies, and also any form field captured during an `application/x-www-form-urlencoded` data request.
 
 The `sanitizeFieldNames` will redact any matched _field names_.  If you wish to filter or _redact_ other data the <<apm-add-filter,API filtering functions>> may be a better choice.
-
-[[filter-http-headers]]
-==== `filterHttpHeaders`
-
-[small]#Deprecated in: v3.46.0
-
-* *Type:* Boolean
-* *Default:* `true`
-* *Env:* `ELASTIC_APM_FILTER_HTTP_HEADERS`
-
-`filterHttpHeaders` indicates whether the agent should redact sensitive fields in the `Cookie` HTTP request
-header. If true, the `Cookie` header will be parsed in to the `transaction.request.cookies` name/value
-mapping and any cookie fields that match the patterns in <<sanitize-field-names>> will be replaced with the
-string `[REDACTED]`. If false, the `Cookie` header will be left as is.
-
-This config option is *deprecated* and will be removed in a future major version. Use <<sanitize-field-names>>
-instead. To replicate `filterHttpHeaders: false`, modify `sanitizeFieldNames` so that no patterns match
-cookie fields that you do not want redacted.
-
-See also <<apm-add-filter,the filtering API>> for programmatic control of filtering APM data.
 
 [[disable-instrumentations]]
 ==== `disableInstrumentations`
@@ -1442,8 +1404,10 @@ The captured request body (if any) is stored on the `span.db.statement` field. C
 [[use-elastic-traceparent-header]]
 ==== `useElasticTraceparentHeader`
 
+[small]#Change default in v4.0.0, in v3.x the default was `true`#
+
 * *Type:* Boolean
-* *Default:* `true`
+* *Default:* `false`
 * *Env:* `ELASTIC_APM_USE_ELASTIC_TRACEPARENT_HEADER`
 
 To enable {apm-guide-ref}/apm-distributed-tracing.html[distributed tracing], the agent

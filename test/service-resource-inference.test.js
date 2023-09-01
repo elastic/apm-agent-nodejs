@@ -12,7 +12,6 @@
 const { CapturingTransport } = require('./_capturing_transport');
 const apm = require('..').start({
   serviceName: 'test-service-resource-inference',
-  logUncaughtExceptions: true,
   metricsInterval: '0s',
   centralConfig: false,
   logLevel: 'off',

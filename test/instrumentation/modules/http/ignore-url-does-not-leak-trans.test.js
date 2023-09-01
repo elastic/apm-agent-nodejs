@@ -27,30 +27,6 @@ const apm = require('../../../..').start({
   },
 });
 
-const { CONTEXT_MANAGER_PATCH } = require('../../../../lib/config/schema');
-if (
-  Number(process.versions.node.split('.')[0]) <= 8 &&
-  apm._conf.contextManager === CONTEXT_MANAGER_PATCH
-) {
-  // With node v8 and contextManager="patch", i.e. relying on patch-async.js, we
-  // do not support this test as written. Given node v8 support *and* arguably
-  // patch-async.js support are near EOL, it isn't worth rewriting this test
-  // case.
-  //
-  // Details: The 'only have the span for the http *request*' assert below fails
-  // because patch-async.js cannot fully patch node v8's "lib/net.js".
-  // Specifically, before https://github.com/nodejs/node/pull/19147 (which was
-  // part of node v10), Node would internally use a private `nextTick`:
-  //    const { nextTick } = require('internal/process/next_tick');
-  // instead of `process.nextTick`. patch-async.js is only able to patch the
-  // latter. This means a missed patch of "emitListeningNT" used to emit
-  // the server "listening" event, and context loss for `onListen()` below.
-  console.log(
-    '# SKIP node <=8 and contextManager="patch" loses run context for server.listen callback',
-  );
-  process.exit();
-}
-
 var http = require('http');
 var test = require('tape');
 

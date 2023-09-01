@@ -7,7 +7,6 @@
 // print name of error.prepareStackTrace function to STDOUT
 require('../../../').start({
   serviceName: 'test-get-prepare-stacktrace',
-  logUncaughtExceptions: true,
   metricsInterval: 0,
   centralConfig: false,
   logLevel: 'off',

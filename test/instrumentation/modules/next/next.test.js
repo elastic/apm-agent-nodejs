@@ -56,12 +56,6 @@ if (semver.lt(process.version, '14.6.0')) {
   console.log(`# SKIP test next with node <14.6.0 (node ${process.version})`);
   process.exit();
 }
-if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
-  console.log(
-    '# SKIP Next.js instrumentation does not work with contextManager="patch"',
-  );
-  process.exit();
-}
 
 const testAppDir = path.join(__dirname, 'a-nextjs-app');
 

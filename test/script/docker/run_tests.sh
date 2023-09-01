@@ -36,7 +36,7 @@ NODE_VERSION=${1} docker-compose --no-ansi --log-level ERROR -f ./test/docker-co
   --rm node_tests \
   /bin/bash \
   -c "npm config set cache ${docker_npm_cache} --global
-      npm install
+      npm ci
       node --version
       npm --version
       ${CMD}"

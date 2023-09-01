@@ -6,6 +6,7 @@ on:
   push:
     branches:
     - main
+    - 3.x
     paths-ignore:
     - '**/*.md'
     - '**/*.asciidoc'
@@ -14,6 +15,7 @@ on:
   pull_request:
     branches:
     - main
+    - 3.x
     paths-ignore:
     - '**/*.md'
     - '**/*.asciidoc'
@@ -35,7 +37,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm install
+      - run: npm ci
       - run: npm run lint
 
   test-vers:
@@ -127,19 +129,13 @@ jobs:
       matrix:
         node:
           - '20'
+          - '20.0'
           - '18'
           - '18.0'
           - '16'
           - '16.0'
           - '14'
           - '14.0'
-          - '12'
-          - '12.0'
-          - '10'
-          - '10.0'
-          - '8'
-          - '8.6'
-        contextManager: [ 'patch', '' ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -147,12 +143,10 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     - run: docker ps  # show the services against which we'll be testing
-    - run: npm install
+    - run: npm ci
     - run: npm ls --all || true
     - name: npm test
       run: npm test
-      env:
-        ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}
     - uses: inception-health/otel-upload-test-artifact-action@v1
       if: always()
       continue-on-error: true
@@ -174,7 +168,7 @@ jobs:
         # which version more of our users are using.
         node-version: 16
         cache: 'npm'
-    - run: npm install
+    - run: npm ci
     - run: npm ls --all || true
     # Run a subset of tests that we can reasonably get running on Windows CI.
     - run: node test/test.js
