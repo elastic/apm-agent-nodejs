@@ -1757,7 +1757,7 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
 
   suite.test('ignoreMessageQueues via env', function (t) {
     const agent = new Agent();
-    process.env.ELASTIC_IGNORE_MESSAGE_QUEUES = 'f*o,bar,baz';
+    process.env.ELASTIC_APM_IGNORE_MESSAGE_QUEUES = 'f*o,bar,baz';
     agent.start(agentOptsNoopTransport);
     t.equals(
       agent._conf.ignoreMessageQueues.length,
@@ -2060,10 +2060,6 @@ test('env variable names start with "ELASTIC_APM_" prefix', (t) => {
     'KUBERNETES_NODE_NAME',
     'KUBERNETES_POD_NAME',
     'KUBERNETES_POD_UID',
-    // These are for backward compatibility -- they were accidentally added
-    // with the wrong prefix.
-    'ELASTIC_SANITIZE_FIELD_NAMES',
-    'ELASTIC_IGNORE_MESSAGE_QUEUES',
   ];
   for (const name of names) {
     if (exclusions.indexOf(name) !== -1) {
