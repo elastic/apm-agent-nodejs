@@ -7,13 +7,14 @@ endif::[]
 
 === Upgrade to v4.x
 
-The following is a guide on upgrading your APM Node.js agent
+The following is a guide on upgrading your usage of the Elastic APM Node.js agent
 (`elastic-apm-node`) from version 3.x to version 4.x.
 
 [[v4-nodejs]]
 ==== Node.js versions
 
-Version 4.0.0 of the Node.js APM agent supports Node.js v14.5.0 and later.
+Version 4.x of `elastic-apm-node` supports Node.js v14.5.0 and later.
+(The previous 3.x major supported back to Node.js v8.6.0.)
 
 
 [[v4-config-options]]
@@ -29,22 +30,33 @@ correct environment variables for these config vars are _without_ the
 <<kubernetes-pod-name,`KUBERNETES_POD_NAME`>> -- and has been documented that
 way since v2.11.0.
 
+**How to check.** Search for any usage of `ELASTIC_APM_KUBERNETES_` in your
+project. For example, using https://github.com/BurntSushi/ripgrep[ripgrep],
+run `rg ELASTIC_APM_KUBERNETES_`. If there are any hits, remove the
+`ELASTIC_APM_` prefix.
+
 ===== `filterHttpHeaders`
 
 Support for `filterHttpHeaders` config option has been removed. Redaction of
 HTTP headers and also request cookies is controlled by the existing config
 option <<sanitize-field-names, `sanitizeFieldNames`>>.
 
+**How to check.** Search your project for `rg filterHttpHeaders` or
+`rg ELASTIC_APM_FILTER_HTTP_HEADERS` and remove them.
+
 ===== `useElasticTraceparentHeader`
 
 The default value of the <<use-elastic-traceparent-header>> config option has
 changed to `false`. This means that the vendor-specific
 `elastic-apm-traceparent` header will no longer be added to outgoing HTTP
-requests. The `traceparent` header (from the
+requests by default. The `traceparent` header (from the
 https://w3c.github.io/trace-context/[W3C trace-context standard]) is added by
-the APM agent. If you want the agent to continue sending
+the APM agent. If you need the agent to continue sending
 `elastic-apm-traceparent` HTTP header you can set it to `true` via env var or
 start options.
+
+**How to check.** Search your project for `rg useElasticTraceparentHeader` or
+`rg ELASTIC_APM_USE_ELASTIC_TRACEPARENT_HEADER`.
 
 ===== `contextManager: "patch"`
 
@@ -53,6 +65,11 @@ This was a limited async context management that predated the preferred
 `AsyncLocalStorage` core Node.js mechanism for context tracking. As well, the
 related and deprecated `asyncHooks` config option has been removed. Both were
 deprecated in v3.37.0.
+
+**How to check.** Search your project for `rg -w contextManager` or
+`rg -w ELASTIC_APM_CONTEXT_MANAGER` which set the value to "patch". Also search
+for `rg -w asyncHooks` or `rg -w ELASTIC_APM_ASYNC_HOOKS` which set the value to
+`false`. If so, that config setting is no longer supported.
 
 ===== `logUncaughtExceptions`
 
@@ -64,18 +81,24 @@ default. In v4, printing the error to stderr is done by default (to mimic the
 default Node.js uncaught exception behavior) and there is no option to disable
 that.
 
+**How to check.** Search your project for `rg -w logUncaughtExceptions` or
+`rg -w ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS` and remove any usages.
 
 [[v4-api-changes]]
 ==== API changes
 
 [[v4-api-start-transaction]]
-===== `agent.startTransaction(...)`
+===== `apm.startTransaction(...)`
 
 The `apm.startTransaction()` method has been changed to return a do-nothing
 no-op Transaction, if the agent is not yet started. The return type has changed to
 no longer include `| null`. The intent of these changes is to allow the user to use
 `.startTransaction()` without having to worry if the agent is yet started, nor to
 have to handle a possible `null` return value.
+
+**How to check.** Search your project for `rg '\.startTransaction\b'`. If your
+code handled a possible `null` return value from this function call, you can
+remove that handling.
 
 [[v4-api-transaction-subtype-action]]
 ===== `transaction.subtype` and `transaction.action`
@@ -84,6 +107,14 @@ The `subtype` and `action` properties have been removed from `Transaction`.
 This also impacts <<apm-start-transaction>> and `transaction.setType(...)`,
 both of which now no longer accept `subtype` and `action` parameters.
 These two properties were deprecated in v3.25.0.
+
+**How to check.** Search your project for `rg '\.startTransaction\b'`. If your
+code passed in `subtype` or `action` arguments, e.g.
+`apm.startTransaction('a-name', 'a-type', 'a-subtype', 'an-action', { /* options */ })`,
+then those need to be updated.  Also search your project for `rg '\.subtype\b'`
+and `rg '\.action\b'`. If those property accesses are on an APM Transaction
+object, then you should remove them. (Note that `subtype` and `action` on
+APM **Span** objects remain in the API.)
 
 [[v4-api-to-string]]
 ===== `span.toString()`, `transaction.toString()`
