@@ -15,7 +15,6 @@ on:
   pull_request:
     branches:
     - main
-    - dev/4.x  # XXX remove before merging
     - 3.x
     paths-ignore:
     - '**/*.md'
