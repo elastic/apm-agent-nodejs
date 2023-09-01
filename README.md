@@ -12,7 +12,7 @@ If you have any feedback or questions, please post them on the
 [Discuss forum](https://discuss.elastic.co/tags/c/apm/nodejs).
 
 [![npm](https://img.shields.io/npm/v/elastic-apm-node.svg)](https://www.npmjs.com/package/elastic-apm-node)
-[![tests](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)](https://github.com/elastic/apm-agent-nodejs/actions/workflows/test.yml)
+[![tests](https://github.com/github/docs/actions/workflows/test.yml/badge.svg)](https://github.com/elastic/apm-agent-nodejs/actions/workflows/test.yml)
 
 
 ## Installation
