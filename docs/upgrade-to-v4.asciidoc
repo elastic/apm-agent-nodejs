@@ -84,6 +84,15 @@ that.
 **How to check.** Search your project for `rg -w logUncaughtExceptions` or
 `rg -w ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS` and remove any usages.
 
+===== `ELASTIC_SANITIZE_FIELD_NAMES`, `ELASTIC_IGNORE_MESSAGE_QUEUES`
+
+Support for the erroneous `ELASTIC_SANITIZE_FIELD_NAMES` and
+`ELASTIC_IGNORE_MESSAGE_QUEUES` config environment variables has been removed.
+The correct env vars are `ELASTIC_APM_SANITIZE_FIELD_NAMES` and
+`ELASTIC_APM_IGNORE_MESSAGE_QUEUES`, respectively, and were supported starting
+in v3.36.0.
+
+
 [[v4-api-changes]]
 ==== API changes
 

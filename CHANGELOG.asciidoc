@@ -79,6 +79,12 @@ See the <<upgrade-to-v4>> guide.
   These two properties were deprecated in v3.25.0.
   ({issues}3557[#3557])
 
+* Remove support for the erroneous `ELASTIC_SANITIZE_FIELD_NAMES` and
+  `ELASTIC_IGNORE_MESSAGE_QUEUES` config environment variables. The correct env
+  vars are `ELASTIC_APM_SANITIZE_FIELD_NAMES` and
+  `ELASTIC_APM_IGNORE_MESSAGE_QUEUES`, respectively, and were supported starting
+  in v3.36.0.
+
 [float]
 ===== Features
 

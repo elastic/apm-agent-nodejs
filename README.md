@@ -1,79 +1,120 @@
 # Elastic APM Node.js Agent
 
-This is the official Node.js agent for [Elastic APM](https://www.elastic.co/solutions/apm).
+This is the official Node.js [application performance monitoring](https://www.elastic.co/observability/application-performance-monitoring)
+(APM) agent for the Elastic Observability solution. It is a Node.js package
+that runs with your Node.js application to automatically capture errors, tracing
+data, and performance metrics. APM data is sent to your Elastic Observability
+deployment -- hosted in [Elastic's cloud](https://www.elastic.co/cloud/) or in
+your own on-premises deployment -- where you can monitor your application,
+create alerts, and quick identify root causes of service issues.
 
-If you have any feedback or questions,
-please post them on the [Discuss forum](https://discuss.elastic.co/c/apm).
+If you have any feedback or questions, please post them on the
+[Discuss forum](https://discuss.elastic.co/tags/c/apm/nodejs).
 
 [![npm](https://img.shields.io/npm/v/elastic-apm-node.svg)](https://www.npmjs.com/package/elastic-apm-node)
-[![Build Status](https://apm-ci.elastic.co/buildStatus/icon?job=apm-agent-nodejs%2Fapm-agent-nodejs-mbp%2F3.x)](https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/3.x/)
+[![tests](https://github.com/github/docs/actions/workflows/test.yml/badge.svg)](https://github.com/elastic/apm-agent-nodejs/actions/workflows/test.yml)
 
 
 ## Installation
 
 ```
-npm install elastic-apm-node --save
+npm install --save elastic-apm-node
 ```
 
-## Quick start
+## Getting started
 
-1. To run Elastic APM for your own applications,
-   make sure you have the prerequisites in place first.
-   This agent is compatible with [APM Server](https://github.com/elastic/apm-server) v6.5 and above.
-   For support for previous releases of the APM Server,
-   use version [1.x](https://github.com/elastic/apm-agent-nodejs/tree/1.x) of the agent.
-   For details see [Getting Started with Elastic APM](https://www.elastic.co/guide/en/apm/get-started)
+First, you will need an Elastic Stack deployment. This is a deployment of APM
+Server (which receives APM data from the APM agent running in your application),
+Elasticsearch (the database that stores all APM data), and Kibana (the
+application that provides the interface to visualize and analyze the data). If
+you do not already have an Elastic deployment to use, follow [this APM Quick
+Start guide](https://www.elastic.co/guide/en/apm/guide/current/apm-quick-start.html)
+to create a free trial on Elastic's cloud. From this deployment you will need
+the APM **`serverUrl`** and **`secretToken`** (or a configured `apiKey`) to use
+for configuring the APM agent.
 
-1. Now follow the documentation links below relevant to your framework or stack to get set up
+Next, the best and easiest way to see how to install and start the APM agent is to follow
+[one of the "Get started" guides](https://www.elastic.co/guide/en/apm/agent/nodejs/current/set-up.html)
+for the web framework or technology that you are using:
+
+- [Get started with Express](https://www.elastic.co/guide/en/apm/agent/nodejs/current/express.html)
+- [Get started with Fastify](https://www.elastic.co/guide/en/apm/agent/nodejs/current/fastify.html)
+- [Get started with Koa](https://www.elastic.co/guide/en/apm/agent/nodejs/current/koa.html)
+- [Get started with hapi](https://www.elastic.co/guide/en/apm/agent/nodejs/current/hapi.html)
+- [Get started with Restify](https://www.elastic.co/guide/en/apm/agent/nodejs/current/restify.html)
+- [Get started with AWS Lambda](https://www.elastic.co/guide/en/apm/agent/nodejs/current/lambda.html)
+- [Get started with Azure Functions](https://www.elastic.co/guide/en/apm/agent/nodejs/current/azure-functions.html)
+- [Get started with TypeScript](https://www.elastic.co/guide/en/apm/agent/nodejs/current/typescript.html)
+
+Typically, the quick start steps are:
+
+1. Install the APM agent package as a dependency:
+
+    ```
+    npm install --save elastic-apm-node
+    ```
+
+2. Configure and start the APM agent. For the APM agent's automatic
+   instrumentation of popular modules to work, it must be started **before your
+   application imports its other dependencies**. For example, if you use
+   CommonJS, then put this at the *very top* of your main application file:
+
+    ```js
+    require('elastic-apm-node').start({
+        serverUrl: '<serverUrl from your Elastic Stack deployment>',
+        secretToken: '<secretToken from your Elastic Stack deployment>'
+        serviceName: '...', // https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html#service-name
+        environment: '...', // https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html#environment
+    });
+    ```
+
+There are other ways to start the APM agent: for example, to support starting
+the APM agent without having to change application code; or to avoid certain
+surprises when using TypeScript or other transpilers like Babel or esbuild. See
+[Starting the agent](https://www.elastic.co/guide/en/apm/agent/nodejs/current/starting-the-agent.html)
+for a reference of all ways to start the agent and for details on gotchas
+with transpilers and bundlers (like Webpack and esbuild).
+
+If your application is using ES modules, please see [ECMAScript module support](https://www.elastic.co/guide/en/apm/agent/nodejs/current/esm.html)
+for the current *experimental* support.
+
 
 ## Documentation
 
-- [Table of contents](https://www.elastic.co/guide/en/apm/agent/nodejs)
-- [Introduction](https://www.elastic.co/guide/en/apm/agent/nodejs/current/intro.html)
-- [Get started with Express](https://www.elastic.co/guide/en/apm/agent/nodejs/current/express.html)
-- [Get started with hapi](https://www.elastic.co/guide/en/apm/agent/nodejs/current/hapi.html)
-- [Get started with Koa](https://www.elastic.co/guide/en/apm/agent/nodejs/current/koa.html)
-- [Get started with Restify](https://www.elastic.co/guide/en/apm/agent/nodejs/current/restify.html)
-- [Get started with Fastify](https://www.elastic.co/guide/en/apm/agent/nodejs/current/fastify.html)
-- [Get started with Lambda](https://www.elastic.co/guide/en/apm/agent/nodejs/current/lambda.html)
-- [Get started with a custom Node.js stack](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-stack.html)
-- [Advanced Setup and Configuration](https://www.elastic.co/guide/en/apm/agent/nodejs/current/advanced-setup.html)
-- [API Reference](https://www.elastic.co/guide/en/apm/agent/nodejs/current/api.html)
-- [OpenTelemetry Bridge](https://www.elastic.co/guide/en/apm/agent/nodejs/current/opentelemetry-bridge.html)
-- [Custom Transactions](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html)
-- [Custom Spans](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-spans.html)
-- [Metrics](https://www.elastic.co/guide/en/apm/agent/nodejs/current/metrics.html)
-- [Performance Tuning](https://www.elastic.co/guide/en/apm/agent/nodejs/current/performance-tuning.html)
-- [Source Map Support](https://www.elastic.co/guide/en/apm/agent/nodejs/current/source-maps.html)
-- [Supported Technologies](https://www.elastic.co/guide/en/apm/agent/nodejs/current/supported-technologies.html)
-- [Upgrading](https://www.elastic.co/guide/en/apm/agent/nodejs/current/upgrading.html)
-- [Troubleshooting](https://www.elastic.co/guide/en/apm/agent/nodejs/current/troubleshooting.html)
+The full [Node.js APM agent documentation is here](https://www.elastic.co/guide/en/apm/agent/nodejs/current/intro.html).
+Some important links:
+
+- [Supported Technologies](https://www.elastic.co/guide/en/apm/agent/nodejs/current/supported-technologies.html) describes the supported Node.js versions, which modules (and version ranges) are automatically traced, and other technologies.
+- [Configuring the agent](https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuring-the-agent.html) describes the different ways to configure the APM agent (via options to `apm.start(...)`, environment variables, or other mechanisms).
+- [Configuration options](https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html) is a full configuration reference.
+- [Troubleshooting](https://www.elastic.co/guide/en/apm/agent/nodejs/current/troubleshooting.html) describes some common issues and a way to get debugging output from the APM agent for bug reports.
+- [Upgrading](https://www.elastic.co/guide/en/apm/agent/nodejs/current/upgrading.html) includes a guide for upgrading from each past major version of the APM agent.
+- [Metrics](https://www.elastic.co/guide/en/apm/agent/nodejs/current/metrics.html) describes the metrics that the APM agent automatically collects.
+- The APM agent includes an [OpenTelemetry Bridge](https://www.elastic.co/guide/en/apm/agent/nodejs/current/opentelemetry-bridge.html) that allows one to use the vendor-agnostic OpenTelemetry API for manual instrumentation in your application, should you require manual instrumentation.
 
 
 ## Active release branches
 
-Currently the only active release branch is the
-["main" branch](https://github.com/elastic/apm-agent-nodejs/tree/main), which is
-used for 3.x versions.
+The following git branches are active:
+
+- The ["main" branch](https://github.com/elastic/apm-agent-nodejs/tree/main) is being used for **4.x releases**.
+- The ["3.x" branch](https://github.com/elastic/apm-agent-nodejs/tree/3.x) is being used for **3.x maintenance releases**. The 3.x line will be [supported for 6 months](https://www.elastic.co/support/eol) after the release of v4.0.0.
 
 
 ## Contributing
 
-Contributions are welcome,
-but we recommend that you take a moment and read our [contribution guide](CONTRIBUTING.md) first.
+Contributions are very welcome. You can get in touch with us through our
+[Discuss forum](https://discuss.elastic.co/tags/c/apm/nodejs). If you have
+found an issue, you can open an issue at <https://github.com/elastic/apm-agent-nodejs/issues>.
 
-To see what data is being sent to the APM Server,
-use the environment variable `ELASTIC_APM_PAYLOAD_LOG_FILE` (or the config option `payloadLogFile`) to specify a log file,
-e.g:
-
-```
-ELASTIC_APM_PAYLOAD_LOG_FILE=/tmp/payload.ndjson
-```
+If you are considering contributing code to the APM agent, please read our
+[contribution guide](CONTRIBUTING.md).
 
 Please see [TESTING.md](TESTING.md) for instructions on how to run the test suite.
+
 
 ## License
 
 [BSD-2-Clause](LICENSE)
 
-<br>Made with ♥️ and ☕️ by Elastic and our community.
+<br>Made with ♥️ by Elastic and our community.

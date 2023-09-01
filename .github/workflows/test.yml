@@ -6,6 +6,7 @@ on:
   push:
     branches:
     - main
+    - 3.x
     paths-ignore:
     - '**/*.md'
     - '**/*.asciidoc'
@@ -14,7 +15,8 @@ on:
   pull_request:
     branches:
     - main
-    - dev/4.x
+    - dev/4.x  # XXX remove before merging
+    - 3.x
     paths-ignore:
     - '**/*.md'
     - '**/*.asciidoc'
@@ -128,7 +130,6 @@ jobs:
       matrix:
         node:
           - '20'
-          - '19'
           - '18'
           - '18.0'
           - '16'
