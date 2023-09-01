@@ -2060,10 +2060,6 @@ test('env variable names start with "ELASTIC_APM_" prefix', (t) => {
     'KUBERNETES_NODE_NAME',
     'KUBERNETES_POD_NAME',
     'KUBERNETES_POD_UID',
-    // These are for backward compatibility -- they were accidentally added
-    // with the wrong prefix.
-    'ELASTIC_SANITIZE_FIELD_NAMES',
-    'ELASTIC_IGNORE_MESSAGE_QUEUES',
   ];
   for (const name of names) {
     if (exclusions.indexOf(name) !== -1) {
