@@ -1757,7 +1757,7 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
 
   suite.test('ignoreMessageQueues via env', function (t) {
     const agent = new Agent();
-    process.env.ELASTIC_IGNORE_MESSAGE_QUEUES = 'f*o,bar,baz';
+    process.env.ELASTIC_APM_IGNORE_MESSAGE_QUEUES = 'f*o,bar,baz';
     agent.start(agentOptsNoopTransport);
     t.equals(
       agent._conf.ignoreMessageQueues.length,
