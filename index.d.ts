@@ -61,12 +61,12 @@ declare namespace apm {
     startTransaction(
       name?: string | null,
       options?: TransactionOptions
-    ): Transaction | null;
+    ): Transaction;
     startTransaction(
       name: string | null,
       type: string | null,
       options?: TransactionOptions
-    ): Transaction | null;
+    ): Transaction;
     setTransactionName (name: string): void;
     endTransaction (result?: string | number, endTime?: number): void;
     currentTransaction: Transaction | null;
