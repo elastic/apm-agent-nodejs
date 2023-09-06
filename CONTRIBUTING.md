@@ -218,7 +218,6 @@ A release involves the following published artifacts:
 If this is a new major release, then:
 
 - [Create an issue](https://github.com/elastic/website-requests/issues/new) to request an update of the [EOL table](https://www.elastic.co/support/eol).
-- Update the "Active release branches" section of the main README.
+- Update the "Active release branches" section of the main "README.md".
 - Update the "release.yml" for the new "N.x" *maintenance* branch as follows:
     - The `npm publish ...` call must include a `--tag=latest-<major>` option.
-    - The `gh release create ...` call must include a `--latest=false` option.
