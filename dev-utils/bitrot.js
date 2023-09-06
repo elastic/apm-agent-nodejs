@@ -40,7 +40,6 @@ const EXCUSE_FROM_SUPPORTED_TECHNOLOGIES_DOC = {
 const EXCUSE_FROM_TAV = {
   '@elastic/elasticsearch-canary': true,
   got: true, // got@12 is pure ESM so we state support up to got@11 only
-  hapi: true, // we deprecated 'hapi' (in favour of '@hapi/hapi')
   jade: true, // we deprecated 'jade' (in favour of 'pug')
   'mimic-response': true, // we instrument a single old version to indirectly support an old version of 'got'
   mongojs: true, // last release was in 2019, we aren't going to add effort to this module now
@@ -169,7 +168,6 @@ function loadSupportedDoc() {
   // The tables in supported-technologies.asciidoc have the module
   // name in the first column, and version range in the second. There
   // are two forms of the first cell to parse:
-  //      [ '<<hapi,hapi>>', '>=9.0.0 <19.0.0' ],
   //      [ '<<hapi,@hapi/hapi>>', '>=17.9.0 <20.0.0' ],
   //      [ '<<koa,Koa>> via koa-router or @koa/router', '>=5.2.0 <10.0.0' ],
   //      [ '<<restify,Restify>>', '>=5.2.0' ],

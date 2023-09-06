@@ -61,31 +61,12 @@ declare namespace apm {
     startTransaction(
       name?: string | null,
       options?: TransactionOptions
-    ): Transaction | null;
+    ): Transaction;
     startTransaction(
       name: string | null,
       type: string | null,
       options?: TransactionOptions
-    ): Transaction | null;
-    /**
-     * @deprecated Transaction 'subtype' is not used.
-     */
-    startTransaction(
-      name: string | null,
-      type: string | null,
-      subtype: string | null,
-      options?: TransactionOptions
-    ): Transaction | null;
-    /**
-     * @deprecated Transaction 'subtype' and 'action' are not used.
-     */
-    startTransaction(
-      name: string | null,
-      type: string | null,
-      subtype: string | null,
-      action: string | null,
-      options?: TransactionOptions
-    ): Transaction | null;
+    ): Transaction;
     setTransactionName (name: string): void;
     endTransaction (result?: string | number, endTime?: number): void;
     currentTransaction: Transaction | null;
@@ -130,7 +111,7 @@ declare namespace apm {
     addMetadataFilter (fn: FilterFn): void;
     flush (): Promise<void>;
     flush (callback?: Function): void;
-    destroy (): void;
+    destroy (): Promise<void>;
 
     // Utils
     logger: Logger;
@@ -154,14 +135,6 @@ declare namespace apm {
 
     name: string;
     type: string | null;
-    /**
-     * @deprecated Transaction 'subtype' is not used.
-     */
-    subtype: string | null;
-    /**
-     * @deprecated Transaction 'action' is not used.
-     */
-    action: string | null;
     traceparent: string;
     outcome: Outcome;
     result: string | number;
@@ -170,7 +143,7 @@ declare namespace apm {
       'transaction.id': string;
     }
 
-    setType (type?: string | null, subtype?: string | null, action?: string | null): void;
+    setType (type?: string | null): void;
     setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
     addLabels (labels: Labels, stringify?: boolean): boolean;
     setOutcome(outcome: Outcome): void;
@@ -236,7 +209,6 @@ declare namespace apm {
     apiKey?: string;
     apiRequestSize?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
     apiRequestTime?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
-    asyncHooks?: boolean;
     breakdownMetrics?: boolean;
     captureBody?: CaptureBody;
     captureErrorLogStackTraces?: CaptureErrorLogStackTraces;
@@ -256,10 +228,12 @@ declare namespace apm {
     disableSend?: boolean;
     elasticsearchCaptureBodyUrls?: Array<string>;
     environment?: string;
-    errorMessageMaxLength?: string; // DEPRECATED: use `longFieldMaxLength`.
+    /**
+     * @deprecated Use `longFieldMaxLength`
+     */
+    errorMessageMaxLength?: string;
     errorOnAbortedRequests?: boolean;
     exitSpanMinDuration?: string;
-    filterHttpHeaders?: boolean;
     frameworkName?: string;
     frameworkVersion?: string;
     globalLabels?: KeyValueConfig;
@@ -274,7 +248,6 @@ declare namespace apm {
     kubernetesPodName?: string;
     kubernetesPodUID?: string;
     logLevel?: LogLevel;
-    logUncaughtExceptions?: boolean;
     logger?: Logger; // Notably this Logger interface matches the Pino Logger.
     longFieldMaxLength?: number;
     maxQueueSize?: number;

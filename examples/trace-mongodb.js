@@ -12,7 +12,6 @@
 
 const apm = require('../').start({
   serviceName: 'example-trace-mongodb',
-  logUncaughtExceptions: true,
 });
 
 const MongoClient = require('mongodb').MongoClient;

@@ -9,7 +9,6 @@
 
 const agent = require('../../../').start({
   serviceName: 'test-capture-error-string',
-  logUncaughtExceptions: true,
   metricsInterval: 0,
   centralConfig: false,
   logLevel: 'off',

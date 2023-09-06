@@ -264,10 +264,6 @@ const cases = [
         'incoming http "traceparent" header',
       );
       t.ok(
-        trans.context.request.headers['elastic-apm-traceparent'],
-        'incoming http "elastic-apm-traceparent" header',
-      );
-      t.ok(
         (trans.context.request.headers.tracestate || '').indexOf('es=s:1') !==
           -1,
         'incoming http "tracestate" header has expected "es=" section',
@@ -743,7 +739,6 @@ cases.forEach((c) => {
               ELASTIC_APM_CENTRAL_CONFIG: 'false',
               ELASTIC_APM_CLOUD_PROVIDER: 'none',
               ELASTIC_APM_METRICS_INTERVAL: '0s',
-              ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS: 'true',
             }),
           },
           function done(err, _stdout, _stderr) {

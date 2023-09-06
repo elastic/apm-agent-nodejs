@@ -481,13 +481,6 @@ test('#ids', function (t) {
   t.end();
 });
 
-test('#toString()', function (t) {
-  var trans = new Transaction(agent);
-  var span = new Span(trans);
-  t.strictEqual(span.toString(), `trace.id=${span.traceId} span.id=${span.id}`);
-  t.end();
-});
-
 test('Span API on ended span', function (t) {
   const trans = agent.startTransaction('theTransName');
   const span = trans.startSpan(
@@ -523,11 +516,6 @@ test('Span API on ended span', function (t) {
     span.ids,
     { 'trace.id': traceId, 'span.id': spanId },
     'span.ids',
-  );
-  t.equal(
-    span.toString(), // deprecated
-    `trace.id=${traceId} span.id=${spanId}`,
-    span.toString(),
   );
 
   // We just want to ensure that the Span API methods don't throw. Whether

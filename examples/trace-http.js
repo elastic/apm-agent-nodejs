@@ -17,7 +17,6 @@
 
 require('../').start({
   serviceName: 'example-trace-http',
-  useElasticTraceparentHeader: false,
   // 'usePathAsTransactionName' can be useful when not using a web framework
   // with a router. See the following for details:
   // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-stack.html#custom-stack-route-naming

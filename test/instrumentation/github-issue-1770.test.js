@@ -9,7 +9,6 @@ const agent = require('../..').start({
   serviceName: 'test-github-issue-1770',
   centralConfig: false,
   metricsInterval: 0,
-  logUncaughtExceptions: true,
 });
 
 const tape = require('tape');

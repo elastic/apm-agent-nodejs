@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Install the given node version, put it on the PATH (hence requiring "source"
-# to use this) and `npm install`.
+# to use this) and `npm ci`.
 #
 # Usage:
 #   NODE_VERSION=...
@@ -44,4 +44,4 @@ npm --version
 echo "--- Install dependencies"
 set -x
 npm config list
-npm install
+npm ci

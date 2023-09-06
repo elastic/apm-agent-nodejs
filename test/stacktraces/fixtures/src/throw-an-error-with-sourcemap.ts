@@ -10,7 +10,6 @@
 import agent from '../../../../'
 agent.start({
   serviceName: 'test-throw-an-error-with-sourcemap',
-  logUncaughtExceptions: true,
   metricsInterval: '0',
   centralConfig: false,
   logLevel: 'off',
