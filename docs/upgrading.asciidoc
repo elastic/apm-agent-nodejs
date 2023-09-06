@@ -7,10 +7,10 @@ endif::[]
 
 == Upgrading
 
-The Elastic APM Node.js Agent uses https://semver.org/[semantic versioning], and therefore:
-
-* Upgrades between minor versions of the agent, like from 1.1 to 1.2 are always backwards compatible.
-* Upgrades that involve a major version bump often come with some backwards incompatible changes.
+The Elastic APM Node.js Agent uses https://semver.org/[semantic versioning], and
+therefore upgrades between minor versions of the agent, for example from 1.1 to
+1.2, are always backwards compatible. Upgrades that involve a major version bump
+often come with some backwards incompatible changes.
 
 Before upgrading the agent, be sure to review the:
 
@@ -19,9 +19,10 @@ Before upgrading the agent, be sure to review the:
 
 The following upgrade guides are available:
 
-* <<upgrade-to-v1,Upgrade to v1.x>> - Follow this guide to upgrade from version 0.x to version 1.x of the Elastic APM Node.js agent
-* <<upgrade-to-v2,Upgrade to v2.x>> - Follow this guide to upgrade from version 1.x to version 2.x of the Elastic APM Node.js agent
-* <<upgrade-to-v3,Upgrade to v3.x>> - Follow this guide to upgrade from version 2.x to version 3.x of the Elastic APM Node.js agent
+* <<upgrade-to-v4,Upgrade to v4.x>> from version 3.x of the Elastic APM Node.js agent.
+* <<upgrade-to-v3,Upgrade to v3.x>> from version 2.x of the Elastic APM Node.js agent.
+* <<upgrade-to-v2,Upgrade to v2.x>> from version 1.x of the Elastic APM Node.js agent.
+* <<upgrade-to-v1,Upgrade to v1.x>> from version 0.x of the Elastic APM Node.js agent.
 
 [float]
 [[end-of-life-dates]]
@@ -32,8 +33,12 @@ forward on future development and innovation.
 Our https://www.elastic.co/support/eol[End of life policy] defines how long a given release is considered supported,
 as well as how long a release is considered still in active development or maintenance.
 
-include::./upgrade-to-v1.asciidoc[Upgrade to v1.x]
+include::./upgrade-to-v4.asciidoc[Upgrade to v4.x]
+
+include::./upgrade-to-v3.asciidoc[Upgrade to v3.x]
 
 include::./upgrade-to-v2.asciidoc[Upgrade to v2.x]
 
-include::./upgrade-to-v3.asciidoc[Upgrade to v3.x]
+include::./upgrade-to-v1.asciidoc[Upgrade to v1.x]
+
+

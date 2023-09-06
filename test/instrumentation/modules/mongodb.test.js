@@ -155,6 +155,7 @@ test('await MongoClient.connect(url)', async function (t) {
   resetAgent(2, function noop() {});
 
   const client = await MongoClient.connect(url);
+
   agent.startTransaction('t0');
   await client.db('elasticapm').collection('test').findOne({ a: 1 });
   agent.endTransaction();
@@ -162,7 +163,13 @@ test('await MongoClient.connect(url)', async function (t) {
   await promisify(agent.flush.bind(agent))().then(function (err) {
     t.error(err, 'no error from agent.flush()');
     const data = agent._apmClient._writes;
-    t.equal(data.transactions[0].name, 't0', 'transaction.name');
+    const trans = data.transactions[0];
+    t.equal(trans.name, 't0', 'transaction.name');
+    t.equal(
+      trans.span_count.started,
+      1,
+      'transaction.span_count.started (no duplicate started spans)',
+    );
     t.equal(data.spans.length, 1);
     t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name');
     t.equal(data.spans[0].subtype, 'mongodb', 'span.subtype');
@@ -197,7 +204,13 @@ test('ensure run context', async function (t) {
   await promisify(agent.flush.bind(agent))().then(function (err) {
     t.error(err, 'no error from agent.flush()');
     const data = agent._apmClient._writes;
-    t.equal(data.transactions[0].name, 't0', 'transaction.name');
+    const trans = data.transactions[0];
+    t.equal(trans.name, 't0', 'transaction.name');
+    t.equal(
+      trans.span_count.started,
+      4,
+      'transaction.span_count.started (no duplicate started spans)',
+    );
     t.equal(data.spans.length, 4);
     data.spans.forEach((s) => {
       t.equal(

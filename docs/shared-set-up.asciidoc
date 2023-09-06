@@ -110,7 +110,7 @@ To enable this,
 use the <<capture-body,`captureBody`>> config option
 * By default, the Node.js agent will filter certain HTTP headers known to contain sensitive information.
 To disable this,
-use the <<filter-http-headers,`filterHttpHeaders`>> config option
+use the <<sanitize-field-names,`sanitizeFieldNames`>> config option
 * To apply custom filters,
 use one of the <<apm-add-filter,filtering>> functions
 //end::filter-sensitive-info[]

@@ -130,10 +130,7 @@
           "type": "elasticsearch"
         },
         "http": {
-          "url": {
-            "host": "my-cluster.com",
-            "port": 9200
-          }
+          "url": "https://my-cluster.com:9200"
         }
       }
     },
@@ -153,10 +150,7 @@
           "body": "Text message"
         },
         "http": {
-          "url": {
-            "host": "my-broker.com",
-            "port": 8888
-          }
+          "url": "https://my-broker.com:8888"
         }
       }
     },
@@ -173,10 +167,7 @@
       "subtype": "http",
       "context": {
         "http": {
-          "url": {
-            "host": "my-cluster.com",
-            "port": 9200
-          }
+          "url": "http://my-cluster.com:9200"
         }
       }
     },
@@ -185,7 +176,7 @@
       "type": "http",
       "name": "my-cluster.com:9200"
     },
-    "failure_message": "If `context.http.url` exists, output should be `${context.http.url.host}:${context.http.url.port}"
+    "failure_message": "If `context.http.url` exists, output should be `${context.http.url}`"
   },
   {
     "span": {
@@ -194,19 +185,16 @@
       "subtype": "http",
       "context": {
         "http": {
-          "url": {
-            "host": "my-cluster.com",
-            "port": -1
-          }
+          "url": "https://my-cluster.com"
         }
       }
     },
-    "expected_resource": "my-cluster.com",
+    "expected_resource": "my-cluster.com:443",
     "expected_service_target": {
       "type": "http",
-      "name": "my-cluster.com"
+      "name": "my-cluster.com:443"
     },
-    "failure_message": "Negative `context.http.url.port` should be omitted from output"
+    "failure_message": "`context.http.url` without an explicit default HTTPS port, output should be reported as `${context.http.url}:443`"
   },
   {
     "span": {
@@ -215,18 +203,16 @@
       "subtype": "http",
       "context": {
         "http": {
-          "url": {
-            "host": "my-cluster.com"
-          }
+          "url": "http://my-cluster.com"
         }
       }
     },
-    "expected_resource": "my-cluster.com",
+    "expected_resource": "my-cluster.com:80",
     "expected_service_target": {
       "type": "http",
-      "name": "my-cluster.com"
+      "name": "my-cluster.com:80"
     },
-    "failure_message": "If `context.http.url.port` does not exist, output should be `${context.http.url.host}`"
+    "failure_message": "`context.http.url` without an explicit default HTTP port, output should be reported as `${context.http.url}:80`"
   },
   {
     "span": {

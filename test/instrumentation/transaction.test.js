@@ -309,7 +309,7 @@ test('#duration() - un-ended transaction', function (t) {
 
 test('custom start time', function (t) {
   var startTime = Date.now() - 1000;
-  var trans = new Transaction(agent, null, null, { startTime });
+  var trans = new Transaction(agent, 'a-trans-name', { startTime });
   trans.end();
 
   var duration = trans.duration();
@@ -325,7 +325,7 @@ test('custom start time', function (t) {
 test('#end(time)', function (t) {
   var startTime = Date.now() - 1000;
   var endTime = startTime + 2000.123;
-  var trans = new Transaction(agent, null, null, { startTime });
+  var trans = new Transaction(agent, 'a-trans-name', { startTime });
   trans.end(null, endTime);
 
   t.strictEqual(trans.duration(), 2000.123);
@@ -681,15 +681,6 @@ test('#ids', function (t) {
   t.end();
 });
 
-test('#toString()', function (t) {
-  var trans = new Transaction(agent);
-  t.strictEqual(
-    trans.toString(),
-    `trace.id=${trans.traceId} transaction.id=${trans.id}`,
-  );
-  t.end();
-});
-
 test('Transaction API on ended transaction', function (t) {
   // Enable breakdown metrics to test it below.
   agent._config({ breakdownMetrics: true, metricsInterval: '30s' });
@@ -705,8 +696,6 @@ test('Transaction API on ended transaction', function (t) {
   // behaves as expected on an ended transaction.
   t.equal(trans.name, 'theTransName', 'trans.name');
   t.equal(trans.type, 'theTransType', 'trans.type');
-  t.equal(trans.subtype, null, 'trans.subtype');
-  t.equal(trans.action, null, 'trans.action');
   t.equal(
     trans.traceparent,
     traceparentBefore,
@@ -718,11 +707,6 @@ test('Transaction API on ended transaction', function (t) {
     trans.ids,
     { 'trace.id': traceId, 'transaction.id': transId },
     'trans.ids',
-  );
-  t.equal(
-    trans.toString(), // deprecated
-    `trace.id=${traceId} transaction.id=${transId}`,
-    trans.toString(),
   );
 
   // We just want to ensure that these Transaction API methods don't throw.

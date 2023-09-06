@@ -153,26 +153,26 @@ async function checkHasPrometheusMetrics(t) {
 
 // ---- tests
 
-// We need to `npm install` for a first test run.
+// We need to `npm ci` for a first test run.
 const haveNodeModules = fs.existsSync(path.join(fixturesDir, 'node_modules'));
 tape.test(
-  `setup: npm install (in ${fixturesDir})`,
+  `setup: npm ci (in ${fixturesDir})`,
   { skip: haveNodeModules },
   (t) => {
     const startTime = Date.now();
     exec(
-      'npm install',
+      'npm ci',
       {
         cwd: fixturesDir,
       },
       function (err, stdout, stderr) {
         t.error(
           err,
-          `"npm install" succeeded (took ${(Date.now() - startTime) / 1000}s)`,
+          `"npm ci" succeeded (took ${(Date.now() - startTime) / 1000}s)`,
         );
         if (err) {
           t.comment(
-            `$ npm install\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`,
+            `$ npm ci\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`,
           );
         }
         t.end();
@@ -354,6 +354,29 @@ const cases = [
       );
     },
   },
+  {
+    script: 'await-agent-destroy.js',
+    checkOutput: async (t, stdout, _stderr) => {
+      // Ensure there is no log.warn line: "cannot flush agent before it is started".
+      // https://github.com/elastic/apm-agent-nodejs/pull/3547#discussion_r1283430790
+      const warnLines = stdout
+        .split('\n')
+        .filter((ln) => ~ln.indexOf('"log.level":"warn"'))
+        // Skip a log.warn about this being a pre-release version.
+        .filter((ln) => !~ln.indexOf('pre-release'));
+      t.equal(warnLines.length, 0, `no log.warn lines: warnLines=${warnLines}`);
+    },
+    checkEvents: async (t, events) => {
+      t.ok(events[0].metadata, 'APM server got event metadata object');
+
+      // Check that got at least one 'test_counter' metricset.
+      const metricset = findObjInArray(
+        events,
+        'metricset.samples.test_counter',
+      ).metricset;
+      t.ok(metricset, 'got a "test_counter" metricset');
+    },
+  },
 ];
 
 cases.forEach((c) => {
@@ -376,7 +399,6 @@ cases.forEach((c) => {
               ELASTIC_APM_API_REQUEST_TIME: '500ms',
               ELASTIC_APM_CENTRAL_CONFIG: 'false',
               ELASTIC_APM_CLOUD_PROVIDER: 'none',
-              ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS: 'true',
             }),
           },
           async function done(_err, stdout, stderr) {

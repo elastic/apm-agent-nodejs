@@ -13,7 +13,7 @@ const { MockLogger } = require('../_mock_logger');
 const {
   TRACE_CONTINUATION_STRATEGY_CONTINUE,
   TRACE_CONTINUATION_STRATEGY_RESTART,
-  CONTEXT_MANAGER_PATCH,
+  CONTEXT_MANAGER_ASYNCHOOKS,
 } = require('../../lib/config/schema');
 const {
   normalizeUrls,
@@ -138,6 +138,7 @@ test('#normalizeBytes()', function (t) {
     'numberBytes',
     'badWithDefault',
     'badWithoutDefault',
+    'errorMessageMaxLength',
   ];
   const defaults = { badWithDefault: '25kb' };
   const opts = {
@@ -149,6 +150,7 @@ test('#normalizeBytes()', function (t) {
     badWithDefault: 'not-bytes',
     badWithoutDefault: 'not-bytes',
     anotherProperty: 25,
+    errorMessageMaxLength: '100kb',
   };
 
   normalizeBytes(opts, fields, defaults, logger);
@@ -162,9 +164,23 @@ test('#normalizeBytes()', function (t) {
     badWithDefault: NaN,
     badWithoutDefault: NaN,
     anotherProperty: 25,
+    errorMessageMaxLength: 102400,
   });
 
-  t.ok(logger.calls.length === 0, 'we got no warnings for bad byte options');
+  const isMissingUnitsWarn = (s) =>
+    s.indexOf('units missing in size value') !== -1;
+  const warnings = logger.calls;
+  t.ok(warnings.length === 4, 'we got warnings');
+  t.ok(isMissingUnitsWarn(warnings[0].message), 'warns about missing unit');
+  t.deepEqual(warnings[0].interpolation, ['12345678', 'numberBytes']);
+  t.ok(isMissingUnitsWarn(warnings[1].message), 'warns about missing unit');
+  t.deepEqual(warnings[1].interpolation, ['not-bytes', 'badWithDefault']);
+  t.ok(isMissingUnitsWarn(warnings[2].message), 'warns about missing unit');
+  t.deepEqual(warnings[2].interpolation, ['not-bytes', 'badWithoutDefault']);
+  t.ok(
+    warnings[3].message.indexOf('"errorMessageMaxLength" is deprecated') !== -1,
+    'warns about errorMessageMaxLength deprecation',
+  );
   t.end();
 });
 
@@ -231,31 +247,36 @@ test('#normalizeDurationOptions()', function (t) {
   });
 
   const warnings = logger.calls;
-  t.ok(warnings.length === 4, 'we got warnings for bad duration options');
+  t.ok(warnings.length === 5, 'we got warnings for bad duration options');
   t.ok(
-    warnings[0].message.indexOf('ignoring this option') !== -1,
-    'ignores not allowed unit',
+    warnings[0].message.indexOf('units missing') !== -1,
+    'warns about missing unit',
   );
-  t.deepEqual(warnings[0].interpolation, ['20us', 'notAllowedUnit']);
+  t.deepEqual(warnings[0].interpolation, ['200', 'withoutUnit', 'ms']);
   t.ok(
     warnings[1].message.indexOf('ignoring this option') !== -1,
+    'ignores not allowed unit',
+  );
+  t.deepEqual(warnings[1].interpolation, ['20us', 'notAllowedUnit']);
+  t.ok(
+    warnings[2].message.indexOf('ignoring this option') !== -1,
     'ignores not allowed negative value',
   );
-  t.deepEqual(warnings[1].interpolation, ['-1s', 'notAllowedNegative']);
+  t.deepEqual(warnings[2].interpolation, ['-1s', 'notAllowedNegative']);
   t.ok(
-    warnings[2].message.indexOf('using default') !== -1,
+    warnings[3].message.indexOf('using default') !== -1,
     'uses default value',
   );
-  t.deepEqual(warnings[2].interpolation, [
+  t.deepEqual(warnings[3].interpolation, [
     'not-duration',
     'badWithDefault',
     '25s',
   ]);
   t.ok(
-    warnings[3].message.indexOf('ignoring this option') !== -1,
+    warnings[4].message.indexOf('ignoring this option') !== -1,
     'ignores bad value without default',
   );
-  t.deepEqual(warnings[3].interpolation, ['not-duration', 'badWithoutDefault']);
+  t.deepEqual(warnings[4].interpolation, ['not-duration', 'badWithoutDefault']);
   t.end();
 });
 
@@ -546,41 +567,20 @@ test('#normalizeTraceContinuationStrategy()', function (t) {
 
 test('#normalizeContextManager()', function (t) {
   const logger = new MockLogger();
-  const defaults = { contextManager: CONTEXT_MANAGER_PATCH };
+  const defaults = {};
   let opts;
   let lastWarning;
 
   opts = { contextManager: 'not-valid' };
   normalizeContextManager(opts, [], defaults, logger);
-  // TODO: property gets deleted, check behaviour (assing undefined instead?)
+  // TODO: property gets deleted, check behaviour (assign undefined instead?)
   t.deepEqual(opts, {});
   lastWarning = logger.calls.pop();
   t.ok(lastWarning.message.indexOf('Invalid "contextManager"') !== -1);
 
-  opts = { contextManager: CONTEXT_MANAGER_PATCH, asyncHooks: true };
+  opts = { contextManager: CONTEXT_MANAGER_ASYNCHOOKS };
   normalizeContextManager(opts, [], defaults, logger);
-  t.deepEqual(opts, { contextManager: CONTEXT_MANAGER_PATCH });
-  lastWarning = logger.calls.pop();
-  t.ok(
-    lastWarning.message.indexOf('the `asyncHooks` value will be ignored') !==
-      -1,
-  );
-
-  opts = { asyncHooks: true };
-  normalizeContextManager(opts, [], defaults, logger);
-  t.deepEqual(opts, {});
-  lastWarning = logger.calls.pop();
-  t.ok(
-    lastWarning.message.indexOf(
-      '`asyncHooks: true` is the default behavior',
-    ) !== -1,
-  );
-
-  opts = { asyncHooks: false };
-  normalizeContextManager(opts, [], defaults, logger);
-  t.deepEqual(opts, { contextManager: CONTEXT_MANAGER_PATCH });
-  lastWarning = logger.calls.pop();
-  t.ok(lastWarning.message.indexOf('use `contextManager: "patch"') !== -1);
+  t.deepEqual(opts, { contextManager: CONTEXT_MANAGER_ASYNCHOOKS });
 
   t.end();
 });

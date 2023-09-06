@@ -24,10 +24,10 @@ sources:
       - findsubmatch:
           pattern: "[0-9a-f]{40}"
 
-  cgroup_parsing.json:
+  container_metadata_discovery.json:
     kind: file
     spec:
-      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/cgroup_parsing.json
+      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/container_metadata_discovery.json
   service_resource_inference.json:
     kind: file
     spec:
@@ -70,13 +70,13 @@ actions:
         * https://github.com/elastic/apm/commit/{{ source "sha" }}
 
 targets:
-  cgroup_parsing.json:
-    name: cgroup_parsing.json
+  container_metadata_discovery.json:
+    name: container_metadata_discovery.json
     scmid: default
-    sourceid: cgroup_parsing.json
+    sourceid: container_metadata_discovery.json
     kind: file
     spec:
-      file: test/fixtures/json-specs/cgroup_parsing.json
+      file: test/fixtures/json-specs/container_metadata_discovery.json
   service_resource_inference.json:
     name: service_resource_inference.json
     scmid: default

@@ -21,7 +21,7 @@ import assert from 'assert'
 
 const agentOpts: AgentConfigOptions = {
   captureExceptions: false,
-  metricsInterval: '0',
+  metricsInterval: '0s',
   centralConfig: false
 }
 apm.start(agentOpts)
@@ -94,12 +94,8 @@ apm.captureError(new Error('an error with explicitly no parent'), { parent: null
 apm.startTransaction()
 apm.startTransaction('foo')
 apm.startTransaction('foo', 'type')
-apm.startTransaction('foo', 'type', 'subtype')
-apm.startTransaction('foo', 'type', 'subtype', 'action')
 apm.startTransaction('foo', { startTime: 1 })
 apm.startTransaction('foo', 'type', { startTime: 1 })
-apm.startTransaction('foo', 'type', 'subtype', { startTime: 1 })
-apm.startTransaction('foo', 'type', 'subtype', 'action', { startTime: 1 })
 apm.startTransaction('foo', { childOf: '00-12345678901234567890123456789012-1234567890123456-01' })
 apm.startTransaction('foo', { tracestate: 'foo=42,bar=43' })
 apm.startTransaction('foo', { links: [{ context: '00-12345678901234567890123456789012-1234567890123456-01' }] })

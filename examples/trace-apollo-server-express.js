@@ -27,7 +27,6 @@
 
 require('../').start({
   serviceName: 'example-trace-apollo-server-express',
-  logUncaughtExceptions: true,
 });
 
 const http = require('http');
