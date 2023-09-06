@@ -12,32 +12,24 @@
 // isn't identical. Some known limitations:
 // https://docs.localstack.cloud/user-guide/aws/dynamodb/
 
-const semver = require('semver');
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   console.log('# SKIP: GH Actions do not support docker services on Windows');
   process.exit(0);
-}
-if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
-  console.log(
-    '# SKIP @aws-sdk/* instrumentation does not work with contextManager="patch"',
-  );
-  process.exit();
-}
-if (semver.lt(process.version, '14.0.0')) {
-  console.log(
-    `# SKIP @aws-sdk min supported node is v14 (node ${process.version})`,
-  );
-  process.exit();
 }
 
 const test = require('tape');
 
 const { validateSpan } = require('../../../_validate_schema');
 const { runTestFixtures, sortApmEvents } = require('../../../_utils');
-const { NODE_VER_RANGE_IITM } = require('../../../testconsts');
+const { iitmVersionsSatisfying } = require('../../../testconsts');
 const AWS_REGION = 'us-east-2';
 const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost';
 const endpoint = 'http://' + LOCALSTACK_HOST + ':4566';
+
+const NODE_VER_SUP_RANGE = '>=14';
+const NODE_VER_SUP_RANGE_IITM = iitmVersionsSatisfying(NODE_VER_SUP_RANGE);
+
+console.log(NODE_VER_SUP_RANGE, NODE_VER_SUP_RANGE_IITM);
 
 const testFixtures = [
   {
@@ -53,6 +45,7 @@ const testFixtures = [
       TEST_ENDPOINT: endpoint,
       TEST_REGION: AWS_REGION,
     },
+    versionRanges: { node: NODE_VER_SUP_RANGE },
     verbose: false,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
@@ -351,7 +344,7 @@ const testFixtures = [
       TEST_REGION: 'us-east-2',
     },
     versionRanges: {
-      node: NODE_VER_RANGE_IITM,
+      node: NODE_VER_SUP_RANGE_IITM,
     },
     verbose: true,
     checkApmServer: (t, apmServer) => {

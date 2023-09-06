@@ -6,6 +6,8 @@
 
 'use strict';
 
+const semver = require('semver');
+
 // Supported Node.js version range for import-in-the-middle usage.
 // - v12.20.0 add "named exports for CJS via static analysis"
 //   https://nodejs.org/en/blog/release/v12.20.0
@@ -17,6 +19,20 @@
 //   https://github.com/DataDog/import-in-the-middle/pull/27
 const NODE_VER_RANGE_IITM = '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 <20';
 
+/**
+ * 
+ * @param {String} range 
+ * @returns {String}
+ */
+function iitmVersionsSatisfying(range) {
+  const separator = ' || ';
+
+  return NODE_VER_RANGE_IITM.split(separator)
+    .filter((iitmRange) => semver.intersects(iitmRange, range))
+    .join(separator);
+}
+
 module.exports = {
   NODE_VER_RANGE_IITM,
+  iitmVersionsSatisfying,
 };
