@@ -6,5 +6,6 @@
 
 const apm = require('../../..').start({
   disableSend: true,
+  logLevel: 'off',
 });
 console.log(JSON.stringify(apm._conf));
