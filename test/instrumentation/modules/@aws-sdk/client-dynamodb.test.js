@@ -21,15 +21,13 @@ const test = require('tape');
 
 const { validateSpan } = require('../../../_validate_schema');
 const { runTestFixtures, sortApmEvents } = require('../../../_utils');
-const { iitmVersionsSatisfying } = require('../../../testconsts');
+const { iitmVersionsFrom } = require('../../../testconsts');
 const AWS_REGION = 'us-east-2';
 const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost';
 const endpoint = 'http://' + LOCALSTACK_HOST + ':4566';
 
-const NODE_VER_SUP_RANGE = '>=14';
-const NODE_VER_SUP_RANGE_IITM = iitmVersionsSatisfying(NODE_VER_SUP_RANGE);
-
-console.log(NODE_VER_SUP_RANGE, NODE_VER_SUP_RANGE_IITM);
+const NODE_VER_SUP_AWS_SDK = '14.0.0';
+const NODE_VER_SUP_RANGE_IITM = iitmVersionsFrom(NODE_VER_SUP_AWS_SDK);
 
 const testFixtures = [
   {
@@ -45,7 +43,7 @@ const testFixtures = [
       TEST_ENDPOINT: endpoint,
       TEST_REGION: AWS_REGION,
     },
-    versionRanges: { node: NODE_VER_SUP_RANGE },
+    versionRanges: { node: NODE_VER_SUP_AWS_SDK },
     verbose: false,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');

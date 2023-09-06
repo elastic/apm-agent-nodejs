@@ -20,19 +20,21 @@ const semver = require('semver');
 const NODE_VER_RANGE_IITM = '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 <20';
 
 /**
+ * Returns the version ranges for IITM that are greater or equal than the given version
  *
- * @param {String} range
- * @returns {String}
+ * @param {String} minVersion - the min version accepted
+ * @returns {String} sub-range of IITM whose versions are gte than minVersion
  */
-function iitmVersionsSatisfying(range) {
+function iitmVersionsFrom(minVersion) {
   const separator = ' || ';
+  const minRange = `>=${minVersion}`;
 
   return NODE_VER_RANGE_IITM.split(separator)
-    .filter((iitmRange) => semver.intersects(iitmRange, range))
+    .filter((iitmRange) => semver.intersects(iitmRange, minRange))
     .join(separator);
 }
 
 module.exports = {
   NODE_VER_RANGE_IITM,
-  iitmVersionsSatisfying,
+  iitmVersionsFrom,
 };
