@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 const agent = require('../../../..').start({
   serviceName: 'test-http-outgoing',
@@ -13,43 +13,45 @@ const agent = require('../../../..').start({
   metricsInterval: 0,
   centralConfig: false,
   cloudProvider: 'none',
-  spanStackTraceMinDuration: 0 // Always have span stacktraces.
-})
+  spanStackTraceMinDuration: 0, // Always have span stacktraces.
+});
 
-var http = require('http')
+var http = require('http');
 
-var test = require('tape')
+var test = require('tape');
 
-var mockClient = require('../../../_mock_http_client')
+var mockClient = require('../../../_mock_http_client');
 
 test('response writeHead is bound to transaction', function (t) {
-  resetAgent(data => {
-    t.strictEqual(data.transactions.length, 1, 'has a transaction')
+  resetAgent((data) => {
+    t.strictEqual(data.transactions.length, 1, 'has a transaction');
 
-    var trans = data.transactions[0]
-    t.strictEqual(trans.result, 'HTTP 2xx', 'has correct result')
+    var trans = data.transactions[0];
+    t.strictEqual(trans.result, 'HTTP 2xx', 'has correct result');
 
-    t.end()
-  })
+    t.end();
+  });
 
   var server = http.createServer(function (req, res) {
-    agent._instrumentation.supersedeWithEmptyRunContext()
-    res.end()
-  })
+    agent._instrumentation.supersedeWithEmptyRunContext();
+    res.end();
+  });
 
   server.listen(function () {
-    var port = server.address().port
+    var port = server.address().port;
     http.get(`http://localhost:${port}`, function (res) {
-      res.resume()
+      res.resume();
       res.on('end', () => {
-        server.close()
-      })
-    })
-  })
-})
+        server.close();
+      });
+    });
+  });
+});
 
-function resetAgent (cb) {
-  agent._instrumentation.testReset()
-  agent._apmClient = mockClient(1, cb)
-  agent.captureError = function (err) { throw err }
+function resetAgent(cb) {
+  agent._instrumentation.testReset();
+  agent._apmClient = mockClient(1, cb);
+  agent.captureError = function (err) {
+    throw err;
+  };
 }

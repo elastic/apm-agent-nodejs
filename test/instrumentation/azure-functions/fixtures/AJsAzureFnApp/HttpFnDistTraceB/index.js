@@ -7,6 +7,6 @@
 module.exports = async function (context, req) {
   context.res = {
     status: 200,
-    body: 'HttpFnDistTraceB body'
-  }
-}
+    body: 'HttpFnDistTraceB body',
+  };
+};

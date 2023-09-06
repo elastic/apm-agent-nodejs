@@ -4,16 +4,16 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 var agent = require('../..').start({
   serviceName: 'test',
   secretToken: 'test',
-  captureExceptions: false
-})
+  captureExceptions: false,
+});
 
-var test = require('tape')
+var test = require('tape');
 
-var ins = agent._instrumentation
+var ins = agent._instrumentation;
 
-require('./_shared-promise-tests')(test, Promise, ins)
+require('./_shared-promise-tests')(test, Promise, ins);

@@ -7,14 +7,15 @@
 // print name of error.prepareStackTrace function to STDOUT
 require('../../../').start({
   serviceName: 'test-get-prepare-stacktrace',
-  logUncaughtExceptions: true,
   metricsInterval: 0,
   centralConfig: false,
-  logLevel: 'off'
-})
-function main () {
-  const name = Error.prepareStackTrace ? Error.prepareStackTrace.name : undefined
-  console.log(name)
+  logLevel: 'off',
+});
+function main() {
+  const name = Error.prepareStackTrace
+    ? Error.prepareStackTrace.name
+    : undefined;
+  console.log(name);
 }
 
-main()
+main();

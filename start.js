@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // Load and start the APM agent.
 //
@@ -12,18 +12,18 @@
 // that is arguably not desired default behavior when using:
 //    node --require=elastic-apm-node/start.js ...
 
-const apm = require('./')
+const apm = require('./');
 
-var isMainThread
+var isMainThread;
 try {
-  var workerThreads = require('worker_threads')
-  isMainThread = workerThreads.isMainThread
+  var workerThreads = require('worker_threads');
+  isMainThread = workerThreads.isMainThread;
 } catch (_importErr) {
   // worker_threads were added in node 12 and behind a flag in node ^10.5.0.
-  isMainThread = true
+  isMainThread = true;
 }
 if (isMainThread) {
-  apm.start()
+  apm.start();
 }
 
-module.exports = apm
+module.exports = apm;

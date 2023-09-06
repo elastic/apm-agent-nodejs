@@ -15,35 +15,36 @@
 //     `- span "s3"
 //       `- span "s4"
 
-const apm = require('../../../../').start({ // elastic-apm-node
+const apm = require('../../../../').start({
+  // elastic-apm-node
   captureExceptions: false,
   metricsInterval: 0,
   cloudProvider: 'none',
   centralConfig: false,
   // ^^ Boilerplate config above this line is to focus on just tracing.
-  serviceName: 'run-context-end-non-current-spans'
-})
+  serviceName: 'run-context-end-non-current-spans',
+});
 
-let assert = require('assert')
+let assert = require('assert');
 if (Number(process.versions.node.split('.')[0]) > 8) {
-  assert = assert.strict
+  assert = assert.strict;
 }
 
-const t0 = apm.startTransaction('t0')
-const s1 = apm.startSpan('s1')
+const t0 = apm.startTransaction('t0');
+const s1 = apm.startSpan('s1');
 setImmediate(function () {
-  const s3 = apm.startSpan('s3')
+  const s3 = apm.startSpan('s3');
   setImmediate(function () {
-    const s4 = apm.startSpan('s4')
+    const s4 = apm.startSpan('s4');
     // Ending a span removes it from the current run context, even if it is
     // not top of stack, or not even part of this run context.
-    s3.end() // out of order
-    s2.end() // not in this run context
-    s4.end()
-    assert(apm.currentSpan === s1)
-    s1.end()
-    t0.end()
-  })
-})
+    s3.end(); // out of order
+    s2.end(); // not in this run context
+    s4.end();
+    assert(apm.currentSpan === s1);
+    s1.end();
+    t0.end();
+  });
+});
 
-const s2 = apm.startSpan('s2')
+const s2 = apm.startSpan('s2');

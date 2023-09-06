@@ -1,22 +1,10 @@
 #!/usr/bin/env bash
 set -ueo pipefail
 
-major_node_version=`node --version | cut -d . -f1 | cut -d v -f2`
-minor_node_version=`node --version | cut -d . -f2`
-
-if [[ $major_node_version -eq 8 ]] && [[ $minor_node_version -lt 8 ]]; then
-  export NODE_OPTIONS="${NODE_OPTIONS:+${NODE_OPTIONS}} --expose-http2"
-fi
-
 # "test/instrumentation/modules/http2.js" fails if the OpenSSL SECLEVEL=2,
 # which is the case in the node:16 Docker image and could be in other
 # environments. Here we explicitly set it to SECLEVEL=0 for testing.
-#
-# Skip for node v8 because it results in this warning:
-#   openssl config failed: error:25066067:DSO support routines:DLFCN_LOAD:could not load the shared library
-if [[ $major_node_version -gt 8 ]]; then
-  export NODE_OPTIONS="${NODE_OPTIONS:+${NODE_OPTIONS}} --openssl-config=$(pwd)/test/openssl-config-for-testing.cnf"
-fi
+export NODE_OPTIONS="${NODE_OPTIONS:+${NODE_OPTIONS}} --openssl-config=$(pwd)/test/openssl-config-for-testing.cnf"
 
 # Workaround to git <2.7
 # error fatal: unable to look up current user in the passwd file: no such user
@@ -27,16 +15,16 @@ if [ -z "$(grep \"\:$(id -u)\:\" /etc/passwd)" ]; then
   git config -l
 fi
 
-npm_install() {
+npm_ci() {
   local retries=2
   local count=0
 
-  until npm install --no-save; do
+  until npm ci; do
     exit=$?
     wait=$((2 ** $count))
     count=$(($count + 1))
     if [ $count -lt $retries ]; then
-      printf "Retry of 'npm install' %s/%s exited %s, retrying in %s seconds...\n" "$count" "$retries" "$exit" "$wait" >&2
+      printf "Retry of 'npm ci' %s/%s exited %s, retrying in %s seconds...\n" "$count" "$retries" "$exit" "$wait" >&2
       printf "Force-cleaning of npm cache.\n" >&2
       npm cache clean --force
       sleep $wait
@@ -52,7 +40,7 @@ export
 id
 node --version
 npm --version
-npm_install
+npm_ci
 
 # Attempt to provide junit-formatted test results, for Jenkins' "Test Results"
 # and other features like flaky-test reporting.

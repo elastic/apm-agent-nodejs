@@ -7,6 +7,6 @@
 module.exports = async function (context, _req) {
   context.res = {
     status: 202,
-    body: `HttpFnRouteTemplate body: category=${context.req.params.category} id=${context.req.params.id}`
-  }
-}
+    body: `HttpFnRouteTemplate body: category=${context.req.params.category} id=${context.req.params.id}`,
+  };
+};

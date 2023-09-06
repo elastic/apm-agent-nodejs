@@ -4,8 +4,8 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-var Agent = require('./lib/agent')
+var Agent = require('./lib/agent');
 
-module.exports = new Agent()
+module.exports = new Agent();

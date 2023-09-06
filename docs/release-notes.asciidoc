@@ -4,6 +4,7 @@
 [[release-notes]]
 == Release notes
 
+* <<release-notes-4.x>>
 * <<release-notes-3.x>>
 * <<release-notes-2.x>>
 * <<release-notes-1.x>>

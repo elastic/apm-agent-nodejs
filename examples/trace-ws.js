@@ -16,37 +16,37 @@
 // client. More details at:
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
 
-const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-ws'
-})
+const apm = require('../').start({
+  serviceName: 'example-trace-ws',
+});
 
-const WebSocket = require('ws')
-const PORT = 4567
+const WebSocket = require('ws');
+const PORT = 4567;
 
 // Server
-const wss = new WebSocket.Server({ port: PORT })
+const wss = new WebSocket.Server({ port: PORT });
 wss.on('connection', function (ws) {
   ws.on('message', function (message) {
-    console.log('server on "message": %j', message)
-    const tserver = apm.startTransaction('tserver')
-    ws.send('pong')
-    tserver.end()
-  })
-})
+    console.log('server on "message": %j', message);
+    const tserver = apm.startTransaction('tserver');
+    ws.send('pong');
+    tserver.end();
+  });
+});
 
 // Client
-const ws = new WebSocket('ws://localhost:' + PORT)
+const ws = new WebSocket('ws://localhost:' + PORT);
 ws.on('open', function () {
-  const tclient = apm.startTransaction('tclient')
-  console.log('client: send "ping"')
+  const tclient = apm.startTransaction('tclient');
+  console.log('client: send "ping"');
   ws.send('ping', function () {
-    console.log('client: "ping" has been sent')
-  })
-  console.log('client: send "ring"')
-  ws.send('ring')
-  tclient.end()
-})
+    console.log('client: "ping" has been sent');
+  });
+  console.log('client: send "ring"');
+  ws.send('ring');
+  tclient.end();
+});
 ws.on('message', function (message) {
-  console.log('client on "message": %j', message)
-  wss.close()
-})
+  console.log('client on "message": %j', message);
+  wss.close();
+});

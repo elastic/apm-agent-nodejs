@@ -4,5 +4,5 @@
  * compliance with the BSD 2-Clause License.
  */
 
-require('elastic-apm-node').start()
-console.log("using: require('elastic-apm-node').start()")
+require('elastic-apm-node').start();
+console.log("using: require('elastic-apm-node').start()");

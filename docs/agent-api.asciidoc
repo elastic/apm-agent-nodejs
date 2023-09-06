@@ -108,9 +108,6 @@ apm.addFilter(function redactSecretHeader(payload) {
 })
 ----
 
-A set of built-in filters are added by default.
-See <<filter-http-headers,`filterHttpHeaders`>> for details.
-
 Though you can also use filter functions to add new contextual information to the `user` and `custom` properties,
 it's recommended that you use <<apm-set-user-context,`apm.setUserContext()`>> and <<apm-set-custom-context,`apm.setCustomContext()`>> for that purpose.
 
@@ -243,9 +240,17 @@ TIP: Before using custom context, ensure you understand the different types of
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
 * `value` +{type-string}+ | +{type-number}+ | +{type-boolean}+
+If the `stringify` argument is not given, or set to `true` then the given value
+will be converted to a string.
 * `stringify` +{type-boolean}+
-Defaults to `true`. When true, if a non-string `value` is given, it is
+This defaults to `true` for backwards compatibility, but new usage will
+typically want `false`. When true, if a non-string `value` is given, it is
 converted to a string before being sent to the APM Server.
+
+[source,js]
+----
+apm.setLabel('productId', 42, false);
+----
 
 Set a label on the current transaction.
 You can set multiple labels on the same transaction.
@@ -273,9 +278,17 @@ Defining too many unique fields in an index is a condition that can lead to a
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
 ** `value` +{type-string}+ | +{type-number}+ | +{type-boolean}+
+If the `stringify` argument is not given, or set to `true` then the given value
+will be converted to a string.
 * `stringify` +{type-boolean}+
-Defaults to `true`. When true, if a non-string `value` is given, it is
+This defaults to `true` for backwards compatibility, but new usage will
+typically want `false`. When true, if a non-string `value` is given, it is
 converted to a string before being sent to the APM Server.
+
+[source,js]
+----
+apm.addLabels({productId: 42, productName: 'butter'}, false);
+----
 
 Add several labels on the current transaction.
 You can add labels multiple times.
@@ -506,10 +519,11 @@ app.listen(3000)
 NOTE: `apm.middleware.connect` _must_ be added to the middleware stack _before_ any other error handling middleware functions or there's a chance that the error will never get to the agent.
 
 [[apm-start-transaction]]
-==== `apm.startTransaction([name][, type][, subtype][, action][, options])`
+==== `apm.startTransaction([name][, type][, options])`
 
 [small]#Added in: v0.1.0# +
-[small]#Transaction `subtype` and `action` deprecated in: v3.25.0#
+[small]#Transaction `subtype` and `action` deprecated in: v3.25.0# +
+[small]#Transaction `subtype` and `action` removed in: v4.0.0#
 
 * `name` +{type-string}+ The name of the transaction.
 You can always set this later via <<transaction-name,`transaction.name`>> or <<apm-set-transaction-name,`apm.setTransactionName()`>>.
@@ -517,16 +531,6 @@ You can always set this later via <<transaction-name,`transaction.name`>> or <<a
 
 * `type` +{type-string}+ The type of the transaction.
 You can always set this later via <<transaction-type,`transaction.type`>>.
-
-* `subtype` +{type-string}+ The subtype of the transaction.
-You can alternatively set this via <<transaction-subtype,`transaction.subtype`>>.
-The transaction `subtype` field is deprecated: it is not used and will be
-removed in the next major version.
-
-* `action` +{type-string}+ The action of the transaction.
-You can alternatively set this via <<transaction-action,`transaction.action`>>.
-The transaction `action` field is deprecated: it is not used and will be removed
-in the next major version.
 
 * `options` +{type-object}+ The following options are supported:
 
@@ -547,15 +551,18 @@ The `links` argument is an array of objects with a single "context" field
 that is a `Transaction`, `Span`, or W3C trace-context 'traceparent' string.
 For example: `apm.startTransaction('aName', { links: [{ context: anotherSpan }] })`.
 
-Start a new transaction.
-
-Use this function to create a custom transaction.
-Note that the agent will do this for you automatically whenever your application receives an incoming HTTP request.
-You only need to use this function to create custom transactions.
-
-There's a special `type` called `request` which is used by the agent for the transactions automatically created when an incoming HTTP request is detected.
-
+Start a new custom/manual transaction.
 See the <<transaction-api,Transaction API>> docs for details on how to use custom transactions.
+
+Note that the APM agent will automatically start a transaction for incoming
+HTTP requests. You only need to use this function to create custom transactions,
+for example for a periodic background routine. There's a special `type` called
+`request` which is used by the agent for the transactions automatically created
+when an incoming HTTP request is detected.
+
+If the APM agent has not yet been started, then a do-nothing "no-op" transaction
+object will be returned.
+
 
 [[apm-end-transaction]]
 ==== `apm.endTransaction([result][, endTime])`
@@ -739,7 +746,7 @@ Manually end the active outgoing HTTP request to the APM Server.
 The HTTP request is otherwise ended automatically at regular intervals,
 controlled by the <<api-request-time,`apiRequestTime`>> and <<api-request-size,`apiRequestSize`>> config options.
 
-If an optional `callback` is provided as the first argument to this method, it will call `callback(flushErr)` when complete. 
+If an optional `callback` is provided as the first argument to this method, it will call `callback(flushErr)` when complete.
 If no `callback` is provided, then a `Promise` will be returned, which will either resolve with `void` or reject with `flushErr`.
 
 The callback is called (or the `Promise` resolves if no `callback` argument is provided) *after* the active HTTP request has ended.
@@ -786,21 +793,6 @@ A module can have any number of patches and will be applied in the order they ar
 [source,js]
 ----
 apm.addPatch('timers', (exports, agent, { version, enabled }) => {
-  const setTimeout = exports.setTimeout
-  exports.setTimeout = (fn, ms) => {
-    const span = agent.startSpan('set-timeout')
-    return setTimeout(() => {
-      span.end()
-      fn()
-    }, ms)
-  }
-
-  return exports
-})
-
-// or ...
-
-apm.addPatch(['hapi', '@hapi/hapi'], (exports, agent, { version, enabled }) => {
   const setTimeout = exports.setTimeout
   exports.setTimeout = (fn, ms) => {
     const span = agent.startSpan('set-timeout')

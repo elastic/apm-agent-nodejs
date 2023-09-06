@@ -79,6 +79,5 @@ version 1.4.0 or later.)
 
 * System and custom metrics are not collected for Lambda functions. This is both because most of those are irrelevant
 and because the interval-based event sending model is not suitable for FaaS environments.
-* Lambda instrumentation does not currently work when the (deprecated) <<context-manager,`contextManager: 'patch'`>> configuration setting is used.
 * The APM agent does not yet support a Lambda handler module that uses ECMAScript modules (ESM). That means your handler file name should end with ".js" (and not have `"type": "module"` in package.json if you have one) or end with ".cjs". A handler file that uses the ".mjs" suffix will not be instrumented by the APM agent.
 

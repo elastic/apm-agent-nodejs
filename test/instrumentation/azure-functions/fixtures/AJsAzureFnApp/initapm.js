@@ -7,4 +7,4 @@
 // For the normal use case an "initapm.js" would look like:
 //    module.exports = require('elastic-apm-node').start(/* { ... } */)
 
-module.exports = require('../../../../../').start()
+module.exports = require('../../../../../').start();

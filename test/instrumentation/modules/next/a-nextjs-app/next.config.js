@@ -8,50 +8,50 @@
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
-  async redirects () {
+  async redirects() {
     return [
       {
         source: '/redirect-to-a-page',
         destination: '/a-page',
-        permanent: false
-      }
-    ]
+        permanent: false,
+      },
+    ];
   },
-  async rewrites () {
+  async rewrites() {
     return {
       beforeFiles: [
         {
           source: '/rewrite-with-a-has-condition',
           destination: '/a-page',
-          has: [{ type: 'query', key: 'overrideMe' }]
-        }
+          has: [{ type: 'query', key: 'overrideMe' }],
+        },
       ],
       afterFiles: [
         {
           source: '/rewrite-to-a-page',
-          destination: '/a-page'
+          destination: '/a-page',
         },
         {
           source: '/rewrite-to-a-dynamic-page/:num',
-          destination: '/a-dynamic-page/:num'
+          destination: '/a-dynamic-page/:num',
         },
         {
           source: '/rewrite-to-a-public-file',
-          destination: '/favicon.ico'
+          destination: '/favicon.ico',
         },
         {
           source: '/rewrite-to-a-404',
-          destination: '/no-such-page'
-        }
+          destination: '/no-such-page',
+        },
       ],
       fallback: [
         {
           source: '/rewrite-external/:path*',
-          destination: 'https://old.example.com/:path*'
-        }
-      ]
-    }
-  }
-}
+          destination: 'https://old.example.com/:path*',
+        },
+      ],
+    };
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

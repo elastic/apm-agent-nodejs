@@ -12,7 +12,7 @@ module.exports = async function () {
   return {
     res: {
       status: 202,
-      body: 'HttpFnReturnContext body'
-    }
-  }
-}
+      body: 'HttpFnReturnContext body',
+    },
+  };
+};

@@ -4,11 +4,11 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
-  console.log('# SKIP: GH Actions do not support docker services on Windows')
-  process.exit(0)
+  console.log('# SKIP: GH Actions do not support docker services on Windows');
+  process.exit(0);
 }
 
-require('./shared')('@koa/router')
+require('./shared')('@koa/router');

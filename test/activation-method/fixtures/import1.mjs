@@ -4,5 +4,5 @@
  * compliance with the BSD 2-Clause License.
  */
 
-import 'elastic-apm-node/start.js'
-console.log("using: import 'elastic-apm-node/start.js'")
+import 'elastic-apm-node/start.js';
+console.log("using: import 'elastic-apm-node/start.js'");

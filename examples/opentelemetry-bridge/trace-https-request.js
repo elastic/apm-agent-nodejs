@@ -12,20 +12,20 @@
 //    export ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true
 //    node -r elastic-apm-node/start.js trace-https-request.js
 
-'use strict'
+'use strict';
 
-const https = require('https')
-const otel = require('@opentelemetry/api')
-const tracer = otel.trace.getTracer('trace-https-request')
+const https = require('https');
+const otel = require('@opentelemetry/api');
+const tracer = otel.trace.getTracer('trace-https-request');
 
-tracer.startActiveSpan('makeRequest', span => {
+tracer.startActiveSpan('makeRequest', (span) => {
   https.get('https://httpstat.us/200', (response) => {
-    console.log('STATUS:', response.statusCode)
-    const body = []
-    response.on('data', (chunk) => body.push(chunk))
+    console.log('STATUS:', response.statusCode);
+    const body = [];
+    response.on('data', (chunk) => body.push(chunk));
     response.on('end', () => {
-      console.log('BODY:', body.toString())
-      span.end()
-    })
-  })
-})
+      console.log('BODY:', body.toString());
+      span.end();
+    });
+  });
+});

@@ -21,16 +21,20 @@
 //    export ELASTIC_APM_SECRET_TOKEN='<secret token for your APM server>'
 //    node -r elastic-apm-node/start.js use-otel-metrics-sdk.js
 
-'use strict'
+'use strict';
 
-const { createServer } = require('http')
-const { performance } = require('perf_hooks')
+const { createServer } = require('http');
+const { performance } = require('perf_hooks');
 
-const otel = require('@opentelemetry/api')
-const { MeterProvider, View, ExplicitBucketHistogramAggregation } = require('@opentelemetry/sdk-metrics')
-const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus')
+const otel = require('@opentelemetry/api');
+const {
+  MeterProvider,
+  View,
+  ExplicitBucketHistogramAggregation,
+} = require('@opentelemetry/sdk-metrics');
+const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus');
 
-const exporter = new PrometheusExporter({ host: '127.0.0.1', port: 3001 })
+const exporter = new PrometheusExporter({ host: '127.0.0.1', port: 3001 });
 const meterProvider = new MeterProvider({
   views: [
     new View({
@@ -39,27 +43,30 @@ const meterProvider = new MeterProvider({
         // Use the same default buckets as in `prom-client` for comparison.
         // This is to demonstrate using a View. The default buckets used by the
         // APM agent would suffice as well.
-        [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10])
-    })
-  ]
-})
-meterProvider.addMetricReader(exporter)
-otel.metrics.setGlobalMeterProvider(meterProvider)
-console.log('Prometheus metrics at http://127.0.0.1:3001/metrics')
+        [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+      ),
+    }),
+  ],
+});
+meterProvider.addMetricReader(exporter);
+otel.metrics.setGlobalMeterProvider(meterProvider);
+console.log('Prometheus metrics at http://127.0.0.1:3001/metrics');
 
-const meter = otel.metrics.getMeter('my-meter')
-const latency = meter.createHistogram('latency', { description: 'Response latency (s)' })
+const meter = otel.metrics.getMeter('my-meter');
+const latency = meter.createHistogram('latency', {
+  description: 'Response latency (s)',
+});
 
 const server = createServer((req, res) => {
-  const start = performance.now()
-  req.resume()
+  const start = performance.now();
+  req.resume();
   req.on('end', () => {
     setTimeout(() => {
-      res.end('pong\n')
-      latency.record((performance.now() - start) / 1000) // latency in seconds
-    }, Math.random() * 80) // random latency up to 80ms
-  })
-})
+      res.end('pong\n');
+      latency.record((performance.now() - start) / 1000); // latency in seconds
+    }, Math.random() * 80); // random latency up to 80ms
+  });
+});
 server.listen(3000, () => {
-  console.log('Listening at http://127.0.0.1:3000/')
-})
+  console.log('Listening at http://127.0.0.1:3000/');
+});

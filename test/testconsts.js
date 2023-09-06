@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // Supported Node.js version range for import-in-the-middle usage.
 // - v12.20.0 add "named exports for CJS via static analysis"
@@ -15,8 +15,8 @@
 //   https://github.com/nodejs/node/pull/42881
 // - Current node v20 does not work with IITM
 //   https://github.com/DataDog/import-in-the-middle/pull/27
-const NODE_VER_RANGE_IITM = '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 <20'
+const NODE_VER_RANGE_IITM = '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 <20';
 
 module.exports = {
-  NODE_VER_RANGE_IITM
-}
+  NODE_VER_RANGE_IITM,
+};

@@ -7,12 +7,10 @@
 module.exports = function (context) {
   // This is an old (deprecated?) Azure Functions way to signal completion for
   // a non-async function handler.
-  context.done(
-    null, {
-      res: {
-        status: 202,
-        body: 'HttpFnContextDone body'
-      }
-    }
-  )
-}
+  context.done(null, {
+    res: {
+      status: 202,
+      body: 'HttpFnContextDone body',
+    },
+  });
+};

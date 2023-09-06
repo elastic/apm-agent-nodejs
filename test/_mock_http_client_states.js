@@ -4,55 +4,55 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 module.exports = function (expectations = [], done) {
   return {
-    _write (obj, cb) {
-      cb = cb || (() => {})
+    _write(obj, cb) {
+      cb = cb || (() => {});
 
-      const type = Object.keys(obj)[0]
+      const type = Object.keys(obj)[0];
 
       for (let i = 0; i < expectations.length; i++) {
-        const { find, test } = expectations[i]
+        const { find, test } = expectations[i];
         if (find(type, obj[type])) {
-          test(obj[type])
-          expectations.splice(i, 1)
+          test(obj[type]);
+          expectations.splice(i, 1);
           if (!expectations.length) {
-            done()
+            done();
           }
-          break
+          break;
         }
       }
 
-      process.nextTick(cb)
+      process.nextTick(cb);
     },
-    sendSpan (span, cb) {
-      this._write({ span }, cb)
+    sendSpan(span, cb) {
+      this._write({ span }, cb);
     },
-    sendTransaction (transaction, cb) {
-      this._write({ transaction }, cb)
+    sendTransaction(transaction, cb) {
+      this._write({ transaction }, cb);
     },
-    sendError (error, cb) {
-      this._write({ error }, cb)
+    sendError(error, cb) {
+      this._write({ error }, cb);
     },
-    sendMetricSet (metricset, cb) {
-      this._write({ metricset }, cb)
+    sendMetricSet(metricset, cb) {
+      this._write({ metricset }, cb);
     },
-    flush (opts, cb) {
+    flush(opts, cb) {
       if (typeof opts === 'function') {
-        cb = opts
-        opts = {}
+        cb = opts;
+        opts = {};
       } else if (!opts) {
-        opts = {}
+        opts = {};
       }
-      if (cb) process.nextTick(cb)
+      if (cb) process.nextTick(cb);
     },
-    supportsKeepingUnsampledTransaction () {
-      return true
+    supportsKeepingUnsampledTransaction() {
+      return true;
     },
-    supportsActivationMethodField () {
-      return true
-    }
-  }
-}
+    supportsActivationMethodField() {
+      return true;
+    },
+  };
+};

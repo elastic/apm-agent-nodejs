@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // Start a simply-configured OpenTelemetry SDK for Node.js tracing for demo
 // purposes.
@@ -24,18 +24,19 @@
 //   error () { console.log('diag ERROR:', ...arguments) }
 // }, opentelemetry.DiagLogLevel.ALL)
 
-const { registerInstrumentations } = require('@opentelemetry/instrumentation')
-const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node')
-const { SimpleSpanProcessor, ConsoleSpanExporter } = require('@opentelemetry/sdk-trace-base')
-const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http')
+const { registerInstrumentations } = require('@opentelemetry/instrumentation');
+const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node');
+const {
+  SimpleSpanProcessor,
+  ConsoleSpanExporter,
+} = require('@opentelemetry/sdk-trace-base');
+const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
 
 module.exports = (() => {
-  const provider = new NodeTracerProvider()
-  provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()))
-  provider.register()
+  const provider = new NodeTracerProvider();
+  provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
+  provider.register();
   registerInstrumentations({
-    instrumentations: [
-      new HttpInstrumentation()
-    ]
-  })
-})()
+    instrumentations: [new HttpInstrumentation()],
+  });
+})();

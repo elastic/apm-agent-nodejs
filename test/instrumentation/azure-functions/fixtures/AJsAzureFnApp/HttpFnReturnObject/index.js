@@ -8,5 +8,5 @@ module.exports = async function () {
   // Using a '$return' binding, so only the return value is used (not
   // `context.res` or `context.bindings.*`). Any object is fine, but if it
   // provides none of the fields for an HTTP response, then the default is used.
-  return { foo: 'bar' }
-}
+  return { foo: 'bar' };
+};
