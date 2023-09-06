@@ -38,7 +38,7 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Breaking changes
 
-* Set the new minimum supported Node.js to version 14.5.0.
+* Set the new minimum supported Node.js to version 14.17.0.
   Users of earlier Node.js versions can use elastic-apm-node v3.x, which
   supports back to Node.js v8.6.
 
