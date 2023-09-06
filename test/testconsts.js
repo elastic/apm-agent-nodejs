@@ -22,12 +22,16 @@ const NODE_VER_RANGE_IITM = '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 <20';
 /**
  * Returns the version ranges for IITM that are greater or equal than the given version
  *
- * @param {String} minVersion - the min version accepted
- * @returns {String} sub-range of IITM whose versions are gte than minVersion
+ * @param {String} version - the min version accepted
+ * @returns {String} sub-range of IITM whose versions are gte than version
  */
-function iitmVersionsFrom(minVersion) {
+function iitmVersionsFrom(version) {
+  if (!semver.parse(version)) {
+    throw new Error(`Version "${version}" is not valid.`);
+  }
+
   const separator = ' || ';
-  const minRange = `>=${minVersion}`;
+  const minRange = `>=${version}`;
 
   return NODE_VER_RANGE_IITM.split(separator)
     .filter((iitmRange) => semver.intersects(iitmRange, minRange))

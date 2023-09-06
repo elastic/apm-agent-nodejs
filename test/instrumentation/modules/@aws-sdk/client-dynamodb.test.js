@@ -27,7 +27,10 @@ const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost';
 const endpoint = 'http://' + LOCALSTACK_HOST + ':4566';
 
 const NODE_VER_SUP_AWS_SDK = '14.0.0';
+const NODE_VER_SUP_RANGE_RITM = `>=${NODE_VER_SUP_AWS_SDK}`;
 const NODE_VER_SUP_RANGE_IITM = iitmVersionsFrom(NODE_VER_SUP_AWS_SDK);
+
+console.log('IITM ranges', NODE_VER_SUP_RANGE_IITM);
 
 const testFixtures = [
   {
@@ -43,7 +46,7 @@ const testFixtures = [
       TEST_ENDPOINT: endpoint,
       TEST_REGION: AWS_REGION,
     },
-    versionRanges: { node: NODE_VER_SUP_AWS_SDK },
+    versionRanges: { node: NODE_VER_SUP_RANGE_RITM },
     verbose: false,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
