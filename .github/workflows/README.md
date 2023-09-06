@@ -25,7 +25,7 @@ There are some other stages that run for every push on the main branches:
 
 Node.js agent supports compatibility to different Node.js versions and frameworks, those are defined in:
 
-* TAV [frameworks](.ci/tav.json) for all the commits. **NOTE**: on PRs is a dynamic choice based on the changeset or the GitHub comment.
+* TAV [frameworks](../../.ci/tav.json) for all the commits. **NOTE**: on PRs is a dynamic choice based on the changeset or the GitHub comment.
 * Node.js [versions](https://github.com/elastic/apm-agent-nodejs/blob/d6db3bcb9c15f119f2b98cb04f2d4a4932118441/.github/workflows/test.yml#L128-L142) for all the `*nix` builds.
 
 ### How to interact with the CI?
