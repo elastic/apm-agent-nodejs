@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-    - main
+    - 3.x
     paths-ignore:
     - '**/*.md'
     - '**/*.asciidoc'
@@ -13,7 +13,7 @@ on:
     - 'examples/**'
   pull_request:
     branches:
-    - main
+    - 3.x
     paths-ignore:
     - '**/*.md'
     - '**/*.asciidoc'
