@@ -6,7 +6,7 @@ endif::[]
 ////
 Notes:
 1. When adding a changelog entry, if the "Unreleased" section doesn't yet exist,
-   please add the following under the "=== Node.js Agent version 3.x" header:
+   please add the following under the "=== Node.js Agent version 4.x" header:
 
         ==== Unreleased
 
@@ -33,7 +33,8 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
-==== Unreleased
+[[release-notes-4.0.0]]
+==== 4.0.0 - 2023/09/07
 
 [float]
 ===== Breaking changes
