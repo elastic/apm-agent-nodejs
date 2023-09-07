@@ -44,10 +44,9 @@ tape.test(
     // Load express after the agent has started.
     const express = require('express');
 
-    const handler = require(path.join(
-      __dirname,
-      'fixtures/esbuild-bundled-handler/hello',
-    )).main;
+    const handler = require(
+      path.join(__dirname, 'fixtures/esbuild-bundled-handler/hello'),
+    ).main;
     t.equals(
       handler.name,
       'wrappedLambdaHandler',
