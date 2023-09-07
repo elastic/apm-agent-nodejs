@@ -31,8 +31,14 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-[float]
-===== Breaking changes
+NOTE: "3.x" releases are now maintenance releases.
+See https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-4.x.html[the 4.x release notes]
+for the latest (4.x) releases. The 3.x branch will be maintained until
+2024-03-07 (6 months after the 4.0.0 release).
+
+
+[[release-notes-3.50.0]]
+==== 3.50.0 - 2023/09/07
 
 [float]
 ===== Features
