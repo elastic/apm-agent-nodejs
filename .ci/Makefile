@@ -97,7 +97,7 @@ create-arn-file: validate-release-notes-url
 	@RELEASE_NOTES_URL=$(RELEASE_NOTES_URL) ./scripts/create-arn-table.sh
 
 github-release: validate-ref-name
-	echo ../dev-utils/github-release.sh "$(GITHUB_REF_NAME)" "$(AWS_FOLDER)/$(SUFFIX_ARN_FILE)"
+	../dev-utils/github-release.sh "$(GITHUB_REF_NAME)" "$(AWS_FOLDER)/$(SUFFIX_ARN_FILE)"
 
 validate-version:
 ifndef AGENT_VERSION
