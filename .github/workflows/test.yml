@@ -6,7 +6,6 @@ on:
   push:
     branches:
     - main
-    - 3.x
     paths-ignore:
     - '**/*.md'
     - '**/*.asciidoc'
@@ -15,7 +14,6 @@ on:
   pull_request:
     branches:
     - main
-    - 3.x
     paths-ignore:
     - '**/*.md'
     - '**/*.asciidoc'
