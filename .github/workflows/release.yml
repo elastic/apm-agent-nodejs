@@ -69,8 +69,6 @@ jobs:
       - name: npm publish
         run: |-
           echo "//registry.npmjs.org/:_authToken=${{ env.NPMJS_TOKEN }}" > .npmrc
-          # Publishing without a '--tag=...' will do the right thing: "latest"
-          # if this is a non-pre-release, no tag if this is a pre-release.
           npm publish --otp=${{ env.TOTP_CODE }}
 
       - if: always()
