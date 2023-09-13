@@ -33,6 +33,28 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+- Changes to cloud metadata collection for Google Cloud (GCP). Most notably
+  the `cloud.project.id` field is now the `project-id` from
+  https://cloud.google.com/compute/docs/metadata/default-metadata-values#project_metadata
+  rather than the `numeric-project-id`. This matches the value produced by
+  Elastic Beats (like filebeat). {issues}3614[#3614]
+
+
 [[release-notes-4.0.0]]
 ==== 4.0.0 - 2023/09/07
 

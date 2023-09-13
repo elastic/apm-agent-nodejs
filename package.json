@@ -106,6 +106,7 @@
     "fast-stream-to-buffer": "^1.0.0",
     "http-headers": "^3.0.2",
     "import-in-the-middle": "1.4.2",
+    "json-bigint": "^1.0.0",
     "lru-cache": "^10.0.1",
     "measured-reporting": "^1.51.1",
     "module-details-from-path": "^1.0.3",
