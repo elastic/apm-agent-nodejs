@@ -30,8 +30,6 @@ const NODE_VER_SUP_AWS_SDK = '14.0.0';
 const NODE_VER_SUP_RANGE_RITM = `>=${NODE_VER_SUP_AWS_SDK}`;
 const NODE_VER_SUP_RANGE_IITM = iitmVersionsFrom(NODE_VER_SUP_AWS_SDK);
 
-console.log('IITM ranges', NODE_VER_SUP_RANGE_IITM);
-
 const testFixtures = [
   {
     name: 'simple DynamoDB V3 usage scenario',
