@@ -84,7 +84,7 @@ Metrics API and Metrics SDK to allow
 [options="header"]
 |=======================================================================
 | Framework | Version
-| <<opentelemetry-bridge,@opentelemetry/api>> | >=1.0.0 <1.5.0
+| <<opentelemetry-bridge,@opentelemetry/api>> | >=1.0.0 <1.7.0
 | https://www.npmjs.com/package/@opentelemetry/sdk-metrics[@opentelemetry/sdk-metrics] | >=1.11.0 <2
 |=======================================================================
 
