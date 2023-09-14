@@ -254,28 +254,6 @@ tape('cloud metadata: aws empty data', function (t) {
   });
 });
 
-tape('cloud metadata: gcp empty data', function (t) {
-  t.plan(2);
-
-  const provider = 'gcp';
-  const fixtureName = 'gcp does not crash on empty response';
-  const serverGcp = createTestServer(provider, fixtureName);
-
-  const cloudProvider = 'auto';
-  const listener = serverGcp.listen(0, function () {
-    providerUrls.aws.port = listener.address().port;
-    providerUrls.gcp.port = listener.address().port;
-    providerUrls.azure.port = listener.address().port;
-
-    const cloudMetadata = new CloudMetadata(cloudProvider, logger);
-    cloudMetadata.getCloudMetadata(providerUrls, function (err, metadata) {
-      t.error(err, 'no errors expected');
-      t.ok(metadata, 'returned data');
-      listener.close();
-    });
-  });
-});
-
 tape('cloud metadata: azure empty data', function (t) {
   t.plan(2);
 
@@ -323,12 +301,9 @@ tape('cloud metadata: azure empty data', function (t) {
 tape(
   'cloud metadata: main function returns data with gcp server',
   function (t) {
-    t.plan(9);
-
     const provider = 'gcp';
     const fixtureName = 'default gcp fixture';
     const serverGcp = createTestServer(provider, fixtureName);
-    const fixture = loadFixtureData(provider, fixtureName);
 
     const cloudProvider = 'auto';
     const listener = serverGcp.listen(0, function () {
@@ -337,41 +312,23 @@ tape(
       providerUrls.azure.port = listener.address().port;
 
       const cloudMetadata = new CloudMetadata(cloudProvider, logger);
-      cloudMetadata.getCloudMetadata(providerUrls, function (err, metadata) {
-        t.error(err, 'no errors expected');
-        t.ok(metadata, 'returned data');
-        t.equals(
-          metadata.instance.id,
-          fixture.response.instance.id + '',
-          'instance id is set and is a string',
+      cloudMetadata.getCloudMetadata(providerUrls, function (err, cmeta) {
+        t.error(err, 'getCloudMetadata did not error');
+        t.ok(cmeta, 'getCloudMetadata returned metadata');
+        t.deepEqual(
+          cmeta,
+          {
+            provider: 'gcp',
+            instance: { id: '5737554347302044216', name: 'trentm-play-vm0' },
+            project: { id: 'acme-eng' },
+            availability_zone: 'us-west1-b',
+            region: 'us-west1',
+            machine: { type: 'e2-medium' },
+          },
+          'metadata.cloud',
         );
-        t.equals(
-          metadata.provider,
-          provider + '',
-          'provider is set and is a string',
-        );
-        t.equals(
-          metadata.project.id,
-          fixture.response.project.numericProjectId + '',
-          'project id is set and is a string',
-        );
-        t.equals(
-          metadata.project.name,
-          fixture.response.project.projectId + '',
-          'project name is set and is a string',
-        );
-
-        // for properties we create via manipulation, just test hard coded
-        // string constants rather than re-manipulate in that same, possibly
-        // buggy, way
-        t.equals(metadata.region, 'us-west1', 'region is set');
-        t.equals(
-          metadata.availability_zone,
-          'us-west1-b',
-          'availability_zone is set',
-        );
-        t.equals(metadata.machine.type, 'e2-micro', 'machine type is set');
         listener.close();
+        t.end();
       });
     });
   },
@@ -437,31 +394,6 @@ tape(
           fixture.response.compute.location + '',
           'region set and is a string',
         );
-        listener.close();
-      });
-    });
-  },
-);
-
-tape(
-  'cloud metadata: gcp string manipulation does not fail on non-strings',
-  function (t) {
-    t.plan(2);
-
-    const provider = 'gcp';
-    const fixtureName = 'gcp unexpected string fixture';
-    const serverGcp = createTestServer(provider, fixtureName);
-
-    const cloudProvider = 'auto';
-    const listener = serverGcp.listen(0, function () {
-      providerUrls.aws.port = listener.address().port;
-      providerUrls.gcp.port = listener.address().port;
-      providerUrls.azure.port = listener.address().port;
-
-      const cloudMetadata = new CloudMetadata(cloudProvider, logger);
-      cloudMetadata.getCloudMetadata(providerUrls, function (err, metadata) {
-        t.error(err, 'no errors expected');
-        t.ok(metadata, 'returned data');
         listener.close();
       });
     });

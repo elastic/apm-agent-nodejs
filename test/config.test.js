@@ -1005,7 +1005,11 @@ test('serviceName/serviceVersion zero-conf: weird "name" in package.json', funct
           logWarn.message.indexOf('serviceName') !== -1,
         'there is a log.warn about "serviceName"',
       );
-      const conf = JSON.parse(lines[lines.length - 1]);
+      const conf = JSON.parse(
+        // Filter out log lines from the APM agent itself. We just want the
+        // `console.log(...)` from the index.js script.
+        lines.filter((ln) => ln.indexOf('"log.level":') === -1)[0],
+      );
       t.equal(
         conf.serviceName,
         'unknown-nodejs-service',
@@ -1061,7 +1065,11 @@ test('serviceName/serviceVersion zero-conf: no package.json to find', function (
       t.error(err, 'no error running script: ' + err);
       t.equal(stderr, '', 'no stderr');
       const lines = stdout.trim().split('\n');
-      const conf = JSON.parse(lines[lines.length - 1]);
+      const conf = JSON.parse(
+        // Filter out log lines from the APM agent itself. We just want the
+        // `console.log(...)` from the index.js script.
+        lines.filter((ln) => ln.indexOf('"log.level":') === -1)[0],
+      );
       t.equal(
         conf.serviceName,
         'unknown-nodejs-service',

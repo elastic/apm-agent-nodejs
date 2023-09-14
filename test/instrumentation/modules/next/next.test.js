@@ -792,10 +792,9 @@ tape.test(
 
 tape.test('setup: filter TEST_REQUESTS', (t) => {
   // This version can only be fetched after the above `npm ci`.
-  nextJsVersion = require(path.join(
-    testAppDir,
-    'node_modules/next/package.json',
-  )).version;
+  nextJsVersion = require(
+    path.join(testAppDir, 'node_modules/next/package.json'),
+  ).version;
 
   // Some entries in TEST_REQUESTS are only run for newer versions of Next.js.
   TEST_REQUESTS = TEST_REQUESTS.filter((testReq) => {
