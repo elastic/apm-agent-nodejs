@@ -45,6 +45,9 @@ See the <<upgrade-to-v4>> guide.
 * Update <<opentelemetry-bridge>> support to `@opentelemetry/api` version 1.6.0.
   {pull}3622[#3622]
 
+* Add support for `@aws-sdk/client-dynamodb`, one of the AWS SDK v3 clients.
+  ({issues}2958[#2958])
+
 [float]
 ===== Bug fixes
 
