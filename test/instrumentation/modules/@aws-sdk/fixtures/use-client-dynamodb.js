@@ -30,7 +30,7 @@
 //    node use-client-dynamodb.js | ecslog
 //
 //    # Testing against localstack.
-//    docker run --rm -it -e SERVICES=s3 -p 4566:4566 localstack/localstack
+//    docker run --rm -it -p 4566:4566 localstack/localstack
 //    TEST_ENDPOINT=http://localhost:4566 node use-client-dynamodb.js | ecslog
 //
 //    # Use TEST_TABLE_NAME to re-use an existing table (and not delete it).
