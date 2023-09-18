@@ -27,7 +27,6 @@ const AWS_REGION = 'us-east-2';
 const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost';
 const endpoint = 'http://' + LOCALSTACK_HOST + ':4566';
 
-
 const testFixtures = [
   {
     name: 'simple DynamoDB V3 usage scenario',
