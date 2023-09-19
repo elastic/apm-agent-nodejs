@@ -118,7 +118,7 @@ const testFixtures = [
             },
             destination: {
               service: { name: '', type: '', resource: 'sns/<PHONE_NUMBER>' },
-              address: 'localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
             },
