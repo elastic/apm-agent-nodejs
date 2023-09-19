@@ -9,8 +9,7 @@
 // Test SNS instrumentation of the '@aws-sdk/client-sns' module.
 //
 // Note that this uses localstack for testing, which mimicks the SNS API but
-// isn't identical. Some known limitations:
-// TODO: check if there are limitations
+// isn't identical.
 
 const semver = require('semver');
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
