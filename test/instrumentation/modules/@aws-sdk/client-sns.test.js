@@ -177,6 +177,8 @@ const testFixtures = [
         'publish to unexistent topic produced expected span',
       );
 
+      // TODO: add expectation for publish with multiple targets (PhoneNumber & TopicArn & TargetArn)
+
       // This is the Publish to a non-existant-topic, so we expect a failure.
       t.equal(errors.length, 1, 'got 1 error');
       t.equal(

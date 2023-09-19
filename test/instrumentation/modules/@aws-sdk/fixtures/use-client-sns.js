@@ -152,7 +152,26 @@ async function useClientSNS(snsClient, topicName) {
     }
   }
 
-  // TODO: execute a publish with TargetArn in input, combinations of phone and arn?
+  // PublishCommand does not throw if all possible targets are set
+  // - PhoneNumber
+  // - TopicArn
+  // - TargetArn
+  // What should be the result span? How exactly is SNS client behaving?
+  command = new PublishCommand({
+    Message: 'message to be sent',
+    PhoneNumber: '+34555555555',
+    TopicArn: topicArn,
+    TargetArn: topicArn.replace(
+      TEST_TOPIC_NAME_PREFIX,
+      'elasticapmtest-target-',
+    ),
+  });
+  data = await snsClient.send(command);
+  assert(
+    apm.currentSpan === null,
+    'SNS span (or its HTTP span) should not be currentSpan after awaiting the task',
+  );
+  log.info({ data }, 'publish with PhoneNumber, TopicArn & TargetArn');
 
   command = new DeleteTopicCommand({ TopicArn: topicArn });
   data = await snsClient.send(command);
