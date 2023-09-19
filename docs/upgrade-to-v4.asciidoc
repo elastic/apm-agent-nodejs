@@ -13,7 +13,7 @@ The following is a guide on upgrading your usage of the Elastic APM Node.js agen
 [[v4-nodejs]]
 ==== Node.js versions
 
-Version 4.x of `elastic-apm-node` supports Node.js v14.5.0 and later.
+Version 4.x of `elastic-apm-node` supports Node.js v14.17.0 and later.
 (The previous 3.x major supported back to Node.js v8.6.0.)
 
 

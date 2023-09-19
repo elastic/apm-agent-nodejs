@@ -84,6 +84,7 @@ for the current *experimental* support.
 The full [Node.js APM agent documentation is here](https://www.elastic.co/guide/en/apm/agent/nodejs/current/intro.html).
 Some important links:
 
+- [Release notes](https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes.html)
 - [Supported Technologies](https://www.elastic.co/guide/en/apm/agent/nodejs/current/supported-technologies.html) describes the supported Node.js versions, which modules (and version ranges) are automatically traced, and other technologies.
 - [Configuring the agent](https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuring-the-agent.html) describes the different ways to configure the APM agent (via options to `apm.start(...)`, environment variables, or other mechanisms).
 - [Configuration options](https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html) is a full configuration reference.
@@ -98,8 +99,7 @@ Some important links:
 The following git branches are active:
 
 - The ["main" branch](https://github.com/elastic/apm-agent-nodejs/tree/main) is being used for **4.x releases**.
-- The ["3.x" branch](https://github.com/elastic/apm-agent-nodejs/tree/3.x) is being used for **3.x maintenance releases**. The 3.x line will be [supported for 6 months](https://www.elastic.co/support/eol) after the release of v4.0.0.
-
+- The ["3.x" branch](https://github.com/elastic/apm-agent-nodejs/tree/3.x) is being used for **3.x maintenance releases**. The 3.x line will be [supported until 2024-03-07](https://www.elastic.co/support/eol) -- for 6 months after the release of v4.0.0.
 
 ## Contributing
 

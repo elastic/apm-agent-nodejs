@@ -95,6 +95,10 @@ function addGcpRoute(app, fixture) {
       throw new Error('Metadata-Flavor: Google header required');
     }
 
+    res.status(200);
+    res.set('Metadata-Flavor', 'Google');
+    res.set('Content-Type', 'application/json');
+    res.set('Server', 'Metadata Server for VM');
     res.send(fixture.response);
   });
 
@@ -205,7 +209,7 @@ function addRoutesToExpressApp(app, provider, fixture) {
 function createTestServer(provider, fixtureName) {
   const fixture = loadFixtureData(provider, fixtureName);
   if (!fixture) {
-    throw new Error(`Unknown ${provider} fixtured named ${fixtureName}`);
+    throw new Error(`Unknown ${provider} fixture named ${fixtureName}`);
   }
   const app = express();
   return addRoutesToExpressApp(app, provider, fixture);
@@ -223,7 +227,7 @@ function createTestServer(provider, fixtureName) {
 function createSlowTestServer(provider, fixtureName) {
   const fixture = loadFixtureData(provider, fixtureName);
   if (!fixture) {
-    throw new Error(`Unknown ${provider} fixtured named ${fixtureName}`);
+    throw new Error(`Unknown ${provider} fixture named ${fixtureName}`);
   }
   const app = express();
   return addSlowRoutesToExpressApp(app, provider, fixture);
