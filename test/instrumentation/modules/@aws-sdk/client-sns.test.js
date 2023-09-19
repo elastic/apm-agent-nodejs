@@ -11,22 +11,9 @@
 // Note that this uses localstack for testing, which mimicks the SNS API but
 // isn't identical.
 
-const semver = require('semver');
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   console.log('# SKIP: GH Actions do not support docker services on Windows');
   process.exit(0);
-}
-if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
-  console.log(
-    '# SKIP @aws-sdk/* instrumentation does not work with contextManager="patch"',
-  );
-  process.exit();
-}
-if (semver.lt(process.version, '14.0.0')) {
-  console.log(
-    `# SKIP @aws-sdk min supported node is v14 (node ${process.version})`,
-  );
-  process.exit();
 }
 
 const test = require('tape');
@@ -51,6 +38,9 @@ const testFixtures = [
       TEST_TOPIC_NAME: 'elasticapmtest-topic-3',
       TEST_ENDPOINT: endpoint,
       TEST_REGION: 'us-east-2',
+    },
+    versionRanges: {
+      node: '>=14',
     },
     verbose: false,
     checkApmServer: (t, apmServer) => {
