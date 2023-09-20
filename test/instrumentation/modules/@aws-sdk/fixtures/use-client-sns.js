@@ -34,6 +34,10 @@
 //    TEST_ENDPOINT=http://localhost:4566 node use-client-sns.js | ecslog
 //
 
+const TEST_IGNORE_TOPIC = 'topic-to-ignore';
+const TEST_IGNORE_TARGET = 'target-to-ignore';
+const TEST_IGNORE_PHONE = '6666666';
+
 const apm = require('../../../../..').start({
   serviceName: 'use-client-sns',
   captureExceptions: false,
@@ -42,7 +46,11 @@ const apm = require('../../../../..').start({
   cloudProvider: 'none',
   stackTraceLimit: 4, // get it smaller for reviewing output
   logLevel: 'info',
-  ignoreMessageQueues: ['arn:aws:sns:us-west-2:111111111111:ignore-name'],
+  ignoreMessageQueues: [
+    `*${TEST_IGNORE_TOPIC}`,
+    `*${TEST_IGNORE_TARGET}`,
+    `*${TEST_IGNORE_PHONE}`,
+  ],
 });
 
 const assert = require('assert');
@@ -139,7 +147,7 @@ async function useClientSNS(snsClient, topicName) {
 
   command = new PublishCommand({
     Message: 'message to be sent',
-    TopicArn: 'arn:aws:sns:us-west-2:111111111111:ignore-name',
+    TopicArn: `arn:aws:sns:us-west-2:111111111111:${TEST_IGNORE_TOPIC}`,
   });
   try {
     data = await snsClient.send(command);
@@ -152,26 +160,44 @@ async function useClientSNS(snsClient, topicName) {
     }
   }
 
-  // PublishCommand does not throw if all possible targets are set
-  // - PhoneNumber
-  // - TopicArn
-  // - TargetArn
-  // What should be the result span? How exactly is SNS client behaving?
   command = new PublishCommand({
     Message: 'message to be sent',
-    PhoneNumber: '+34555555555',
-    TopicArn: topicArn,
-    TargetArn: topicArn.replace(
-      TEST_TOPIC_NAME_PREFIX,
-      'elasticapmtest-target-',
-    ),
+    TargetArn: `arn:aws:sns:us-west-2:111111111111: ${TEST_IGNORE_TARGET}`,
+  });
+  try {
+    data = await snsClient.send(command);
+    throw new Error('expected NotFoundException error');
+  } catch (err) {
+    log.info({ data }, 'publish with TargetArn to ignore');
+    const statusCode = err && err.$metadata && err.$metadata.httpStatusCode;
+    if (statusCode !== 404) {
+      throw err;
+    }
+  }
+
+  command = new PublishCommand({
+    Message: 'message to be sent',
+    PhoneNumber: `+34${TEST_IGNORE_PHONE}`,
   });
   data = await snsClient.send(command);
   assert(
     apm.currentSpan === null,
     'SNS span (or its HTTP span) should not be currentSpan after awaiting the task',
   );
-  log.info({ data }, 'publish with PhoneNumber, TopicArn & TargetArn');
+  log.info({ data }, 'publish with PhoneNumber to ignore');
+
+  command = new PublishCommand({
+    Message: 'message to be sent',
+    TopicArn: topicArn,
+    TargetArn: topicArn,
+    PhoneNumber: `+345555555`,
+  });
+  data = await snsClient.send(command);
+  assert(
+    apm.currentSpan === null,
+    'SNS span (or its HTTP span) should not be currentSpan after awaiting the task',
+  );
+  log.info({ data }, 'publish with TopicArn, TargerArn and PhoneNumber');
 
   command = new DeleteTopicCommand({ TopicArn: topicArn });
   data = await snsClient.send(command);
