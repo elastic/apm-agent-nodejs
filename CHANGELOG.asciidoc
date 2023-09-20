@@ -50,6 +50,7 @@ See the <<upgrade-to-v4>> guide.
 
 [float]
 ===== Bug fixes
+* The problem of route name not being captured in Express.Use direct use in middleware has been resolved.
 
 [float]
 ===== Chores
