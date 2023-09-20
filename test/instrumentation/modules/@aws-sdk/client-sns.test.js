@@ -42,7 +42,7 @@ const testFixtures = [
     versionRanges: {
       node: '>=14',
     },
-    verbose: false,
+    verbose: true,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
@@ -177,7 +177,43 @@ const testFixtures = [
         'publish to unexistent topic produced expected span',
       );
 
-      // TODO: add expectation for publish with multiple targets (PhoneNumber & TopicArn & TargetArn)
+      t.deepEqual(
+        spans.shift(),
+        {
+          name: 'SNS Publish to elasticapmtest-topic-3, elasticapmtest-topic-3, <PHONE_NUMBER>',
+          type: 'messaging',
+          subtype: 'sns',
+          action: 'Publish',
+          context: {
+            service: {
+              target: {
+                type: 'sns',
+                name: 'elasticapmtest-topic-3, elasticapmtest-topic-3, <PHONE_NUMBER>',
+              },
+            },
+            destination: {
+              service: {
+                name: '',
+                type: '',
+                resource:
+                  'sns/elasticapmtest-topic-3, elasticapmtest-topic-3, <PHONE_NUMBER>',
+              },
+              address: LOCALSTACK_HOST,
+              port: 4566,
+              cloud: {
+                region: 'us-east-2',
+              },
+            },
+            message: {
+              queue: {
+                name: 'elasticapmtest-topic-3, elasticapmtest-topic-3, <PHONE_NUMBER>',
+              },
+            },
+          },
+          outcome: 'success',
+        },
+        'publish to topic, target & phone in the same command produced expected span',
+      );
 
       // This is the Publish to a non-existant-topic, so we expect a failure.
       t.equal(errors.length, 1, 'got 1 error');
