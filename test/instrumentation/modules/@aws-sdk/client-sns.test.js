@@ -166,7 +166,7 @@ const testFixtures = [
                 type: '',
                 resource: 'sns/elasticapmtest-topic-3-unexistent',
               },
-              address: 'localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
             },
