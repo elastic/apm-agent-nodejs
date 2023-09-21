@@ -12,12 +12,19 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 }
 
 const test = require('tape');
+const semver = require('semver');
 const { validateSpan } = require('../../../_validate_schema');
-const { runTestFixtures, sortApmEvents } = require('../../../_utils');
+const {
+  runTestFixtures,
+  safeGetPackageVersion,
+  sortApmEvents,
+} = require('../../../_utils');
 
+const CASSANDRA_VERSION = safeGetPackageVersion('cassandra-driver');
 const TEST_KEYSPACE = 'mykeyspace';
 const TEST_TABLE = 'myTable';
 const TEST_DATACENTER = 'datacenter1';
+const TEST_USE_PROMISES = semver.satisfies(CASSANDRA_VERSION, '>=3.2');
 
 const testFixtures = [
   {
@@ -30,6 +37,7 @@ const testFixtures = [
       TEST_KEYSPACE,
       TEST_TABLE,
       TEST_DATACENTER,
+      TEST_USE_PROMISES,
     },
     versionRanges: {
       // v4.7.0 is a bad release for node versions <16.9
@@ -47,7 +55,7 @@ const testFixtures = [
       const errors = events.filter((e) => e.error).map((e) => e.error);
 
       // Compare some common fields across all spans.
-      const spans = events.filter((e) => e.span).map((e) => e.span);
+      let spans = events.filter((e) => e.span).map((e) => e.span);
       spans.forEach((s) => {
         const errs = validateSpan(s);
         t.equal(errs, null, 'span is valid  (per apm-server intake schema)');
@@ -72,7 +80,6 @@ const testFixtures = [
         spans.length,
         'all spans have sample_rate=1',
       );
-      // const failingSpanId = spans[8].id; // index of `getObjNonExistantObject`
       spans.forEach((s) => {
         // Remove variable and common fields to facilitate t.deepEqual below.
         delete s.id;
@@ -84,6 +91,9 @@ const testFixtures = [
         delete s.sync;
         delete s.sample_rate;
       });
+
+      // XXX: remove
+      console.log(JSON.stringify(spans, null, 2));
 
       // Work through each of the pipeline functions (connect, execute, ...) in the script:
 
@@ -109,6 +119,10 @@ const testFixtures = [
         },
         'connect produced expected span',
       );
+      // Some operations like batch seems to force a reconnection to the server
+      // we want to filter out these spans since we already assert the data in them
+      // is correct
+      spans = spans.filter((s) => s.action !== 'connect');
 
       t.deepEqual(
         spans.shift(),
@@ -134,7 +148,7 @@ const testFixtures = [
           },
           outcome: 'success',
         },
-        'execut with callback produced expected span',
+        'execute with callback produced expected span',
       );
 
       t.deepEqual(
@@ -161,7 +175,7 @@ const testFixtures = [
           },
           outcome: 'success',
         },
-        'execut with promise produced expected span',
+        'execute with promise produced expected span',
       );
 
       t.deepEqual(
@@ -191,7 +205,37 @@ const testFixtures = [
           },
           outcome: 'success',
         },
-        'execut with promise produced expected span',
+        'batch with callback produced expected span',
+      );
+
+      t.deepEqual(
+        spans.shift(),
+        {
+          name: 'Cassandra: Batch query',
+          type: 'db',
+          subtype: 'cassandra',
+          action: 'query',
+          context: {
+            db: {
+              type: 'cassandra',
+              statement: [
+                `INSERT INTO ${TEST_TABLE} (id, text) VALUES (uuid(), ?)`,
+                `INSERT INTO ${TEST_TABLE} (id, text) VALUES (uuid(), ?)`,
+              ].join(';\n'),
+              instance: TEST_KEYSPACE,
+            },
+            service: { target: { type: 'cassandra', name: TEST_KEYSPACE } },
+            destination: {
+              service: {
+                type: '',
+                name: '',
+                resource: `cassandra/${TEST_KEYSPACE}`,
+              },
+            },
+          },
+          outcome: 'success',
+        },
+        'batch with promise produced expected span',
       );
     },
   },
