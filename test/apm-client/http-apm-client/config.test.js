@@ -8,7 +8,7 @@
 
 const fs = require('fs');
 const http = require('http');
-const ndjson = require('ndjson');
+// const ndjson = require('ndjson');
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
