@@ -558,8 +558,6 @@ test('payloadLogFile', function (t) {
         const logsContent = fs.readFileSync(filename, { encoding: 'utf-8' });
         const logLines = logsContent.split('\n').filter((l) => l);
 
-        console.log(logLines);
-
         logLines.map(JSON.parse).forEach((obj) => {
           const expected = receivedObjects.shift();
           const n = 5 - receivedObjects.length;
