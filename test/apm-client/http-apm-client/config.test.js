@@ -8,7 +8,6 @@
 
 const fs = require('fs');
 const http = require('http');
-// const ndjson = require('ndjson');
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
@@ -556,21 +555,6 @@ test('payloadLogFile', function (t) {
         server.close();
         t.equal(receivedObjects.length, 5, 'should have received 5 objects');
 
-        // const file = fs.createReadStream(filename).pipe(ndjson.parse());
-
-        // file.on('data', function (obj) {
-        //   const expected = receivedObjects.shift();
-        //   const n = 5 - receivedObjects.length;
-        //   t.deepEqual(
-        //     obj,
-        //     expected,
-        //     `expected line ${n} in the log file to match item no ${n} received by the server`,
-        //   );
-        // });
-
-        // file.on('end', function () {
-        //   t.end();
-        // });
         const logsContent = fs.readFileSync(filename, { encoding: 'utf-8' });
         const logLines = logsContent.split('\n').filter((l) => l);
 
