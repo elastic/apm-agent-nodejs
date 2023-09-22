@@ -110,7 +110,7 @@ async function useClientSNS(snsClient, topicName) {
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/sns/command/PublishCommand/
   command = new PublishCommand({
     Message: 'message to be sent',
-    PhoneNumber: '+34555555555',
+    PhoneNumber: '1-555-555-5555',
   });
   data = await snsClient.send(command);
   assert(
@@ -190,7 +190,7 @@ async function useClientSNS(snsClient, topicName) {
     Message: 'message to be sent',
     TopicArn: topicArn,
     TargetArn: topicArn,
-    PhoneNumber: `+345555555`,
+    PhoneNumber: '1-555-555-5555',
   });
   data = await snsClient.send(command);
   assert(
