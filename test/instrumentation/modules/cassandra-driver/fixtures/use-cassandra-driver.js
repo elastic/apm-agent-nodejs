@@ -14,7 +14,6 @@ const apm = require('../../../../..').start({
   centralConfig: false,
   spanCompressionEnabled: false,
 });
-const { promisify } = require('util');
 const assert = require('assert');
 const cassandra = require('cassandra-driver');
 
@@ -23,76 +22,68 @@ const cassandra = require('cassandra-driver');
  * @param {any} options
  */
 async function useCassandraClient(client, options) {
-  // TOOD: smart stuff here
-  const { table, canReturnPromises } = options;
+  const { canReturnPromises, keyspace, table } = options;
   const log = apm.logger.child({ 'event.module': 'cassandra-driver' });
-  const selectQuery = 'SELECT key FROM system.local';
-  const insertQuery = `INSERT INTO ${table} (id, text) VALUES (uuid(), ?)`;
+  const SELECT_QUERY = 'SELECT key FROM system.local';
+  const INSERT_QUERY = `INSERT INTO ${table} (id, text) VALUES (uuid(), ?)`;
   let data;
 
-  // 3.x only works with callbacks
+  // NOTE: cassandra has some differences in their APIs
+  // - some of them are completelly callbackl based (connect, eachRow)
+  // - from v3.2 some retunr a promise if no callback provided
+  //
+  // to have a deterministic order of spans we should `await` the callbacks
+  // so we wrap them into a promise.
   await new Promise((resolve, reject) => {
     client.connect((err) => (err ? reject(err) : resolve()));
+    assert(
+      apm.currentSpan === null,
+      'no currentSpan in sync code after cassandra-driver client command',
+    );
   });
-  assert(
-    apm.currentSpan === null,
-    'no currentSpan in sync code after cassandra-driver client command',
-  );
   log.info({}, 'connect');
 
   // https://docs.datastax.com/en/developer/nodejs-driver/4.6/api/class.Client/#execute
-  // XXX: since this code is not blocking we are kind of running this query
-  // in parallel with the next one and may change the order of the spans
-  // so we "promisify" it to be able to await
-  // other option may be use the deferred pattern
+  // NOTE: this 1st chain of executions is to setup the DB but also is used
+  // to test other queries than the SELECT ones
+  await new Promise((resolve, reject) => {
+    const KEYSPACE_QUERY = [
+      `CREATE KEYSPACE IF NOT EXISTS ${keyspace} WITH replication = {`,
+      `'class': 'SimpleStrategy',`,
+      `'replication_factor': 1`,
+      '};',
+    ].join(' ');
 
-  // XXX: the non-promisified version (with racing conditions)
-  client.execute(selectQuery, function (err, data) {
-    assert(!err, 'no error in execute');
-    assert(data.rows.length === 1, 'number of rows in execute');
-    assert(data.rows[0].key === 'local', 'result key in execute');
-    log.info({ data }, 'execute with callback');
+    client.execute(KEYSPACE_QUERY, function (err) {
+      err ? reject(err) : resolve();
+    });
+  }).then(() => {
+    const TABLE_QUERY = `CREATE TABLE IF NOT EXISTS ${keyspace}.${table}(id uuid,text varchar,PRIMARY KEY(id));`;
+
+    client.execute(TABLE_QUERY, function (err) {
+      if (err) throw err;
+    });
   });
-  assert(
-    apm.currentSpan === null,
-    'no currentSpan in sync code after cassandra-driver exec command with callback',
-  );
 
-  // XXX: the "promisified" version. The necessary `bind` be dstracting
-  data = await promisify(client.execute.bind(client))(selectQuery);
-  assert(data.rows.length === 1, 'number of rows in execute');
-  assert(data.rows[0].key === 'local', 'result key in execute');
-  log.info({ data }, 'execute with callback');
-  assert(
-    apm.currentSpan === null,
-    'no currentSpan in sync code after cassandra-driver exec command with callback',
-  );
-
-  // XXX: the "deferred" version
-  const execDefer = getDeferred();
-  client.execute(selectQuery, function (err, data) {
-    try {
-      assert(!err, 'no error in execute');
-      assert(data.rows.length === 1, 'number of rows in execute');
-      assert(data.rows[0].key === 'local', 'result key in execute');
-      log.info({ data }, 'execute with callback');
-      execDefer.resolve();
-    } catch (ex) {
-      log.info({ err }, 'execute with callback error');
-      execDefer.reject(err);
-    }
+  // We cannot await executions in callback mode so we wrap it in a Promise
+  // and pass the data for assertions to the next block
+  await new Promise((resolve, reject) => {
+    client.execute(SELECT_QUERY, function (err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        log.info({ data }, 'execute with callback');
+        resolve();
+      }
+    });
+    assert(
+      apm.currentSpan === null,
+      'no currentSpan in sync code after cassandra-driver exec command with callback',
+    );
   });
-  await execDefer.promise;
-  assert(
-    apm.currentSpan === null,
-    'no currentSpan in sync code after cassandra-driver exec command with callback',
-  );
 
   if (canReturnPromises) {
-    data = await client.execute(selectQuery);
-
-    assert(data.rows.length === 1, 'number of rows in awaited execute');
-    assert(data.rows[0].key === 'local', 'rows key in awaited execute');
+    data = await client.execute(SELECT_QUERY);
     assert(
       apm.currentSpan === null,
       'no currentSpan in sync code after cassandra-driver exec command with promise',
@@ -102,26 +93,25 @@ async function useCassandraClient(client, options) {
 
   // https://docs.datastax.com/en/developer/nodejs-driver/4.6/api/class.Client/#batch
   const queries = [
-    { query: insertQuery, params: ['foo'] },
-    { query: insertQuery, params: ['bar'] },
+    { query: INSERT_QUERY, params: ['foo'] },
+    { query: INSERT_QUERY, params: ['bar'] },
   ];
 
-  data = await promisify(client.batch.bind(client))(queries);
-  log.info({ data }, 'batch with callback');
-  assert(
-    apm.currentSpan === null,
-    'no currentSpan in sync code after cassandra-driver batch command with callback',
-  );
-
-  // XXX: same here, should we use promisify?
-  // client.batch(queries, function (err, data) {
-  //   assert(!err, 'no error on batch callback');
-  //   log.info({ data }, 'batch with callback');
-  // });
-  // assert(
-  //   apm.currentSpan === null,
-  //   'no currentSpan in sync code after cassandra-driver batch command with callback',
-  // );
+  // Batch also has callback mode so we wrap it to be able to await its execution
+  await new Promise((resolve, reject) => {
+    client.batch(queries, function (err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        log.info({ data }, 'batch with callback');
+        resolve();
+      }
+    });
+    assert(
+      apm.currentSpan === null,
+      'no currentSpan in sync code after cassandra-driver batch command with callback',
+    );
+  });
 
   if (canReturnPromises) {
     data = await client.batch(queries);
@@ -134,17 +124,22 @@ async function useCassandraClient(client, options) {
   }
 
   // https://docs.datastax.com/en/developer/nodejs-driver/4.6/api/class.Client/#each-row
+  // TODO: same here, feels like testing the driver
   const assertRow = (i, r) => assert(r.key === 'local', 'row key is correct');
 
-  // XXX: same here
-  client.eachRow(selectQuery, [], assertRow, (err, data) => {
-    console.log(err);
-    assert(!err, 'no error in eachRow method');
-    log.info({ data }, 'eachRow');
+  await new Promise((resolve, reject) => {
+    client.eachRow(SELECT_QUERY, [], assertRow, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        log.info({ data }, 'eachRow');
+        resolve();
+      }
+    });
   });
 
   // https://docs.datastax.com/en/developer/nodejs-driver/4.6/api/class.Client/#stream
-  // const stream = client.stream(selectQuery, []);
+  // const stream = client.stream(SELECT_QUERY, []);
   // let rows = 0;
 
   // stream.on('readable', function () {
@@ -156,26 +151,19 @@ async function useCassandraClient(client, options) {
   // });
 
   // stream.on('error', function (err) {
+  //   console.log(err);
   //   assert(!err, 'no error in the stream');
   // });
 
   // stream.on('end', function () {
   //   assert(rows === 1, 'number of rows is correct at the end of the stream');
   // });
-}
+  // await new Promise((resolve, reject) => {
+  //   const stream = client.stream(SELECT_QUERY, []);
 
-/**
- * Returns an object which holds refs to a new promise callbacks
- * @returns {{ resolve: (val: any) => void; reject: (err: any) => void; promise: Promise<any> }}
- */
-function getDeferred() {
-  const deferred = {};
-
-  deferred.promise = new Promise((resolve, reject) => {
-    deferred.resolve = resolve;
-    deferred.reject = reject;
-  });
-  return deferred;
+  //   stream.on('error', reject);
+  //   stream.on('end', resolve);
+  // });
 }
 
 function main() {
@@ -194,7 +182,7 @@ function main() {
   // Ensure an APM transaction so spans can happen.
   const tx = apm.startTransaction('manual');
 
-  useCassandraClient(client, { table, canReturnPromises }).then(
+  useCassandraClient(client, { canReturnPromises, keyspace, table }).then(
     async function () {
       tx.end();
       await client.shutdown();

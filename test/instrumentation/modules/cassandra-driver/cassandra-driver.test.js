@@ -52,10 +52,16 @@ const testFixtures = [
       // First the transaction.
       t.ok(events[0].transaction, 'got the transaction');
       const tx = events.shift().transaction;
-      const errors = events.filter((e) => e.error).map((e) => e.error);
+
+      // Get the spans to check
+      const spans = events
+        .filter((e) => e.span)
+        // 1st span is a `connect` and some commands may
+        // connect again so we filter them out
+        .filter((e, i) => i === 0 || e.span.action !== 'connect')
+        .map((e) => e.span);
 
       // Compare some common fields across all spans.
-      let spans = events.filter((e) => e.span).map((e) => e.span);
       spans.forEach((s) => {
         const errs = validateSpan(s);
         t.equal(errs, null, 'span is valid  (per apm-server intake schema)');
@@ -92,11 +98,7 @@ const testFixtures = [
         delete s.sample_rate;
       });
 
-      // XXX: remove
-      console.log(JSON.stringify(spans, null, 2));
-
       // Work through each of the pipeline functions (connect, execute, ...) in the script:
-
       t.deepEqual(
         spans.shift(),
         {
@@ -119,10 +121,72 @@ const testFixtures = [
         },
         'connect produced expected span',
       );
-      // Some operations like batch seems to force a reconnection to the server
-      // we want to filter out these spans since we already assert the data in them
-      // is correct
-      spans = spans.filter((s) => s.action !== 'connect');
+
+      t.deepEqual(
+        spans.shift(),
+        {
+          name: 'CREATE',
+          type: 'db',
+          subtype: 'cassandra',
+          action: 'query',
+          context: {
+            service: {
+              target: {
+                type: 'cassandra',
+                name: 'mykeyspace',
+              },
+            },
+            destination: {
+              service: {
+                type: '',
+                name: '',
+                resource: 'cassandra/mykeyspace',
+              },
+            },
+            db: {
+              type: 'cassandra',
+              statement:
+                "CREATE KEYSPACE IF NOT EXISTS mykeyspace WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': 1 };",
+              instance: 'mykeyspace',
+            },
+          },
+          outcome: 'success',
+        },
+        'create keyspace produced expected span',
+      );
+
+      t.deepEqual(
+        spans.shift(),
+        {
+          name: 'CREATE TABLE IF',
+          type: 'db',
+          subtype: 'cassandra',
+          action: 'query',
+          context: {
+            service: {
+              target: {
+                type: 'cassandra',
+                name: 'mykeyspace',
+              },
+            },
+            destination: {
+              service: {
+                type: '',
+                name: '',
+                resource: 'cassandra/mykeyspace',
+              },
+            },
+            db: {
+              type: 'cassandra',
+              statement:
+                'CREATE TABLE IF NOT EXISTS mykeyspace.myTable(id uuid,text varchar,PRIMARY KEY(id));',
+              instance: 'mykeyspace',
+            },
+          },
+          outcome: 'success',
+        },
+        'create table produced expected span',
+      );
 
       t.deepEqual(
         spans.shift(),
@@ -236,6 +300,33 @@ const testFixtures = [
           outcome: 'success',
         },
         'batch with promise produced expected span',
+      );
+
+      t.deepEqual(
+        spans.shift(),
+        {
+          name: 'SELECT FROM system.local',
+          type: 'db',
+          subtype: 'cassandra',
+          action: 'query',
+          context: {
+            db: {
+              type: 'cassandra',
+              statement: 'SELECT key FROM system.local',
+              instance: TEST_KEYSPACE,
+            },
+            service: { target: { type: 'cassandra', name: TEST_KEYSPACE } },
+            destination: {
+              service: {
+                type: '',
+                name: '',
+                resource: `cassandra/${TEST_KEYSPACE}`,
+              },
+            },
+          },
+          outcome: 'success',
+        },
+        'eachRow produced expected span',
       );
     },
   },
