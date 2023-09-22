@@ -48,6 +48,9 @@ See the <<upgrade-to-v4>> guide.
 * Add support for `@aws-sdk/client-dynamodb`, one of the AWS SDK v3 clients.
   ({issues}2958[#2958])
 
+* Add support for `@aws-sdk/client-sns`, one of the AWS SDK v3 clients.
+  ({issues}2956[#2956])
+
 [float]
 ===== Bug fixes
 
