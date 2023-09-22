@@ -223,9 +223,11 @@ const testFixtures = [
         'error is a child of the failing span from publish to a non existant topic',
       );
       t.equal(errors[0].transaction_id, tx.id, 'error.transaction_id');
-      t.equal(
-        errors[0].exception.type,
-        'NotFoundException',
+      t.ok(
+        // In @aws-sdk/client-sns@3.181.0 the exception name/type changed.
+        // https://github.com/aws/aws-sdk-js-v3/commit/384cbd7cbdbc0635d2dbff53b54d769ca80dabbb
+        ['NotFoundException', 'NotFound'].indexOf(errors[0].exception.type) !==
+          -1,
         'error.exception.type',
       );
 
