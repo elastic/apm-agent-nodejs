@@ -23,7 +23,7 @@ import assert from 'assert';
 async function useClientSNS(snsClient) {
   const command = new PublishCommand({
     Message: 'message to be sent',
-    PhoneNumber: '+34555555555',
+    PhoneNumber: '+1-555-555-0100',
   });
   const data = await snsClient.send(command);
   assert(
