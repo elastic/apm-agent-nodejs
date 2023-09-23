@@ -31,7 +31,7 @@ const next = afterAll(function (err, validators) {
   test('metadata schema failure', function (t) {
     t.strictEqual(validateMetadata({}), false);
     validateFieldMessages(t, validateMetadata.errors, [
-      { message: "should have required property 'service'" },
+      { message: "must have required property 'service'" },
     ]);
     t.end();
   });
@@ -39,11 +39,11 @@ const next = afterAll(function (err, validators) {
   test('transaction schema failure', function (t) {
     t.strictEqual(validateTransaction({}), false);
     validateFieldMessages(t, validateTransaction.errors, [
-      { message: "should have required property 'duration'" },
-      { message: "should have required property 'id'" },
-      { message: "should have required property 'span_count'" },
-      { message: "should have required property 'trace_id'" },
-      { message: "should have required property 'type'" },
+      { message: "must have required property 'duration'" },
+      { message: "must have required property 'id'" },
+      { message: "must have required property 'span_count'" },
+      { message: "must have required property 'trace_id'" },
+      { message: "must have required property 'type'" },
     ]);
     t.end();
   });
@@ -51,15 +51,15 @@ const next = afterAll(function (err, validators) {
   test('span schema failure', function (t) {
     t.strictEqual(validateSpan({}), false);
     validateFieldMessages(t, validateSpan.errors, [
-      { message: "should have required property 'duration'" },
-      { message: "should have required property 'id'" },
-      { message: "should have required property 'name'" },
-      { message: "should have required property 'parent_id'" },
-      { message: "should have required property 'trace_id'" },
-      { message: "should have required property 'type'" },
-      { message: "should have required property 'start'" },
-      { message: "should have required property 'timestamp'" },
-      { message: 'should match some schema in anyOf' },
+      { message: "must have required property 'duration'" },
+      { message: "must have required property 'id'" },
+      { message: "must have required property 'name'" },
+      { message: "must have required property 'parent_id'" },
+      { message: "must have required property 'trace_id'" },
+      { message: "must have required property 'type'" },
+      { message: "must have required property 'start'" },
+      { message: "must have required property 'timestamp'" },
+      { message: 'must match a schema in anyOf' },
     ]);
     t.end();
   });
@@ -67,37 +67,37 @@ const next = afterAll(function (err, validators) {
   test('error schema failure', function (t) {
     t.strictEqual(validateError({}), false);
     validateFieldMessages(t, validateError.errors, [
-      { message: "should have required property 'id'" },
-      { message: "should have required property 'exception'" },
-      { message: "should have required property 'log'" },
-      { message: 'should match some schema in anyOf' },
+      { message: "must have required property 'id'" },
+      { message: "must have required property 'exception'" },
+      { message: "must have required property 'log'" },
+      { message: 'must match a schema in anyOf' },
     ]);
 
     t.strictEqual(validateError({ id: 'foo', exception: {} }), false);
     validateFieldMessages(t, validateError.errors, [
       {
-        dataPath: '/exception',
+        instancePath: '/exception',
         params: { missingProperty: 'message' },
-        message: "should have required property 'message'",
+        message: "must have required property 'message'",
       },
       {
-        dataPath: '/exception',
+        instancePath: '/exception',
         params: { missingProperty: 'type' },
-        message: "should have required property 'type'",
+        message: "must have required property 'type'",
       },
       {
-        dataPath: '/exception',
+        instancePath: '/exception',
         params: {},
-        message: 'should match some schema in anyOf',
+        message: 'must match a schema in anyOf',
       },
     ]);
 
     t.strictEqual(validateError({ id: 'foo', log: {} }), false);
     validateFieldMessages(t, validateError.errors, [
       {
-        dataPath: '/log',
+        instancePath: '/log',
         params: { missingProperty: 'message' },
-        message: "should have required property 'message'",
+        message: "must have required property 'message'",
       },
     ]);
     t.end();

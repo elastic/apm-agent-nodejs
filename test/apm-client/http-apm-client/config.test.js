@@ -567,10 +567,6 @@ test('payloadLogFile', function (t) {
             `expected line ${n} in the log file to match item no ${n} received by the server`,
           );
         });
-
-        file.on('end', function () {
-          t.end();
-        });
       }
     });
   }).client(

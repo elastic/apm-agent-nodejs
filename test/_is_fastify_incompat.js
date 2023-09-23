@@ -49,7 +49,7 @@ function isFastifyIncompat() {
   }
   if (
     semver.satisfies(fastifyVer, '4.x') &&
-    !semver.satisfies(nodeVer, '>=14.6.0')
+    !semver.satisfies(nodeVer, '>=14.18.0')
   ) {
     return msg;
   }
