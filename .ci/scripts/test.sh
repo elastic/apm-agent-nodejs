@@ -213,7 +213,7 @@ elif [[ -n "${TAV_MODULE}" ]]; then
     memcached)
       DOCKER_COMPOSE_FILE=docker-compose-memcached.yml
       ;;
-    aws-sdk|@aws-sdk/client-s3|@aws-sdk/client-dynamodb|@aws-sdk/client-sns)
+    aws-sdk|@aws-sdk/client-s3|@aws-sdk/client-dynamodb|@aws-sdk/client-sns|@aws-sdk/client-sqs)
       DOCKER_COMPOSE_FILE=docker-compose-localstack.yml
       ;;
     *)
