@@ -24,6 +24,7 @@ const test = require('tape');
 
 const { validateSpan } = require('../../../_validate_schema');
 const { runTestFixtures, sortApmEvents } = require('../../../_utils');
+const { NODE_VER_RANGE_IITM_GE14 } = require('../../../testconsts');
 
 const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost';
 const endpoint = 'http://' + LOCALSTACK_HOST + ':4566';
@@ -86,7 +87,7 @@ const testFixtures = [
 
       // Keep IDs for link assertions
       const sendMessageSpanId = spans[0].id;
-      // const sendMessagesBatchSpanId = spans[1].id;
+      const sendMessagesBatchSpanId = spans[1].id;
 
       spans.forEach((s) => {
         // Remove variable and common fields to facilitate t.deepEqual below.
@@ -243,7 +244,7 @@ const testFixtures = [
         [
           { trace_id: tx.trace_id, span_id: sendMessageSpanId },
           // XXX: not sure why this one is not appearing
-          // { trace_id: tx.trace_id, span_id: sendMessagesBatchSpanId },
+          { trace_id: tx.trace_id, span_id: sendMessagesBatchSpanId },
         ],
         'collected span.links',
       );
@@ -253,6 +254,41 @@ const testFixtures = [
         0,
         `all spans accounted for, remaining spans: ${JSON.stringify(spans)}`,
       );
+    },
+  },
+  {
+    name: 'simple SQS V3 with ESM',
+    script: 'fixtures/use-client-sqs.mjs',
+    cwd: __dirname,
+    timeout: 20000, // sanity guard on the test hanging
+    maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
+    env: {
+      AWS_ACCESS_KEY_ID: 'fake',
+      AWS_SECRET_ACCESS_KEY: 'fake',
+      TEST_ENDPOINT: endpoint,
+      TEST_REGION: 'us-east-2',
+      TEST_QUEUE_NAME: 'elasticapmtest-queue-2',
+    },
+    versionRanges: {
+      node: NODE_VER_RANGE_IITM_GE14,
+    },
+    verbose: false,
+    checkApmServer: (t, apmServer) => {
+      t.ok(apmServer.events[0].metadata, 'metadata');
+      const events = sortApmEvents(apmServer.events);
+
+      t.ok(events[0].transaction, 'got the transaction');
+      const tx = events.shift().transaction;
+
+      const span = events.shift().span;
+      t.equal(span.parent_id, tx.id, 'span.parent_id');
+      t.equal(
+        span.name,
+        'SQS SEND to elasticapmtest-queue-2.fifo',
+        'span.name',
+      );
+
+      t.equal(events.length, 0, 'all events accounted for');
     },
   },
 ];
