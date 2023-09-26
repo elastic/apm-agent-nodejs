@@ -157,7 +157,7 @@ const testFixtures = [
         'sendMessageBatch',
       );
 
-      // There will be one or more `SQS ReceiveMessage ...` spans for the ReceiveMessage
+      // There will be one or more `SQS POLL ...` spans for the ReceiveMessage
       // API calls until all messages are retrieved -- with interspersed
       // `SQS DELETE_BATCH ...` spans to delete those messages as they are
       // received.
