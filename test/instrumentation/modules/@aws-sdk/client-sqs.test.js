@@ -24,7 +24,6 @@ const test = require('tape');
 
 const { validateSpan } = require('../../../_validate_schema');
 const { runTestFixtures, sortApmEvents } = require('../../../_utils');
-const { NODE_VER_RANGE_IITM_GE14 } = require('../../../testconsts')
 
 const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost';
 const endpoint = 'http://' + LOCALSTACK_HOST + ':4566';
