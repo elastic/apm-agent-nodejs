@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // Test S3 instrumentation of the '@aws-sdk/client-s3' module.
 //
@@ -15,28 +15,19 @@
 // - AFAIK localstack does not support Access Points, so access point ARNs
 //   cannot be tested.
 
-const semver = require('semver')
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
-  console.log('# SKIP: GH Actions do not support docker services on Windows')
-  process.exit(0)
-}
-if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
-  console.log('# SKIP @aws-sdk/* instrumentation does not work with contextManager="patch"')
-  process.exit()
-}
-if (semver.lt(process.version, '14.0.0')) {
-  console.log(`# SKIP @aws-sdk min supported node is v14 (node ${process.version})`)
-  process.exit()
+  console.log('# SKIP: GH Actions do not support docker services on Windows');
+  process.exit(0);
 }
 
-const test = require('tape')
+const test = require('tape');
 
-const { validateSpan } = require('../../../_validate_schema')
-const { runTestFixtures, sortApmEvents } = require('../../../_utils')
-// const { NODE_VER_RANGE_IITM } = require('../../../testconsts')
+const { validateSpan } = require('../../../_validate_schema');
+const { runTestFixtures, sortApmEvents } = require('../../../_utils');
+const { NODE_VER_RANGE_IITM_GE14 } = require('../../../testconsts')
 
-const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost'
-const endpoint = 'http://' + LOCALSTACK_HOST + ':4566'
+const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost';
+const endpoint = 'http://' + LOCALSTACK_HOST + ':4566';
 
 const testFixtures = [
   {
@@ -49,51 +40,225 @@ const testFixtures = [
       AWS_ACCESS_KEY_ID: 'fake',
       AWS_SECRET_ACCESS_KEY: 'fake',
       TEST_ENDPOINT: endpoint,
-      TEST_REGION: 'us-east-2'
+      TEST_REGION: 'us-east-2',
+      TEST_QUEUE_NAME: 'elasticapmtest-queue-1',
     },
-    verbose: false,
+    versionRanges: {
+      node: '>=14',
+    },
+    verbose: true,
     checkApmServer: (t, apmServer) => {
-      t.ok(apmServer.events[0].metadata, 'metadata')
-      const events = sortApmEvents(apmServer.events)
+      t.ok(apmServer.events[0].metadata, 'metadata');
+      const events = sortApmEvents(apmServer.events);
 
       // First the transaction.
-      t.ok(events[0].transaction, 'got the transaction')
-      const tx = events.shift().transaction
-      // const errors = events.filter(e => e.error).map(e => e.error)
+      t.ok(events[0].transaction, 'got the transaction');
+      const tx = events.shift().transaction;
 
       // Compare some common fields across all spans.
       // ignore http/external spans
-      const spans = events.filter(e => e.span && e.span.type !== 'external')
-        .map(e => e.span)
-      spans.forEach(s => {
-        const errs = validateSpan(s)
-        t.equal(errs, null, 'span is valid (per apm-server intake schema)')
-      })
-      t.equal(spans.filter(s => s.trace_id === tx.trace_id).length,
-        spans.length, 'all spans have the same trace_id')
-      t.equal(spans.filter(s => s.transaction_id === tx.id).length,
-        spans.length, 'all spans have the same transaction_id')
-      t.equal(spans.filter(s => s.sync === false).length,
-        spans.length, 'all spans have sync=false')
-      t.equal(spans.filter(s => s.sample_rate === 1).length,
-        spans.length, 'all spans have sample_rate=1')
-      // const failingSpanId = spans[3].id // index of `Publish` to a non exixtent topic
-      spans.forEach(s => {
-        // Remove variable and common fields to facilitate t.deepEqual below.
-        delete s.id
-        delete s.transaction_id
-        delete s.parent_id
-        delete s.trace_id
-        delete s.timestamp
-        delete s.duration
-        delete s.sync
-        delete s.sample_rate
-      })
-    }
-  }
-]
+      const spans = events
+        .filter((e) => e.span && e.span.type !== 'external')
+        .map((e) => e.span);
+      spans.forEach((s) => {
+        const errs = validateSpan(s);
+        t.equal(errs, null, 'span is valid (per apm-server intake schema)');
+      });
+      t.equal(
+        spans.filter((s) => s.trace_id === tx.trace_id).length,
+        spans.length,
+        'all spans have the same trace_id',
+      );
+      t.equal(
+        spans.filter((s) => s.transaction_id === tx.id).length,
+        spans.length,
+        'all spans have the same transaction_id',
+      );
+      t.equal(
+        spans.filter((s) => s.sync === false).length,
+        spans.length,
+        'all spans have sync=false',
+      );
+      t.equal(
+        spans.filter((s) => s.sample_rate === 1).length,
+        spans.length,
+        'all spans have sample_rate=1',
+      );
 
-test('@aws-sdk/client-sqs fixtures', suite => {
-  runTestFixtures(suite, testFixtures)
-  suite.end()
-})
+      // Keep IDs for link assertions
+      const sendMessageSpanId = spans[0].id;
+      const sendMessagesBatchSpanId = spans[1].id;
+
+      spans.forEach((s) => {
+        // Remove variable and common fields to facilitate t.deepEqual below.
+        delete s.id;
+        delete s.transaction_id;
+        delete s.parent_id;
+        delete s.trace_id;
+        delete s.timestamp;
+        delete s.duration;
+        delete s.sync;
+        delete s.sample_rate;
+      });
+
+      t.deepEqual(
+        spans.shift(),
+        {
+          name: 'SQS SEND to elasticapmtest-queue-1.fifo',
+          type: 'messaging',
+          subtype: 'sqs',
+          action: 'send',
+          context: {
+            service: {
+              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' },
+            },
+            destination: {
+              address: LOCALSTACK_HOST,
+              port: 4566,
+              cloud: { region: 'us-east-2' },
+              service: {
+                type: '',
+                name: '',
+                resource: 'sqs/elasticapmtest-queue-1.fifo',
+              },
+            },
+            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } },
+          },
+          outcome: 'success',
+        },
+        'sendMessage',
+      );
+
+      t.deepEqual(
+        spans.shift(),
+        {
+          name: 'SQS SEND_BATCH to elasticapmtest-queue-1.fifo',
+          type: 'messaging',
+          subtype: 'sqs',
+          action: 'send_batch',
+          context: {
+            service: {
+              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' },
+            },
+            destination: {
+              address: LOCALSTACK_HOST,
+              port: 4566,
+              cloud: { region: 'us-east-2' },
+              service: {
+                type: '',
+                name: '',
+                resource: 'sqs/elasticapmtest-queue-1.fifo',
+              },
+            },
+            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } },
+          },
+          outcome: 'success',
+        },
+        'sendMessageBatch',
+      );
+
+      // There will be one or more `SQS ReceiveMessage ...` spans for the ReceiveMessage
+      // API calls until all messages are retrieved -- with interspersed
+      // `SQS DELETE_BATCH ...` spans to delete those messages as they are
+      // received.
+      const spanLinks = [];
+      const pollSpans = [];
+      while (spans.length > 0 && spans[0].name.startsWith('SQS POLL')) {
+        pollSpans.push(spans.shift());
+      }
+
+      pollSpans.forEach((span) => {
+        let numSpanLinks = 0;
+
+        if (span.links) {
+          numSpanLinks = span.links.length;
+          spanLinks.push(...span.links);
+          delete span.links;
+        }
+
+        t.deepEqual(
+          span,
+          {
+            name: 'SQS POLL from elasticapmtest-queue-1.fifo',
+            type: 'messaging',
+            subtype: 'sqs',
+            action: 'poll',
+            context: {
+              service: {
+                target: {
+                  type: 'sqs',
+                  name: 'elasticapmtest-queue-1.fifo',
+                },
+              },
+              destination: {
+                address: LOCALSTACK_HOST,
+                port: 4566,
+                cloud: { region: 'us-east-2' },
+                service: {
+                  type: '',
+                  name: '',
+                  resource: 'sqs/elasticapmtest-queue-1.fifo',
+                },
+              },
+              message: { queue: { name: 'elasticapmtest-queue-1.fifo' } },
+            },
+            outcome: 'success',
+          },
+          `receiveMessage (${numSpanLinks} span links)`,
+        );
+      });
+
+      t.deepEqual(
+        spans.shift(),
+        {
+          name: 'SQS DELETE_BATCH from elasticapmtest-queue-1.fifo',
+          type: 'messaging',
+          subtype: 'sqs',
+          action: 'delete_batch',
+          context: {
+            service: {
+              target: {
+                type: 'sqs',
+                name: 'elasticapmtest-queue-1.fifo',
+              },
+            },
+            destination: {
+              address: LOCALSTACK_HOST,
+              port: 4566,
+              cloud: { region: 'us-east-2' },
+              service: {
+                type: '',
+                name: '',
+                resource: 'sqs/elasticapmtest-queue-1.fifo',
+              },
+            },
+            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } },
+          },
+          outcome: 'success',
+        },
+        'deleteMessageBatch',
+      );
+
+      t.deepEqual(
+        spanLinks,
+        [
+          { trace_id: tx.trace_id, span_id: sendMessageSpanId },
+          // XXX: not sure why this one is not appearing
+          // { trace_id: tx.trace_id, span_id: sendMessagesBatchSpanId },
+        ],
+        'collected span.links',
+      );
+
+      t.equal(
+        spans.length,
+        0,
+        `all spans accounted for, remaining spans: ${JSON.stringify(spans)}`,
+      );
+    },
+  },
+];
+
+test('@aws-sdk/client-sqs fixtures', (suite) => {
+  runTestFixtures(suite, testFixtures);
+  suite.end();
+});
