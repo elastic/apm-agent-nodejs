@@ -36,7 +36,7 @@
 
 const TEST_IGNORE_TOPIC = 'topic-to-ignore';
 const TEST_IGNORE_TARGET = 'target-to-ignore';
-const TEST_IGNORE_PHONE = '6666666';
+const TEST_IGNORE_PHONE = '0101';
 
 const apm = require('../../../../..').start({
   serviceName: 'use-client-sns',
@@ -110,7 +110,7 @@ async function useClientSNS(snsClient, topicName) {
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/sns/command/PublishCommand/
   command = new PublishCommand({
     Message: 'message to be sent',
-    PhoneNumber: '+34555555555',
+    PhoneNumber: '+15555550100',
   });
   data = await snsClient.send(command);
   assert(
@@ -177,7 +177,7 @@ async function useClientSNS(snsClient, topicName) {
 
   command = new PublishCommand({
     Message: 'message to be sent',
-    PhoneNumber: `+34${TEST_IGNORE_PHONE}`,
+    PhoneNumber: `+1555555${TEST_IGNORE_PHONE}`,
   });
   data = await snsClient.send(command);
   assert(
@@ -190,7 +190,7 @@ async function useClientSNS(snsClient, topicName) {
     Message: 'message to be sent',
     TopicArn: topicArn,
     TargetArn: topicArn,
-    PhoneNumber: `+345555555`,
+    PhoneNumber: '+15555550100',
   });
   data = await snsClient.send(command);
   assert(
