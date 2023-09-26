@@ -14,7 +14,6 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 const { execFile } = require('child_process');
 const util = require('util');
 
-const semver = require('semver');
 const tape = require('tape');
 
 const logging = require('../../../../lib/logging');

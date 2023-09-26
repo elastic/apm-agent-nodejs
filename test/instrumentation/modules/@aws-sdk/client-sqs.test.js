@@ -86,7 +86,7 @@ const testFixtures = [
 
       // Keep IDs for link assertions
       const sendMessageSpanId = spans[0].id;
-      const sendMessagesBatchSpanId = spans[1].id;
+      // const sendMessagesBatchSpanId = spans[1].id;
 
       spans.forEach((s) => {
         // Remove variable and common fields to facilitate t.deepEqual below.
