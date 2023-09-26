@@ -150,17 +150,18 @@ async function useClientSQS(sqsClient, queueName) {
   log.info({ data }, 'sendMessageBatchCommand');
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/sqs/command/ReceiveMessageCommand/
-  const receiveMessageInput = {
-    QueueUrl: queueUrl,
-    MaxNumberOfMessages: 10,
-    AttributeNames: ['All'],
-    MessageAttributeNames: ['All'],
-    VisibilityTimeout: 10,
-    WaitTimeSeconds: 5,
-  };
   const messages = [];
   for (const attemptNum of [0, 1, 2, 3, 4]) {
-    data = await sqsClient.send(new ReceiveMessageCommand(receiveMessageInput));
+    data = await sqsClient.send(
+      new ReceiveMessageCommand({
+        QueueUrl: queueUrl,
+        MaxNumberOfMessages: 10,
+        AttributeNames: ['All'],
+        MessageAttributeNames: ['All'],
+        VisibilityTimeout: 10,
+        WaitTimeSeconds: 5,
+      }),
+    );
     log.info({ attemptNum, data }, 'receiveMessage');
     if (data.Messages) {
       messages.push(...data.Messages);

@@ -243,7 +243,7 @@ const testFixtures = [
         spanLinks,
         [
           { trace_id: tx.trace_id, span_id: sendMessageSpanId },
-          // XXX: not sure why this one is not appearing
+          { trace_id: tx.trace_id, span_id: sendMessagesBatchSpanId },
           { trace_id: tx.trace_id, span_id: sendMessagesBatchSpanId },
         ],
         'collected span.links',
