@@ -188,7 +188,7 @@ function main() {
   const localDataCenter = process.env.TEST_DATACENTER || 'datacenter1';
   const keyspace = process.env.TEST_KEYSPACE || 'keyspace1';
   const table = process.env.TEST_TABLE || 'table1';
-  const testForPromises = process.env.TEST_USE_PROMISES;
+  const testForPromises = process.env.TEST_USE_PROMISES === 'true';
   const client = new cassandra.Client({
     contactPoints,
     localDataCenter,

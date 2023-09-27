@@ -24,7 +24,7 @@ const CASSANDRA_VERSION = safeGetPackageVersion('cassandra-driver');
 const TEST_KEYSPACE = 'mykeyspace';
 const TEST_TABLE = 'myTable';
 const TEST_DATACENTER = 'datacenter1';
-const TEST_USE_PROMISES = semver.satisfies(CASSANDRA_VERSION, '>=3.2');
+const TEST_USE_PROMISES = String(semver.satisfies(CASSANDRA_VERSION, '>=3.2'));
 
 const testFixtures = [
   {
@@ -412,7 +412,6 @@ testFixtures.push(
     },
   }),
 );
-console.log(testFixtures[2]);
 
 test('cassandra-driver fixtures', (suite) => {
   runTestFixtures(suite, testFixtures);
