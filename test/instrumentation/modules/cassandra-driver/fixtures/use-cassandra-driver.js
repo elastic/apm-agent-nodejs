@@ -22,7 +22,7 @@ const cassandra = require('cassandra-driver');
  * @param {any} options
  */
 async function useCassandraClient(client, options) {
-  const { canReturnPromises, keyspace, table } = options;
+  const { testForPromises, keyspace, table } = options;
   const log = apm.logger.child({ 'event.module': 'cassandra-driver' });
   const SELECT_QUERY = 'SELECT key FROM system.local';
   const INSERT_QUERY = `INSERT INTO ${table} (id, text) VALUES (uuid(), ?)`;
@@ -82,7 +82,7 @@ async function useCassandraClient(client, options) {
     );
   });
 
-  if (canReturnPromises) {
+  if (testForPromises) {
     data = await client.execute(SELECT_QUERY);
     assert(
       apm.currentSpan === null,
@@ -113,7 +113,7 @@ async function useCassandraClient(client, options) {
     );
   });
 
-  if (canReturnPromises) {
+  if (testForPromises) {
     data = await client.batch(queries);
 
     assert(
@@ -171,7 +171,7 @@ function main() {
   const localDataCenter = process.env.TEST_DATACENTER || 'datacenter1';
   const keyspace = process.env.TEST_KEYSPACE || 'keyspace1';
   const table = process.env.TEST_TABLE || 'table1';
-  const canReturnPromises = process.env.TEST_USE_PROMISES;
+  const testForPromises = process.env.TEST_USE_PROMISES;
   const client = new cassandra.Client({
     contactPoints,
     localDataCenter,
@@ -182,7 +182,7 @@ function main() {
   // Ensure an APM transaction so spans can happen.
   const tx = apm.startTransaction('manual');
 
-  useCassandraClient(client, { canReturnPromises, keyspace, table }).then(
+  useCassandraClient(client, { testForPromises, keyspace, table }).then(
     async function () {
       tx.end();
       await client.shutdown();

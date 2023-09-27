@@ -42,6 +42,7 @@ const testFixtures = [
     versionRanges: {
       // v4.7.0 is a bad release for node versions <16.9
       // and we want to test form 14.7 and above
+      node: '<16',
       'cassandra-driver': '>=3.0.0 <4.7.0',
     },
     verbose: false,
@@ -331,6 +332,21 @@ const testFixtures = [
     },
   },
 ];
+
+// We need to do exactly the same test for `cassandra-driver` v4.7.0 and up
+// the only difference is we require NodeJS version to be >16.
+// This is necessary because of an issue in the driver that led to
+// a change in the node compatibility from >=8 to >=16
+//
+// The issue: https://datastax-oss.atlassian.net/browse/NODEJS-665
+testFixtures.push(
+  Object.assign({}, testFixtures[0], {
+    versionRanges: {
+      node: '>=16',
+      'cassandra-driver': '>=4.7.0',
+    },
+  }),
+);
 
 test('cassandra-driver fixtures', (suite) => {
   runTestFixtures(suite, testFixtures);
