@@ -168,7 +168,7 @@ async function slurpStream(stream) {
   });
 }
 
-function quoteArg(a) {
+function quoteArg(a = '') {
   if (a.includes("'")) {
     return "'" + a.replace("'", "'\\''") + "'";
   } else if (a.includes('"') || a.includes('$')) {
