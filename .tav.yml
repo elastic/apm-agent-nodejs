@@ -552,7 +552,7 @@ aws-sdk:
     - node test/instrumentation/modules/@aws-sdk/client-sns.test.js
   node: '>=14'
 
-  '@aws-sdk/client-sqs':
+'@aws-sdk/client-sqs':
   # Maintenance note: This should be updated periodically using:
   #   node ./dev-utils/tav-versions.js @aws-sdk/client-sqs ">=3.15.0 <4"
   #
@@ -561,7 +561,6 @@ aws-sdk:
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-sqs.test.js
   node: '>=14'
-
 
 # - undici@4.7.0 added its diagnostics_channel support.
 # - In undici@4.7.1 the `request.origin` property was added, which we need
