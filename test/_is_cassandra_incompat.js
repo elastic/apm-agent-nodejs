@@ -30,7 +30,10 @@ function isCassandraIncompat() {
   const cassandraVer = safeGetPackageVersion('cassandra-driver');
   const msg = `cassandra@${cassandraVer} is incompatible with node@${nodeVer}`;
 
-  // 1st the bogus version
+  // In version 4.7.0 there was a change introduced that is only supported
+  // by nodejs v16.9.0 and above although the package.json defined
+  // support range to >=8
+  // https://datastax-oss.atlassian.net/browse/NODEJS-665
   if (
     semver.satisfies(cassandraVer, '4.7.0') &&
     !semver.satisfies(nodeVer, '>=16.9')

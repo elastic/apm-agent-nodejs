@@ -19,7 +19,6 @@ const {
   safeGetPackageVersion,
   sortApmEvents,
 } = require('../../../_utils');
-const { NODE_VER_RANGE_IITM_GE16 } = require('../../../testconsts');
 
 const CASSANDRA_VERSION = safeGetPackageVersion('cassandra-driver');
 const TEST_KEYSPACE = 'mykeyspace';
@@ -397,7 +396,7 @@ const testFixtures = [
       TEST_DATACENTER,
     },
     versionRanges: {
-      node: NODE_VER_RANGE_IITM_GE16,
+      node: '^16.9.0 || ^18.1.0 <20',
       'cassandra-driver': '>=4.7.0',
     },
     verbose: true,
