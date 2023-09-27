@@ -47,12 +47,12 @@ async function useCassandraClient(client, options) {
   // NOTE: this 1st chain of executions is to setup the DB but also is used
   // to test other queries than the SELECT ones
   await new Promise((resolve, reject) => {
-    const query = [
-      `CREATE KEYSPACE IF NOT EXISTS ${keyspace} WITH replication = {`,
-      `'class': 'SimpleStrategy',`,
-      `'replication_factor': 1`,
-      '};',
-    ].join(' ');
+    const query = `
+      CREATE KEYSPACE IF NOT EXISTS ${keyspace} WITH REPLICATION = {
+        'class': 'SimpleStrategy',
+        'replication_factor': 1
+      };
+    `;
 
     client.execute(query, function (err) {
       if (err) {

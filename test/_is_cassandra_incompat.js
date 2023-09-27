@@ -7,7 +7,7 @@
 'use strict';
 
 var semver = require('semver');
-const { safeGetPackageVersion } = require('./_utils');
+const { getLockedVersion } = require('./_utils');
 
 /**
  * Return whether the current 'cassandra-driver' version is incompatible with the
@@ -27,13 +27,13 @@ const { safeGetPackageVersion } = require('./_utils');
  */
 function isCassandraIncompat() {
   const nodeVer = process.version;
-  const cassandraVer = safeGetPackageVersion('cassandra-driver');
+  const cassandraVer = getLockedVersion('cassandra-driver');
   const msg = `cassandra@${cassandraVer} is incompatible with node@${nodeVer}`;
 
   // 1st the bogus version
   if (
     semver.satisfies(cassandraVer, '4.7.0') &&
-    !semver.satisfies(nodeVer, '<16.9')
+    !semver.satisfies(nodeVer, '>=16.9')
   ) {
     return msg;
   }

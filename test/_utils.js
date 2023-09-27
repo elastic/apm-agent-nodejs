@@ -9,6 +9,7 @@
 // A dumping ground for testing utility functions.
 
 const fs = require('fs');
+const path = require('path');
 const { execFile } = require('child_process');
 
 const moduleDetailsFromPath = require('module-details-from-path');
@@ -72,6 +73,28 @@ function findObjsInArray(arr, key, val) {
     }
     return false;
   });
+}
+
+/**
+ * Returns the version of a packages from its lock file so we avoid using
+ * require completelly so if a package uses a language feature not available
+ * in the node version we're running is not going to blow up
+ *
+ * See: https://datastax-oss.atlassian.net/browse/NODEJS-665
+ *
+ * @param {string} packageName
+ * @returns {string}
+ */
+function getLockedVersion(packageName) {
+  const lockPath = path.resolve(__dirname, '../package-lock.json');
+  const lockInfo = JSON.parse(fs.readFileSync(lockPath, { encoding: 'utf-8' }));
+  const pkgInfo = lockInfo.packages[`node_modules/${packageName}`];
+
+  if (pkgInfo) {
+    return pkgInfo.version;
+  }
+
+  return null;
 }
 
 // "Safely" get the version of the given package, if possible. Otherwise return
@@ -380,6 +403,7 @@ module.exports = {
   findObjsInArray,
   formatForTComment,
   safeGetPackageVersion,
+  getLockedVersion,
   slurpStream,
   sortApmEvents,
   runTestFixtures,
