@@ -9,6 +9,7 @@
     { "name": "@aws-sdk/client-dynamodb", "minVersion": 14 },
     { "name": "@aws-sdk/client-s3", "minVersion": 14 },
     { "name": "@aws-sdk/client-sns", "minVersion": 14 },
+    { "name": "@aws-sdk/client-sqs", "minVersion": 14 },
     { "name": "@elastic/elasticsearch", "minVersion": 10 },
     { "name": "@hapi/hapi", "minVersion": 8 },
     { "name": "@opentelemetry/api", "minVersion": 14 },
