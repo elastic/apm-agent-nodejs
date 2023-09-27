@@ -456,7 +456,7 @@ const testFixtures = [
     versionRanges: {
       node: NODE_VER_RANGE_IITM,
     },
-    verbose: true,
+    verbose: false,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);

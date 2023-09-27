@@ -46,7 +46,7 @@ const testFixtures = [
     versionRanges: {
       node: '>=14',
     },
-    verbose: true,
+    verbose: false,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
@@ -263,6 +263,8 @@ const testFixtures = [
     timeout: 20000, // sanity guard on the test hanging
     maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
     env: {
+      NODE_OPTIONS:
+        '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
       AWS_ACCESS_KEY_ID: 'fake',
       AWS_SECRET_ACCESS_KEY: 'fake',
       TEST_ENDPOINT: endpoint,
@@ -279,8 +281,11 @@ const testFixtures = [
 
       t.ok(events[0].transaction, 'got the transaction');
       const tx = events.shift().transaction;
+      const spans = events
+        .filter((e) => e.span && e.span.type !== 'external')
+        .map((e) => e.span);
 
-      const span = events.shift().span;
+      const span = spans.shift();
       t.equal(span.parent_id, tx.id, 'span.parent_id');
       t.equal(
         span.name,
@@ -288,7 +293,7 @@ const testFixtures = [
         'span.name',
       );
 
-      t.equal(events.length, 0, 'all events accounted for');
+      t.equal(spans.length, 0, 'all spans accounted for');
     },
   },
 ];
