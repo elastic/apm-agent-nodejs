@@ -42,7 +42,7 @@ const testFixtures = [
     versionRanges: {
       // v4.7.0 is a bad release for node versions <16.9
       // and we want to test form 14.7 and above
-      node: '<16',
+      node: '<16.9',
       'cassandra-driver': '>=3.0.0 <4.7.0',
     },
     verbose: true,
@@ -407,7 +407,7 @@ testFixtures.push(
   Object.assign({}, testFixtures[0], {
     name: 'cassandra-driver simple usage for versions >=4.7.0',
     versionRanges: {
-      node: '>=16',
+      node: '>=16.9',
       'cassandra-driver': '>=4.7.0',
     },
   }),
