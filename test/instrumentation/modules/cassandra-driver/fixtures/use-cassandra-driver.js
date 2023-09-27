@@ -146,18 +146,24 @@ async function useCassandraClient(client, options) {
   }
 
   // https://docs.datastax.com/en/developer/nodejs-driver/4.6/api/class.Client/#each-row
-  // TODO: same here, feels like testing the driver
-  const assertRow = (i, r) => assert(r.key === 'local', 'row key is correct');
-
   await new Promise((resolve, reject) => {
-    client.eachRow(SELECT_QUERY, [], assertRow, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        log.info({ data }, 'eachRow');
-        resolve();
-      }
-    });
+    client.eachRow(
+      SELECT_QUERY,
+      [],
+      function assertRow(i, r) {
+        if (r.key !== 'local') {
+          reject(`Row key value is not "local" (${r.key})`);
+        }
+      },
+      function (err, data) {
+        if (err) {
+          reject(err);
+        } else {
+          log.info({ data }, 'eachRow');
+          resolve();
+        }
+      },
+    );
   });
 
   // https://docs.datastax.com/en/developer/nodejs-driver/4.6/api/class.Client/#stream
