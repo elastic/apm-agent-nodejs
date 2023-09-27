@@ -28,7 +28,7 @@ const TEST_USE_PROMISES = semver.satisfies(CASSANDRA_VERSION, '>=3.2');
 
 const testFixtures = [
   {
-    name: 'cassandra-driver simple usage scenario',
+    name: 'cassandra-driver simple usage for versions <4.7.0',
     script: 'fixtures/use-cassandra-driver.js',
     cwd: __dirname,
     timeout: 20000, // sanity guard on the test hanging
@@ -405,12 +405,14 @@ const testFixtures = [
 // The issue: https://datastax-oss.atlassian.net/browse/NODEJS-665
 testFixtures.push(
   Object.assign({}, testFixtures[0], {
+    name: 'cassandra-driver simple usage for versions >=4.7.0',
     versionRanges: {
       node: '>=16',
       'cassandra-driver': '>=4.7.0',
     },
   }),
 );
+console.log(testFixtures[2]);
 
 test('cassandra-driver fixtures', (suite) => {
   runTestFixtures(suite, testFixtures);
