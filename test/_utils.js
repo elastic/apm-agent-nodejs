@@ -9,7 +9,6 @@
 // A dumping ground for testing utility functions.
 
 const fs = require('fs');
-const path = require('path');
 const { execFile } = require('child_process');
 
 const moduleDetailsFromPath = require('module-details-from-path');

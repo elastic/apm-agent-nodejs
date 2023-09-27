@@ -47,12 +47,7 @@ async function useCassandraClient(client, options) {
   // NOTE: this 1st chain of executions is to setup the DB but also is used
   // to test other queries than the SELECT ones
   await new Promise((resolve, reject) => {
-    const query = `
-      CREATE KEYSPACE IF NOT EXISTS ${keyspace} WITH REPLICATION = {
-        'class': 'SimpleStrategy',
-        'replication_factor': 1
-      };
-    `;
+    const query = `CREATE KEYSPACE IF NOT EXISTS ${keyspace} WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': 1 };`;
 
     client.execute(query, function (err) {
       if (err) {
@@ -62,20 +57,35 @@ async function useCassandraClient(client, options) {
         resolve();
       }
     });
-  }).then(() => {
-    const query = `CREATE TABLE IF NOT EXISTS ${keyspace}.${table}(id uuid,text varchar,PRIMARY KEY(id));`;
+  })
+    .then(() => {
+      const query = `USE ${keyspace}`;
 
-    return new Promise((resolve, reject) => {
-      client.execute(query, function (err) {
-        if (err) {
-          reject(err);
-        } else {
-          log.info({ query }, 'create table');
-          resolve();
-        }
+      return new Promise((resolve, reject) => {
+        client.execute(query, function (err) {
+          if (err) {
+            reject(err);
+          } else {
+            log.info({ query }, 'create table');
+            resolve();
+          }
+        });
+      });
+    })
+    .then(() => {
+      const query = `CREATE TABLE IF NOT EXISTS ${keyspace}.${table}(id uuid,text varchar,PRIMARY KEY(id));`;
+
+      return new Promise((resolve, reject) => {
+        client.execute(query, function (err) {
+          if (err) {
+            reject(err);
+          } else {
+            log.info({ query }, 'create table');
+            resolve();
+          }
+        });
       });
     });
-  });
 
   // We cannot await executions in callback mode so we wrap it in a Promise
   // and pass the data for assertions to the next block

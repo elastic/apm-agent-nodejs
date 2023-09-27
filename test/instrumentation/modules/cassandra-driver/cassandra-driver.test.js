@@ -108,13 +108,13 @@ const testFixtures = [
           subtype: 'cassandra',
           action: 'connect',
           context: {
-            db: { type: 'cassandra', instance: TEST_KEYSPACE },
-            service: { target: { type: 'cassandra', name: TEST_KEYSPACE } },
+            db: { type: 'cassandra' },
+            service: { target: { type: 'cassandra' } },
             destination: {
               service: {
                 type: '',
                 name: '',
-                resource: `cassandra/${TEST_KEYSPACE}`,
+                resource: 'cassandra',
               },
             },
           },
@@ -132,28 +132,53 @@ const testFixtures = [
           action: 'query',
           context: {
             service: {
+              target: { type: 'cassandra' },
+            },
+            destination: {
+              service: {
+                type: '',
+                name: '',
+                resource: `cassandra`,
+              },
+            },
+            db: {
+              type: 'cassandra',
+              statement: `CREATE KEYSPACE IF NOT EXISTS ${TEST_KEYSPACE} WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': 1 };`,
+            },
+          },
+          outcome: 'success',
+        },
+        'create keyspace produced expected span',
+      );
+
+      t.deepEqual(
+        spans.shift(),
+        {
+          name: `USE ${TEST_KEYSPACE}`,
+          type: 'db',
+          subtype: 'cassandra',
+          action: 'query',
+          context: {
+            service: {
               target: {
                 type: 'cassandra',
-                name: 'mykeyspace',
               },
             },
             destination: {
               service: {
                 type: '',
                 name: '',
-                resource: 'cassandra/mykeyspace',
+                resource: 'cassandra',
               },
             },
             db: {
               type: 'cassandra',
-              statement:
-                "CREATE KEYSPACE IF NOT EXISTS mykeyspace WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': 1 };",
-              instance: 'mykeyspace',
+              statement: `USE ${TEST_KEYSPACE}`,
             },
           },
           outcome: 'success',
         },
-        'create keyspace produced expected span',
+        'use keyspace produced expected span',
       );
 
       t.deepEqual(
@@ -167,21 +192,20 @@ const testFixtures = [
             service: {
               target: {
                 type: 'cassandra',
-                name: 'mykeyspace',
+                name: TEST_KEYSPACE,
               },
             },
             destination: {
               service: {
                 type: '',
                 name: '',
-                resource: 'cassandra/mykeyspace',
+                resource: `cassandra/${TEST_KEYSPACE}`,
               },
             },
             db: {
               type: 'cassandra',
-              statement:
-                'CREATE TABLE IF NOT EXISTS mykeyspace.myTable(id uuid,text varchar,PRIMARY KEY(id));',
-              instance: 'mykeyspace',
+              statement: `CREATE TABLE IF NOT EXISTS ${TEST_KEYSPACE}.${TEST_TABLE}(id uuid,text varchar,PRIMARY KEY(id));`,
+              instance: TEST_KEYSPACE,
             },
           },
           outcome: 'success',
