@@ -75,28 +75,6 @@ function findObjsInArray(arr, key, val) {
   });
 }
 
-/**
- * Returns the version of a packages from its lock file so we avoid using
- * require completelly so if a package uses a language feature not available
- * in the node version we're running is not going to blow up
- *
- * See: https://datastax-oss.atlassian.net/browse/NODEJS-665
- *
- * @param {string} packageName
- * @returns {string}
- */
-function getLockedVersion(packageName) {
-  const lockPath = path.resolve(__dirname, '../package-lock.json');
-  const lockInfo = JSON.parse(fs.readFileSync(lockPath, { encoding: 'utf-8' }));
-  const pkgInfo = lockInfo.packages[`node_modules/${packageName}`];
-
-  if (pkgInfo) {
-    return pkgInfo.version;
-  }
-
-  return null;
-}
-
 // "Safely" get the version of the given package, if possible. Otherwise return
 // null.
 //
@@ -403,7 +381,6 @@ module.exports = {
   findObjsInArray,
   formatForTComment,
   safeGetPackageVersion,
-  getLockedVersion,
   slurpStream,
   sortApmEvents,
   runTestFixtures,
