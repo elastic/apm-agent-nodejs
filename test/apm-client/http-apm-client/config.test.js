@@ -532,23 +532,24 @@ test('agentName', function (t) {
 });
 
 test('payloadLogFile', function (t) {
-  t.plan(6);
-
   const receivedObjects = [];
-  const filename = path.join(os.tmpdir(), Date.now() + '.ndjson');
+  const filename = path.join(
+    os.tmpdir(),
+    `test-payloadLogFile-${Date.now()}.ndjson`,
+  );
   let requests = 0;
 
   let client;
   const server = APMServer(function (req, res) {
     const request = ++requests;
 
-    req = processIntakeReq(req);
+    const pipe = processIntakeReq(req);
 
-    req.on('data', function (obj) {
+    pipe.on('data', function (obj) {
       receivedObjects.push(obj);
     });
 
-    req.on('end', function () {
+    pipe.on('end', function () {
       res.end();
 
       if (request === 2) {
@@ -556,20 +557,30 @@ test('payloadLogFile', function (t) {
         server.close();
         t.equal(receivedObjects.length, 5, 'should have received 5 objects');
 
-        const file = fs.createReadStream(filename).pipe(ndjson.parse());
-
-        file.on('data', function (obj) {
-          const expected = receivedObjects.shift();
-          const n = 5 - receivedObjects.length;
-          t.deepEqual(
-            obj,
-            expected,
-            `expected line ${n} in the log file to match item no ${n} received by the server`,
-          );
-        });
+        // With the current `payloadLogFile` implementation, there is no
+        // guarantee that the file writes are complete and sync'd to disk
+        // by the time the client intake request has completed, or even the
+        // server has received that request end. Therefore, to avoid flaky
+        // test failures, we lamely wait a bit to give that time to complete.
+        setTimeout(() => {
+          const file = fs.createReadStream(filename).pipe(ndjson.parse());
+          file.on('data', function (obj) {
+            const expected = receivedObjects.shift();
+            const n = 5 - receivedObjects.length;
+            t.deepEqual(
+              obj,
+              expected,
+              `expected line ${n} in the log file to match item no ${n} received by the server`,
+            );
+          });
+          file.on('end', function () {
+            t.end();
+          });
+        }, 300);
       }
     });
-  }).client(
+  });
+  server.client(
     { payloadLogFile: filename, apmServerVersion: '8.0.0' },
     function (client_) {
       client = client_;
