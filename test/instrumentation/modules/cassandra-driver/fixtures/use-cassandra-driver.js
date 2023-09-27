@@ -192,7 +192,6 @@ function main() {
   const client = new cassandra.Client({
     contactPoints,
     localDataCenter,
-    keyspace,
     table,
   });
 
