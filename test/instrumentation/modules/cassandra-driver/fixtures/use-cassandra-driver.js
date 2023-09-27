@@ -139,31 +139,36 @@ async function useCassandraClient(client, options) {
   });
 
   // https://docs.datastax.com/en/developer/nodejs-driver/4.6/api/class.Client/#stream
-  // const stream = client.stream(SELECT_QUERY, []);
-  // let rows = 0;
+  await new Promise((resolve, reject) => {
+    const stream = client.stream(SELECT_QUERY, []);
+    let rows = 0;
 
-  // stream.on('readable', function () {
-  //   let row;
-  //   while ((row = this.read())) {
-  //     rows++;
-  //     assert(row.key === 'local', 'row key is correct on stream');
-  //   }
-  // });
+    stream.on('readable', function () {
+      let row;
+      while ((row = this.read())) {
+        rows++;
+        if (row.key !== 'local') {
+          reject(
+            `row key ${row.key} is not correct on stream (expected 'local')`,
+          );
+        }
+      }
+    });
 
-  // stream.on('error', function (err) {
-  //   console.log(err);
-  //   assert(!err, 'no error in the stream');
-  // });
+    stream.on('error', function (err) {
+      if (err) {
+        reject(err);
+      }
+    });
 
-  // stream.on('end', function () {
-  //   assert(rows === 1, 'number of rows is correct at the end of the stream');
-  // });
-  // await new Promise((resolve, reject) => {
-  //   const stream = client.stream(SELECT_QUERY, []);
-
-  //   stream.on('error', reject);
-  //   stream.on('end', resolve);
-  // });
+    stream.on('end', function () {
+      if (rows !== 1) {
+        reject(`number of rows (${rows}) is correct at the end of the stream`);
+      } else {
+        resolve();
+      }
+    });
+  });
 }
 
 function main() {

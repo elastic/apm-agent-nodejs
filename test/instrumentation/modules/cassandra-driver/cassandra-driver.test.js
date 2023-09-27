@@ -329,6 +329,35 @@ const testFixtures = [
         },
         'eachRow produced expected span',
       );
+
+      t.deepEqual(
+        spans.shift(),
+        {
+          name: 'SELECT FROM system.local',
+          type: 'db',
+          subtype: 'cassandra',
+          action: 'query',
+          context: {
+            db: {
+              type: 'cassandra',
+              statement: 'SELECT key FROM system.local',
+              instance: TEST_KEYSPACE,
+            },
+            service: { target: { type: 'cassandra', name: TEST_KEYSPACE } },
+            destination: {
+              service: {
+                type: '',
+                name: '',
+                resource: `cassandra/${TEST_KEYSPACE}`,
+              },
+            },
+          },
+          outcome: 'success',
+        },
+        'stream produced expected span',
+      );
+
+      t.equal(spans.length, 0, 'all spans accounted for');
     },
   },
 ];
