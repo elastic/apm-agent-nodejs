@@ -16,7 +16,9 @@
 // - Current node v20 does not work with IITM
 //   https://github.com/DataDog/import-in-the-middle/pull/27
 const NODE_VER_RANGE_IITM = '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 <20';
+const NODE_VER_RANGE_IITM_GE14 = '^14.13.1 || ^16.0.0 || ^18.1.0 <20'; // NODE_VER_RANGE_IITM minus node v12
 
 module.exports = {
   NODE_VER_RANGE_IITM,
+  NODE_VER_RANGE_IITM_GE14,
 };

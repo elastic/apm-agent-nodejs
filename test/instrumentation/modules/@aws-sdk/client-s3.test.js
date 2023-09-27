@@ -15,16 +15,9 @@
 // - AFAIK localstack does not support Access Points, so access point ARNs
 //   cannot be tested.
 
-const semver = require('semver');
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   console.log('# SKIP: GH Actions do not support docker services on Windows');
   process.exit(0);
-}
-if (semver.lt(process.version, '14.0.0')) {
-  console.log(
-    `# SKIP @aws-sdk min supported node is v14 (node ${process.version})`,
-  );
-  process.exit();
 }
 
 const test = require('tape');
@@ -49,6 +42,9 @@ const testFixtures = [
       TEST_BUCKET_NAME: 'elasticapmtest-bucket-3',
       TEST_ENDPOINT: endpoint,
       TEST_REGION: 'us-east-2',
+    },
+    versionRanges: {
+      node: '>=14',
     },
     verbose: false,
     checkApmServer: (t, apmServer) => {

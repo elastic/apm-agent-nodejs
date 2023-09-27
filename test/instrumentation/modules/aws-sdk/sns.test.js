@@ -103,10 +103,10 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
         params: {
           Message:
             'this is my test, there are many like it but this one is mine',
-          PhoneNumber: '1-555-555-5555',
+          PhoneNumber: '+15555550100',
         },
       }),
-      '1-555-555-5555',
+      '+15555550100',
     );
 
     t.end();
@@ -170,7 +170,7 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
         params: {
           Message: 'work test',
           Subject: 'Admin',
-          PhoneNumber: '15037299028',
+          PhoneNumber: '+15555550100',
         },
       }),
       '<PHONE_NUMBER>',
@@ -189,7 +189,7 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
         params: {
           Message: 'work test',
           Subject: 'Admin',
-          PhoneNumber: '15555555555',
+          PhoneNumber: '+15555550100',
         },
       }),
       'SNS PUBLISH to <PHONE_NUMBER>',
