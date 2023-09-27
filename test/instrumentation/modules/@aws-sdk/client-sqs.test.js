@@ -162,82 +162,84 @@ const testFixtures = [
       // `SQS DELETE_BATCH ...` spans to delete those messages as they are
       // received.
       const spanLinks = [];
-      const pollSpans = [];
-      while (spans.length > 0 && spans[0].name.startsWith('SQS POLL')) {
-        pollSpans.push(spans.shift());
-      }
 
-      pollSpans.forEach((span) => {
-        let numSpanLinks = 0;
+      while (spans.length > 0) {
+        const currSpan = spans.shift();
 
-        if (span.links) {
-          numSpanLinks = span.links.length;
-          spanLinks.push(...span.links);
-          delete span.links;
-        }
+        if (currSpan.name.startsWith('SQS POLL')) {
+          let numSpanLinks = 0;
 
-        t.deepEqual(
-          span,
-          {
-            name: 'SQS POLL from elasticapmtest-queue-1.fifo',
-            type: 'messaging',
-            subtype: 'sqs',
-            action: 'poll',
-            context: {
-              service: {
-                target: {
-                  type: 'sqs',
-                  name: 'elasticapmtest-queue-1.fifo',
-                },
-              },
-              destination: {
-                address: LOCALSTACK_HOST,
-                port: 4566,
-                cloud: { region: 'us-east-2' },
+          if (currSpan.links) {
+            numSpanLinks = currSpan.links.length;
+            spanLinks.push(...currSpan.links);
+            delete currSpan.links;
+          }
+
+          t.deepEqual(
+            currSpan,
+            {
+              name: 'SQS POLL from elasticapmtest-queue-1.fifo',
+              type: 'messaging',
+              subtype: 'sqs',
+              action: 'poll',
+              context: {
                 service: {
-                  type: '',
-                  name: '',
-                  resource: 'sqs/elasticapmtest-queue-1.fifo',
+                  target: {
+                    type: 'sqs',
+                    name: 'elasticapmtest-queue-1.fifo',
+                  },
                 },
+                destination: {
+                  address: LOCALSTACK_HOST,
+                  port: 4566,
+                  cloud: { region: 'us-east-2' },
+                  service: {
+                    type: '',
+                    name: '',
+                    resource: 'sqs/elasticapmtest-queue-1.fifo',
+                  },
+                },
+                message: { queue: { name: 'elasticapmtest-queue-1.fifo' } },
               },
-              message: { queue: { name: 'elasticapmtest-queue-1.fifo' } },
+              outcome: 'success',
             },
-            outcome: 'success',
-          },
-          `receiveMessage (${numSpanLinks} span links)`,
-        );
-      });
-
-      t.deepEqual(
-        spans.shift(),
-        {
-          name: 'SQS DELETE_BATCH from elasticapmtest-queue-1.fifo',
-          type: 'messaging',
-          subtype: 'sqs',
-          action: 'delete_batch',
-          context: {
-            service: {
-              target: {
-                type: 'sqs',
-                name: 'elasticapmtest-queue-1.fifo',
+            `receiveMessage (${numSpanLinks} span links)`,
+          );
+        } else if (currSpan.name.startsWith('SQS DELETE_BATCH')) {
+          t.deepEqual(
+            currSpan,
+            {
+              name: 'SQS DELETE_BATCH from elasticapmtest-queue-1.fifo',
+              type: 'messaging',
+              subtype: 'sqs',
+              action: 'delete_batch',
+              context: {
+                service: {
+                  target: {
+                    type: 'sqs',
+                    name: 'elasticapmtest-queue-1.fifo',
+                  },
+                },
+                destination: {
+                  address: LOCALSTACK_HOST,
+                  port: 4566,
+                  cloud: { region: 'us-east-2' },
+                  service: {
+                    type: '',
+                    name: '',
+                    resource: 'sqs/elasticapmtest-queue-1.fifo',
+                  },
+                },
+                message: { queue: { name: 'elasticapmtest-queue-1.fifo' } },
               },
+              outcome: 'success',
             },
-            destination: {
-              address: LOCALSTACK_HOST,
-              port: 4566,
-              cloud: { region: 'us-east-2' },
-              service: {
-                type: '',
-                name: '',
-                resource: 'sqs/elasticapmtest-queue-1.fifo',
-              },
-            },
-            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } },
-          },
-          outcome: 'success',
-        },
-        'deleteMessageBatch',
-      );
+            'deleteMessageBatch',
+          );
+        } else {
+          break;
+        }
+      }
 
       t.deepEqual(
         spanLinks,
