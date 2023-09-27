@@ -55,13 +55,25 @@ async function useCassandraClient(client, options) {
     ].join(' ');
 
     client.execute(KEYSPACE_QUERY, function (err) {
-      err ? reject(err) : resolve();
+      if (err) {
+        reject(err);
+      } else {
+        log.info({}, 'create keyspace');
+        resolve();
+      }
     });
   }).then(() => {
     const TABLE_QUERY = `CREATE TABLE IF NOT EXISTS ${keyspace}.${table}(id uuid,text varchar,PRIMARY KEY(id));`;
 
-    client.execute(TABLE_QUERY, function (err) {
-      if (err) throw err;
+    return new Promise((resolve, reject) => {
+      client.execute(TABLE_QUERY, function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          log.info({}, 'create table');
+          resolve();
+        }
+      });
     });
   });
 

@@ -45,7 +45,7 @@ const testFixtures = [
       node: '<16',
       'cassandra-driver': '>=3.0.0 <4.7.0',
     },
-    verbose: false,
+    verbose: true,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
