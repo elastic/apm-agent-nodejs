@@ -86,6 +86,7 @@ Automatic instrumentation of ES modules is currently limited as described here. 
 |=======================================================================
 | Module               | Version     | Note |
 | `@aws-sdk/client-s3` | >=3.15.0 <4 | |
+| `cassandra-driver`   | >=3.0.0 <5  | |
 | `express`            | ^4.0.0      | |
 | `fastify`            | >=3.5.0     | |
 | `http`               |             | See <<esm-compat-node>> above. |
