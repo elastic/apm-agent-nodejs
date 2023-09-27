@@ -360,6 +360,41 @@ const testFixtures = [
       t.equal(spans.length, 0, 'all spans accounted for');
     },
   },
+  {
+    name: 'cassandra-driver ESM',
+    script: 'fixtures/use-cassandra-driver.mjs',
+    cwd: __dirname,
+    timeout: 20000, // sanity guard on the test hanging
+    maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
+    env: {
+      NODE_OPTIONS:
+        '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      TEST_DATACENTER,
+    },
+    versionRanges: {
+      // v4.7.0 is a bad release for node versions <16.9
+      // and we want to test form 14.7 and above
+      node: '>=16',
+      'cassandra-driver': '>=4.7.0',
+    },
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      t.ok(apmServer.events[0].metadata, 'metadata');
+      const events = sortApmEvents(apmServer.events);
+
+      // First the transaction.
+      t.ok(events[0].transaction, 'got the transaction');
+      const tx = events.shift().transaction;
+      const connSpan = events.shift().span;
+      const querySpan = events.shift().span;
+
+      t.equal(connSpan.parent_id, tx.id, 'span.parent_id');
+      t.equal(connSpan.name, 'Cassandra: Connect', 'span.name');
+      t.equal(querySpan.parent_id, tx.id, 'span.parent_id');
+      t.equal(querySpan.name, 'SELECT FROM system.local', 'span.name');
+      t.equal(events.length, 0, 'all events accounted for');
+    },
+  },
 ];
 
 // We need to do exactly the same test for `cassandra-driver` v4.7.0 and up
