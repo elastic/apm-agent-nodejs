@@ -84,15 +84,18 @@ Automatic instrumentation of ES modules is currently limited as described here. 
 
 [options="header"]
 |=======================================================================
-| Module               | Version     | Note |
-| `@aws-sdk/client-s3` | >=3.15.0 <4 | |
-| `express`            | ^4.0.0      | |
-| `fastify`            | >=3.5.0     | |
-| `http`               |             | See <<esm-compat-node>> above. |
-| `https`              |             | See <<esm-compat-node>> above. |
-| `ioredis`            | >=2 <6      | |
-| `knex`               | >=0.20.0 <3 | Also, only with pg@8. |
-| `pg`                 | ^8          | |
+| Module                     | Version     | Note |
+| `@aws-sdk/client-dynamodb` | >=3.15.0 <4 | |
+| `@aws-sdk/client-s3`       | >=3.15.0 <4 | |
+| `@aws-sdk/client-sns`      | >=3.15.0 <4 | |
+| `@aws-sdk/client-sqs`      | >=3.15.0 <4 | |
+| `express`                  | ^4.0.0      | |
+| `fastify`                  | >=3.5.0     | |
+| `http`                     |             | See <<esm-compat-node>> above. |
+| `https`                    |             | See <<esm-compat-node>> above. |
+| `ioredis`                  | >=2 <6      | |
+| `knex`                     | >=0.20.0 <3 | Also, only with pg@8. |
+| `pg`                       | ^8          | |
 |=======================================================================
 
 
