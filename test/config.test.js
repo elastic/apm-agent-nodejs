@@ -39,6 +39,7 @@ var apmName = require('../package').name;
 var isHapiIncompat = require('./_is_hapi_incompat');
 const isMongodbIncompat = require('./_is_mongodb_incompat');
 const isFastifyIncompat = require('./_is_fastify_incompat');
+const isCassandraIncompat = require('./_is_cassandra_incompat');
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
 // that is unhelpful for these tests.
@@ -1227,6 +1228,9 @@ test('disableInstrumentations', function (t) {
   }
   if (isMongodbIncompat()) {
     modules.delete('mongodb');
+  }
+  if (isCassandraIncompat()) {
+    modules.delete('cassandra-driver');
   }
   if (
     semver.gte(apolloServerCoreVersion, '3.0.0') &&

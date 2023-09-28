@@ -408,7 +408,7 @@ tedious:
 cassandra-driver:
   # 3.1.0 is broken
   versions: '>=3 <3.1.0 || >3.1.0 <5'
-  commands: node test/instrumentation/modules/cassandra-driver/index.test.js
+  commands: node test/instrumentation/modules/cassandra-driver/cassandra-driver.test.js
 
 # Restify
 # - restify <v10 doesn't work with node v18+ (https://github.com/restify/node-restify/issues/1888)
