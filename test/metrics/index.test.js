@@ -12,6 +12,7 @@ const semver = require('semver');
 const test = require('tape');
 
 const Metrics = require('../../lib/metrics');
+const { TIMING_SENSITIVE_TEST_OPTS } = require('../testconsts');
 
 const delayMs = 500;
 const delayDeviationMs = (delayMs / 100) * 10;
@@ -41,7 +42,7 @@ function isRoughlyAbsolute(received, expected, range) {
   return received >= lower && received < upper;
 }
 
-test('reports expected metrics', function (t) {
+test('reports expected metrics', TIMING_SENSITIVE_TEST_OPTS, function (t) {
   let count = 0;
   let last;
 
