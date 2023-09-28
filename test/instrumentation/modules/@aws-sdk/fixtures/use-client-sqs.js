@@ -36,53 +36,62 @@
 //    TEST_ENDPOINT=http://localhost:4566 node use-sqs.js | ecslog
 //
 //    # Specify a queue name to use. It must begin with 'elasticapmtest-queue-'.
-//    TEST_QUEUE_NAME=elasticapmtest-queue-1 node use-sqs.js | ecslog
+//    TEST_QUEUE_NAME=elasticapmtest-queue-1 node use-client-sqs.js | ecslog
+//
 
 const apm = require('../../../../..').start({
-  serviceName: 'use-sqs',
-  centralConfig: false,
-  metricsInterval: '0s',
-  cloudProvider: 'none',
+  serviceName: 'use-client-sqs',
   captureExceptions: false,
+  centralConfig: false,
+  metricsInterval: 0,
+  cloudProvider: 'none',
   stackTraceLimit: 4, // get it smaller for reviewing output
   logLevel: 'info',
 });
 
 const assert = require('assert');
 const crypto = require('crypto');
-
-const AWS = require('aws-sdk');
+const {
+  SQSClient,
+  CreateQueueCommand,
+  DeleteQueueCommand,
+  SendMessageCommand,
+  SendMessageBatchCommand,
+  DeleteMessageBatchCommand,
+  ReceiveMessageCommand,
+  ListQueuesCommand,
+} = require('@aws-sdk/client-sqs');
 
 const TEST_QUEUE_NAME_PREFIX = 'elasticapmtest-queue-';
 
-// ---- support functions
-
-// https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html
-async function useSQS(sqsClient, queueName) {
-  const region = sqsClient.config.region;
+// https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/sns/
+async function useClientSQS(sqsClient, queueName) {
+  const region = await sqsClient.config.region();
   const log = apm.logger.child({
     'event.module': 'app',
     endpoint: sqsClient.config.endpoint,
     queueName,
     region,
   });
-  let queueUrl = null;
-  var data, params;
 
-  // createQueue
-  data = await sqsClient
-    .createQueue({
-      QueueName: queueName,
-      Attributes: {
-        FifoQueue: 'true', // Ensure order of messages to help testing.
-        DelaySeconds: '10',
-        MessageRetentionPeriod: '86400',
-      },
-    })
-    .promise();
+  let queueUrl;
+  let command;
+  let data;
+
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/sqs/command/CreateQueueCommand/
+  // for testing purposes, shouldn't be instrumented
+  command = new CreateQueueCommand({
+    QueueName: queueName,
+    Attributes: {
+      FifoQueue: 'true', // Ensure order of messages to help testing.
+      DelaySeconds: '10',
+      MessageRetentionPeriod: '86400',
+    },
+  });
+  data = await sqsClient.send(command);
   assert(
     apm.currentSpan === null,
-    'SQS span should NOT be a currentSpan after awaiting its call',
+    'SQS span (or its HTTP span) should not be currentSpan after awaiting the task',
   );
   log.info({ data }, 'createQueue');
   queueUrl = data.QueueUrl;
@@ -92,26 +101,30 @@ async function useSQS(sqsClient, queueName) {
   // > after the queue is created to be able to use the queue.
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  // sendMessage
-  params = {
-    MessageGroupId: 'use-sqs',
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/sqs/command/SendMessageCommand/
+  command = new SendMessageCommand({
+    MessageGroupId: 'use-sqs-client',
     MessageDeduplicationId: crypto.randomBytes(16).toString('hex'), // Avoid deduplication between runs.
     MessageAttributes: {
       foo: { DataType: 'String', StringValue: 'bar' },
     },
     MessageBody: 'this is message 1',
     QueueUrl: queueUrl,
-  };
-  data = await sqsClient.sendMessage(params).promise();
+  });
+  data = await sqsClient.send(command);
+  assert(
+    apm.currentSpan === null,
+    'SQS span (or its HTTP span) should not be currentSpan after awaiting the task',
+  );
   log.info({ data }, 'sendMessage');
 
-  // sendMessageBatch
-  params = {
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/sqs/command/SendMessageBatchCommand/
+  command = new SendMessageBatchCommand({
     QueueUrl: queueUrl,
     Entries: [
       {
         Id: '2',
-        MessageGroupId: 'use-sqs',
+        MessageGroupId: 'use-sqs-client',
         MessageDeduplicationId: crypto.randomBytes(16).toString('hex'), // Avoid deduplication between runs.
         MessageAttributes: {
           foo: { DataType: 'String', StringValue: 'bar' },
@@ -120,7 +133,7 @@ async function useSQS(sqsClient, queueName) {
       },
       {
         Id: '3',
-        MessageGroupId: 'use-sqs',
+        MessageGroupId: 'use-sqs-client',
         MessageDeduplicationId: crypto.randomBytes(16).toString('hex'), // Avoid deduplication between runs.
         MessageAttributes: {
           foo: { DataType: 'String', StringValue: 'bar' },
@@ -128,37 +141,40 @@ async function useSQS(sqsClient, queueName) {
         MessageBody: 'this is message 3',
       },
     ],
-  };
-  data = await sqsClient.sendMessageBatch(params).promise();
-  log.info({ data }, 'sendMessageBatch');
+  });
+  data = await sqsClient.send(command);
+  assert(
+    apm.currentSpan === null,
+    'SQS span (or its HTTP span) should not be currentSpan after awaiting the task',
+  );
+  log.info({ data }, 'sendMessageBatchCommand');
 
-  // In general it will take N ReceiveMessage calls to receive all messages.
-  params = {
-    QueueUrl: queueUrl,
-    MaxNumberOfMessages: 10,
-    AttributeNames: ['All'],
-    MessageAttributeNames: ['All'],
-    VisibilityTimeout: 10,
-    WaitTimeSeconds: 5,
-  };
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/sqs/command/ReceiveMessageCommand/
   const messages = [];
   for (const attemptNum of [0, 1, 2, 3, 4]) {
-    data = await sqsClient.receiveMessage(params).promise();
+    data = await sqsClient.send(
+      new ReceiveMessageCommand({
+        QueueUrl: queueUrl,
+        MaxNumberOfMessages: 10,
+        AttributeNames: ['All'],
+        MessageAttributeNames: ['All'],
+        VisibilityTimeout: 10,
+        WaitTimeSeconds: 5,
+      }),
+    );
     log.info({ attemptNum, data }, 'receiveMessage');
     if (data.Messages) {
-      data.Messages.forEach((msg) => {
-        messages.push(msg);
-      });
+      messages.push(...data.Messages);
       // We effectively don't test `deleteMessage`, just the batch version. Meh.
       const entries = data.Messages.map((msg, idx) => {
         return { Id: idx.toString(), ReceiptHandle: msg.ReceiptHandle };
       });
-      data = await sqsClient
-        .deleteMessageBatch({
+      data = await sqsClient.send(
+        new DeleteMessageBatchCommand({
           QueueUrl: queueUrl,
           Entries: entries,
-        })
-        .promise();
+        }),
+      );
       log.info({ data }, 'deleteMessageBatch');
     }
     if (messages.length >= 3) {
@@ -177,7 +193,7 @@ async function useSQS(sqsClient, queueName) {
     'got the expected message bodies in order',
   );
 
-  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html#deleteQueue-property
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/sqs/command/DeleteQueueCommand/
   // > When you delete a queue, the deletion process takes up to 60 seconds.
   // > Requests you send involving that queue during the 60 seconds might
   // > succeed. For example, a SendMessage request might succeed, but after
@@ -185,11 +201,13 @@ async function useSQS(sqsClient, queueName) {
   // >
   // > When you delete a queue, you must wait at least 60 seconds before
   // > creating a queue with the same name.
-  data = await sqsClient.deleteQueue({ QueueUrl: queueUrl }).promise();
+  command = new DeleteQueueCommand({ QueueUrl: queueUrl });
+  data = await sqsClient.send(command);
   log.info({ data }, 'deleteQueue');
 
   // Warn if there are left over queues from runs of this file.
-  data = await sqsClient.listQueues({}).promise();
+  command = new ListQueuesCommand({});
+  data = await sqsClient.send(command);
   log.info({ data }, 'listQueues');
   if (data.QueueUrls) {
     const leftovers = data.QueueUrls.filter(
@@ -204,9 +222,8 @@ async function useSQS(sqsClient, queueName) {
   }
 }
 
-// Return a timestamp of the form YYYYMMDDHHMMSS, which can be used in an SQS
-// queue name:
-// https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
+// Return a timestamp of the form YYYYMMDDHHMMSS, which can be used in an SNS
+// topic name:
 function getTimestamp() {
   return new Date()
     .toISOString()
@@ -216,7 +233,7 @@ function getTimestamp() {
 
 // ---- mainline
 
-async function main() {
+function main() {
   // Config vars.
   const region = process.env.TEST_REGION || 'us-east-2';
   const endpoint = process.env.TEST_ENDPOINT || null;
@@ -232,17 +249,28 @@ async function main() {
     );
   }
 
-  const sqsClient = new AWS.SQS({ apiVersion: '2012-11-05', endpoint, region });
+  const snsClient = new SQSClient({
+    region,
+    endpoint,
+  });
 
   // Ensure an APM transaction so spans can happen.
   const tx = apm.startTransaction('manual');
-  try {
-    await useSQS(sqsClient, queueName);
-    tx.end();
-  } catch (err) {
-    tx.setOutcome('failure');
-    process.exitCode = 1;
-  }
+
+  useClientSQS(snsClient, queueName).then(
+    function () {
+      tx.end();
+      snsClient.destroy();
+      process.exitCode = 0;
+    },
+    function (err) {
+      apm.logger.error(err, 'useClientSQS rejected');
+      tx.setOutcome('failure');
+      tx.end();
+      snsClient.destroy();
+      process.exitCode = 1;
+    },
+  );
 }
 
 main();

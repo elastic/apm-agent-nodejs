@@ -51,6 +51,10 @@ See the <<upgrade-to-v4>> guide.
 * Add support for `@aws-sdk/client-sns`, one of the AWS SDK v3 clients.
   ({issues}2956[#2956])
 
+* Add support for `@aws-sdk/client-sqs`, one of the AWS SDK v3 clients.
+  ({issues}2957[#2957])
+
+
 [float]
 ===== Bug fixes
 

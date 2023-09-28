@@ -14,7 +14,6 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 const { execFile } = require('child_process');
 const util = require('util');
 
-const semver = require('semver');
 const tape = require('tape');
 
 const logging = require('../../../../lib/logging');
@@ -200,15 +199,6 @@ tape.test('unit tests', function (suite) {
 // Execute 'node fixtures/use-sqs.js' and assert APM server gets the expected
 // spans.
 tape.test('SQS usage scenario', function (t) {
-  // Skip in earlier Node.js versions because use-sqs.js uses a recent core function.
-  if (!semver.satisfies(process.version, '>=16.14.0')) {
-    t.comment(
-      `SKIP node ${process.version} is not supported by this fixture (requires: >=16.14.0})`,
-    );
-    t.end();
-    return;
-  }
-
   const server = new MockAPMServer();
   server.start(function (serverUrl) {
     const additionalEnv = {
