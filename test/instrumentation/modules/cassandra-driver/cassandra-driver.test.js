@@ -40,9 +40,9 @@ const testFixtures = [
       TEST_USE_PROMISES,
     },
     versionRanges: {
-      // v4.7.0 is a bad release for node versions <16.9
-      // and we want to test form 14.7 and above
-      node: '<16.9',
+      // cassandra-driver@4.7.0 introduced a change that requires nodejs v16.9
+      // and up but previous versions support from v8 so we want to test
+      // these previous driver versions with all node versions in TAV
       'cassandra-driver': '>=3.0.0 <4.7.0',
     },
     verbose: true,
