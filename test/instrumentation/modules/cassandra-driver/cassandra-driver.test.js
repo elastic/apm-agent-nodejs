@@ -24,7 +24,7 @@ const CASSANDRA_VERSION = safeGetPackageVersion('cassandra-driver');
 const TEST_KEYSPACE = 'mykeyspace';
 const TEST_TABLE = 'myTable';
 const TEST_DATACENTER = 'datacenter1';
-const TEST_USE_PROMISES = String(semver.satisfies(CASSANDRA_VERSION, '>=3.2'));
+const TEST_USE_PROMISES = semver.satisfies(CASSANDRA_VERSION, '>=3.2');
 
 const testFixtures = [
   {
@@ -37,7 +37,7 @@ const testFixtures = [
       TEST_KEYSPACE,
       TEST_TABLE,
       TEST_DATACENTER,
-      TEST_USE_PROMISES,
+      TEST_USE_PROMISES: String(TEST_USE_PROMISES),
     },
     versionRanges: {
       // cassandra-driver@4.7.0 introduced a change that requires nodejs v16.9
@@ -240,32 +240,34 @@ const testFixtures = [
         'execute with callback produced expected span',
       );
 
-      t.deepEqual(
-        spans.shift(),
-        {
-          name: 'SELECT FROM system.local',
-          type: 'db',
-          subtype: 'cassandra',
-          action: 'query',
-          context: {
-            db: {
-              type: 'cassandra',
-              statement: 'SELECT key FROM system.local',
-              instance: TEST_KEYSPACE,
-            },
-            service: { target: { type: 'cassandra', name: TEST_KEYSPACE } },
-            destination: {
-              service: {
-                type: '',
-                name: '',
-                resource: `cassandra/${TEST_KEYSPACE}`,
+      if (TEST_USE_PROMISES) {
+        t.deepEqual(
+          spans.shift(),
+          {
+            name: 'SELECT FROM system.local',
+            type: 'db',
+            subtype: 'cassandra',
+            action: 'query',
+            context: {
+              db: {
+                type: 'cassandra',
+                statement: 'SELECT key FROM system.local',
+                instance: TEST_KEYSPACE,
+              },
+              service: { target: { type: 'cassandra', name: TEST_KEYSPACE } },
+              destination: {
+                service: {
+                  type: '',
+                  name: '',
+                  resource: `cassandra/${TEST_KEYSPACE}`,
+                },
               },
             },
+            outcome: 'success',
           },
-          outcome: 'success',
-        },
-        'execute with promise produced expected span',
-      );
+          'execute with promise produced expected span',
+        );
+      }
 
       t.deepEqual(
         spans.shift(),
@@ -297,35 +299,37 @@ const testFixtures = [
         'batch with callback produced expected span',
       );
 
-      t.deepEqual(
-        spans.shift(),
-        {
-          name: 'Cassandra: Batch query',
-          type: 'db',
-          subtype: 'cassandra',
-          action: 'query',
-          context: {
-            db: {
-              type: 'cassandra',
-              statement: [
-                `INSERT INTO ${TEST_TABLE} (id, text) VALUES (uuid(), ?)`,
-                `INSERT INTO ${TEST_TABLE} (id, text) VALUES (uuid(), ?)`,
-              ].join(';\n'),
-              instance: TEST_KEYSPACE,
-            },
-            service: { target: { type: 'cassandra', name: TEST_KEYSPACE } },
-            destination: {
-              service: {
-                type: '',
-                name: '',
-                resource: `cassandra/${TEST_KEYSPACE}`,
+      if (TEST_USE_PROMISES) {
+        t.deepEqual(
+          spans.shift(),
+          {
+            name: 'Cassandra: Batch query',
+            type: 'db',
+            subtype: 'cassandra',
+            action: 'query',
+            context: {
+              db: {
+                type: 'cassandra',
+                statement: [
+                  `INSERT INTO ${TEST_TABLE} (id, text) VALUES (uuid(), ?)`,
+                  `INSERT INTO ${TEST_TABLE} (id, text) VALUES (uuid(), ?)`,
+                ].join(';\n'),
+                instance: TEST_KEYSPACE,
+              },
+              service: { target: { type: 'cassandra', name: TEST_KEYSPACE } },
+              destination: {
+                service: {
+                  type: '',
+                  name: '',
+                  resource: `cassandra/${TEST_KEYSPACE}`,
+                },
               },
             },
+            outcome: 'success',
           },
-          outcome: 'success',
-        },
-        'batch with promise produced expected span',
-      );
+          'batch with promise produced expected span',
+        );
+      }
 
       t.deepEqual(
         spans.shift(),
