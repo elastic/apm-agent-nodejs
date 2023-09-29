@@ -1,20 +1,86 @@
-name: Auto Assign to Project(s)
-
+name: Add to APM Agents Project
 on:
   issues:
-    types: [opened, edited, milestoned]
-env:
-  MY_GITHUB_TOKEN: ${{ secrets.APM_TECH_USER_TOKEN }}
-
+    types:
+      - opened, milestoned
 jobs:
-  assign_one_project:
+  add_to_project:
+    if: github.event.issue && github.event.issue.milestone
     runs-on: ubuntu-latest
-    name: Assign milestoned to Project
     steps:
-    - name: Assign issues with milestones to project
-      uses: elastic/assign-one-project-github-action@1.2.2
-      if: github.event.issue && github.event.issue.milestone
-      with:
-        project: 'https://github.com/orgs/elastic/projects/454'
-        project_id: '5882982'
-        column_name: 'Planned'
+      - name: Get project data
+        env:
+          GITHUB_TOKEN: ${{ secrets.APM_TECH_USER_TOKEN }}
+          TEAM: Node.js
+          ORGANIZATION: elastic
+          PROJECT_NUMBER: 595
+        run: |
+          gh api graphql -f query='
+            query($org: String!, $number: Int!) {
+              organization(login: $org){
+                projectV2(number: $number) {
+                  id
+                  fields(first:20) {
+                    nodes {
+                      ... on ProjectV2Field {
+                        id
+                        name
+                      }
+                      ... on ProjectV2SingleSelectField {
+                        id
+                        name
+                        options {
+                          id
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+
+          echo 'PROJECT_ID='$(jq '.data.organization.projectV2.id' project_data.json) >> $GITHUB_ENV
+          echo 'TEAM_FIELD_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Team") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'FIELD_OPTION_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Team") | .options[] | select(.name== "$TEAM") | .id' project_data.json) >> $GITHUB_ENV
+
+      - name: Add issue to project
+        env:
+          GITHUB_TOKEN: ${{ secrets.APM_TECH_USER_TOKEN }}
+          ISSUE_ID: ${{ github.event.issue.node_id }}
+        run: |
+          item_id="$( gh api graphql -f query='
+            mutation($project:ID!, $pr:ID!) {
+              addProjectV2ItemById(input: {projectId: $project, contentId: $pr}) {
+                item {
+                  id
+                }
+              }
+            }' -f project=$PROJECT_ID -f pr=$ISSUE_ID --jq '.data.addProjectV2ItemById.item.id')"
+
+            echo 'ITEM_ID='$item_id >> $GITHUB_ENV
+
+      - name: Set fields
+        env:
+          GITHUB_TOKEN: ${{ secrets.APM_TECH_USER_TOKEN }}
+        run: |
+          gh api graphql -f query='
+            mutation (
+              $project: ID!
+              $item: ID!
+              $team_field: ID!
+              $team_value: String!
+            ) {
+              set_agent: updateProjectV2ItemFieldValue(input: {
+                projectId: $project
+                itemId: $item
+                fieldId: $team_field
+                value: {
+                  singleSelectOptionId: $team_value
+                  }
+              }) {
+                projectV2Item {
+                  id
+                  }
+              }
+            }' -f project=$PROJECT_ID -f item=$ITEM_ID -f team_field=$TEAM_FIELD_ID -f team_value=${{ env.FIELD_OPTION_ID }} --silent
