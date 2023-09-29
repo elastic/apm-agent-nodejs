@@ -18,6 +18,7 @@ const agent = require('../..').start({
 const Transaction = require('../../lib/instrumentation/transaction');
 const Span = require('../../lib/instrumentation/span');
 const { OUTCOME_FAILURE } = require('../../lib/constants');
+const { TIMING_SENSITIVE_TEST_OPTS } = require('../testconsts');
 const mockClient = require('../_mock_http_client');
 const tape = require('tape');
 
@@ -87,43 +88,47 @@ tape.test('end to end test', function (t) {
 });
 
 // Test that a composite span faster than `exitSpanMinDuration` is dropped.
-tape.test('end to end test with compression', function (t) {
-  resetAgent(function (data) {
-    t.equals(
-      data.spans.length,
-      0,
-      `the composite span was dropped (exitSpanMinDuration=${
-        agent._conf.exitSpanMinDuration * 1000
-      }ms, data.spans=${JSON.stringify(data.spans)})`,
-    );
-    t.end();
-  });
+tape.test(
+  'end to end test with compression',
+  TIMING_SENSITIVE_TEST_OPTS,
+  function (t) {
+    resetAgent(function (data) {
+      t.equals(
+        data.spans.length,
+        0,
+        `the composite span was dropped (exitSpanMinDuration=${
+          agent._conf.exitSpanMinDuration * 1000
+        }ms, data.spans=${JSON.stringify(data.spans)})`,
+      );
+      t.end();
+    });
 
-  agent.startTransaction('test');
-  let firstSpan, finalSpan;
-  setTimeout(function () {
-    firstSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true });
+    agent.startTransaction('test');
+    let firstSpan, finalSpan;
     setTimeout(function () {
-      firstSpan.end();
+      firstSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true });
+      setTimeout(function () {
+        firstSpan.end();
+      }, 1);
     }, 1);
-  }, 1);
 
-  setTimeout(function () {
-    const span = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true });
     setTimeout(function () {
-      span.end();
-    }, 1);
-  }, 2);
+      const span = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true });
+      setTimeout(function () {
+        span.end();
+      }, 1);
+    }, 2);
 
-  setTimeout(function () {
-    finalSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true });
     setTimeout(function () {
-      finalSpan.end();
-      agent.endTransaction();
-      agent.flush();
-    }, 1);
-  }, 3);
-});
+      finalSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true });
+      setTimeout(function () {
+        finalSpan.end();
+        agent.endTransaction();
+        agent.flush();
+      }, 1);
+    }, 3);
+  },
+);
 
 function resetAgent(/* numExpected, */ cb) {
   agent._instrumentation.testReset();
