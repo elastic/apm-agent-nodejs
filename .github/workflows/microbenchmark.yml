@@ -20,12 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: elastic/apm-pipeline-library/.github/actions/run-microbenchmark@current
+      - uses: elastic/apm-pipeline-library/.github/actions/run-microbenchmark@github-microbenchmark
         with:
           vault-url: ${{ secrets.VAULT_ADDR }}
           vault-role-id: ${{ secrets.VAULT_ROLE_ID }}
           vault-secret-id: ${{ secrets.VAULT_SECRET_ID }}
-          slack-channel: "#apm-agent-nodejs"
+          #slack-channel: "#apm-agent-nodejs"
           script: .ci/scripts/bench.sh
           environments: |
             BRANCH_NAME=${{ github.ref_name }}
