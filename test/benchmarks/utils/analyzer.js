@@ -32,7 +32,7 @@ function storeResult() {
       build_cause: process.env.GIT_BUILD_CAUSE,
     },
     git: {
-      branch: process.env.BRANCH_NAME,
+      branch: process.env.GITHUB_REF_NAME,
       commit: process.env.GIT_BASE_COMMIT || process.env.GIT_COMMIT,
     },
     pr: {

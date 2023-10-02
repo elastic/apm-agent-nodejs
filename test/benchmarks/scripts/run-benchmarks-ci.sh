@@ -80,8 +80,8 @@ function safe_env_export() {
 }
 
 function benchmark() {
-    # sha and BRANCH_NAME are variables passed throught the GitHub action
-    echo "export BRANCH_NAME='${BRANCH_NAME}'" > env_vars.sh
+    # sha and GITHUB_REF_NAME are variables passed throught the GitHub action
+    echo "export GITHUB_REF_NAME='${GITHUB_REF_NAME}'" > env_vars.sh
     echo "export GIT_BASE_COMMIT='${sha}'" >> env_vars.sh
     # Needed by the benchmark script
     echo "export GIT_BUILD_CAUSE='${GITHUB_EVENT_NAME}'" >> env_vars.sh
