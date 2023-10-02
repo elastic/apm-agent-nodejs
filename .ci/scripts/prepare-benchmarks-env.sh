@@ -7,7 +7,7 @@
 #   NODE_VERSION=...
 #   source .../prepare-benchmarks-env.sh
 #
-# Note: echo "--- ..." helps with presenting the output in Buildkite.
+# Note: echo "::group::..." helps with presenting the output in GitHub actions.
 #
 
 set -xeo pipefail
@@ -17,12 +17,13 @@ if [[ -z "${NODE_VERSION}" ]]; then
   exit 1
 fi
 
-echo "--- Download nvm"
+echo "::group::Download nvm"
 # This particular configuration is required to be installed in the baremetal
 curl -sS -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 export NVM_DIR="${HOME}/.nvm"
+echo "::endgroup::"
 
-echo "--- Install nvm"
+echo "::group::Install nvm"
 set +x  # Disable xtrace because output using nvm.sh is huge.
 # Flush positional arguments
 shift $#
@@ -33,15 +34,18 @@ fi
 # Check nvm command is available
 command -v nvm
 nvm --version
+echo "::endgroup::"
 
-echo "--- Run nvm install ${NODE_VERSION}"
+echo "::group::Run nvm install ${NODE_VERSION}"
 nvm install "${NODE_VERSION}"
 
 # Check node command is available
 node --version
 npm --version
+echo "::endgroup::"
 
-echo "--- Install dependencies"
+echo "::group::Install dependencies"
 set -x
 npm config list
 npm ci
+echo "::endgroup::"
