@@ -9,7 +9,6 @@
 // XXX: put a proper description
 //
 
-
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   console.log('# SKIP: GH Actions do not support docker services on Windows');
   process.exit(0);
@@ -30,7 +29,7 @@ const {
   safeGetPackageVersion,
   sortApmEvents,
 } = require('../../../_utils');
-const { NODE_VER_RANGE_IITM_GE14 } = require('../../../testconsts');
+// const { NODE_VER_RANGE_IITM_GE14 } = require('../../../testconsts');
 
 const MONGODB_VERSION = safeGetPackageVersion('mongodb');
 // Setting `localhost` will set `span.context.destination.address` to [::1] sometimes
