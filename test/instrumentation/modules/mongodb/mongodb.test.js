@@ -6,18 +6,19 @@
 
 'use strict';
 
-// Test S3 instrumentation of the '@aws-sdk/client-s3' module.
+// XXX: put a proper description
 //
-// Note that this uses localstack for testing, which mimicks the S3 API but
-// isn't identical. Some known limitations:
-// - It basically does nothing with regions, so testing bucket region discovery
-//   isn't possible.
-// - AFAIK localstack does not support Access Points, so access point ARNs
-//   cannot be tested.
+
 
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   console.log('# SKIP: GH Actions do not support docker services on Windows');
   process.exit(0);
+}
+
+const isMongodbIncompat = require('../../../_is_mongodb_incompat')();
+if (isMongodbIncompat) {
+  console.log.info(`# SKIP ${isMongodbIncompat}`);
+  process.exit();
 }
 
 const test = require('tape');
@@ -29,15 +30,16 @@ const {
   safeGetPackageVersion,
   sortApmEvents,
 } = require('../../../_utils');
-// const { NODE_VER_RANGE_IITM_GE14 } = require('../../../testconsts');
 
 const MONGODB_VERSION = safeGetPackageVersion('mongodb');
-const TEST_HOST = 'localhost';
+// Setting `localhost` will set `span.context.destination.address` to [::1] sometimes
+const TEST_HOST = '127.0.0.1';
 const TEST_PORT = '27017';
 const TEST_DB = 'elasticapm';
 const TEST_COLLECTION = 'test';
 const TEST_USE_CALLBACKS = semver.satisfies(MONGODB_VERSION, '<5');
 
+/** @type {import('../../../_utils').TestFixture[]} */
 const testFixtures = [
   {
     name: 'mongodb usage scenario',
@@ -52,7 +54,7 @@ const testFixtures = [
       TEST_COLLECTION,
       TEST_USE_CALLBACKS: String(TEST_USE_CALLBACKS),
     },
-    verbose: true,
+    verbose: false,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
@@ -91,9 +93,6 @@ const testFixtures = [
         'all spans have sample_rate=1',
       );
 
-      // time to get some data here
-      // const sendMessageSpanId = spans[0].id;
-
       spans.forEach((s) => {
         // Remove variable and common fields to facilitate t.deepEqual below.
         delete s.id;
@@ -120,7 +119,7 @@ const testFixtures = [
             },
           },
           destination: {
-            address: '127.0.0.1',
+            address: TEST_HOST,
             port: Number(TEST_PORT),
             service: {
               type: '',
@@ -162,7 +161,7 @@ const testFixtures = [
             },
           },
           destination: {
-            address: '127.0.0.1',
+            address: TEST_HOST,
             port: Number(TEST_PORT),
             service: {
               type: '',
@@ -200,7 +199,7 @@ const testFixtures = [
             },
           },
           destination: {
-            address: '127.0.0.1',
+            address: TEST_HOST,
             port: Number(TEST_PORT),
             service: {
               type: '',
@@ -242,7 +241,7 @@ const testFixtures = [
             },
           },
           destination: {
-            address: '127.0.0.1',
+            address: TEST_HOST,
             port: Number(TEST_PORT),
             service: {
               type: '',
@@ -286,7 +285,7 @@ const testFixtures = [
               },
             },
             destination: {
-              address: '127.0.0.1',
+              address: TEST_HOST,
               port: Number(TEST_PORT),
               service: {
                 type: '',
@@ -317,7 +316,7 @@ const testFixtures = [
             },
           },
           destination: {
-            address: '127.0.0.1',
+            address: TEST_HOST,
             port: Number(TEST_PORT),
             service: {
               type: '',
@@ -353,36 +352,148 @@ const testFixtures = [
       );
     },
   },
-  // {
-  //   name: 'simple mongodb with ESM',
-  //   script: 'fixtures/use-mongodb.mjs',
-  //   cwd: __dirname,
-  //   timeout: 20000, // sanity guard on the test hanging
-  //   maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
-  //   env: {
-  //     NODE_OPTIONS:
-  //       '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
-  //     TEST_ENDPOINT: endpoint,
-  //     TEST_REGION: 'us-east-2',
-  //     TEST_QUEUE_NAME: 'elasticapmtest-queue-2',
-  //   },
-  //   versionRanges: {
-  //     node: NODE_VER_RANGE_IITM_GE14,
-  //   },
-  //   verbose: false,
-  //   checkApmServer: (t, apmServer) => {
-  //     t.ok(apmServer.events[0].metadata, 'metadata');
-  //     const events = sortApmEvents(apmServer.events);
+  {
+    name: 'mongodb variations of connection',
+    script: 'fixtures/use-mongodb-connect.js',
+    cwd: __dirname,
+    timeout: 20000, // sanity guard on the test hanging
+    maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
+    env: {
+      TEST_HOST,
+      TEST_PORT,
+      TEST_DB,
+      TEST_COLLECTION,
+      TEST_USE_CALLBACKS: String(TEST_USE_CALLBACKS),
+    },
+    verbose: false,
+    checkApmServer: (t, apmServer) => {
+      t.ok(apmServer.events[0].metadata, 'metadata');
+      const events = sortApmEvents(apmServer.events);
 
-  //     t.ok(events[0].transaction, 'got the transaction');
-  //     const tx = events.shift().transaction;
-  //     const spans = events
-  //       .filter((e) => e.span && e.span.type !== 'external')
-  //       .map((e) => e.span);
+      const tx = events.shift().transaction;
+      t.ok(tx, 'got the transaction');
 
-  //     t.equal(spans.length, 0, 'all spans accounted for');
-  //   },
-  // },
+      const spans = events
+        .filter((e) => e.span && e.span.type !== 'external')
+        .map((e) => e.span);
+
+      spans.forEach((s) => {
+        // Remove variable and common fields to facilitate t.deepEqual below.
+        delete s.id;
+        delete s.transaction_id;
+        delete s.parent_id;
+        delete s.trace_id;
+        delete s.timestamp;
+        delete s.duration;
+        delete s.sync;
+        delete s.sample_rate;
+      });
+
+      const connectionsMade = TEST_USE_CALLBACKS ? 4 : 1;
+
+      for (let i = 0; i < connectionsMade; i++) {
+        t.deepEqual(
+          spans.shift(),
+          {
+            name: 'elasticapm.test.find',
+            type: 'db',
+            subtype: 'mongodb',
+            action: 'find',
+            context: {
+              service: {
+                target: {
+                  type: 'mongodb',
+                  name: TEST_DB,
+                },
+              },
+              destination: {
+                address: TEST_HOST,
+                port: Number(TEST_PORT),
+                service: {
+                  type: '',
+                  name: '',
+                  resource: `mongodb/${TEST_DB}`,
+                },
+              },
+              db: {
+                type: 'mongodb',
+                instance: TEST_DB,
+              },
+            },
+            outcome: 'success',
+          },
+          'findOne produced expected span',
+        );
+
+        t.deepEqual(
+          spans.shift(),
+          {
+            name: 'admin.$cmd.endSessions',
+            type: 'db',
+            subtype: 'mongodb',
+            action: 'endSessions',
+            context: {
+              service: {
+                target: {
+                  type: 'mongodb',
+                  name: 'admin',
+                },
+              },
+              destination: {
+                address: TEST_HOST,
+                port: Number(TEST_PORT),
+                service: {
+                  type: '',
+                  name: '',
+                  resource: 'mongodb/admin',
+                },
+              },
+              db: {
+                type: 'mongodb',
+                instance: 'admin',
+              },
+            },
+            outcome: 'success',
+          },
+          'close produced expected span',
+        );
+      }
+
+      t.equal(spans.length, 0, 'all spans accounted for');
+    },
+  },
+  {
+    name: 'simple mongodb with ESM',
+    script: 'fixtures/use-mongodb.mjs',
+    cwd: __dirname,
+    timeout: 20000, // sanity guard on the test hanging
+    maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
+    env: {
+      NODE_OPTIONS:
+        '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      TEST_HOST,
+      TEST_PORT,
+      TEST_DB,
+      TEST_COLLECTION,
+    },
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      t.ok(apmServer.events[0].metadata, 'metadata');
+      const events = sortApmEvents(apmServer.events);
+
+      const tx = events.shift().transaction;
+      t.ok(tx, 'got the transaction');
+      console.log(events);
+      const spans = events
+        .filter((e) => e.span && e.span.type !== 'external')
+        .map((e) => e.span);
+      const span = spans.shift();
+
+      t.equal(span.parent_id, tx.id, 'span.parent_id');
+      t.equal(span.name, 'elasticapm.test.find', 'span.name');
+      t.equal(spans.length, 0, 'all spans accounted for');
+    },
+  },
 ];
 
 test('mongodb fixtures', (suite) => {

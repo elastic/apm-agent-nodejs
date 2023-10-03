@@ -18,12 +18,6 @@ const apm = require('../../../../..').start({
 });
 const assert = require('assert');
 
-const isMongodbIncompat = require('../../../../_is_mongodb_incompat')();
-if (isMongodbIncompat) {
-  console.log(`# SKIP ${isMongodbIncompat}`);
-  process.exit();
-}
-
 const MongoClient = require('mongodb').MongoClient;
 
 // ---- support functions
@@ -214,7 +208,7 @@ async function useMongodb(mongodbClient, options) {
 // ---- mainline
 
 async function main() {
-  const host = process.env.TEST_HOST || 'localhost';
+  const host = process.env.TEST_HOST || '127.0.0.1';
   const port = process.env.TEST_PORT || '27017';
   const db = process.env.TEST_DB || 'elasticapm';
   const col = process.env.TEST_COLLECTION || 'test';
@@ -231,7 +225,7 @@ async function main() {
       process.exitCode = 0;
     },
     function (err) {
-      console.log(err);
+      apm.logger.error(err, 'useMongodb rejected');
       tx.setOutcome('failure');
       tx.end();
       mongodbClient.close();
