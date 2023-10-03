@@ -178,6 +178,10 @@ const testFixtures = [
       };
       t.deepEqual(spans.shift(), findOneSpan, 'findOne produced expected span');
 
+      t.deepEqual(spans.shift(), findOneSpan, 'findOne 1st concurrent call');
+      t.deepEqual(spans.shift(), findOneSpan, 'findOne 2nd concurrent call');
+      t.deepEqual(spans.shift(), findOneSpan, 'findOne 3rd concurrent call');
+
       if (TEST_USE_CALLBACKS) {
         t.deepEqual(
           spans.shift(),

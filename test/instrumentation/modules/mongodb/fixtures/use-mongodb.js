@@ -88,6 +88,12 @@ async function useMongodb(mongodbClient, options) {
   );
   log.info({ data }, 'findOne with promises');
 
+  // There was a time when the spans created for Mongo client commands, while
+  // one command was already inflight, would be a child of the inflight span.
+  // That would be wrong. They should all be a direct child of the transaction.
+  const queries = [{ a: 1 }, { b: 2 }, { c: 3 }];
+  await Promise.all(queries.map((q) => collection.findOne(q)));
+
   if (useCallbacks) {
     data = await new Promise((resolve, reject) => {
       collection.findOne({ a: 4 }, function (err, res) {
