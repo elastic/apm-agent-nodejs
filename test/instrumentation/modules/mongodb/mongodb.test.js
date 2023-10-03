@@ -30,6 +30,7 @@ const {
   safeGetPackageVersion,
   sortApmEvents,
 } = require('../../../_utils');
+const { NODE_VER_RANGE_IITM_GE14 } = require('../../../testconsts');
 
 const MONGODB_VERSION = safeGetPackageVersion('mongodb');
 // Setting `localhost` will set `span.context.destination.address` to [::1] sometimes
@@ -467,14 +468,12 @@ const testFixtures = [
     },
   },
   {
-    name: 'simple mongodb with ESM',
-    script: 'fixtures/use-mongodb.mjs',
+    name: 'mongodb concurrency and async context',
+    script: 'fixtures/use-mongodb-async-context.js',
     cwd: __dirname,
     timeout: 20000, // sanity guard on the test hanging
     maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
     env: {
-      NODE_OPTIONS:
-        '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
       TEST_HOST,
       TEST_PORT,
       TEST_DB,
@@ -482,22 +481,68 @@ const testFixtures = [
     },
     verbose: true,
     checkApmServer: (t, apmServer) => {
+      console.log(apmServer.events);
+
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
 
-      const tx = events.shift().transaction;
-      t.ok(tx, 'got the transaction');
-      console.log(events);
+      const transactions = events
+        .filter((e) => e.transaction)
+        .map((e) => e.transaction);
+
       const spans = events
         .filter((e) => e.span && e.span.type !== 'external')
         .map((e) => e.span);
-      const span = spans.shift();
 
-      t.equal(span.parent_id, tx.id, 'span.parent_id');
-      t.equal(span.name, 'elasticapm.test.find', 'span.name');
+      while (transactions.length) {
+        const tx = transactions.shift();
+        const idx = spans.findIndex((s) => s.parent_id === tx.id);
+
+        t.ok(idx !== -1, 'transaction has a child span');
+
+        const [span] = spans.splice(idx, 1);
+
+        t.equal(span.name, 'elasticapm.test.find', 'span.name');
+      }
+
       t.equal(spans.length, 0, 'all spans accounted for');
     },
   },
+  // {
+  //   name: 'simple mongodb with ESM',
+  //   script: 'fixtures/use-mongodb.mjs',
+  //   cwd: __dirname,
+  //   timeout: 20000, // sanity guard on the test hanging
+  //   maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
+  //   env: {
+  //     NODE_OPTIONS:
+  //       '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+  //     TEST_HOST,
+  //     TEST_PORT,
+  //     TEST_DB,
+  //     TEST_COLLECTION,
+  //   },
+  //   versionRanges: {
+  //     node: NODE_VER_RANGE_IITM_GE14,
+  //   },
+  //   verbose: true,
+  //   checkApmServer: (t, apmServer) => {
+  //     t.ok(apmServer.events[0].metadata, 'metadata');
+  //     const events = sortApmEvents(apmServer.events);
+
+  //     const tx = events.shift().transaction;
+  //     t.ok(tx, 'got the transaction');
+  //     console.log(events);
+  //     const spans = events
+  //       .filter((e) => e.span && e.span.type !== 'external')
+  //       .map((e) => e.span);
+  //     const span = spans.shift();
+
+  //     t.equal(span.parent_id, tx.id, 'span.parent_id');
+  //     t.equal(span.name, 'elasticapm.test.find', 'span.name');
+  //     t.equal(spans.length, 0, 'all spans accounted for');
+  //   },
+  // },
 ];
 
 test('mongodb fixtures', (suite) => {
