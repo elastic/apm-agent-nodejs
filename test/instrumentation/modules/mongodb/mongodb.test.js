@@ -29,7 +29,6 @@ const {
   safeGetPackageVersion,
   sortApmEvents,
 } = require('../../../_utils');
-// const { NODE_VER_RANGE_IITM_GE14 } = require('../../../testconsts');
 
 const MONGODB_VERSION = safeGetPackageVersion('mongodb');
 // Setting `localhost` will set `span.context.destination.address` to [::1] sometimes
@@ -54,7 +53,7 @@ const testFixtures = [
       TEST_COLLECTION,
       TEST_USE_CALLBACKS: String(TEST_USE_CALLBACKS),
     },
-    verbose: false,
+    verbose: true,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
@@ -478,10 +477,8 @@ const testFixtures = [
       TEST_DB,
       TEST_COLLECTION,
     },
-    verbose: true,
+    verbose: false,
     checkApmServer: (t, apmServer) => {
-      console.log(apmServer.events);
-
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
 
@@ -507,41 +504,6 @@ const testFixtures = [
       t.equal(spans.length, 0, 'all spans accounted for');
     },
   },
-  // {
-  //   name: 'simple mongodb with ESM',
-  //   script: 'fixtures/use-mongodb.mjs',
-  //   cwd: __dirname,
-  //   timeout: 20000, // sanity guard on the test hanging
-  //   maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
-  //   env: {
-  //     NODE_OPTIONS:
-  //       '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
-  //     TEST_HOST,
-  //     TEST_PORT,
-  //     TEST_DB,
-  //     TEST_COLLECTION,
-  //   },
-  //   versionRanges: {
-  //     node: NODE_VER_RANGE_IITM_GE14,
-  //   },
-  //   verbose: true,
-  //   checkApmServer: (t, apmServer) => {
-  //     t.ok(apmServer.events[0].metadata, 'metadata');
-  //     const events = sortApmEvents(apmServer.events);
-
-  //     const tx = events.shift().transaction;
-  //     t.ok(tx, 'got the transaction');
-  //     console.log(events);
-  //     const spans = events
-  //       .filter((e) => e.span && e.span.type !== 'external')
-  //       .map((e) => e.span);
-  //     const span = spans.shift();
-
-  //     t.equal(span.parent_id, tx.id, 'span.parent_id');
-  //     t.equal(span.name, 'elasticapm.test.find', 'span.name');
-  //     t.equal(spans.length, 0, 'all spans accounted for');
-  //   },
-  // },
 ];
 
 test('mongodb fixtures', (suite) => {
