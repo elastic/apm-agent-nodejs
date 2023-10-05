@@ -1228,6 +1228,7 @@ test('disableInstrumentations', function (t) {
   }
   if (isMongodbIncompat()) {
     modules.delete('mongodb');
+    modules.delete('mongodb/lib/cmap/connection_pool.js');
   }
   if (isCassandraIncompat()) {
     modules.delete('cassandra-driver');
@@ -1263,14 +1264,15 @@ test('disableInstrumentations', function (t) {
   modules.delete('next/dist/server/dev/next-dev-server');
   modules.delete('next/dist/server/next');
   modules.delete('next/dist/server/next-server');
+
   if (semver.lt(process.version, '14.0.0')) {
     modules.delete('redis'); // redis@4 supports node >=14
-    modules.delete('@redis/client/dist/lib/client'); // redis@4 supports node >=14
-    modules.delete('@redis/client/dist/lib/client/commands-queue'); // redis@4 supports node >=14
+    modules.delete('@redis/client/dist/lib/client/index.js'); // redis@4 supports node >=14
+    modules.delete('@redis/client/dist/lib/client/commands-queue.js'); // redis@4 supports node >=14
   }
   // @node-redis only present for redis >4 <4.1 --
-  modules.delete('@node-redis/client/dist/lib/client'); // redis@4 supports node >=14
-  modules.delete('@node-redis/client/dist/lib/client/commands-queue'); // redis@4 supports node >=14
+  modules.delete('@node-redis/client/dist/lib/client/index.js'); // redis@4 supports node >=14
+  modules.delete('@node-redis/client/dist/lib/client/commands-queue.js'); // redis@4 supports node >=14
   modules.delete('mysql2');
   modules.delete('@aws-sdk/smithy-client');
   modules.delete('@smithy/smithy-client');
