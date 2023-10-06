@@ -810,6 +810,10 @@ apm.addPatch('timers', (exports, agent, { version, enabled }) => {
 apm.addPatch('timers', './timer-patch')
 ----
 
+This and the other "Patch"-related API methods should be called *before*
+starting the APM agent. Changes after the agent has started and relevant
+modules have been `require`d can have surprising caching behavior.
+
 [[apm-remove-patch]]
 ==== `apm.removePatch(modules, handler)`
 
