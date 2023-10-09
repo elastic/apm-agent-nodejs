@@ -35,8 +35,9 @@ async function useMongodbAsyncContext(options) {
     });
   });
 
+  // Wait for all request to finish and make sure APM Server
+  // receives all spans
   await Promise.all(reqs);
-  // XXX: make sure to send all events
   await apm.flush();
 }
 
