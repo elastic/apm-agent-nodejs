@@ -34,10 +34,8 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-4.1.0]]
+==== 4.1.0 - 2023/10/09
 
 [float]
 ===== Features
@@ -53,10 +51,6 @@ See the <<upgrade-to-v4>> guide.
 
 * Add support for `@aws-sdk/client-sqs`, one of the AWS SDK v3 clients.
   ({issues}2957[#2957])
-
-
-[float]
-===== Bug fixes
 
 [float]
 ===== Chores
