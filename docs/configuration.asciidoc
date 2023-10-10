@@ -971,7 +971,7 @@ Example using options object:
 [source,js]
 ----
 require('elastic-apm-node').start({
-  disableInstrumentations: ['graphql', '@redis/client']
+  disableInstrumentations: ['graphql', 'redis']
 })
 ----
 
@@ -979,7 +979,7 @@ Example using environment variable:
 
 [source,bash]
 ----
-ELASTIC_APM_DISABLE_INSTRUMENTATIONS=graphql,@redis/client
+ELASTIC_APM_DISABLE_INSTRUMENTATIONS=graphql,redis
 ----
 
 For an always up-to-date list of modules for which instrumentation can be disabled,
