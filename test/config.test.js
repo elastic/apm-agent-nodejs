@@ -1188,6 +1188,22 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
   );
 });
 
+test('disableInstrumentaions', function (t) {
+  var agent = new Agent();
+
+  // Spot-check some cases.
+  agent.start(
+    Object.assign({}, agentOptsNoopTransport, {
+      disableInstrumentations: 'foo,express , bar',
+    }),
+  );
+  t.strictEqual(agent._instrumentation._isModuleEnabled('express'), false);
+  t.strictEqual(agent._instrumentation._isModuleEnabled('http'), true);
+
+  agent.destroy();
+  t.end();
+});
+
 test('custom transport', function (t) {
   class MyTransport {
     constructor() {
