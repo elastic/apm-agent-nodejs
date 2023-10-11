@@ -60,9 +60,6 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Bug fixes
 
-[float]
-===== Chores
-
 * Changes to cloud metadata collection for Google Cloud (GCP). Most notably
   the `cloud.project.id` field is now the `project-id` from
   https://cloud.google.com/compute/docs/metadata/default-metadata-values#project_metadata
