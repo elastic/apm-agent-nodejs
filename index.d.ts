@@ -381,6 +381,7 @@ declare namespace apm {
   type PatchHandler = (exports: any, agent: Agent, options: PatchOptions) => any;
 
   interface PatchOptions {
+    name: string;
     version: string | undefined;
     enabled: boolean;
   }

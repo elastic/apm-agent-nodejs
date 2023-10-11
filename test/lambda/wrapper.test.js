@@ -6,16 +6,14 @@
 
 'use strict';
 
-const tape = require('tape');
 const path = require('path');
-const Instrumentation = require('../../lib/instrumentation');
-const logging = require('../../lib/logging');
-const { getLambdaHandlerInfo } = require('../../lib/lambda');
 
-const MODULES = Instrumentation.modules;
-tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
-  const logger = logging.createLogger('off');
-  // minimal mocked instrumentation object for unit tests
+const tape = require('tape');
+
+const { getLambdaHandlerInfo } = require('../../lib/lambda');
+const apm = require('../..');
+
+tape.test('getLambdaHandlerInfo', function (suite) {
   suite.test('returns false-ish in non-lambda places', function (t) {
     t.ok(!getLambdaHandlerInfo());
     t.end();
@@ -24,121 +22,80 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
   suite.test('extracts info with expected env variables', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
 
-    const handler = getLambdaHandlerInfo(
-      {
-        _HANDLER: 'lambda.bar',
-        LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures'),
-      },
-      MODULES,
-      logger,
-    );
+    const handler = getLambdaHandlerInfo({
+      _HANDLER: 'lambda.bar',
+      LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures'),
+    });
 
     t.equals(
       handler.filePath,
       path.resolve(__dirname, 'fixtures', 'lambda.js'),
       'extracted handler file path',
     );
-    t.equals(handler.module, 'lambda', 'extracted handler module');
-    t.equals(handler.field, 'bar', 'extracted handler field');
+    t.equals(handler.modName, 'lambda', 'extracted handler module');
+    t.equals(handler.propPath, 'bar', 'extracted handler propPath');
     t.end();
   });
 
   suite.test('extracts info with extended path, cjs extension', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
 
-    const handler = getLambdaHandlerInfo(
-      {
-        _HANDLER: 'handlermodule.lambda.bar',
-        LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures'),
-      },
-      MODULES,
-      logger,
-    );
+    const handler = getLambdaHandlerInfo({
+      _HANDLER: 'handlermodule.lambda.bar',
+      LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures'),
+    });
 
     t.equals(
       handler.filePath,
       path.resolve(__dirname, 'fixtures', 'handlermodule.cjs'),
       'extracted handler file path',
     );
-    t.equals(handler.module, 'handlermodule', 'extracted handler module');
-    t.equals(handler.field, 'lambda.bar', 'extracted handler field');
+    t.equals(handler.modName, 'handlermodule', 'extracted handler module');
+    t.equals(handler.propPath, 'lambda.bar', 'extracted handler propPath');
     t.end();
   });
 
   suite.test('extracts info with expected env variables', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
 
-    const handler = getLambdaHandlerInfo(
-      {
-        _HANDLER: 'lambda.bar',
-        LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures'),
-      },
-      MODULES,
-      logger,
-    );
+    const handler = getLambdaHandlerInfo({
+      _HANDLER: 'lambda.bar',
+      LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures'),
+    });
     t.equals(
       handler.filePath,
       path.resolve(__dirname, 'fixtures', 'lambda.js'),
       'extracted handler file path',
     );
-    t.equals(handler.module, 'lambda', 'extracted handler module');
-    t.equals(handler.field, 'bar', 'extracted handler field');
+    t.equals(handler.modName, 'lambda', 'extracted handler module');
+    t.equals(handler.propPath, 'bar', 'extracted handler propPath');
     t.end();
   });
 
-  suite.test(
-    'returns no value if module name conflicts with already instrumented module',
-    function (t) {
-      process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
-      const handler = getLambdaHandlerInfo(
-        {
-          _HANDLER: 'express.bar',
-          LAMBDA_TASK_ROOT: '/var/task',
-        },
-        MODULES,
-        logger,
-      );
-      t.equals(handler, undefined, 'no handler extracted');
-      t.end();
-    },
-  );
-
   suite.test('no task root', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
-    const handler = getLambdaHandlerInfo(
-      {
-        _HANDLER: 'foo.bar',
-      },
-      MODULES,
-      logger,
-    );
+    const handler = getLambdaHandlerInfo({
+      _HANDLER: 'foo.bar',
+    });
     t.ok(!handler, 'no value when task root missing');
     t.end();
   });
 
   suite.test('no handler', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
-    const handler = getLambdaHandlerInfo(
-      {
-        LAMBDA_TASK_ROOT: '/var/task',
-      },
-      MODULES,
-      logger,
-    );
+    const handler = getLambdaHandlerInfo({
+      LAMBDA_TASK_ROOT: '/var/task',
+    });
     t.ok(!handler, 'no value when handler missing');
     t.end();
   });
 
   suite.test('malformed handler: too few', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
-    const handler = getLambdaHandlerInfo(
-      {
-        LAMBDA_TASK_ROOT: '/var/task',
-        _HANDLER: 'foo',
-      },
-      MODULES,
-      logger,
-    );
+    const handler = getLambdaHandlerInfo({
+      LAMBDA_TASK_ROOT: '/var/task',
+      _HANDLER: 'foo',
+    });
 
     t.ok(!handler, 'no value for malformed handler too few');
     t.end();
@@ -146,49 +103,44 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
 
   suite.test('longer handler', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
-    const handler = getLambdaHandlerInfo(
-      {
-        LAMBDA_TASK_ROOT: '/var/task',
-        _HANDLER: 'foo.baz.bar',
-      },
-      MODULES,
-      logger,
-    );
+    const handler = getLambdaHandlerInfo({
+      LAMBDA_TASK_ROOT: '/var/task',
+      _HANDLER: 'foo.baz.bar',
+    });
 
     t.equals(
       handler.filePath,
       path.resolve('/var', 'task', 'foo.cjs'),
       'extracted handler file path',
     );
-    t.equals(handler.module, 'foo', 'extracted handler module');
-    t.equals(handler.field, 'baz.bar', 'extracted handler field');
+    t.equals(handler.modName, 'foo', 'extracted handler module name');
+    t.equals(handler.propPath, 'baz.bar', 'extracted handler property path');
     t.end();
   });
 
   suite.end();
 });
 
-tape.test('integration test', function (t) {
+tape.test('lambda handler wrapping', function (t) {
   if (process.platform === 'win32') {
     t.pass('skipping for windows');
     t.end();
     return;
   }
   // fake the enviornment
-  process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
+  process.env.AWS_LAMBDA_FUNCTION_NAME = 'mylambdafnname';
   process.env.LAMBDA_TASK_ROOT = path.join(__dirname, 'fixtures');
   process.env._HANDLER = 'lambda.foo';
 
   // load and start The Real agent
-  require('../..').start({
-    serviceName: 'lambda test',
+  apm.start({
+    serviceName: 'lambda-test',
     breakdownMetrics: false,
     captureExceptions: false,
-    metricsInterval: 0,
+    metricsInterval: '0s',
     centralConfig: false,
     cloudProvider: 'none',
-    spanStackTraceMinDuration: 0, // Always have span stacktraces.
-    transport: function () {},
+    disableSend: true,
   });
 
   // load express after agent (for wrapper checking)
@@ -208,5 +160,46 @@ tape.test('integration test', function (t) {
     'wrappedStatic',
     'express module was instrumented correctly',
   );
+
+  apm.destroy();
+  t.end();
+});
+
+tape.test('not wrapped if _HANDLER module is a name conflict', function (t) {
+  if (process.platform === 'win32') {
+    t.pass('skipping for windows');
+    t.end();
+    return;
+  }
+  // fake the enviornment
+  process.env.AWS_LAMBDA_FUNCTION_NAME = 'mylambdafnname';
+  process.env.LAMBDA_TASK_ROOT = path.join(__dirname, 'fixtures');
+  process.env._HANDLER = 'express.foo';
+
+  apm.start({
+    serviceName: 'lambda-test',
+    breakdownMetrics: false,
+    captureExceptions: false,
+    metricsInterval: '0s',
+    centralConfig: false,
+    cloudProvider: 'none',
+    disableSend: true,
+  });
+
+  const express = require('express');
+  t.equals(
+    express.static.name,
+    'wrappedStatic',
+    'express module was instrumented correctly',
+  );
+
+  const handler = require(path.join(__dirname, '/fixtures/express')).foo;
+  t.equals(
+    handler.name,
+    'origHandlerFuncName',
+    'handler function was not wrapped',
+  );
+
+  apm.destroy();
   t.end();
 });

@@ -54,6 +54,10 @@ See the <<upgrade-to-v4>> guide.
 * Add support for `@aws-sdk/client-sqs`, one of the AWS SDK v3 clients.
   ({issues}2957[#2957])
 
+* Fixes for some values of the <<disable-instrumentations>> config setting.
+  "redis" will now properly disable instrumentation for redis@4.
+  "next" will propertly disable all Next.js instrumentation.
+  ({pull}3658[#3658])
 
 [float]
 ===== Bug fixes
