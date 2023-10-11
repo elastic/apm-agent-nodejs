@@ -512,7 +512,7 @@ aws-sdk:
   #   ./dev-utils/aws-sdk-tav-versions.sh
   #
   # Test v2.858.0, every N=122 of 614 releases, and current latest.
-  versions: '2.858.0 || 2.980.0 || 2.1102.0 || 2.1224.0 || 2.1346.0 || 2.1469.0 || 2.1472.0 || >2.1472.0 <3
+  versions: '2.858.0 || 2.980.0 || 2.1102.0 || 2.1224.0 || 2.1346.0 || 2.1469.0 || 2.1472.0 || >2.1472.0 <3'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js
