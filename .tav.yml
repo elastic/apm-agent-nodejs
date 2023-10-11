@@ -511,8 +511,8 @@ aws-sdk:
   # Maintenance note: This should be updated periodically using:
   #   ./dev-utils/aws-sdk-tav-versions.sh
   #
-  # Test v2.858.0, every N=108 of 542 releases, and current latest.
-  versions: '2.858.0 || 2.966.0 || 2.1074.0 || 2.1182.0 || 2.1290.0 || 2.1399.0 || 2.1400.0 || >2.1400.0 <3'
+  # Test v2.858.0, every N=122 of 614 releases, and current latest.
+  versions: '2.858.0 || 2.980.0 || 2.1102.0 || 2.1224.0 || 2.1346.0 || 2.1469.0 || 2.1472.0 || >2.1472.0 <3'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js
