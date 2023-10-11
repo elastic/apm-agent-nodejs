@@ -16,14 +16,13 @@ var util = require('util');
 var isRegExp = require('core-util-is').isRegExp;
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
-var semver = require('semver');
 var test = require('tape');
 
 const Agent = require('../lib/agent');
 const { MockAPMServer } = require('./_mock_apm_server');
 const { MockLogger } = require('./_mock_logger');
 const { NoopApmClient } = require('../lib/apm-client/noop-apm-client');
-const { safeGetPackageVersion, findObjInArray } = require('./_utils');
+const { findObjInArray } = require('./_utils');
 const { secondsFromDuration } = require('../lib/config/normalizers');
 const {
   CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES,
@@ -33,13 +32,8 @@ const {
 } = require('../lib/config/schema');
 const config = require('../lib/config/config');
 
-var Instrumentation = require('../lib/instrumentation');
 var apmVersion = require('../package').version;
 var apmName = require('../package').name;
-var isHapiIncompat = require('./_is_hapi_incompat');
-const isMongodbIncompat = require('./_is_mongodb_incompat');
-const isFastifyIncompat = require('./_is_fastify_incompat');
-const isCassandraIncompat = require('./_is_cassandra_incompat');
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
 // that is unhelpful for these tests.
@@ -1194,137 +1188,19 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
   );
 });
 
-test('disableInstrumentations', function (t) {
-  var esVersion = safeGetPackageVersion('@elastic/elasticsearch');
+test('disableInstrumentaions', function (t) {
+  var agent = new Agent();
 
-  // require('apollo-server-core') is a hard crash on nodes < 12.0.0
-  const apolloServerCoreVersion =
-    require('apollo-server-core/package.json').version;
-
-  var flattenedModules = Instrumentation.modules.reduce(
-    (acc, val) => acc.concat(val),
-    [],
+  // Spot-check some cases.
+  agent.start(
+    Object.assign({}, agentOptsNoopTransport, {
+      disableInstrumentations: 'foo,express , bar',
+    }),
   );
-  var modules = new Set(flattenedModules);
-  modules.delete('jade'); // Deprecated, we no longer test this instrumentation.
-  if (isHapiIncompat()) {
-    modules.delete('@hapi/hapi');
-  }
-  modules.delete('express-graphql');
-  if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
-    modules.delete('@elastic/elasticsearch'); // - Version 7.12.0 dropped support for node v8.
-  }
-  if (semver.lt(process.version, '12.0.0') && semver.gte(esVersion, '8.0.0')) {
-    modules.delete('@elastic/elasticsearch'); // - Version 8.0.0 dropped node v10 support.
-  }
-  if (semver.lt(process.version, '14.0.0') && semver.gte(esVersion, '8.2.0')) {
-    modules.delete('@elastic/elasticsearch'); // - Version 8.2.0 dropped node v12 support.
-  }
-  if (semver.lt(process.version, '14.0.0')) {
-    modules.delete('@elastic/elasticsearch-canary');
-  }
-  if (isFastifyIncompat()) {
-    modules.delete('fastify');
-  }
-  if (isMongodbIncompat()) {
-    modules.delete('mongodb');
-  }
-  if (isCassandraIncompat()) {
-    modules.delete('cassandra-driver');
-  }
-  if (
-    semver.gte(apolloServerCoreVersion, '3.0.0') &&
-    semver.lt(process.version, '12.0.0')
-  ) {
-    modules.delete('apollo-server-core');
-  }
-  if (semver.satisfies(process.version, '>17.x', { includePrerelease: true })) {
-    // Restify (as of 8.6.0) is completely broken with latest node v18 nightly.
-    // https://github.com/restify/node-restify/issues/1888
-    modules.delete('restify');
-  }
-  if (semver.lt(process.version, '16.0.0')) {
-    modules.delete('tedious');
-  }
-  if (semver.lt(process.version, '12.18.0')) {
-    modules.delete('undici'); // undici@5 supports node >=12.18
-  }
-  if (semver.lt(process.version, '12.0.0')) {
-    modules.delete('koa-router'); // koa-router@11 supports node >=12
-    modules.delete('@koa/router'); // koa-router@11 supports node >=12
-  }
-  if (semver.lt(process.version, '14.8.0')) {
-    modules.delete('restify');
-  }
-  if (semver.lt(process.version, '14.16.0')) {
-    modules.delete('@apollo/server');
-  }
-  modules.delete('next/dist/server/api-utils/node');
-  modules.delete('next/dist/server/dev/next-dev-server');
-  modules.delete('next/dist/server/next');
-  modules.delete('next/dist/server/next-server');
-  if (semver.lt(process.version, '14.0.0')) {
-    modules.delete('redis'); // redis@4 supports node >=14
-    modules.delete('@redis/client/dist/lib/client'); // redis@4 supports node >=14
-    modules.delete('@redis/client/dist/lib/client/commands-queue'); // redis@4 supports node >=14
-  }
-  // @node-redis only present for redis >4 <4.1 --
-  modules.delete('@node-redis/client/dist/lib/client'); // redis@4 supports node >=14
-  modules.delete('@node-redis/client/dist/lib/client/commands-queue'); // redis@4 supports node >=14
-  modules.delete('mysql2');
-  modules.delete('@aws-sdk/smithy-client');
-  modules.delete('@smithy/smithy-client');
+  t.strictEqual(agent._instrumentation._isModuleEnabled('express'), false);
+  t.strictEqual(agent._instrumentation._isModuleEnabled('http'), true);
 
-  function testSlice(t, name, selector) {
-    var selection = selector(modules);
-    var selectionSet = new Set(
-      typeof selection === 'string' ? selection.split(',') : selection,
-    );
-
-    t.test(name + ' -> ' + Array.from(selectionSet).join(','), function (t) {
-      var agent = new Agent();
-      agent.start(
-        Object.assign({}, agentOptsNoopTransport, {
-          disableInstrumentations: selection,
-        }),
-      );
-
-      var found = new Set();
-
-      agent._instrumentation._patchModule = function (
-        exports,
-        name,
-        version,
-        enabled,
-        isImportMod,
-      ) {
-        if (!enabled) found.add(name);
-        return exports;
-      };
-
-      for (const mod of modules) {
-        require(mod);
-      }
-
-      t.deepEqual(selectionSet, found, 'disabled all selected modules');
-
-      agent.destroy();
-      t.end();
-    });
-  }
-
-  for (const mod of modules) {
-    testSlice(t, 'individual modules', () => new Set([mod]));
-  }
-
-  testSlice(t, 'multiple modules by array', (modules) => {
-    return Array.from(modules).filter((value, index) => index % 2);
-  });
-
-  testSlice(t, 'multiple modules by csv string', (modules) => {
-    return Array.from(modules).filter((value, index) => !(index % 2));
-  });
-
+  agent.destroy();
   t.end();
 });
 

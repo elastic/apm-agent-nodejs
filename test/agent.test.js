@@ -2085,10 +2085,10 @@ test('#active: false', function (t) {
 
 test('patches', function (t) {
   t.test('#clearPatches(name)', function (t) {
-    const agent = new Agent();
-    t.ok(agent._instrumentation._patches.has('express'));
+    const agent = new Agent().start();
+    t.ok(agent._instrumentation._patcherReg.has('express'));
     t.doesNotThrow(() => agent.clearPatches('express'));
-    t.notOk(agent._instrumentation._patches.has('express'));
+    t.notOk(agent._instrumentation._patcherReg.has('express'));
     t.doesNotThrow(() => agent.clearPatches('does-not-exists'));
     agent.destroy();
     t.end();
@@ -2138,18 +2138,18 @@ test('patches', function (t) {
   t.test('#removePatch(name, handler)', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport);
 
-    t.notOk(agent._instrumentation._patches.has('does-not-exist'));
+    t.notOk(agent._instrumentation._patcherReg.has('does-not-exist'));
 
     agent.addPatch('does-not-exist', '/foo.js');
-    t.ok(agent._instrumentation._patches.has('does-not-exist'));
+    t.ok(agent._instrumentation._patcherReg.has('does-not-exist'));
     agent.removePatch('does-not-exist', '/foo.js');
-    t.notOk(agent._instrumentation._patches.has('does-not-exist'));
+    t.notOk(agent._instrumentation._patcherReg.has('does-not-exist'));
 
     const handler = (exports) => exports;
     agent.addPatch('does-not-exist', handler);
-    t.ok(agent._instrumentation._patches.has('does-not-exist'));
+    t.ok(agent._instrumentation._patcherReg.has('does-not-exist'));
     agent.removePatch('does-not-exist', handler);
-    t.notOk(agent._instrumentation._patches.has('does-not-exist'));
+    t.notOk(agent._instrumentation._patcherReg.has('does-not-exist'));
 
     agent.destroy();
     t.end();
@@ -2159,7 +2159,7 @@ test('patches', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport);
 
     const moduleName = 'removePatch-test-module';
-    t.notOk(agent._instrumentation._patches.has(moduleName));
+    t.notOk(agent._instrumentation._patcherReg.has(moduleName));
 
     const handler1 = function (exports) {
       return exports;
@@ -2169,7 +2169,8 @@ test('patches', function (t) {
     };
     agent.addPatch(moduleName, handler1);
     agent.addPatch(moduleName, handler2);
-    const modulePatches = agent._instrumentation._patches.get(moduleName);
+    const modulePatches =
+      agent._instrumentation._patcherReg.getPatchers(moduleName);
     t.ok(
       modulePatches.length === 2 &&
         modulePatches[0] === handler1 &&
@@ -2179,19 +2180,19 @@ test('patches', function (t) {
 
     agent.removePatch(moduleName);
     t.equal(
-      agent._instrumentation._patches.get(moduleName).length,
+      agent._instrumentation._patcherReg.getPatchers(moduleName).length,
       2,
       'still have 2 patches after removePatch(name)',
     );
     agent.removePatch(moduleName, 'this is not one of the registered handlers');
     t.equal(
-      agent._instrumentation._patches.get(moduleName).length,
+      agent._instrumentation._patcherReg.getPatchers(moduleName).length,
       2,
       'still have 2 patches after removePatch(name, oops)',
     );
     agent.removePatch(moduleName, function oops() {});
     t.equal(
-      agent._instrumentation._patches.get(moduleName).length,
+      agent._instrumentation._patcherReg.getPatchers(moduleName).length,
       2,
       'still have 2 patches after removePatch(name, function oops () {})',
     );
