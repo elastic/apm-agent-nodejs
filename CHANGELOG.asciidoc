@@ -28,16 +28,15 @@ Notes:
         ==== x.x.x - YYYY/MM/DD
 ////
 
+
 [[release-notes-4.x]]
 === Node.js Agent version 4.x
 
 See the <<upgrade-to-v4>> guide.
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-4.1.0]]
+==== 4.1.0 - 2023/10/09
 
 [float]
 ===== Features
@@ -54,12 +53,13 @@ See the <<upgrade-to-v4>> guide.
 * Add support for `@aws-sdk/client-sqs`, one of the AWS SDK v3 clients.
   ({issues}2957[#2957])
 
+* Fixes for some values of the <<disable-instrumentations>> config setting.
+  "redis" will now properly disable instrumentation for redis@4.
+  "next" will propertly disable all Next.js instrumentation.
+  ({pull}3658[#3658])
 
 [float]
 ===== Bug fixes
-
-[float]
-===== Chores
 
 * Changes to cloud metadata collection for Google Cloud (GCP). Most notably
   the `cloud.project.id` field is now the `project-id` from

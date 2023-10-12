@@ -27,9 +27,10 @@ if (semver.lt(process.version, '14.0.0')) {
 const agent = require('../../..').start({
   serviceName: 'test-redis',
   captureExceptions: false,
-  metricsInterval: 0,
+  metricsInterval: '0s',
   centralConfig: false,
   spanCompressionEnabled: false,
+  logLevel: 'off',
 });
 
 const redis = require('redis');

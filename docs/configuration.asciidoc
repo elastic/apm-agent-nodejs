@@ -962,7 +962,7 @@ The `sanitizeFieldNames` will redact any matched _field names_.  If you wish to 
 * *Type:* Array of strings
 * *Env:* `ELASTIC_APM_DISABLE_INSTRUMENTATIONS`
 
-Array or comma-separated string of modules to disable instrumentation for.
+Array or comma-separated string of module names for which to disable instrumentation.
 When instrumentation is disabled for a module,
 no spans will be collected for that module.
 
