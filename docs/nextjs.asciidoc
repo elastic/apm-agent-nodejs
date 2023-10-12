@@ -22,8 +22,9 @@ monitor the client-side parts of a Next.js application, see the
 {apm-rum-ref}/intro.html[Elastic RUM agent].
 
 NOTE: preview:[] This Next.js instrumentation is a _technical preview_ while we
-solicit feedback from Next.js users. If you are a Next.js user, please help us
-provide a better Next.js observability experience with your feedback on our
+solicit feedback from Next.js users. Currently `next` versions `>=12.0.0
+<13.3.0` are supported. If you are a Next.js user, please help us provide a
+better Next.js observability experience with your feedback on our
 https://discuss.elastic.co/tags/c/apm/nodejs[Discuss forum].
 
 
