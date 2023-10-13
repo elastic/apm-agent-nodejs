@@ -35,6 +35,25 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+* Drop support for next@11. Next.js instrumentation support is currently in
+  technical preview, so it is not considered a semver-major change to drop
+  support for this old version of next. ({pull}3664[#3664])
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
 [[release-notes-4.1.0]]
 ==== 4.1.0 - 2023/10/09
 
@@ -70,6 +89,8 @@ See the <<upgrade-to-v4>> guide.
 
 [[release-notes-4.0.0]]
 ==== 4.0.0 - 2023/09/07
+
+See the <<upgrade-to-v4>> guide.
 
 [float]
 ===== Breaking changes
