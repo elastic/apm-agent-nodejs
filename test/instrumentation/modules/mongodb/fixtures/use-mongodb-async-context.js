@@ -74,8 +74,6 @@ async function main() {
 
   useMongodbAsyncContext(server.address()).then(
     function () {
-      // XXX: check why is not terminating the process only
-      // closing the server
       server.close();
       process.exitCode = 0;
       process.exit();
