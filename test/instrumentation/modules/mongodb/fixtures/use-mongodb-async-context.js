@@ -7,7 +7,7 @@
 'use strict';
 
 const apm = require('../../../../..').start({
-  serviceName: 'use-mongodb-connect',
+  serviceName: 'use-mongodb-async-context',
   captureExceptions: false,
   centralConfig: false,
   metricsInterval: 0,
@@ -74,7 +74,7 @@ async function main() {
 
   useMongodbAsyncContext(server.address()).then(
     function () {
-      // XXX: chdeck why is not terminating the process only
+      // XXX: check why is not terminating the process only
       // closing the server
       server.close();
       process.exitCode = 0;

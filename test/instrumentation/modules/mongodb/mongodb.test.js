@@ -6,8 +6,13 @@
 
 'use strict';
 
-// XXX: put a proper description
+// Tests of the instrumentation for `mongodb` module.
 //
+// They have been split into 3 sections:
+// - Test of normal usage of the module with prmises and callback APIs
+// - Test of the connection API to ensure the client returnes is properly instrumented
+// - Test of cursors working concurrently to check if spans are attached to
+//   the right transaction.
 
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   console.log('# SKIP: GH Actions do not support docker services on Windows');
