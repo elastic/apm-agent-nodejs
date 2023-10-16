@@ -16,7 +16,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 
 const isMongodbIncompat = require('../../../_is_mongodb_incompat')();
 if (isMongodbIncompat) {
-  console.log.info(`# SKIP ${isMongodbIncompat}`);
+  console.log(`# SKIP ${isMongodbIncompat}`);
   process.exit();
 }
 
