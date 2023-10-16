@@ -47,6 +47,12 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Features
 
+* Add <<apm-get-service-version>>, <<apm-get-service-environment>>, and
+  <<apm-get-service-node-name>>. These are intended for use by
+  {ecs-logging-nodejs-ref}/intro.html[ecs-logging-nodejs formatting packages].
+  See <https://github.com/elastic/ecs-logging-nodejs/pull/152>.
+  ({issues}3195[#3195])
+
 [float]
 ===== Bug fixes
 

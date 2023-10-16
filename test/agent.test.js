@@ -156,6 +156,47 @@ test('#getServiceName()', function (t) {
   t.end();
 });
 
+test('#getServiceVersion()', function (t) {
+  const agent = new Agent();
+
+  // Before agent.start() the agent hasn't configured yet.
+  t.ok(!agent.isStarted(), 'agent should not have been started yet');
+  t.strictEqual(agent.getServiceVersion(), undefined);
+
+  agent.start(
+    Object.assign({}, agentOptsNoopTransport, { serviceVersion: '1.2.3' }),
+  );
+  t.strictEqual(agent.getServiceVersion(), '1.2.3');
+  t.strictEqual(agent.getServiceVersion(), agent._conf.serviceVersion);
+
+  agent.destroy();
+  t.end();
+});
+
+test('#getServiceEnvironment()', function (t) {
+  const agent = new Agent();
+  agent.start(
+    Object.assign({}, agentOptsNoopTransport, { environment: 'dev' }),
+  );
+  t.strictEqual(agent.getServiceEnvironment(), 'dev');
+  t.strictEqual(agent.getServiceEnvironment(), agent._conf.environment);
+  agent.destroy();
+  t.end();
+});
+
+test('#getServiceNodeName()', function (t) {
+  const agent = new Agent();
+  agent.start(
+    Object.assign({}, agentOptsNoopTransport, {
+      serviceNodeName: 'myNodeName',
+    }),
+  );
+  t.strictEqual(agent.getServiceNodeName(), 'myNodeName');
+  t.strictEqual(agent.getServiceNodeName(), agent._conf.serviceNodeName);
+  agent.destroy();
+  t.end();
+});
+
 test('#setFramework()', function (t) {
   // Use `agentOpts` instead of `agentOptsNoopTransport` because this test is
   // reaching into `agent._apmClient` internals.

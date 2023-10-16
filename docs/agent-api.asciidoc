@@ -40,6 +40,7 @@ Use `isStarted()` to check if the agent has already started.
 Returns `true` if the agent has started,
 otherwise returns `false`.
 
+
 [[apm-get-service-name]]
 ==== `apm.getServiceName()`
 
@@ -49,6 +50,35 @@ Get the configured <<service-name,`serviceName`>>. If a service name was not
 explicitly configured, this value may have been automatically determined.
 The service name is not determined until `agent.start()`, so will be `undefined`
 until then. A misconfigured agent can have a `null` service name.
+
+
+[[apm-get-service-version]]
+==== `apm.getServiceVersion()`
+
+[small]#Added in: REPLACEME#
+
+Get the configured <<service-version>>. If a service version was not explicitly
+configured, this value may have been automatically determined.  The service
+version is not determined until `agent.start()`, so will be `undefined` until
+then.
+
+
+[[apm-get-service-environment]]
+==== `apm.getServiceEnvironment()`
+
+[small]#Added in: REPLACEME#
+
+Get the configured <<environment>>.
+
+
+[[apm-get-service-node-name]]
+==== `apm.getServiceNodeName()`
+
+[small]#Added in: REPLACEME#
+
+Get the configured <<service-node-name>>. If the APM agent is not configured
+with an explicit value, this will return `undefined`.
+
 
 [[apm-set-framework]]
 ==== `apm.setFramework(options)`
