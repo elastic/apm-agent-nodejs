@@ -75,14 +75,13 @@ async function main() {
   useMongodbAsyncContext(server.address()).then(
     function () {
       server.close();
-      process.exitCode = 0;
-      process.exit();
+      mongodbClient.close();
     },
     function (err) {
       apm.logger.error(err, 'useMongodbAsyncContext rejected');
       server.close();
+      mongodbClient.close();
       process.exitCode = 1;
-      process.exit();
     },
   );
 }
