@@ -29,6 +29,10 @@ async function main() {
   const modNames = new Set();
   const versionsMap = new Map();
 
+  const versionModes = {
+    'latest-minors': getLatestMinors,
+  };
+
   // Fill the module/version map
   tavEntries.forEach(([name, cfg]) => modNames.add(cfg.name || name));
 
@@ -44,18 +48,17 @@ async function main() {
   // Now time to calculate the versions
   const tavLines = tavContent.split('\n');
   tavEntries.forEach(([name, cfg]) => {
+    // Array.filter was bogus
     if (!cfg['versions-selection']) return;
 
-    console.log('calc');
     const { mode, range } = cfg['versions-selection'];
     const modName = cfg.name || name;
     const allVers = versionsMap.get(modName);
     const validVers = allVers.filter((v) => semver.satisfies(v, range));
+    const newVers = versionModes[mode](validVers);
 
-    if (mode === 'latest-minors') {
-      const newVers = getLatestMinors(validVers);
-      cfg.versions = newVers.join(' || ');
-    }
+    // TODO: maybe it depends on the mode
+    cfg.versions = newVers.join(' || ');
 
     // Fill the yamlText wihtout loosing comments and format
     let verIdx, modIdx;
