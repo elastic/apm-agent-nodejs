@@ -21,6 +21,9 @@ declare namespace apm {
     start (options?: AgentConfigOptions): Agent;
     isStarted (): boolean;
     getServiceName (): string | undefined;
+    getServiceVersion (): string | undefined;
+    getServiceEnvironment (): string;
+    getServiceNodeName (): string | undefined;
     setFramework (options: {
       name?: string;
       version?: string;
