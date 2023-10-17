@@ -167,7 +167,7 @@ please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 [options="header"]
 |=================================================
 |Module |Version |Note
-|https://www.npmjs.com/package/knex[knex] |>=0.10.0 <3.0.0 | Provides better span stack traces for 'pg' and 'mysql' spans.
+|https://www.npmjs.com/package/knex[knex] |>=0.10.0 <4.0.0 | Provides better span stack traces for 'pg' and 'mysql' spans.
 |=================================================
 
 [float]
