@@ -53,6 +53,8 @@ See the <<upgrade-to-v4>> guide.
   See <https://github.com/elastic/ecs-logging-nodejs/pull/152>.
   ({issues}3195[#3195])
 
+* Add knex@3 instrumentation. ({pull}3659[#3659])
+
 [float]
 ===== Bug fixes
 
