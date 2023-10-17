@@ -7,6 +7,7 @@
 'use strict';
 
 var semver = require('semver');
+const { safeGetPackageVersion } = require('./_utils');
 
 /**
  * Return whether the current 'mongodb' version is incompatible with the
@@ -26,7 +27,7 @@ var semver = require('semver');
  */
 function isMongodbIncompat() {
   const nodeVer = process.version;
-  const mongodbVer = require('mongodb/package.json').version;
+  const mongodbVer = safeGetPackageVersion('mongodb');
   const msg = `mongodb@${mongodbVer} is incompatible with node@${nodeVer}`;
 
   if (semver.satisfies(mongodbVer, '4.x')) {

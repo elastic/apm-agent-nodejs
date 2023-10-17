@@ -56,6 +56,10 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Bug fixes
 
+* Fix `mongodb` instrumentation to avoid loosing context when multiple cursors
+  are running concurrently. ({issues}3161[#3161])
+
+
 [float]
 ===== Chores
 
