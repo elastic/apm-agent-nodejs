@@ -144,22 +144,22 @@ mongodb-core:
 mongodb-3:
   name: mongodb
   versions: '>=3.3 <4'
-  commands: node test/instrumentation/modules/mongodb.test.js
+  commands: node test/instrumentation/modules/mongodb/mongodb.test.js
 mongodb-4:
   name: mongodb
   versions: '>=4 <5'
   node: '>=12.9.0'
-  commands: node test/instrumentation/modules/mongodb.test.js
+  commands: node test/instrumentation/modules/mongodb/mongodb.test.js
 mongodb-5:
   name: mongodb
   versions: '>=5 <6'
   node: '>=14.20.1'
-  commands: node test/instrumentation/modules/mongodb.test.js
+  commands: node test/instrumentation/modules/mongodb/mongodb.test.js
 mongodb:
   name: mongodb
   versions: '>=6 <7'
   node: '>=15.0.0'
-  commands: node test/instrumentation/modules/mongodb.test.js
+  commands: node test/instrumentation/modules/mongodb/mongodb.test.js
 
 # Bluebird is effectively deprecated (https://github.com/petkaantonov/bluebird#%EF%B8%8Fnote%EF%B8%8F).
 # Testing the full set of supported bluebird releases (`>=2 <4`) is currently
