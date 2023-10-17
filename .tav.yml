@@ -138,8 +138,11 @@ pg-new-node:
 # Latest mongodb-core release (v3.2.7) was released in 2019. We test a subset
 # of the full supported range.
 mongodb-core:
-  versions: '1.2.19 || 1.2.32 || 1.3.21 || 2.0.14 || 2.1.20 || 3.0.11 || 3.1.11 || 3.2.7' # latest minors subset of '>=1.2.19 <4'
+  versions: '1.2.19 || 1.2.32 || 1.3.21 || 2.0.14 || 2.1.20 || 3.0.11 || 3.1.11 || 3.2.7' 
   commands: node test/instrumentation/modules/mongodb-core.test.js
+  versions-selection:
+    mode: latest-minors
+    range: '>=1.2.19 <4' # latest minors subset of '>=1.2.19 <4'
 
 mongodb-3:
   name: mongodb
@@ -155,6 +158,9 @@ mongodb-5:
   versions: '>=5 <6'
   node: '>=14.20.1'
   commands: node test/instrumentation/modules/mongodb.test.js
+  versions-selection:
+    mode: latest-minors
+    range: '>=5 <6'
 mongodb:
   name: mongodb
   versions: '>=6 <7'
