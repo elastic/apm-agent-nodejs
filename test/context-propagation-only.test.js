@@ -176,7 +176,7 @@ tape.test('contextPropagationOnly', function (suite) {
                 `log record 1 "${recs[1].message}" is from serviceB`,
               );
               t.equal(
-                recs[1].trace.id,
+                recs[1]['trace.id'],
                 traceId,
                 `log record 1 "${recs[1].message}" has trace.id set ${traceId}`,
               );
@@ -186,7 +186,7 @@ tape.test('contextPropagationOnly', function (suite) {
                 `log record 2 "${recs[1].message}" is from serviceA`,
               );
               t.equal(
-                recs[2].trace.id,
+                recs[2]['trace.id'],
                 traceId,
                 `log record 2 "${recs[2].message}" has trace.id set ${traceId}`,
               );

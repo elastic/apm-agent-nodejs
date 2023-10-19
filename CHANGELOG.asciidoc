@@ -47,8 +47,20 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Features
 
+* Add <<apm-get-service-version>>, <<apm-get-service-environment>>, and
+  <<apm-get-service-node-name>>. These are intended for use by
+  {ecs-logging-nodejs-ref}/intro.html[ecs-logging-nodejs formatting packages].
+  See <https://github.com/elastic/ecs-logging-nodejs/pull/152>.
+  ({issues}3195[#3195])
+
+* Add knex@3 instrumentation. ({pull}3659[#3659])
+
 [float]
 ===== Bug fixes
+
+* Fix `mongodb` instrumentation to avoid loosing context when multiple cursors
+  are running concurrently. ({issues}3161[#3161])
+
 
 [float]
 ===== Chores
