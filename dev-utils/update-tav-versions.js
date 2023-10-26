@@ -80,7 +80,9 @@ async function main() {
     if (versions[0] !== low) {
       versions.unshift(low);
     }
-    versions.push(`>${lastVers} <${high}`);
+    // TODO: decide to end with a range >1.2.3 <3 or with caret ^1.2.3
+    // versions.push(`>${lastVers} <${high}`);
+    versions[versions.length - 1] = `^${lastVers}`;
     tavVersMap.set(name, versions);
   }
 
