@@ -41,7 +41,7 @@ async function main() {
 
     if (!pkgVersions) {
       pkgVersions = JSON.parse(
-        execSync(`npm view ${name} versions -j`, { encoding: 'utf-8' }),
+        execSync(`npm view ${pkgName} versions -j`, { encoding: 'utf-8' }),
       );
       pkgVersMap.set(pkgName, pkgVersions);
     }
@@ -70,11 +70,15 @@ async function main() {
       continue;
     }
 
-    // Append a range to test from latest version returned and up
-    // assuming range is always in the form ">={Lower_limit} <{Higher_Limit}"
+    // Assuming range is always in the form ">={Lower_limit} <{Higher_Limit}"
+    // - append lower version if not present
+    // - append a range to test from latest version returned and up
     const lastVers = versions[versions.length - 1];
-    const [, high] = range.split(' ');
+    const [low, high] = range.split(' ');
 
+    if (versions[0] !== low) {
+      versions.unshift(low.replace('>=', ''));
+    }
     versions.push(`>${lastVers} ${high}`);
     tavVersMap.set(name, versions);
   }
