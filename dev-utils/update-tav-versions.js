@@ -65,6 +65,7 @@ async function main() {
     let pkgVersions = pkgVersMap.get(pkgName);
 
     if (!pkgVersions) {
+      console.log(`Fetching versions for ${pkgName}`);
       pkgVersions = JSON.parse(
         execSync(`npm view ${pkgName} versions -j`, { encoding: 'utf-8' }),
       );
@@ -77,6 +78,11 @@ async function main() {
       .filter((v) => !exclude || !semver.satisfies(v, exclude))
       .map(semver.parse);
 
+    console.log(
+      `Calculating ${mode} for ${name} including ${include} and excluding ${
+        exclude || 'none'
+      }`,
+    );
     if (mode === 'latest-minors') {
       versions = getLatestMinors(filteredVers);
     } else if (mode === 'latest-majors') {
