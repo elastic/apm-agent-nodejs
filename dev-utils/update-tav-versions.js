@@ -102,7 +102,6 @@ async function main() {
     // - append a range to test from latest version returned and up
     const firstVers = versions[0];
     const lastVers = versions[versions.length - 1];
-    // const [low, high] = range.split(' ').map(semver.coerce);
     const [low] = range.split(' ').map(semver.coerce);
 
     if (semver.neq(firstVers, low)) {
@@ -110,8 +109,6 @@ async function main() {
     }
 
     versions = versions.map((v) => v.toString());
-    // TODO: decide to end with a range >1.2.3 <3 or with caret ^1.2.3
-    // versions.push(`>${lastVers.toString()} <${high.toString()}`);
     versions[versions.length - 1] = `^${lastVers.toString()}`;
     tavVersMap.set(name, versions);
   }
