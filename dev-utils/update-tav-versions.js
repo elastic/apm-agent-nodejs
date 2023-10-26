@@ -60,7 +60,7 @@ async function main() {
 
     if (!cfg[UPDATE_PROP]) continue;
 
-    const { range, mode } = cfg[UPDATE_PROP];
+    const { mode, include, exclude } = cfg[UPDATE_PROP];
     const pkgName = cfg.name || name;
     let pkgVersions = pkgVersMap.get(pkgName);
 
@@ -72,14 +72,15 @@ async function main() {
     }
 
     let versions;
-    const versInRange = pkgVersions
-      .filter((v) => semver.satisfies(v, range))
+    const filteredVers = pkgVersions
+      .filter((v) => semver.satisfies(v, include))
+      .filter((v) => !exclude || !semver.satisfies(v, exclude))
       .map(semver.parse);
 
     if (mode === 'latest-minors') {
-      versions = getLatestMinors(versInRange);
+      versions = getLatestMinors(filteredVers);
     } else if (mode === 'latest-majors') {
-      versions = getLatestMajors(versInRange);
+      versions = getLatestMajors(filteredVers);
     } else if (mode.startsWith('max-')) {
       const num = Number(mode.split('-')[1]);
       if (isNaN(num)) {
@@ -88,7 +89,7 @@ async function main() {
         );
         continue;
       } else {
-        versions = getMax(versInRange, Number(num));
+        versions = getMax(filteredVers, Number(num));
       }
     } else {
       console.error(
@@ -97,12 +98,12 @@ async function main() {
       continue;
     }
 
-    // Assuming range is always in the form ">={Lower_limit} <{Higher_Limit}"
+    // Assuming `include` is always in the form ">={Lower_limit} <{Higher_Limit}"
     // - append lower version if not present
-    // - append a range to test from latest version returned and up
+    // - append a caret to the latest version in the list to test any higher version
     const firstVers = versions[0];
     const lastVers = versions[versions.length - 1];
-    const [low] = range.split(' ').map(semver.coerce);
+    const [low] = include.split(' ').map(semver.coerce);
 
     if (semver.neq(firstVers, low)) {
       versions.unshift(low);

@@ -98,7 +98,7 @@ ioredis-v2-v4:
   commands: node test/instrumentation/modules/ioredis.test.js
   update-versions:
     mode: latest-minors
-    range: '>=2.0.0 <4'
+    include: '>=2.0.0 <4'
 ioredis-v4-v5:
   name: ioredis
   versions: '4.0.0 || 4.0.2 || 4.1.0 || 4.2.3 || 4.3.1 || 4.4.0 || 4.5.1 || 4.6.3 || 4.7.0 || 4.8.0 || 4.9.5 || 4.10.4 || 4.11.2 || 4.12.2 || 4.13.1 || 4.14.4 || 4.15.1 || 4.16.3 || 4.17.3 || 4.18.0 || 4.19.4 || 4.20.0 || 4.21.0 || 4.22.0 || 4.23.1 || 4.24.6 || 4.25.0 || 4.26.0 || 4.27.11 || ^4.28.5'
@@ -106,7 +106,7 @@ ioredis-v4-v5:
   commands: node test/instrumentation/modules/ioredis.test.js
   update-versions:
     mode: latest-minors
-    range: '>=4.0.0 <5'
+    include: '>=4.0.0 <5'
 ioredis:
   name: ioredis
   versions: '5.0.0 || 5.0.6 || 5.1.0 || 5.2.6 || ^5.3.2'
@@ -114,7 +114,7 @@ ioredis:
   commands: node test/instrumentation/modules/ioredis.test.js
   update-versions:
     mode: latest-minors
-    range: '>=5.0.0 <6'
+    include: '>=5.0.0 <6'
 
 pg-old-node:
   name: pg
@@ -151,7 +151,7 @@ mongodb-core:
   commands: node test/instrumentation/modules/mongodb-core.test.js
   update-versions:
     mode: latest-minors
-    range: '>=1.2.19 <4' # latest minors subset of '>=1.2.19 <4'
+    include: '>=1.2.19 <4' # latest minors subset of '>=1.2.19 <4'
 
 mongodb-3:
   name: mongodb
@@ -498,12 +498,11 @@ fastify-v3:
     - node test/sanitize-field-names/fastify.test.js
   update-versions:
     mode: max-5
-    range: '>=3 <4'
+    include: '>=3 <4'
 fastify:
   name: fastify
   # Update versions periodically with "./dev-utils/tav-versions-fastify.sh".
-  versions: '4.0.0 || 4.5.0 || 4.9.1 || 4.14.1 || 4.19.1 || 4.23.2 || ^4.24.3'
-  versions-stash: '4.0.0 || 4.2.1 || 4.5.2 || 4.8.1 || 4.10.1 || 4.14.0 || 4.17.0 || >4.17.0' # subset of '>=4 <4.0.1 || >4.0.1 <4.16.0 || >4.16.2'
+  versions: '4.0.0 || 4.5.0 || 4.9.0 || 4.13.0 || 4.19.1 || 4.23.1 || ^4.24.3'
   peerDependencies: '@fastify/formbody@^7'
   node: '>=14.6.0'
   commands:
@@ -513,7 +512,8 @@ fastify:
     - node test/sanitize-field-names/fastify.test.js
   update-versions:
     mode: max-5
-    range: '>=4 <5'
+    include: '>=4 <5'
+    exclude: '4.0.1 || >=4.16.0 <=4.16.2'
 
 finalhandler:
   versions: '*'
@@ -561,7 +561,7 @@ aws-sdk:
   # Test v3.15.0, current latest and 5 versions in between.
   update-versions:
     mode: max-5
-    range: '>=3.15.0 <4'
+    include: '>=3.15.0 <4'
 
 '@aws-sdk/client-dynamodb':
   versions: '3.15.0 || 3.72.0 || 3.180.0 || 3.261.0 || 3.344.0 || 3.435.0 || ^3.436.0'
@@ -571,7 +571,7 @@ aws-sdk:
   # Test v3.15.0, current latest and 5 versions in between.
   update-versions:
     mode: max-5
-    range: '>=3.15.0 <4'
+    include: '>=3.15.0 <4'
 
 '@aws-sdk/client-sns':
   versions: '3.15.0 || 3.67.0 || 3.178.0 || 3.259.0 || 3.337.0 || 3.431.0 || ^3.436.0'
@@ -581,7 +581,7 @@ aws-sdk:
   # Test v3.15.0, current latest and 5 versions in between.
   update-versions:
     mode: max-5
-    range: '>=3.15.0 <4'
+    include: '>=3.15.0 <4'
 
 '@aws-sdk/client-sqs':
   versions: '3.15.0 || 3.58.0 || 3.171.0 || 3.257.0 || 3.335.0 || 3.429.0 || ^3.436.0'
@@ -591,7 +591,7 @@ aws-sdk:
   # Test v3.15.0, current latest and 5 versions in between.
   update-versions:
     mode: max-5
-    range: '>=3.15.0 <4'
+    include: '>=3.15.0 <4'
 
 # - undici@4.7.0 added its diagnostics_channel support.
 # - In undici@4.7.1 the `request.origin` property was added, which we need
