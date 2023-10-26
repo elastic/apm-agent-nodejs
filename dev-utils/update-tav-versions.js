@@ -12,7 +12,7 @@
 // Usage:
 //      node dev-utils/update-tav-versions.js
 
-const { exec } = require('child_process');
+const { execSync } = require('child_process');
 const { readFileSync, writeFileSync } = require('fs');
 const path = require('path');
 
@@ -21,67 +21,135 @@ const yaml = require('js-yaml');
 
 const TOP = path.resolve(path.join(__dirname, '..'));
 const TAV_PATH = path.join(TOP, '.tav.yml');
+const UPDATE_PROP = 'update-versions';
 
 async function main() {
   const tavContent = readFileSync(TAV_PATH, { encoding: 'utf-8' });
   const tavConfig = yaml.load(tavContent);
   const tavEntries = Object.entries(tavConfig);
-  const modNames = new Set();
-  const versionsMap = new Map();
+  const pkgVersMap = new Map(); // versions per package name
+  const tavVersMap = new Map(); // versions per TAV configuration
 
-  const versionModes = {
-    'latest-minors': getLatestMinors,
-  };
+  for (const entry of tavEntries) {
+    const [name, cfg] = entry;
 
-  // Fill the module/version map
-  tavEntries.forEach(([name, cfg]) => modNames.add(cfg.name || name));
+    if (!cfg[UPDATE_PROP]) continue;
 
-  // Get versions from all modules
-  await Promise.all(
-    Array.from(modNames).map((name) => {
-      return getModuleVersions(name).then((versions) =>
-        versionsMap.set(name, versions),
+    const { range, mode } = cfg[UPDATE_PROP];
+    const pkgName = cfg.name || name;
+    let pkgVersions = pkgVersMap.get(pkgName);
+
+    if (!pkgVersions) {
+      pkgVersions = JSON.parse(
+        execSync(`npm view ${name} versions -j`, { encoding: 'utf-8' }),
       );
-    }),
-  );
-
-  // Now time to calculate the versions
-  const tavLines = tavContent.split('\n');
-  tavEntries.forEach(([name, cfg]) => {
-    // Array.filter was bogus
-    if (!cfg['versions-selection']) return;
-
-    const { mode, range } = cfg['versions-selection'];
-    const modName = cfg.name || name;
-    const allVers = versionsMap.get(modName);
-    const validVers = allVers.filter((v) => semver.satisfies(v, range));
-    const newVers = versionModes[mode](validVers);
-
-    // TODO: maybe it depends on the mode
-    cfg.versions = newVers.join(' || ');
-
-    // Fill the yamlText wihtout loosing comments and format
-    let verIdx, modIdx;
-
-    for (let i = 0; i < tavLines.length; i++) {
-      const l = tavLines[i];
-      if (!modIdx) {
-        modIdx = l.startsWith(`${name}:`) ? i : undefined;
-      } else {
-        if (l.startsWith('  versions:')) {
-          verIdx = i;
-          break;
-        }
-      }
+      pkgVersMap.set(pkgName, pkgVersions);
     }
 
-    tavLines[verIdx] = `  versions: '${cfg.versions}'`;
+    const versInRange = pkgVersions.filter((v) => semver.satisfies(v, range));
+    let versions;
+
+    if (mode === 'latest-minors') {
+      versions = getLatestMinors(versInRange);
+    } else if (mode === 'latest-majors') {
+      versions = getLatestMajors(versInRange);
+    } else if (mode.startsWith('max-')) {
+      const num = Number(mode.split('-')[1]);
+      if (isNaN(num)) {
+        console.error(
+          `Error: Version selection max-n mode for TAV config ${name} invalid (${mode})`,
+        );
+        continue;
+      } else {
+        versions = getMax(versInRange, Number(num));
+      }
+    } else {
+      console.error(
+        `Error: Version selection mode for TAV config ${name} unknown (${mode})`,
+      );
+      continue;
+    }
+
+    // Append a range to test from latest version returned and up
+    // assuming range is always in the form ">={Lower_limit} <{Higher_Limit}"
+    const lastVers = versions[versions.length - 1];
+    const [, high] = range.split(' ');
+
+    versions.push(`>${lastVers} ${high}`);
+    tavVersMap.set(name, versions);
+  }
+
+  // Now modify the file contents using the string so we do not loose comments
+  const tavLines = tavContent.split('\n');
+  let tavToUpdate;
+
+  tavLines.forEach((line, idx) => {
+    const isCfgStart = !/^[\s#]/.test(line) && line.endsWith(':');
+    const tavName = isCfgStart ? line.replace(/[':]/g, '') : undefined;
+
+    if (tavName) {
+      tavToUpdate = tavVersMap.has(tavName) ? tavName : undefined;
+    } else if (tavToUpdate && line.startsWith('  versions:')) {
+      console.log(`Updating versions of ${tavToUpdate}`);
+      const tavVers = tavVersMap.get(tavToUpdate);
+      tavLines[idx] = `  versions: '${tavVers.join(' || ')}'`;
+    }
   });
 
   writeFileSync(TAV_PATH, tavLines.join('\n'), { encoding: 'utf-8' });
 }
 
 // support functions
+
+/**
+ * From a given ordered list of versions returns the first, num in between and last. Example
+ * - input: ['5.0.0', '5.0.1', '5.1.0', '5.2.0', '5.3.0', '5.4.0', '5.5.0', '5.6.0', '5.7.0', '5.8.0', '5.8.1', '5.9.0']
+ * - input: num = 4
+ * - output: ['5.0.0', '5.1.0', '5.3.0', '5.5.0', '5.7.0', '5.8.1', '5.9.0']
+ *             first   ^^^^^^^^^ 4 version in between ^^^^^^^^^^^^    last
+ *
+ * @param {String[]} versions the version list where to extract
+ * @param {Number} num the number of versions that should be in between
+ * @returns {String[]}
+ */
+function getMax(versions, num) {
+  // assuming sorted array
+  const modulus = Math.floor((versions.length - 2) / num);
+  const result = versions.filter(
+    (v, idx, arr) => idx % modulus === 0 || idx === arr.length - 1,
+  );
+
+  return result.map((v) => v.toString());
+}
+
+/**
+ * From a given ordered list of versions returns the latest minors. Example
+ * - input: ['5.0.0', '5.0.1', '5.1.0', '5.2.0', '5.3.0', '5.4.0', '5.5.0', '5.6.0', '5.7.0', '5.8.0', '5.8.1', '5.9.0']
+ * - output: ['5.0.1', '5.1.0', '5.2.0', '5.3.0', '5.4.0', '5.5.0', '5.6.0', '5.7.0', '5.8.1', '5.9.0']
+ *
+ * @param {String[]} versions the version list where to extract latest minoes
+ * @returns {String[]}
+ */
+function getLatestMajors(versions) {
+  // assuming sorted array
+  const result = [];
+
+  for (const ver of versions.map(semver.parse)) {
+    const lastVer = result[result.length - 1];
+
+    if (!lastVer) {
+      result.push(ver);
+      continue;
+    }
+
+    if (lastVer.major === ver.major) {
+      result.pop();
+    }
+    result.push(ver);
+  }
+
+  return result.map((v) => v.toString());
+}
 
 /**
  * From a given ordered list of versions returns the latest minors. Example
@@ -111,19 +179,6 @@ function getLatestMinors(versions) {
   }
 
   return result.map((v) => v.toString());
-}
-
-function getModuleVersions(name) {
-  return new Promise((resolve, reject) => {
-    const cmd = `npm view ${name} versions -j`;
-
-    exec(cmd, { encoding: 'utf-8' }, function (err, stdout) {
-      if (err) {
-        return reject(err);
-      }
-      resolve(JSON.parse(stdout));
-    });
-  });
 }
 
 // Show time!
