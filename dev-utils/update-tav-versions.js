@@ -74,12 +74,13 @@ async function main() {
     // - append lower version if not present
     // - append a range to test from latest version returned and up
     const lastVers = versions[versions.length - 1];
-    const [low, high] = range.split(' ');
+    const boundaries = range.replace(/[^\d\s.]/g, '');
+    const [low, high] = boundaries.split(' ');
 
     if (versions[0] !== low) {
-      versions.unshift(low.replace('>=', ''));
+      versions.unshift(low);
     }
-    versions.push(`>${lastVers} ${high}`);
+    versions.push(`>${lastVers} <${high}`);
     tavVersMap.set(name, versions);
   }
 

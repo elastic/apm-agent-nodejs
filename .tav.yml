@@ -548,7 +548,7 @@ aws-sdk:
   #   node ./dev-utils/tav-versions.js @aws-sdk/client-s3 ">=3.15.0 <4"
   #
   # Test v3.15.0, every N=47 of 241 releases, and current latest.
-  versions: '3.15.0 || 3.15.0 || 3.72.0 || 3.170.0 || 3.264.0 || 3.347.0 || 3.435.0 || 3.436.0 || >3.436.0 <4'
+  versions: '3.15.0 || 3.72.0 || 3.170.0 || 3.264.0 || 3.347.0 || 3.435.0 || 3.436.0 || >3.436.0 <4'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
   node: '>=14'
@@ -561,7 +561,7 @@ aws-sdk:
   #   node ./dev-utils/tav-versions.js @aws-sdk/client-dynamodb ">=3.15.0 <4"
   #
   # Test v3.15.0, every N=44 of 225 releases, and current latest.
-  versions: '3.15.0 || 3.15.0 || 3.72.0 || 3.180.0 || 3.261.0 || 3.344.0 || 3.435.0 || 3.436.0 || >3.436.0 <4'
+  versions: '3.15.0 || 3.72.0 || 3.180.0 || 3.261.0 || 3.344.0 || 3.435.0 || 3.436.0 || >3.436.0 <4'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
   node: '>=14'
@@ -574,7 +574,7 @@ aws-sdk:
   #   node ./dev-utils/tav-versions.js @aws-sdk/client-sns ">=3.15.0 <4"
   #
   # Test v3.15.0, every N=40 of 205 releases, and current latest.
-  versions: '3.15.0 || 3.15.0 || 3.67.0 || 3.178.0 || 3.259.0 || 3.337.0 || 3.431.0 || 3.436.0 || >3.436.0 <4'
+  versions: '3.15.0 || 3.67.0 || 3.178.0 || 3.259.0 || 3.337.0 || 3.431.0 || 3.436.0 || >3.436.0 <4'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-sns.test.js
   node: '>=14'
@@ -587,7 +587,7 @@ aws-sdk:
   #   node ./dev-utils/tav-versions.js @aws-sdk/client-sqs ">=3.15.0 <4"
   #
   # Test v3.15.0, every N=43 of 220 releases, and current latest.
-  versions: '3.15.0 || 3.15.0 || 3.58.0 || 3.171.0 || 3.257.0 || 3.335.0 || 3.429.0 || 3.436.0 || >3.436.0 <4'
+  versions: '3.15.0 || 3.58.0 || 3.171.0 || 3.257.0 || 3.335.0 || 3.429.0 || 3.436.0 || >3.436.0 <4'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-sqs.test.js
   node: '>=14'
