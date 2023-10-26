@@ -6,9 +6,30 @@
  * compliance with the BSD 2-Clause License.
  */
 
+/** @typedef {import('semver').SemVer} SemVer */
+/**
+ * @typedef {Object} TavConfig
+ * @property {String} [name]
+ * @property {String} versions
+ * @property {String} node
+ * @property {String[]} commands
+ * @property {Object} update-versions
+ * @property {String} update-versions.mode
+ * @property {String} update-versions.range
+ */
+
 'use strict';
 
-// Update version property for each module defined in .tav.yml file
+// This script scans the `tav.yml` file placed at the root folder and for each
+// entry checks if the `update-versions` property is defined. In that case
+// the script will update the versions property according to the `update-versions`
+// configuration:
+// - range: only versions satisfiying this range will be in the update
+// - mode: how we want to pick the versions within the range. These are
+//   - latest-minors: picks 1st version of the range and all the latest minor versions
+//   - latest-majors: picks 1st version of the range and all the latest major versions
+//   - max-(n): picks 1st version, the last version and (n) versions in between them
+//
 // Usage:
 //      node dev-utils/update-tav-versions.js
 
@@ -24,11 +45,15 @@ const TAV_PATH = path.join(TOP, '.tav.yml');
 const UPDATE_PROP = 'update-versions';
 
 async function main() {
+  /** @type {Map<string, string[]>} */
+  const pkgVersMap = new Map(); // versions per package name
+  /** @type {Map<string, string[]>} */
+  const tavVersMap = new Map(); // versions per TAV configuration
+
   const tavContent = readFileSync(TAV_PATH, { encoding: 'utf-8' });
+  /** @type {Record<string, TavConfig>} */
   const tavConfig = yaml.load(tavContent);
   const tavEntries = Object.entries(tavConfig);
-  const pkgVersMap = new Map(); // versions per package name
-  const tavVersMap = new Map(); // versions per TAV configuration
 
   for (const entry of tavEntries) {
     const [name, cfg] = entry;
@@ -46,8 +71,10 @@ async function main() {
       pkgVersMap.set(pkgName, pkgVersions);
     }
 
-    const versInRange = pkgVersions.filter((v) => semver.satisfies(v, range));
     let versions;
+    const versInRange = pkgVersions
+      .filter((v) => semver.satisfies(v, range))
+      .map(semver.parse);
 
     if (mode === 'latest-minors') {
       versions = getLatestMinors(versInRange);
@@ -73,16 +100,19 @@ async function main() {
     // Assuming range is always in the form ">={Lower_limit} <{Higher_Limit}"
     // - append lower version if not present
     // - append a range to test from latest version returned and up
+    const firstVers = versions[0];
     const lastVers = versions[versions.length - 1];
-    const boundaries = range.replace(/[^\d\s.]/g, '');
-    const [low, high] = boundaries.split(' ');
+    // const [low, high] = range.split(' ').map(semver.coerce);
+    const [low] = range.split(' ').map(semver.coerce);
 
-    if (versions[0] !== low) {
+    if (semver.neq(firstVers, low)) {
       versions.unshift(low);
     }
+
+    versions = versions.map((v) => v.toString());
     // TODO: decide to end with a range >1.2.3 <3 or with caret ^1.2.3
-    // versions.push(`>${lastVers} <${high}`);
-    versions[versions.length - 1] = `^${lastVers}`;
+    // versions.push(`>${lastVers.toString()} <${high.toString()}`);
+    versions[versions.length - 1] = `^${lastVers.toString()}`;
     tavVersMap.set(name, versions);
   }
 
@@ -115,18 +145,16 @@ async function main() {
  * - output: ['5.0.0', '5.1.0', '5.3.0', '5.5.0', '5.7.0', '5.8.1', '5.9.0']
  *             first   ^^^^^^^^^ 4 version in between ^^^^^^^^^^^^    last
  *
- * @param {String[]} versions the version list where to extract
+ * @param {SemVer[]} versions the version list where to extract
  * @param {Number} num the number of versions that should be in between
- * @returns {String[]}
+ * @returns {SemVer[]}
  */
 function getMax(versions, num) {
-  // assuming sorted array
   const modulus = Math.floor((versions.length - 2) / num);
-  const result = versions.filter(
+
+  return versions.filter(
     (v, idx, arr) => idx % modulus === 0 || idx === arr.length - 1,
   );
-
-  return result.map((v) => v.toString());
 }
 
 /**
@@ -134,14 +162,14 @@ function getMax(versions, num) {
  * - input: ['5.0.0', '5.0.1', '5.1.0', '5.2.0', '5.3.0', '5.4.0', '5.5.0', '5.6.0', '5.7.0', '5.8.0', '5.8.1', '5.9.0']
  * - output: ['5.0.1', '5.1.0', '5.2.0', '5.3.0', '5.4.0', '5.5.0', '5.6.0', '5.7.0', '5.8.1', '5.9.0']
  *
- * @param {String[]} versions the version list where to extract latest minoes
- * @returns {String[]}
+ * @param {SemVer[]} versions the version list where to extract latest minoes
+ * @returns {SemVer[]}
  */
 function getLatestMajors(versions) {
   // assuming sorted array
   const result = [];
 
-  for (const ver of versions.map(semver.parse)) {
+  for (const ver of versions) {
     const lastVer = result[result.length - 1];
 
     if (!lastVer) {
@@ -155,7 +183,7 @@ function getLatestMajors(versions) {
     result.push(ver);
   }
 
-  return result.map((v) => v.toString());
+  return result;
 }
 
 /**
@@ -163,14 +191,14 @@ function getLatestMajors(versions) {
  * - input: ['5.0.0', '5.0.1', '5.1.0', '5.2.0', '5.3.0', '5.4.0', '5.5.0', '5.6.0', '5.7.0', '5.8.0', '5.8.1', '5.9.0']
  * - output: ['5.0.1', '5.1.0', '5.2.0', '5.3.0', '5.4.0', '5.5.0', '5.6.0', '5.7.0', '5.8.1', '5.9.0']
  *
- * @param {String[]} versions the version list where to extract latest minoes
- * @returns {String[]}
+ * @param {SemVer[]} versions the version list where to extract latest minoes
+ * @returns {SemVer[]}
  */
 function getLatestMinors(versions) {
   // assuming sorted array
   const result = [];
 
-  for (const ver of versions.map(semver.parse)) {
+  for (const ver of versions) {
     const lastVer = result[result.length - 1];
 
     if (!lastVer) {
@@ -185,8 +213,8 @@ function getLatestMinors(versions) {
     }
   }
 
-  return result.map((v) => v.toString());
+  return result;
 }
 
-// Show time!
+// run
 main();
