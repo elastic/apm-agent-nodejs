@@ -61,7 +61,7 @@ See the <<upgrade-to-v4>> guide.
 * Fix `mongodb` instrumentation to avoid loosing context when multiple cursors
   are running concurrently. ({issues}3161[#3161])
 
-* Set `mongodb` span's outcome acordingly to the result of the command being traced.
+* Set `mongodb` span's outcome according to the result of the command being traced.
   ({pull}3695[#3695])
 
 [float]
