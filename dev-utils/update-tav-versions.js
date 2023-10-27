@@ -14,18 +14,19 @@
  * @property {String} node
  * @property {String[]} commands
  * @property {Object} update-versions
- * @property {String} update-versions.mode
- * @property {String} update-versions.range
+ * @property {String} update-versions.include
+ * @property {String} [update-versions.exclude]
  */
 
 'use strict';
 
-// This script scans the `tav.yml` file placed at the root folder and for each
+// This script scans the `.tav.yml` file placed at the root folder and for each
 // entry checks if the `update-versions` property is defined. In that case
 // the script will update the versions property according to the `update-versions`
 // configuration:
-// - range: only versions satisfiying this range will be in the update
-// - mode: how we want to pick the versions within the range. These are
+// - include(required): Versions satisfiying this range will be in the update
+// - exclude(optional): Versions satisfiying this range won't be in the update
+// - mode(required): how we want to pick the versions within the range. These are
 //   - latest-minors: picks 1st version of the range and all the latest minor versions
 //   - latest-majors: picks 1st version of the range and all the latest major versions
 //   - max-(n): picks 1st version, the last version and (n) versions in between them
@@ -43,6 +44,7 @@ const yaml = require('js-yaml');
 const TOP = path.resolve(path.join(__dirname, '..'));
 const TAV_PATH = path.join(TOP, '.tav.yml');
 const UPDATE_PROP = 'update-versions';
+const INCLUDE_REGEXP = /^>=\d+(\.\d+){0,2} <\d+(\.\d+){0,2}$/;
 
 async function main() {
   /** @type {Map<string, string[]>} */
@@ -61,6 +63,22 @@ async function main() {
     if (!cfg[UPDATE_PROP]) continue;
 
     const { mode, include, exclude } = cfg[UPDATE_PROP];
+
+    // Check format before doing fetch
+    if (mode.startsWith('max-')) {
+      const num = Number(mode.split('-')[1]);
+      if (isNaN(num)) {
+        throw new Error(
+          `Error: TAV config ${name} invalid "max-n" mode, "n" must be a number (current: ${mode})`,
+        );
+      }
+    }
+    if (!INCLUDE_REGEXP.test(include)) {
+      throw new Error(
+        `Error: TAV config ${name} include property must be in the form ">=SemVer <SemVer" (current: ${include})`,
+      );
+    }
+
     const pkgName = cfg.name || name;
     let pkgVersions = pkgVersMap.get(pkgName);
 
@@ -89,17 +107,16 @@ async function main() {
       versions = getLatestMajors(filteredVers);
     } else if (mode.startsWith('max-')) {
       const num = Number(mode.split('-')[1]);
-      if (isNaN(num)) {
-        console.error(
-          `Error: Version selection max-n mode for TAV config ${name} invalid (${mode})`,
-        );
-        continue;
-      } else {
-        versions = getMax(filteredVers, Number(num));
-      }
+      versions = getMax(filteredVers, Number(num));
     } else {
-      console.error(
+      throw new Error(
         `Error: Version selection mode for TAV config ${name} unknown (${mode})`,
+      );
+    }
+
+    if (versions.length === 0) {
+      console.log(
+        `Info: all versions excluded for TAV config ${name}, please review include/exclude. Skipping`,
       );
       continue;
     }
