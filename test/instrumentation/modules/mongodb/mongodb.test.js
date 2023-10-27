@@ -194,6 +194,12 @@ const testFixtures = [
       t.deepEqual(spans.shift(), findOneSpan, 'findOne 2nd concurrent call');
       t.deepEqual(spans.shift(), findOneSpan, 'findOne 3rd concurrent call');
 
+      t.deepEqual(
+        spans.shift(),
+        { ...findOneSpan, outcome: 'failure' },
+        'findOne with bogus "hint" produced expected span',
+      );
+
       if (TEST_USE_CALLBACKS) {
         t.deepEqual(
           spans.shift(),
@@ -276,6 +282,12 @@ const testFixtures = [
         spans.shift(),
         deleteOneSpan,
         'deleteOne produced expected span',
+      );
+
+      t.deepEqual(
+        spans.shift(),
+        { ...deleteOneSpan, outcome: 'failure' },
+        'deleteOne with bogus "hint" produced expected span',
       );
 
       if (TEST_USE_CALLBACKS) {
