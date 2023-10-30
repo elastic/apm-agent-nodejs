@@ -65,9 +65,6 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Chores
 
-* Skip `cassandra-driver` for non officialy supported nodejs versions (<16.9).
-  See <https://github.com/datastax/nodejs-driver/pull/415#discussion_r1331010721>
-  ({issues}3694[#3694])
 
 [[release-notes-4.1.0]]
 ==== 4.1.0 - 2023/10/09

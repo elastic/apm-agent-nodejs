@@ -28,7 +28,7 @@ const TEST_USE_PROMISES = semver.satisfies(CASSANDRA_VERSION, '>=3.2');
 
 const testFixtures = [
   {
-    name: 'cassandra-driver simple usage for versions <4.7.0',
+    name: 'cassandra-driver simple usage',
     script: 'fixtures/use-cassandra-driver.js',
     cwd: __dirname,
     timeout: 20000, // sanity guard on the test hanging
@@ -40,14 +40,10 @@ const testFixtures = [
       TEST_USE_PROMISES: String(TEST_USE_PROMISES),
     },
     versionRanges: {
-      // cassandra-driver@4.7.0 introduced a change that requires nodejs v16.9
-      // and up but previous versions support from v8. In the fix process Cassandra
-      // team decided to drop versions from 8 to 16.
-      // Issue: https://datastax-oss.atlassian.net/browse/NODEJS-665
-      // Pull: https://github.com/datastax/nodejs-driver/pull/415#discussion_r1331010721
-      //
-      // We cannot expect new versions of the driver to work with nodejs versions <16.9
-      // therefore we want test only if node >=16.9
+      // - cassandra-driver >=4.7.0 only supports node >=16, but
+      // - cassandra-driver 4.7.0 and 4.7.1 had a hiccup where only node >=16.9.0 worked.
+      // Because of these complications and because Node v14 is EOL, we are skipping testing
+      // with earlier node versions.
       node: '>=16.9',
     },
     verbose: true,
