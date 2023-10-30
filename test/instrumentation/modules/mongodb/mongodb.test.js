@@ -43,6 +43,12 @@ const TEST_DB = 'elasticapm';
 const TEST_COLLECTION = 'test';
 const TEST_USE_CALLBACKS = semver.satisfies(MONGODB_VERSION, '<5');
 
+// From mongodb@3.6.0 and up CommandSuccessEvents may contain errors
+const MONGODB_SUCCESS_WITH_ERRORS = semver.satisfies(
+  MONGODB_VERSION,
+  '>=3.6.0',
+);
+
 /** @type {import('../../../_utils').TestFixture[]} */
 const testFixtures = [
   {
@@ -66,6 +72,7 @@ const testFixtures = [
       // First the transaction.
       t.ok(events[0].transaction, 'got the transaction');
       const tx = events.shift().transaction;
+      const errors = events.filter((e) => e.error).map((e) => e.error);
 
       // Compare some common fields across all spans.
       // ignore http/external spans
@@ -97,6 +104,7 @@ const testFixtures = [
         'all spans have sample_rate=1',
       );
 
+      const failingSpanId = spans[TEST_USE_CALLBACKS ? 11 : 8].id; // index of `.deleteOne` with bogus "hint"
       spans.forEach((s) => {
         // Remove variable and common fields to facilitate t.deepEqual below.
         delete s.id;
@@ -194,6 +202,12 @@ const testFixtures = [
       t.deepEqual(spans.shift(), findOneSpan, 'findOne 2nd concurrent call');
       t.deepEqual(spans.shift(), findOneSpan, 'findOne 3rd concurrent call');
 
+      t.deepEqual(
+        spans.shift(),
+        { ...findOneSpan, outcome: 'failure' },
+        'findOne with bogus "hint" produced expected span',
+      );
+
       if (TEST_USE_CALLBACKS) {
         t.deepEqual(
           spans.shift(),
@@ -277,6 +291,25 @@ const testFixtures = [
         deleteOneSpan,
         'deleteOne produced expected span',
       );
+
+      // Delete command errors are not faling
+      // - Promise API does not reject
+      // - callback API does not return an error param
+      // - CommandSucceededvent is fired (althoug it contains error data)
+      t.deepEqual(
+        spans.shift(),
+        deleteOneSpan,
+        'deleteOne with bogus "hint" produced expected span',
+      );
+
+      if (MONGODB_SUCCESS_WITH_ERRORS) {
+        t.equal(errors.length, 1, 'got 1 error');
+        t.equal(
+          errors[0].parent_id,
+          failingSpanId,
+          'error is a child of the failing span from deleteOne with bogus "hint"',
+        );
+      }
 
       if (TEST_USE_CALLBACKS) {
         t.deepEqual(

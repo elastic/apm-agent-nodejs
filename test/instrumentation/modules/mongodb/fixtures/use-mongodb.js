@@ -94,6 +94,13 @@ async function useMongodb(mongodbClient, options) {
   const queries = [{ a: 1 }, { b: 2 }, { c: 3 }];
   await Promise.all(queries.map((q) => collection.findOne(q)));
 
+  // Force an error to check the span outcome
+  try {
+    await collection.findOne({ a: 1 }, { hint: 'foo' });
+  } catch (err) {
+    log.info({ err }, 'error in .findOne() with bogus "hint"');
+  }
+
   if (useCallbacks) {
     data = await new Promise((resolve, reject) => {
       collection.findOne({ a: 4 }, function (err, res) {
@@ -148,6 +155,13 @@ async function useMongodb(mongodbClient, options) {
     'Mongodb span (or its HTTP span) should not be currentSpan after awaiting the task',
   );
   log.info({ data }, 'deleteOne with promises');
+
+  // Force an error to check the span outcome
+  try {
+    await collection.deleteOne({ a: 1 }, { hint: 'foo' });
+  } catch (err) {
+    log.info({ err }, 'error in .deleteOne() with bogus "hint"');
+  }
 
   if (useCallbacks) {
     data = await new Promise((resolve, reject) => {
