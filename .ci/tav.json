@@ -16,7 +16,7 @@
     { "name": "@opentelemetry/sdk-metrics", "minVersion": 14 },
     { "name": "apollo-server-express", "minVersion": 8 },
     { "name": "aws-sdk", "minVersion": 8 },
-    { "name": "cassandra-driver", "minVersion": 8 },
+    { "name": "cassandra-driver", "minVersion": 16 },
     { "name": "elasticsearch", "minVersion": 8 },
     { "name": "express", "minVersion": 8 },
     { "name": "express-queue", "minVersion": 8 },

@@ -28,7 +28,7 @@ const TEST_USE_PROMISES = semver.satisfies(CASSANDRA_VERSION, '>=3.2');
 
 const testFixtures = [
   {
-    name: 'cassandra-driver simple usage for versions <4.7.0',
+    name: 'cassandra-driver simple usage',
     script: 'fixtures/use-cassandra-driver.js',
     cwd: __dirname,
     timeout: 20000, // sanity guard on the test hanging
@@ -40,10 +40,11 @@ const testFixtures = [
       TEST_USE_PROMISES: String(TEST_USE_PROMISES),
     },
     versionRanges: {
-      // cassandra-driver@4.7.0 introduced a change that requires nodejs v16.9
-      // and up but previous versions support from v8 so we want to test
-      // these previous driver versions with all node versions in TAV
-      'cassandra-driver': '>=3.0.0 <4.7.0',
+      // - cassandra-driver >=4.7.0 only supports node >=16, but
+      // - cassandra-driver 4.7.0 and 4.7.1 had a hiccup where only node >=16.9.0 worked.
+      // Because of these complications and because Node v14 is EOL, we are skipping testing
+      // with earlier node versions.
+      node: '>=16.9',
     },
     verbose: true,
     checkApmServer: (t, apmServer) => {
@@ -422,22 +423,6 @@ const testFixtures = [
     },
   },
 ];
-
-// We need to do exactly the same test for `cassandra-driver` v4.7.0 and up
-// the only difference is we require NodeJS version to be >16.
-// This is necessary because of an issue in the driver that led to
-// a change in the node compatibility from >=8 to >=16
-//
-// The issue: https://datastax-oss.atlassian.net/browse/NODEJS-665
-testFixtures.push(
-  Object.assign({}, testFixtures[0], {
-    name: 'cassandra-driver simple usage for versions >=4.7.0',
-    versionRanges: {
-      node: '>=16.9',
-      'cassandra-driver': '>=4.7.0',
-    },
-  }),
-);
 
 test('cassandra-driver fixtures', (suite) => {
   runTestFixtures(suite, testFixtures);
