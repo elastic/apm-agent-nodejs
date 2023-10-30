@@ -44,7 +44,10 @@ const TEST_COLLECTION = 'test';
 const TEST_USE_CALLBACKS = semver.satisfies(MONGODB_VERSION, '<5');
 
 // From mongodb@3.6.0 and up CommandSuccessEvents may contain errors
-const MONGODB_SUCESS_WITH_ERRORS = semver.satisfies(MONGODB_VERSION, '>=3.6.0');
+const MONGODB_SUCCESS_WITH_ERRORS = semver.satisfies(
+  MONGODB_VERSION,
+  '>=3.6.0',
+);
 
 /** @type {import('../../../_utils').TestFixture[]} */
 const testFixtures = [
@@ -101,8 +104,7 @@ const testFixtures = [
         'all spans have sample_rate=1',
       );
 
-      // TODO: uncomment this when we attach correctly the error to the span
-      // const failingSpanId = spans[TEST_USE_CALLBACKS ? 12 : 8].id; // index of `.deleteOne` with bogus "hint"
+      const failingSpanId = spans[TEST_USE_CALLBACKS ? 11 : 8].id; // index of `.deleteOne` with bogus "hint"
       spans.forEach((s) => {
         // Remove variable and common fields to facilitate t.deepEqual below.
         delete s.id;
@@ -300,14 +302,13 @@ const testFixtures = [
         'deleteOne with bogus "hint" produced expected span',
       );
 
-      if (MONGODB_SUCESS_WITH_ERRORS) {
+      if (MONGODB_SUCCESS_WITH_ERRORS) {
         t.equal(errors.length, 1, 'got 1 error');
-        // TODO: uncomment this when we attach correctly the error to the span
-        // t.equal(
-        //   errors[0].parent_id,
-        //   failingSpanId,
-        //   'error is a child of the failing span from deleteOne with bogus "hint"',
-        // );
+        t.equal(
+          errors[0].parent_id,
+          failingSpanId,
+          'error is a child of the failing span from deleteOne with bogus "hint"',
+        );
       }
 
       if (TEST_USE_CALLBACKS) {
