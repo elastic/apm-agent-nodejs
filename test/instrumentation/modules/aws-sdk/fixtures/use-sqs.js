@@ -50,7 +50,6 @@ const apm = require('../../../../..').start({
 
 const assert = require('assert');
 const crypto = require('crypto');
-const { scheduler } = require('timers/promises'); // added in v16.14.0
 
 const AWS = require('aws-sdk');
 
@@ -91,7 +90,7 @@ async function useSQS(sqsClient, queueName) {
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html#createQueue-property
   // > Note: After you create a queue, you must wait at least one second
   // > after the queue is created to be able to use the queue.
-  await scheduler.wait(1000);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   // sendMessage
   params = {

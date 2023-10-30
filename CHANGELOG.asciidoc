@@ -28,6 +28,7 @@ Notes:
         ==== x.x.x - YYYY/MM/DD
 ////
 
+
 [[release-notes-4.x]]
 === Node.js Agent version 4.x
 
@@ -38,6 +39,35 @@ See the <<upgrade-to-v4>> guide.
 
 [float]
 ===== Breaking changes
+
+* Drop support for next@11. Next.js instrumentation support is currently in
+  technical preview, so it is not considered a semver-major change to drop
+  support for this old version of next. ({pull}3664[#3664])
+
+[float]
+===== Features
+
+* Add <<apm-get-service-version>>, <<apm-get-service-environment>>, and
+  <<apm-get-service-node-name>>. These are intended for use by
+  {ecs-logging-nodejs-ref}/intro.html[ecs-logging-nodejs formatting packages].
+  See <https://github.com/elastic/ecs-logging-nodejs/pull/152>.
+  ({issues}3195[#3195])
+
+* Add knex@3 instrumentation. ({pull}3659[#3659])
+
+[float]
+===== Bug fixes
+
+* Fix `mongodb` instrumentation to avoid loosing context when multiple cursors
+  are running concurrently. ({issues}3161[#3161])
+
+
+[float]
+===== Chores
+
+
+[[release-notes-4.1.0]]
+==== 4.1.0 - 2023/10/09
 
 [float]
 ===== Features
@@ -50,10 +80,21 @@ See the <<upgrade-to-v4>> guide.
 
 [float]
 ===== Bug fixes
+* Add support for `@aws-sdk/client-sns`, one of the AWS SDK v3 clients.
+  ({issues}2956[#2956])
+
 * The problem of route name not being captured in Express.Use direct use in middleware has been resolved.
 
+* Add support for `@aws-sdk/client-sqs`, one of the AWS SDK v3 clients.
+  ({issues}2957[#2957])
+
+* Fixes for some values of the <<disable-instrumentations>> config setting.
+  "redis" will now properly disable instrumentation for redis@4.
+  "next" will propertly disable all Next.js instrumentation.
+  ({pull}3658[#3658])
+
 [float]
-===== Chores
+===== Bug fixes
 
 * Changes to cloud metadata collection for Google Cloud (GCP). Most notably
   the `cloud.project.id` field is now the `project-id` from
@@ -64,6 +105,8 @@ See the <<upgrade-to-v4>> guide.
 
 [[release-notes-4.0.0]]
 ==== 4.0.0 - 2023/09/07
+
+See the <<upgrade-to-v4>> guide.
 
 [float]
 ===== Breaking changes

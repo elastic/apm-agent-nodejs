@@ -9,6 +9,7 @@
 var test = require('tape');
 
 var Timer = require('../../lib/instrumentation/timer');
+const { TIMING_SENSITIVE_TEST_OPTS } = require('../testconsts');
 
 test('started', function (t) {
   var timer = new Timer();
@@ -47,7 +48,7 @@ test('elapsed', function (t) {
   });
 });
 
-test('custom start time', function (t) {
+test('custom start time', TIMING_SENSITIVE_TEST_OPTS, function (t) {
   var startTime = Date.now() - 1000;
   var timer = new Timer(null, startTime);
   t.strictEqual(timer.start, startTime * 1000);

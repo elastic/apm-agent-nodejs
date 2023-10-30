@@ -21,6 +21,9 @@ declare namespace apm {
     start (options?: AgentConfigOptions): Agent;
     isStarted (): boolean;
     getServiceName (): string | undefined;
+    getServiceVersion (): string | undefined;
+    getServiceEnvironment (): string;
+    getServiceNodeName (): string | undefined;
     setFramework (options: {
       name?: string;
       version?: string;
@@ -381,6 +384,7 @@ declare namespace apm {
   type PatchHandler = (exports: any, agent: Agent, options: PatchOptions) => any;
 
   interface PatchOptions {
+    name: string;
     version: string | undefined;
     enabled: boolean;
   }
