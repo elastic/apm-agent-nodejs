@@ -233,7 +233,7 @@ NODE_VERSION=${NODE_VERSION} \
 NODE_FULL_VERSION=${NODE_FULL_VERSION} \
 TAV_MODULE=${TAV_MODULE} \
 USER_ID="$(id -u):$(id -g)" \
-docker-compose \
+docker compose \
   --no-ansi \
   --log-level ERROR \
   -f .ci/docker/${DOCKER_COMPOSE_FILE} \
@@ -253,7 +253,7 @@ NODE_VERSION=${NODE_VERSION} \
 NODE_FULL_VERSION=${NODE_FULL_VERSION} \
 TAV_MODULE=${TAV_MODULE} \
 USER_ID="$(id -u):$(id -g)" \
-docker-compose \
+docker compose \
   --no-ansi \
   --log-level ERROR \
   -f .ci/docker/${DOCKER_COMPOSE_FILE} \
@@ -263,14 +263,14 @@ docker-compose \
   --abort-on-container-exit \
   node_tests
 
-if ! NODE_VERSION=${NODE_VERSION} docker-compose \
+if ! NODE_VERSION=${NODE_VERSION} docker compose \
     --no-ansi \
     --log-level ERROR \
     -f .ci/docker/${DOCKER_COMPOSE_FILE} \
     down -v --remove-orphans; then
   # Workaround for this commonly seen error:
   #   error while removing network: network docker_default id $id has active endpoints
-  echo "error: Unexpected error in 'docker-compose down ...'. Forcing removal of unused networks."
+  echo "error: Unexpected error in 'docker compose down ...'. Forcing removal of unused networks."
   docker network inspect docker_default || true
   docker network inspect -f '{{range .Containers}}{{ .Name }} {{end}}' docker_default || true
   docker network prune --force || true
