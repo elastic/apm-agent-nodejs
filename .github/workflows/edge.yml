@@ -8,6 +8,7 @@ name: edge
 on:
   workflow_dispatch:
   schedule:
+    # Every Monday & Thursday at 6:00 AM
     - cron: '0 6 * * 1,4'
 
 # limit the access of the generated GITHUB_TOKEN
