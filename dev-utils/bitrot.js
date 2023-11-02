@@ -20,7 +20,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 
 const dashdash = require('dashdash');
-const ecsFormat = require('@elastic/ecs-pino-format');
+const { ecsFormat } = require('@elastic/ecs-pino-format');
 const pino = require('pino');
 const semver = require('semver');
 const yaml = require('js-yaml');
