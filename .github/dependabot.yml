@@ -68,3 +68,18 @@ updates:
     open-pull-requests-limit: 5
     reviewers:
       - "elastic/apm-agent-node-js"
+
+  # GitHub actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    reviewers:
+      - "elastic/observablt-ci"
+      - "elastic/apm-agent-node-js"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "22:00"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
