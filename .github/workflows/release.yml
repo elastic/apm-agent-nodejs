@@ -13,11 +13,11 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 'v16.20.2'
 
@@ -36,7 +36,7 @@ jobs:
       - run: make -C .ci push-docker
 
       - name: Read AWS vault secrets
-        uses: hashicorp/vault-action@v2.5.0
+        uses: hashicorp/vault-action@v2.7.4
         with:
           url: ${{ secrets.VAULT_ADDR }}
           method: approle
@@ -56,7 +56,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Read NPM vault secrets
-        uses: hashicorp/vault-action@v2.5.0
+        uses: hashicorp/vault-action@v2.7.4
         with:
           url: ${{ secrets.VAULT_ADDR }}
           method: approle

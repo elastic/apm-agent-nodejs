@@ -31,8 +31,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 16
       - run: npm ci
@@ -137,8 +137,8 @@ jobs:
           - '14.17'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node }}
     - run: docker ps  # show the services against which we'll be testing
@@ -159,8 +159,8 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         # What Node.js version to test on Windows is a balance between which
         # is the current LTS version (https://github.com/nodejs/release) and
