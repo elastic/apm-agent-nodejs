@@ -10,7 +10,7 @@
 
 const { Writable } = require('stream');
 
-const ecsFormat = require('@elastic/ecs-pino-format');
+const { ecsFormat } = require('@elastic/ecs-pino-format');
 let http; // required below, *after* apm.start()
 const pino = require('pino');
 const tape = require('tape');
