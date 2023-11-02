@@ -27,7 +27,7 @@ jobs:
       permutations: ${{ steps.transform.outputs.permutations }}
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - id: transform
         name: Load matrix from tav.json
@@ -69,7 +69,7 @@ jobs:
         # https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration
         module_and_node: ${{ fromJSON(needs.prepare-matrix.outputs.permutations) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: .ci/scripts/test.sh -b "release" -t ${{ matrix.module_and_node }}
         env:
           ELASTIC_APM_CONTEXT_MANAGER: ''
