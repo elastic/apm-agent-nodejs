@@ -1,0 +1,16 @@
+version: 2
+updates:
+
+  # GitHub actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    reviewers:
+      - "elastic/observablt-ci"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "22:00"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
