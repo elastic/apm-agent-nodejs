@@ -233,7 +233,8 @@ NODE_VERSION=${NODE_VERSION} \
 NODE_FULL_VERSION=${NODE_FULL_VERSION} \
 TAV_MODULE=${TAV_MODULE} \
 USER_ID="$(id -u):$(id -g)" \
-docker compose \
+docker --log-level error\
+  compose \
   --ansi never \
   -f .ci/docker/${DOCKER_COMPOSE_FILE} \
   build >docker-compose.log 2>docker-compose.err
@@ -252,7 +253,8 @@ NODE_VERSION=${NODE_VERSION} \
 NODE_FULL_VERSION=${NODE_FULL_VERSION} \
 TAV_MODULE=${TAV_MODULE} \
 USER_ID="$(id -u):$(id -g)" \
-docker compose \
+docker --log-level error\
+  compose \
   --ansi never \
   -f .ci/docker/${DOCKER_COMPOSE_FILE} \
   up \
@@ -261,7 +263,8 @@ docker compose \
   --abort-on-container-exit \
   node_tests
 
-if ! NODE_VERSION=${NODE_VERSION} docker compose \
+if ! NODE_VERSION=${NODE_VERSION} docker --log-level error\
+    compose \
     --ansi never \
     -f .ci/docker/${DOCKER_COMPOSE_FILE} \
     down -v --remove-orphans; then
