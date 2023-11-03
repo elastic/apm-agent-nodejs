@@ -7,14 +7,9 @@ name: edge
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - '**/**.md'
-      - '**/**.asciidoc'
-      - 'docs/**'
-      - 'examples/**'
+  schedule:
+    # Every Monday & Thursday at 6:00 AM
+    - cron: '0 6 * * 1,4'
 
 # limit the access of the generated GITHUB_TOKEN
 permissions:
