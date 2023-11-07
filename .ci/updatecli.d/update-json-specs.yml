@@ -23,7 +23,15 @@ sources:
     transformers:
       - findsubmatch:
           pattern: "[0-9a-f]{40}"
-
+  pull_request:
+    kind: shell
+    dependson:
+      - sha
+    spec:
+      command: gh api /repos/elastic/apm/commits/{{ source "sha" }}/pulls --jq '.[].html_url'
+      environments:
+        - name: GITHUB_TOKEN
+        - name: PATH
   container_metadata_discovery.json:
     kind: file
     spec:
@@ -68,6 +76,7 @@ actions:
         ### Why
         *Changeset*
         * https://github.com/elastic/apm/commit/{{ source "sha" }}
+        * {{ source "pull_request" }}
 
 targets:
   container_metadata_discovery.json:
