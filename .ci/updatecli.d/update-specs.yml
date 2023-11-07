@@ -28,7 +28,7 @@ sources:
     dependson:
       - sha
     spec:
-      command: gh api /repos/elastic/apm/commits/{{ source "sha" }}/pulls --jq '.[].html_url'
+      command: gh api /repos/elastic/apm-data/commits/{{ source "sha" }}/pulls --jq '.[].html_url'
       environments:
         - name: GITHUB_TOKEN
         - name: PATH
