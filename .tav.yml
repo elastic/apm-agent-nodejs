@@ -554,7 +554,7 @@ aws-sdk:
 #   node ./dev-utils/update-tav-versions.js
   
 '@aws-sdk/client-s3':
-  versions: '3.15.0 || 3.72.0 || 3.170.0 || 3.264.0 || 3.347.0 || 3.435.0 || ^3.436.0'
+  versions: '3.15.0 || 3.74.0 || 3.178.0 || 3.267.0 || 3.352.0 || 3.441.0 || ^3.445.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
   node: '>=14'
@@ -564,7 +564,7 @@ aws-sdk:
     include: '>=3.15.0 <4'
 
 '@aws-sdk/client-dynamodb':
-  versions: '3.15.0 || 3.72.0 || 3.180.0 || 3.261.0 || 3.344.0 || 3.435.0 || ^3.436.0'
+  versions: '3.15.0 || 3.72.0 || 3.180.0 || 3.261.0 || 3.344.0 || 3.435.0 || ^3.445.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
   node: '>=14'
@@ -574,7 +574,7 @@ aws-sdk:
     include: '>=3.15.0 <4'
 
 '@aws-sdk/client-sns':
-  versions: '3.15.0 || 3.67.0 || 3.178.0 || 3.259.0 || 3.337.0 || 3.431.0 || ^3.436.0'
+  versions: '3.15.0 || 3.72.0 || 3.180.0 || 3.263.0 || 3.344.0 || 3.438.0 || ^3.445.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-sns.test.js
   node: '>=14'
@@ -584,7 +584,10 @@ aws-sdk:
     include: '>=3.15.0 <4'
 
 '@aws-sdk/client-sqs':
-  versions: '3.15.0 || 3.58.0 || 3.171.0 || 3.257.0 || 3.335.0 || 3.429.0 || ^3.436.0'
+  # v3.446.0 and v3.447.0 (latest at 2023-11-09) switched the internal format from XML to JSON
+  # and localstack does not support it yet. We stop testing at v3.445.0 intil JSON is supported
+  # https://github.com/elastic/apm-agent-nodejs/issues/3716
+  versions: '3.15.0 || 3.67.0 || 3.179.0 || 3.261.0 || 3.342.0 || 3.436.0 || 3.445.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-sqs.test.js
   node: '>=14'
@@ -592,6 +595,7 @@ aws-sdk:
   update-versions:
     mode: max-5
     include: '>=3.15.0 <4'
+    exclude: '3.446.0 || 3.447.0'
 
 # - undici@4.7.0 added its diagnostics_channel support.
 # - In undici@4.7.1 the `request.origin` property was added, which we need
