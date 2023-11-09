@@ -14,7 +14,7 @@ const {
   TRACE_CONTINUATION_STRATEGY_CONTINUE,
   TRACE_CONTINUATION_STRATEGY_RESTART,
   CONTEXT_MANAGER_ASYNCHOOKS,
-} = require('../../lib/config/schema');
+} = require('../../lib/constants');
 const {
   normalizeUrls,
   normalizeArrays,
