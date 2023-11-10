@@ -24,14 +24,14 @@ const {
   CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES,
   CAPTURE_ERROR_LOG_STACK_TRACES_NEVER,
 } = require('../lib/constants');
-const { getDefaulOptions } = require('../lib/config/schema');
+const { getDefaultOptions } = require('../lib/config/schema');
 const { findObjInArray } = require('./_utils');
 const { MockAPMServer } = require('./_mock_apm_server');
 const { NoopApmClient } = require('../lib/apm-client/noop-apm-client');
 const { NoopTransaction } = require('../lib/instrumentation/noop-transaction');
 var packageJson = require('../package.json');
 
-const DEFAULTS = getDefaulOptions();
+const DEFAULTS = getDefaultOptions();
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
 // that is unhelpful for these tests.
