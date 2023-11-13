@@ -24,13 +24,15 @@ const { MockLogger } = require('./_mock_logger');
 const { NoopApmClient } = require('../lib/apm-client/noop-apm-client');
 const { findObjInArray } = require('./_utils');
 const { secondsFromDuration } = require('../lib/config/normalizers');
+const { CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES } = require('../lib/constants');
 const {
-  CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES,
-  DEFAULTS,
-  DURATION_OPTS,
+  getDefaultOptions,
   ENV_TABLE,
+  DURATION_OPTS,
 } = require('../lib/config/schema');
 const config = require('../lib/config/config');
+
+const DEFAULTS = getDefaultOptions();
 
 var apmVersion = require('../package').version;
 var apmName = require('../package').name;

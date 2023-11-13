@@ -785,8 +785,10 @@ The default value `0` means that no source code will be collected for span libra
 [[error-message-max-length]]
 ==== `errorMessageMaxLength`
 
+[small]#Deprecated in: v3.21.0, use <<long-field-max-length,`longFieldMaxLength`>>#
+
 * *Type:* String
-* *Default:* `"2kb"`
+* *Default:* `longFieldMaxLength`'s value
 * *Env:* `ELASTIC_APM_ERROR_MESSAGE_MAX_LENGTH`
 
 This option is **deprecated** -- use <<long-field-max-length,`longFieldMaxLength`>> instead.
