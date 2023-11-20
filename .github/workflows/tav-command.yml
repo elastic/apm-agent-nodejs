@@ -22,7 +22,7 @@ jobs:
       permutations: ${{ steps.transform.outputs.permutations }}
     steps:
       - name: Is comment allowed?
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const actorPermission = (await github.rest.repos.getCollaboratorPermissionLevel({
@@ -47,7 +47,7 @@ jobs:
 
       - id: transform
         name: Transform comment to the supported matrix
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs')
