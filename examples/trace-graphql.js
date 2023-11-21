@@ -21,7 +21,7 @@ const schema = buildSchema(`
 `);
 
 // The root provides a resolver function for each API endpoint
-const root = {
+const rootValue = {
   hello: () => {
     return 'Hello world!';
   },
@@ -38,10 +38,10 @@ const root = {
 const t1 = apm.startTransaction('t1');
 
 // Run the GraphQL query '{ hello }' and print out the response
-graphql(schema, '{ hello }', root).then((response) => {
+graphql({ schema, source: '{ hello }', rootValue }).then((response) => {
   console.log('hello response:', response);
 });
-graphql(schema, '{ bye }', root).then((response) => {
+graphql({ schema, source: '{ bye }', rootValue }).then((response) => {
   console.log('bye response:', response);
   t1.end();
 });
