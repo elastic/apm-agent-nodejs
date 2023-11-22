@@ -140,7 +140,7 @@ const testFixtures = [
                 resource: 'elasticapmtest-bucket-3',
               },
             },
-            http: { status_code: 200, response: { encoded_body_size: 61 } },
+            http: { status_code: 200, response: { encoded_body_size: 0 } },
           },
           otel: {
             attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-3' },
@@ -202,7 +202,7 @@ const testFixtures = [
                 resource: 'elasticapmtest-bucket-3',
               },
             },
-            http: { status_code: 200, response: { encoded_body_size: 58 } },
+            http: { status_code: 200, response: { encoded_body_size: 0 } },
           },
           otel: {
             attributes: {
