@@ -1,5 +1,5 @@
 "@opentelemetry/api":
-  versions: '>=1.0.0 <1.7.0'
+  versions: '>=1.0.0 <1.8.0'
   node: '>=8.0.0'
   commands:
     - node OTelBridgeNonRecordingSpan.test.js
