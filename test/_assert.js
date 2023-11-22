@@ -45,8 +45,8 @@ function stackFrameValidator(t, agent, isError) {
         ? conf.sourceLinesErrorLibraryFrames
         : conf.sourceLinesErrorAppFrames
       : frame.library_frame
-      ? conf.sourceLinesSpanLibraryFrames
-      : conf.sourceLinesSpanAppFrames;
+        ? conf.sourceLinesSpanLibraryFrames
+        : conf.sourceLinesSpanAppFrames;
 
     var shouldHaveSource = !nodeCore && lines !== 0;
 
