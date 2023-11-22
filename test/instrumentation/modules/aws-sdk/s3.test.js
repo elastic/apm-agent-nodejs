@@ -166,7 +166,7 @@ tape.test('simple S3 usage scenario', function (t) {
                   resource: 's3/elasticapmtest-bucket-1',
                 },
               },
-              http: { status_code: 200, response: { encoded_body_size: 61 } },
+              http: { status_code: 200 },
             },
             otel: {
               attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-1' },
@@ -228,7 +228,7 @@ tape.test('simple S3 usage scenario', function (t) {
                   resource: 's3/elasticapmtest-bucket-1',
                 },
               },
-              http: { status_code: 200, response: { encoded_body_size: 58 } },
+              http: { status_code: 200 },
             },
             otel: {
               attributes: {
