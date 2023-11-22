@@ -232,7 +232,12 @@ async function main() {
     );
   }
 
-  const sqsClient = new AWS.SQS({ apiVersion: '2012-11-05', endpoint, region });
+  const sqsClient = new AWS.SQS({
+    apiVersion: '2012-11-05',
+    endpoint,
+    region,
+    endpointDiscoveryEnabled: false,
+  });
 
   // Ensure an APM transaction so spans can happen.
   const tx = apm.startTransaction('manual');
