@@ -68,7 +68,6 @@ See the <<upgrade-to-v4>> guide.
   command when any of the entities does not contain `MessageAttributes`.
   ({issues}3746[#3746])
 
-
 [float]
 ===== Chores
 
