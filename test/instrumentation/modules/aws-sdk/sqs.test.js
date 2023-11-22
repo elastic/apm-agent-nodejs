@@ -212,7 +212,7 @@ tape.test('SQS usage scenario', function (t) {
     t.comment(
       'executing test script with this env: ' + JSON.stringify(additionalEnv),
     );
-    console.time && console.time('exec use-s3');
+    console.time && console.time('exec use-sqs');
     execFile(
       process.execPath,
       ['fixtures/use-sqs.js'],
@@ -223,7 +223,7 @@ tape.test('SQS usage scenario', function (t) {
         env: Object.assign({}, process.env, additionalEnv),
       },
       function done(err, stdout, stderr) {
-        console.timeLog && console.timeLog('exec use-s3');
+        console.timeLog && console.timeLog('exec use-sqs');
         t.error(err, 'use-sqs.js did not error out');
         if (err) {
           t.comment('err: ' + util.inspect(err));
@@ -246,6 +246,7 @@ tape.test('SQS usage scenario', function (t) {
         });
 
         // First the transaction.
+        console.log(server.events);
         t.ok(events[0].transaction, 'got the transaction');
         const tx = events.shift().transaction;
 
