@@ -64,6 +64,11 @@ See the <<upgrade-to-v4>> guide.
 * Set `mongodb` span's outcome according to the result of the command being traced.
   ({pull}3695[#3695])
 
+* Fix `@aws-sdk/client-sqs` instrumentation which was failing for `SendMessageBatch`
+  command when any of the entities does not contain `MessageAttributes`.
+  ({issues}3746[#3746])
+
+
 [float]
 ===== Chores
 
