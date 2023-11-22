@@ -11,7 +11,7 @@ services:
       MYSQL_HOST: 'mysql'
       CASSANDRA_HOST: 'cassandra'
       MEMCACHED_HOST: 'memcached'
-      LOCALSTACK_HOST: 'localstack'
+      LOCALSTACK_HOST: 'localstack:4566'
       PGHOST: 'postgres'
       PGUSER: 'postgres'
     depends_on:

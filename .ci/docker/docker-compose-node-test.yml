@@ -20,7 +20,7 @@ services:
       PGHOST: 'postgres'
       PGUSER: 'postgres'
       MEMCACHED_HOST: 'memcached'
-      LOCALSTACK_HOST: 'localstack'
+      LOCALSTACK_HOST: 'localstack:4566'
       NODE_VERSION: ${NODE_VERSION}
       TAV: ${TAV_MODULE}
       ELASTIC_APM_CONTEXT_MANAGER: ${ELASTIC_APM_CONTEXT_MANAGER}

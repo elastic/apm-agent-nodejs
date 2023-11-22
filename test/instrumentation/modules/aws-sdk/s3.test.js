@@ -28,8 +28,9 @@ const tape = require('tape');
 const { MockAPMServer } = require('../../../_mock_apm_server');
 const { validateSpan } = require('../../../_validate_schema');
 
-const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost';
-const endpoint = 'http://' + LOCALSTACK_HOST + ':4566';
+const localstackHost = process.env.LOCALSTACK_HOST || 'localhost:4566';
+const localstackHostname = localstackHost.split(':')[0];
+const endpoint = 'http://' + localstackHost;
 
 // Execute 'node fixtures/use-s3js' and assert APM server gets the expected
 // spans.
@@ -133,7 +134,7 @@ tape.test('simple S3 usage scenario', function (t) {
             context: {
               service: { target: { type: 's3' } },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: { type: '', name: '', resource: 's3' },
@@ -157,7 +158,7 @@ tape.test('simple S3 usage scenario', function (t) {
                 target: { type: 's3', name: 'elasticapmtest-bucket-1' },
               },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: {
@@ -188,7 +189,7 @@ tape.test('simple S3 usage scenario', function (t) {
                 target: { type: 's3', name: 'elasticapmtest-bucket-1' },
               },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: {
@@ -219,7 +220,7 @@ tape.test('simple S3 usage scenario', function (t) {
                 target: { type: 's3', name: 'elasticapmtest-bucket-1' },
               },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: {
@@ -253,7 +254,7 @@ tape.test('simple S3 usage scenario', function (t) {
                 target: { type: 's3', name: 'elasticapmtest-bucket-1' },
               },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: {
@@ -287,7 +288,7 @@ tape.test('simple S3 usage scenario', function (t) {
                 target: { type: 's3', name: 'elasticapmtest-bucket-1' },
               },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: {
@@ -321,7 +322,7 @@ tape.test('simple S3 usage scenario', function (t) {
                 target: { type: 's3', name: 'elasticapmtest-bucket-1' },
               },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: {
@@ -355,7 +356,7 @@ tape.test('simple S3 usage scenario', function (t) {
                 target: { type: 's3', name: 'elasticapmtest-bucket-1' },
               },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: {
@@ -390,7 +391,7 @@ tape.test('simple S3 usage scenario', function (t) {
                 target: { type: 's3', name: 'elasticapmtest-bucket-1' },
               },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: {
@@ -432,7 +433,7 @@ tape.test('simple S3 usage scenario', function (t) {
                 target: { type: 's3', name: 'elasticapmtest-bucket-1' },
               },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: {
@@ -466,7 +467,7 @@ tape.test('simple S3 usage scenario', function (t) {
                 target: { type: 's3', name: 'elasticapmtest-bucket-1' },
               },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: {
