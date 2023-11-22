@@ -593,7 +593,7 @@ aws-sdk:
   # v3.446.0 and v3.447.0 (latest at 2023-11-09) switched the internal format from XML to JSON
   # and localstack does not support it yet. We stop testing at v3.445.0 intil JSON is supported
   # https://github.com/elastic/apm-agent-nodejs/issues/3716
-  versions: '3.15.0 || 3.67.0 || 3.179.0 || 3.261.0 || 3.342.0 || 3.436.0 || 3.445.0'
+  versions: '3.15.0 || 3.67.0 || 3.179.0 || 3.261.0 || 3.342.0 || 3.436.0 || ^3.445.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-sqs.test.js
   node: '>=14'

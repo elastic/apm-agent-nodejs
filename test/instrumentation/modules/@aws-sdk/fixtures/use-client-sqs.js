@@ -140,6 +140,13 @@ async function useClientSQS(sqsClient, queueName) {
         },
         MessageBody: 'this is message 3',
       },
+      {
+        Id: '4',
+        MessageGroupId: 'use-sqs-client',
+        MessageDeduplicationId: crypto.randomBytes(16).toString('hex'), // Avoid deduplication between runs.
+        MessageAttributes: undefined, // https://github.com/elastic/apm-agent-nodejs/issues/3746
+        MessageBody: 'this is message 4',
+      },
     ],
   });
   data = await sqsClient.send(command);
@@ -163,7 +170,7 @@ async function useClientSQS(sqsClient, queueName) {
       }),
     );
     log.info({ attemptNum, data }, 'receiveMessage');
-    if (data.Messages) {
+    if (data.Messages && data.Messages.length) {
       messages.push(...data.Messages);
       // We effectively don't test `deleteMessage`, just the batch version. Meh.
       const entries = data.Messages.map((msg, idx) => {
@@ -177,11 +184,11 @@ async function useClientSQS(sqsClient, queueName) {
       );
       log.info({ data }, 'deleteMessageBatch');
     }
-    if (messages.length >= 3) {
+    if (messages.length >= 4) {
       break;
     }
   }
-  if (messages.length !== 3) {
+  if (messages.length !== 4) {
     const errmsg =
       'incomplete or unexpected messages after all ReceiveMessage attempts';
     log.error({ messages }, errmsg);
@@ -189,7 +196,12 @@ async function useClientSQS(sqsClient, queueName) {
   }
   assert.deepEqual(
     messages.map((msg) => msg.Body),
-    ['this is message 1', 'this is message 2', 'this is message 3'],
+    [
+      'this is message 1',
+      'this is message 2',
+      'this is message 3',
+      'this is message 4',
+    ],
     'got the expected message bodies in order',
   );
 
@@ -249,7 +261,7 @@ function main() {
     );
   }
 
-  const snsClient = new SQSClient({
+  const sqsClient = new SQSClient({
     region,
     endpoint,
   });
@@ -257,17 +269,17 @@ function main() {
   // Ensure an APM transaction so spans can happen.
   const tx = apm.startTransaction('manual');
 
-  useClientSQS(snsClient, queueName).then(
+  useClientSQS(sqsClient, queueName).then(
     function () {
       tx.end();
-      snsClient.destroy();
+      sqsClient.destroy();
       process.exitCode = 0;
     },
     function (err) {
       apm.logger.error(err, 'useClientSQS rejected');
       tx.setOutcome('failure');
       tx.end();
-      snsClient.destroy();
+      sqsClient.destroy();
       process.exitCode = 1;
     },
   );
