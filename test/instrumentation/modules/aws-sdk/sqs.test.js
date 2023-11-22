@@ -246,7 +246,7 @@ tape.test('SQS usage scenario', function (t) {
         });
 
         // First the transaction.
-        console.log(server.events);
+        console.log(JSON.stringify(events, null, 2));
         t.ok(events[0].transaction, 'got the transaction');
         const tx = events.shift().transaction;
 
