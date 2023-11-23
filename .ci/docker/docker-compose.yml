@@ -119,8 +119,16 @@ services:
 
   localstack:
     # https://hub.docker.com/r/localstack/localstack/tags
-    image: localstack/localstack:2.1.0
+    image: localstack/localstack:3.0.0
     environment:
+      # Cannot use the default `localhost.localstack.cloud:4566` which, IIUC,
+      # relies on reaching out the external DNS for resolution.
+      # https://docs.localstack.cloud/getting-started/faq/#is-using-localhostlocalstackcloud4566-to-set-as-the-endpoint-for-aws-services-recommended
+      - LOCALSTACK_HOST=localstack:4566
+      # Cannot use the default 'SQS_ENDPOINT_STRATEGY=standard' which relies on
+      # `*.localhost.localstack.cloud` resolution.
+      # https://docs.localstack.cloud/user-guide/aws/sqs/#queue-urls
+      - SQS_ENDPOINT_STRATEGY=path
       - DATA_DIR=/var/lib/localstack
     ports:
       - "4566:4566"

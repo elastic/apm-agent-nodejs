@@ -19,6 +19,7 @@ const agent = require('../../../..').start({
   logLevel: 'off',
 });
 const tape = require('tape');
+process.env.AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE = 1;
 const AWS = require('aws-sdk');
 const express = require('express');
 const bodyParser = require('body-parser');

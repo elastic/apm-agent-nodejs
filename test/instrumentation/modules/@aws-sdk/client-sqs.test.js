@@ -26,8 +26,9 @@ const { validateSpan } = require('../../../_validate_schema');
 const { runTestFixtures, sortApmEvents } = require('../../../_utils');
 const { NODE_VER_RANGE_IITM_GE14 } = require('../../../testconsts');
 
-const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost';
-const endpoint = 'http://' + LOCALSTACK_HOST + ':4566';
+const localstackHost = process.env.LOCALSTACK_HOST || 'localhost:4566';
+const localstackHostname = localstackHost.split(':')[0];
+const endpoint = 'http://' + localstackHost;
 
 const testFixtures = [
   {
@@ -113,7 +114,7 @@ const testFixtures = [
               target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' },
             },
             destination: {
-              address: LOCALSTACK_HOST,
+              address: localstackHostname,
               port: 4566,
               cloud: { region: 'us-east-2' },
               service: {
@@ -141,7 +142,7 @@ const testFixtures = [
               target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' },
             },
             destination: {
-              address: LOCALSTACK_HOST,
+              address: localstackHostname,
               port: 4566,
               cloud: { region: 'us-east-2' },
               service: {
@@ -190,7 +191,7 @@ const testFixtures = [
                   },
                 },
                 destination: {
-                  address: LOCALSTACK_HOST,
+                  address: localstackHostname,
                   port: 4566,
                   cloud: { region: 'us-east-2' },
                   service: {
@@ -221,7 +222,7 @@ const testFixtures = [
                   },
                 },
                 destination: {
-                  address: LOCALSTACK_HOST,
+                  address: localstackHostname,
                   port: 4566,
                   cloud: { region: 'us-east-2' },
                   service: {
