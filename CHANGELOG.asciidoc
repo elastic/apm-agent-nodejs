@@ -28,7 +28,6 @@ Notes:
         ==== x.x.x - YYYY/MM/DD
 ////
 
-
 [[release-notes-4.x]]
 === Node.js Agent version 4.x
 
