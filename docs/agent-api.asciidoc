@@ -55,7 +55,7 @@ until then. A misconfigured agent can have a `null` service name.
 [[apm-get-service-version]]
 ==== `apm.getServiceVersion()`
 
-[small]#Added in: REPLACEME#
+[small]#Added in: v4.2.0#
 
 Get the configured <<service-version>>. If a service version was not explicitly
 configured, this value may have been automatically determined.  The service
@@ -66,7 +66,7 @@ then.
 [[apm-get-service-environment]]
 ==== `apm.getServiceEnvironment()`
 
-[small]#Added in: REPLACEME#
+[small]#Added in: v4.2.0#
 
 Get the configured <<environment>>.
 
@@ -74,7 +74,7 @@ Get the configured <<environment>>.
 [[apm-get-service-node-name]]
 ==== `apm.getServiceNodeName()`
 
-[small]#Added in: REPLACEME#
+[small]#Added in: v4.2.0#
 
 Get the configured <<service-node-name>>. If the APM agent is not configured
 with an explicit value, this will return `undefined`.

@@ -189,8 +189,8 @@ A release involves the following published artifacts:
 
 ### Release process
 
-1. Make a PR titled "x.y.z" (the new version) targetting the appropriate active
-   branch, which updates:
+1. Make a PR titled "release x.y.z" (the new version) targetting the
+   appropriate active branch, which updates:
     - the version in `package.json`,
     - the version in `package-lock.json` (by running `npm install`),
     - all cases of "REPLACEME" in docs and comments,
