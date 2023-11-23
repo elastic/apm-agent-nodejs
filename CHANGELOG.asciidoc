@@ -34,7 +34,8 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
-==== Unreleased
+[[release-notes-4.2.0]]
+==== 4.2.0 - 2023/11/23
 
 [float]
 ===== Breaking changes
@@ -54,6 +55,8 @@ See the <<upgrade-to-v4>> guide.
 
 * Add knex@3 instrumentation. ({pull}3659[#3659])
 
+* Update <<opentelemetry-bridge>> support to `@opentelemetry/api` version 1.7.0.
+
 [float]
 ===== Bug fixes
 
@@ -66,11 +69,6 @@ See the <<upgrade-to-v4>> guide.
 * Fix `@aws-sdk/client-sqs` instrumentation which was failing for `SendMessageBatch`
   command when any of the entities does not contain `MessageAttributes`.
   ({issues}3746[#3746])
-
-[float]
-===== Chores
-
-* Add script to update TAV versions based on a config. ({pull}3680[#3680])
 
 
 [[release-notes-4.1.0]]
