@@ -247,6 +247,46 @@ const testFixtures = [
         });
     },
   },
+  {
+    name: 'use agent - shoud have prioroty of env, start, file',
+    script: 'fixtures/use-agent.js',
+    cwd: __dirname,
+    timeout: 20000, // sanity guard on the test hanging
+    maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
+    noConvenienceConfig: true,
+    env: {
+      ELASTIC_APM_API_REQUEST_SIZE: '1024kb',
+      TEST_APM_START_OPTIONS: JSON.stringify({
+        apiRequestSize: '512kb',
+        centralConfig: true,
+        configFile: 'fixtures/use-agent-config.js',
+      }),
+    },
+    verbose: false,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `use-agent.js script succeeded: err=${err}`);
+
+      const useAgentLogs = getUseAgentLogs(stdout);
+      const fileConfig = require('./fixtures/use-agent-config.js');
+      const resolvedConfig = JSON.parse(useAgentLogs[2]);
+
+      t.equal(
+        resolvedConfig.active,
+        fileConfig.active,
+        'options from file works',
+      );
+      t.equal(
+        resolvedConfig.centralConfig,
+        true,
+        'file options is overwritten by start options',
+      );
+      t.equal(
+        resolvedConfig.apiRequestSize,
+        1024 * 1024,
+        'file & start options is overwritten by env options',
+      );
+    },
+  },
 ];
 
 test('agent config fixtures', (suite) => {
