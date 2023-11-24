@@ -17,7 +17,7 @@ const defaultOptions = getDefaultOptions();
 
 // ---- support function
 /**
- * Changes the keys from ELASTIC_APM_* the the proper confgi name
+ * Changes the keys from ELASTIC_APM_* the the proper config name
  * @param {Record<string, string>} envVars
  * @returns {Record<string, string>}
  */
@@ -52,16 +52,10 @@ const testFixtures = [
     script: 'fixtures/use-agent.js',
     cwd: __dirname,
     noConvenienceConfig: true, // we want full control of the env
-    timeout: 20000, // sanity guard on the test hanging
-    maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
-    verbose: true,
     checkScriptResult: (t, err, stdout) => {
       t.error(err, `use-agent.js script succeeded: err=${err}`);
 
-      const useAgentLogs = stdout
-        .split('\n')
-        .filter((l) => l.startsWith('use-agent log:'))
-        .map((l) => l.replace('use-agent log:', ''));
+      const useAgentLogs = getUseAgentLogs(stdout);
       const startConfig = JSON.parse(useAgentLogs[0]);
       const resolvedConfig = JSON.parse(useAgentLogs[1]);
       const defaultConfig = Object.assign({}, defaultOptions);
@@ -96,8 +90,6 @@ const testFixtures = [
     name: 'use agent - shoud be configurable by environment vars',
     script: 'fixtures/use-agent.js',
     cwd: __dirname,
-    timeout: 20000, // sanity guard on the test hanging
-    maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
     noConvenienceConfig: true,
     env: {
       ELASTIC_APM_ABORTED_ERROR_THRESHOLD: '30',
@@ -176,8 +168,6 @@ const testFixtures = [
     name: 'use agent - shoud override start options by environment vars',
     script: 'fixtures/use-agent.js',
     cwd: __dirname,
-    timeout: 20000, // sanity guard on the test hanging
-    maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
     noConvenienceConfig: true,
     env: (function () {
       const startOptsManual = {
@@ -214,7 +204,6 @@ const testFixtures = [
       envVars['TEST_APM_START_OPTIONS'] = JSON.stringify(startOpts);
       return envVars;
     })(),
-    verbose: false,
     checkScriptResult: (t, err, stdout) => {
       t.error(err, `use-agent.js script succeeded: err=${err}`);
 
@@ -248,7 +237,7 @@ const testFixtures = [
     },
   },
   {
-    name: 'use agent - shoud have prioroty of env, start, file',
+    name: 'use agent - should have priority of env, start, file',
     script: 'fixtures/use-agent.js',
     cwd: __dirname,
     timeout: 20000, // sanity guard on the test hanging
