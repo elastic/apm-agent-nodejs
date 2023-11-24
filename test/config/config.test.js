@@ -262,7 +262,6 @@ const testFixtures = [
         configFile: 'fixtures/use-agent-config.js',
       }),
     },
-    verbose: false,
     checkScriptResult: (t, err, stdout) => {
       t.error(err, `use-agent.js script succeeded: err=${err}`);
 
@@ -298,7 +297,7 @@ const testFixtures = [
       ELASTIC_APM_API_REQUEST_SIZE: '1mb',
       ELASTIC_APM_ERROR_MESSAGE_MAX_LENGTH: '1mb',
       ELASTIC_APM_ACTIVE: 'nope',
-      ELASTIC_APM_LOG_LEVEL: 'debug',
+      ELASTIC_APM_LOG_LEVEL: 'debug', // we want debug logs to check
     },
     verbose: true,
     checkScriptResult: (t, err, stdout) => {
@@ -354,6 +353,45 @@ const testFixtures = [
       //   true,
       //   'bogus boolean does not get into config',
       // );
+    },
+  },
+  {
+    name: 'use agent - should work for nor ELASTIC_APM_* prefixed vars',
+    script: 'fixtures/use-agent.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    env: {
+      KUBERNETES_NODE_NAME: 'kube-node-name',
+      KUBERNETES_NAMESPACE: 'kube-namespace',
+      KUBERNETES_POD_NAME: 'kube-pod-name',
+      KUBERNETES_POD_UID: 'kube-pod-id',
+    },
+    verbose: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `use-agent.js script succeeded: err=${err}`);
+      const useAgentLogs = getUseAgentLogs(stdout);
+      const resolvedConfig = JSON.parse(useAgentLogs[2]);
+
+      t.equal(
+        resolvedConfig.kubernetesNodeName,
+        'kube-node-name',
+        'KUBERNETES_NODE_NAME maps to kubernetesNodeName',
+      );
+      t.equal(
+        resolvedConfig.kubernetesNamespace,
+        'kube-namespace',
+        'KUBERNETES_NAMESPACE maps to kubernetesNamespace',
+      );
+      t.equal(
+        resolvedConfig.kubernetesPodName,
+        'kube-pod-name',
+        'KUBERNETES_POD_NAME maps to kubernetesPodName',
+      );
+      t.equal(
+        resolvedConfig.kubernetesPodUID,
+        'kube-pod-id',
+        'KUBERNETES_POD_UID maps to kubernetesPodUID',
+      );
     },
   },
 ];
