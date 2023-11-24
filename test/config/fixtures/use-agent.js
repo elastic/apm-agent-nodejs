@@ -19,7 +19,8 @@ if (process.env.TEST_APM_START_OPTIONS) {
     JSON.parse(process.env.TEST_APM_START_OPTIONS),
   );
 }
-
+// this prefix will be used to get info from the test suite
+const logPrefix = 'use-agent log:';
 const apm = require('../../..').start(APM_START_OPTIONS);
 
 // Collect elastic ENV vas to pass it back to the test suite
@@ -31,10 +32,10 @@ const APM_ENV_OPTIONS = Object.keys(process.env).reduce((acc, key) => {
 }, {});
 
 // Report options passed by env
-console.log('use-agent log:' + JSON.stringify(APM_ENV_OPTIONS));
+console.log(`${logPrefix}${JSON.stringify(APM_ENV_OPTIONS)}`);
 
 // Report options used to start
-console.log('use-agent log:' + JSON.stringify(APM_START_OPTIONS));
+console.log(`${logPrefix}${JSON.stringify(APM_START_OPTIONS)}`);
 
 // Just spit out the resolved configuration
-console.log('use-agent log:' + JSON.stringify(apm._conf));
+console.log(`${logPrefix}${JSON.stringify(apm._conf)}`);
