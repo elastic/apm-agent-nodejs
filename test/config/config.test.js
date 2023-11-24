@@ -183,8 +183,6 @@ const testFixtures = [
       const startOptsManual = {
         captureBody: 'on',
         captureErrorLogStackTraces: 'never',
-        captureExceptions: 'false',
-        centralConfig: 'false',
         contextPropagationOnly: 'true',
         customMetricsHistogramBoundaries: [1, 2, 3, 4],
         disableInstrumentations: ['package-1', 'package-2'],
