@@ -14,8 +14,6 @@ var path = require('path');
 var util = require('util');
 
 var isRegExp = require('core-util-is').isRegExp;
-var mkdirp = require('mkdirp');
-var rimraf = require('rimraf');
 var test = require('tape');
 
 const Agent = require('../lib/agent');
@@ -24,7 +22,6 @@ const { MockLogger } = require('./_mock_logger');
 const { NoopApmClient } = require('../lib/apm-client/noop-apm-client');
 const { findObjInArray } = require('./_utils');
 const { secondsFromDuration } = require('../lib/config/normalizers');
-const { CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES } = require('../lib/constants');
 const {
   getDefaultOptions,
   ENV_TABLE,
@@ -33,9 +30,6 @@ const {
 const config = require('../lib/config/config');
 
 const DEFAULTS = getDefaultOptions();
-
-var apmVersion = require('../package').version;
-var apmName = require('../package').name;
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
 // that is unhelpful for these tests.
