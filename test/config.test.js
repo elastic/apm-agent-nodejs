@@ -175,34 +175,6 @@ test('should log invalid booleans', function (t) {
   t.end();
 });
 
-var MINUS_ONE_EQUAL_INFINITY = ['transactionMaxSpans'];
-
-MINUS_ONE_EQUAL_INFINITY.forEach(function (key) {
-  test(key + ' should be Infinity if set to -1', function (t) {
-    var agent = new Agent();
-    var opts = {};
-    opts[key] = -1;
-    agent.start(Object.assign({}, agentOptsNoopTransport, opts));
-    t.strictEqual(agent._conf[key], Infinity);
-    agent.destroy();
-    t.end();
-  });
-});
-
-var bytesValues = ['apiRequestSize', 'errorMessageMaxLength'];
-
-bytesValues.forEach(function (key) {
-  test(key + ' should be converted to a number', function (t) {
-    var agent = new Agent();
-    var opts = {};
-    opts[key] = '1mb';
-    agent.start(Object.assign({}, agentOptsNoopTransport, opts));
-    t.strictEqual(agent._conf[key], 1024 * 1024);
-    agent.destroy();
-    t.end();
-  });
-});
-
 DURATION_OPTS.forEach(function (optSpec) {
   const key = optSpec.name;
 

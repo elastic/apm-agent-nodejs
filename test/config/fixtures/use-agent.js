@@ -31,11 +31,19 @@ const APM_ENV_OPTIONS = Object.keys(process.env).reduce((acc, key) => {
   return acc;
 }, {});
 
+// Make sure values like Infinity are passe back to test
+// TODO: check if necessary to add NaN and others
+function replacer(key, value) {
+  return value === Infinity ? 'Infinity' : value;
+}
+
 // Report options passed by env
-console.log(`${logPrefix}${JSON.stringify(APM_ENV_OPTIONS)}`);
+console.log(`${logPrefix}${JSON.stringify(APM_ENV_OPTIONS, replacer)}`);
 
 // Report options used to start
-console.log(`${logPrefix}${JSON.stringify(APM_START_OPTIONS)}`);
+console.log(`${logPrefix}${JSON.stringify(APM_START_OPTIONS, replacer)}`);
 
 // Just spit out the resolved configuration
-console.log(`${logPrefix}${JSON.stringify(apm._conf)}`);
+// NOTE: make use of Object.assign to get the whole config and not only the loggable version
+const configClone = Object.assign({}, apm._conf);
+console.log(`${logPrefix}${JSON.stringify(configClone, replacer)}`);

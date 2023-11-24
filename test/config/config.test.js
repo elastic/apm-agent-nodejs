@@ -43,6 +43,19 @@ function getUseAgentLogs(stdout) {
     .map((l) => l.replace(prefix, ''));
 }
 
+/**
+ * Returns the warnings emitted by the logger
+ * @param {string} stdout
+ * @param {string} level
+ * @returns {Object[]}
+ */
+function getApmLogs(stdout, level) {
+  return stdout
+    .split('\n')
+    .filter((l) => l.includes(`"log.level":"${level}"`))
+    .map((l) => JSON.parse(l));
+}
+
 // ---- tests
 
 /** @type {import('../_utils').TestFixture[]} */
@@ -240,8 +253,6 @@ const testFixtures = [
     name: 'use agent - should have priority of env, start, file',
     script: 'fixtures/use-agent.js',
     cwd: __dirname,
-    timeout: 20000, // sanity guard on the test hanging
-    maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
     noConvenienceConfig: true,
     env: {
       ELASTIC_APM_API_REQUEST_SIZE: '1024kb',
@@ -274,6 +285,75 @@ const testFixtures = [
         1024 * 1024,
         'file & start options is overwritten by env options',
       );
+    },
+  },
+  {
+    name: 'use agent - should parse values, log invalid ones and apply special cases',
+    script: 'fixtures/use-agent.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    env: {
+      ELASTIC_APM_TRANSACTION_MAX_SPANS: '-1',
+      ELASTIC_APM_BREAKDOWN_METRICS: 'false',
+      ELASTIC_APM_API_REQUEST_SIZE: '1mb',
+      ELASTIC_APM_ERROR_MESSAGE_MAX_LENGTH: '1mb',
+      ELASTIC_APM_ACTIVE: 'nope',
+      ELASTIC_APM_LOG_LEVEL: 'debug',
+    },
+    verbose: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `use-agent.js script succeeded: err=${err}`);
+      const reviver = (k, v) => (v === 'Infinity' ? Infinity : v);
+      const useAgentLogs = getUseAgentLogs(stdout);
+      const resolvedConfig = JSON.parse(useAgentLogs[2], reviver);
+      const warnLogs = getApmLogs(stdout, 'warn');
+      const debugLogs = getApmLogs(stdout, 'debug');
+
+      t.equal(
+        resolvedConfig.transactionMaxSpans,
+        Infinity,
+        'transactionMaxSpans can be set to Infinity (-1)',
+      );
+      t.equal(
+        resolvedConfig.breakdownMetrics,
+        false,
+        'boolean value is parsed',
+      );
+      t.equal(
+        resolvedConfig.apiRequestSize,
+        1024 * 1024,
+        'bytes value is parsed for apiRequestSize',
+      );
+      t.equal(
+        warnLogs[0].message,
+        'config option "errorMessageMaxLength" is deprecated. Use "longFieldMaxLength"',
+        'got a warning about deprecated value',
+      );
+      t.equal(
+        resolvedConfig.errorMessageMaxLength,
+        1024 * 1024,
+        'bytes value is parsed for errorMessageMaxLength',
+      );
+      t.equal(
+        warnLogs[1].message,
+        'unrecognized boolean value "nope" for "active"',
+        'got a warning about bogus boolean value',
+      );
+      t.equal(
+        debugLogs[0].message,
+        'Elastic APM agent disabled (`active` is false)',
+        'got a debug log about agent disabled',
+      );
+      // XXX: normalization turns this value to `undefined` because "bogus"
+      // is set at ENV level and overrides the other before normalization
+      // strategy probably should change to
+      // - normalize values of sources (invalid turn into undefined)
+      // - do the overrides then if defined
+      // t.equal(
+      //   resolvedConfig.active,
+      //   true,
+      //   'bogus boolean does not get into config',
+      // );
     },
   },
 ];
