@@ -132,6 +132,36 @@ services:
     volumes:
       - nodelocalstackdata:/var/lib/localstack
 
+  zookeeper:
+    # https://hub.docker.com/r/bitnami/zookeeper/tags
+    #restart: always
+    image: bitnami/zookeeper:3.9.1
+    ports:
+      - "2181:2181"
+    volumes:
+      - "zookeeper-volume:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka:
+    # https://hub.docker.com/r/bitnami/kafka/tags
+    #restart: always
+    image: bitnami/kafka:3.3.2
+    ports:
+      - "9093:9093"
+    volumes:
+      - nodekafkadata:/var/lib/kafka/data
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
+    depends_on:
+      - zookeeper
+
 volumes:
   nodepgdata:
     driver: local

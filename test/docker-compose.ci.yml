@@ -33,3 +33,5 @@ services:
         condition: service_started
       localstack:
         condition: service_started
+      kafka:
+        condition: service_started
