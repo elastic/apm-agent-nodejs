@@ -12,7 +12,26 @@ const APM_START_OPTIONS = {
   transport: () => new NoopApmClient(),
 };
 
+// Test may want to pass extra start options
+if (process.env.TEST_APM_START_OPTIONS) {
+  Object.assign(
+    APM_START_OPTIONS,
+    JSON.parse(process.env.TEST_APM_START_OPTIONS),
+  );
+}
+
 const apm = require('../../..').start(APM_START_OPTIONS);
+
+// Collect elastic ENV vas to pass it back to the test suite
+const APM_ENV_OPTIONS = Object.keys(process.env).reduce((acc, key) => {
+  if (key.startsWith('ELASTIC_APM')) {
+    acc[key] = process.env[key];
+  }
+  return acc;
+}, {});
+
+// Report options passed by env
+console.log('use-agent log:' + JSON.stringify(APM_ENV_OPTIONS));
 
 // Report options used to start
 console.log('use-agent log:' + JSON.stringify(APM_START_OPTIONS));
