@@ -33,6 +33,23 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+* Skip undici tests for `undici` `>=5.28.0` and NodeJS `<14.18.0`.
+  ({pull}3755[#3755])
+
 
 [[release-notes-4.2.0]]
 ==== 4.2.0 - 2023/11/23
