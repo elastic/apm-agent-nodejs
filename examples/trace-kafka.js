@@ -13,9 +13,9 @@
 // to start a Kafka container. Then `npm run docker:stop` to stop it.
 
 // eslint-disable-next-line no-unused-vars
-// const apm = require('../').start({
-//   serviceName: 'example-trace-kafka',
-// });
+const apm = require('../').start({
+  serviceName: 'example-trace-kafka',
+});
 
 const { Kafka } = require('kafkajs');
 
