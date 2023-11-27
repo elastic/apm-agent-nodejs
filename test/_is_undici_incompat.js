@@ -30,12 +30,9 @@ function isUndiciIncompat() {
   const msg = `undici@${undiciVer} is incompatible with node@${nodeVer}`;
 
   if (
-    semver.satisfies(undiciVer, '>=5.22.0') &&
-    semver.satisfies(nodeVer, '<14.0.0')
+    semver.satisfies(undiciVer, '>=5.28.0') &&
+    semver.satisfies(nodeVer, '<14.18.0')
   ) {
-    return msg;
-  }
-  if (semver.satisfies(nodeVer, '<12.18.0')) {
     return msg;
   }
 
