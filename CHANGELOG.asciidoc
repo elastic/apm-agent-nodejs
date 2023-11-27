@@ -51,6 +51,26 @@ See the <<upgrade-to-v4>> guide.
   ({pull}3755[#3755])
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+* Explicitly mark this package as being of type="commonjs". The experimental
+  `node --experimental-default-type=module ...` option
+  https://nodejs.org/en/blog/release/v20.10.0#--experimental-default-type-flag-to-flip-module-defaults[added in Node.js v20.10.0]
+  means that a default to "commonjs" isn't guaranteed.
+
+
 [[release-notes-4.2.0]]
 ==== 4.2.0 - 2023/11/23
 
