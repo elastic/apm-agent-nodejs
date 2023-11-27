@@ -942,6 +942,32 @@ option. That will likely result in healthy requests being aborted prematurely.
 The value should include a time suffix ('m' for minutes, 's' for seconds, or
 'ms' for milliseconds), but defaults to seconds if no suffix is given.
 
+[[apm-client-headers]]
+==== `apmClientHeaders`
+
+[small]#Added in: REPLACEME#
+
+* *Type:* Object
+* *Env:* `ELASTIC_APM_APM_CLIENT_HEADERS`
+
+Specify custom headers to be included in HTTP requests by the APM agent to
+APM Server. Generally this should not be required for normal usage.
+
+Examples:
+
+[source,bash]
+----
+ELASTIC_APM_APM_CLIENT_HEADERS="foo=bar,spam=eggs"
+----
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  apmClientHeaders: { foo: 'bar', spam: 'eggs' },
+  // ...
+})
+----
+
 
 [[sanitize-field-names]]
 ==== `sanitizeFieldNames`
