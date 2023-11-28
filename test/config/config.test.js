@@ -299,7 +299,6 @@ const testFixtures = [
       ELASTIC_APM_ACTIVE: 'nope',
       ELASTIC_APM_LOG_LEVEL: 'debug', // we want debug logs to check
     },
-    verbose: true,
     checkScriptResult: (t, err, stdout) => {
       t.error(err, `use-agent.js script succeeded: err=${err}`);
       const reviver = (k, v) => (v === 'Infinity' ? Infinity : v);
@@ -344,15 +343,12 @@ const testFixtures = [
         'got a debug log about agent disabled',
       );
       // XXX: normalization turns this value to `undefined` because "bogus"
-      // is set at ENV level and overrides the other before normalization
-      // strategy probably should change to
-      // - normalize values of sources (invalid turn into undefined)
-      // - do the overrides then if defined
-      // t.equal(
-      //   resolvedConfig.active,
-      //   true,
-      //   'bogus boolean does not get into config',
-      // );
+      // is not a boolean. Do we want to keep it that way?
+      t.equal(
+        resolvedConfig.active,
+        undefined,
+        'bogus boolean does not get into config',
+      );
     },
   },
   {
@@ -366,7 +362,6 @@ const testFixtures = [
       KUBERNETES_POD_NAME: 'kube-pod-name',
       KUBERNETES_POD_UID: 'kube-pod-id',
     },
-    verbose: false,
     checkScriptResult: (t, err, stdout) => {
       t.error(err, `use-agent.js script succeeded: err=${err}`);
       const useAgentLogs = getUseAgentLogs(stdout);
@@ -405,7 +400,6 @@ const testFixtures = [
         addPatch: { foo: 'bar', baz: 'buz' },
       }), // object form
     },
-    verbose: true,
     checkScriptResult: (t, err, stdout) => {
       t.error(err, `use-agent.js script succeeded: err=${err}`);
       const useAgentLogs = getUseAgentLogs(stdout);
