@@ -234,12 +234,18 @@ graphql:
   commands: node test/instrumentation/modules/graphql.test.js
 
 express:
-  versions: '>=4'
+  versions: '4.0.0 || 4.1.2 || 4.2.0 || 4.3.2 || 4.4.5 || 4.5.1 || 4.6.1 || 4.7.4 || 4.8.8 || 4.9.8 || 4.10.8 || 4.11.2 || 4.12.4 || 4.13.4 || 4.14.1 || 4.15.5 || 4.16.4 || 4.17.3 || ^4.18.2'
   commands:
     - node test/instrumentation/modules/express/basic.test.js
     - node test/instrumentation/modules/express/capture-exceptions-off.test.js
     - node test/instrumentation/modules/express/capture-exceptions-on.test.js
     - node test/instrumentation/modules/express/set-framework.test.js
+  update-versions:
+    mode: latest-minors
+    # include requires an upper bound. v5 is still in beta 
+    # (5.0.0-beta.1": "2022-02-15T01:11:25.229Z) but we use 6 to make sure any
+    # future release is included if we udpate
+    include: '>=4 <6' # latest minors subset of '>=4 <6'
 
 apollo-server-express-2_graphql-14:
   name: apollo-server-express
