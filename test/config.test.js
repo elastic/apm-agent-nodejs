@@ -273,32 +273,10 @@ DURATION_OPTS.forEach(function (optSpec) {
 var keyValuePairValues = ['addPatch', 'globalLabels'];
 
 keyValuePairValues.forEach(function (key) {
-  var string = 'foo=bar,baz=buz';
-  var object = { foo: 'bar', baz: 'buz' };
   var pairs = [
     ['foo', 'bar'],
     ['baz', 'buz'],
   ];
-
-  test(key + ' should support string form', function (t) {
-    var agent = new Agent();
-    var opts = {};
-    opts[key] = string;
-    agent.start(Object.assign({}, agentOptsNoopTransport, opts));
-    t.deepEqual(agent._conf[key], pairs);
-    agent.destroy();
-    t.end();
-  });
-
-  test(key + ' should support object form', function (t) {
-    var agent = new Agent();
-    var opts = {};
-    opts[key] = object;
-    agent.start(Object.assign({}, agentOptsNoopTransport, opts));
-    t.deepEqual(agent._conf[key], pairs);
-    agent.destroy();
-    t.end();
-  });
 
   test(key + ' should support pair form', function (t) {
     var agent = new Agent();

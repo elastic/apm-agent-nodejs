@@ -316,12 +316,12 @@ const testFixtures = [
       t.equal(
         resolvedConfig.breakdownMetrics,
         false,
-        'boolean value is parsed',
+        '"false" value for breakdownMetrics is parsed',
       );
       t.equal(
         resolvedConfig.apiRequestSize,
         1024 * 1024,
-        'bytes value is parsed for apiRequestSize',
+        '"1mb" value is parsed for apiRequestSize',
       );
       t.equal(
         warnLogs[0].message,
@@ -366,7 +366,7 @@ const testFixtures = [
       KUBERNETES_POD_NAME: 'kube-pod-name',
       KUBERNETES_POD_UID: 'kube-pod-id',
     },
-    verbose: true,
+    verbose: false,
     checkScriptResult: (t, err, stdout) => {
       t.error(err, `use-agent.js script succeeded: err=${err}`);
       const useAgentLogs = getUseAgentLogs(stdout);
@@ -391,6 +391,39 @@ const testFixtures = [
         resolvedConfig.kubernetesPodUID,
         'kube-pod-id',
         'KUBERNETES_POD_UID maps to kubernetesPodUID',
+      );
+    },
+  },
+  {
+    name: 'use agent - should support ket/value pairs formats',
+    script: 'fixtures/use-agent.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    env: {
+      ELASTIC_APM_GLOBAL_LABELS: 'foo=bar,baz=buz', // string form
+      TEST_APM_START_OPTIONS: JSON.stringify({
+        addPatch: { foo: 'bar', baz: 'buz' },
+      }), // object form
+    },
+    verbose: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `use-agent.js script succeeded: err=${err}`);
+      const useAgentLogs = getUseAgentLogs(stdout);
+      const resolvedConfig = JSON.parse(useAgentLogs[2]);
+      const pairs = [
+        ['foo', 'bar'],
+        ['baz', 'buz'],
+      ];
+
+      t.deepEqual(
+        resolvedConfig.globalLabels,
+        pairs,
+        'globalLabels is parsed correctly from environment (string)',
+      );
+      t.deepEqual(
+        resolvedConfig.addPatch,
+        pairs,
+        'addPatch is parsed correctly from start options (object)',
       );
     },
   },
