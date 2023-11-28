@@ -41,6 +41,9 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Features
 
+* Add the <<apm-client-headers>> config option, to allow adding custom headers
+  to HTTP requests made to APM server by the APM agent. ({issues}3759[#3759])
+
 [float]
 ===== Bug fixes
 
