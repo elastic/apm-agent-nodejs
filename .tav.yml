@@ -20,20 +20,8 @@ generic-pool:
 # got versions. Testing all these versions as a "sanity test" is a waste of
 # resources. Instead we test just a few: the latest 8.x, 9.x, and 10.x (all
 # no longer getting releases); and >=11.8.6.
-got-v4-v9:
-  name: got
-  versions: '8.3.2'
-  node: '>=5'
-  commands: node test/instrumentation/modules/http/github-423.test.js
-got-v9:
-  name: got
-  versions: '9.6.0'
-  node: '>=8.3'
-  commands: node test/instrumentation/modules/http/github-423.test.js
-got-v10-v12:
-  name: got
-  versions: '10.7.0 || >=11.8.6 <12'
-  node: '>=10.16.0'
+got:
+  versions: '8.3.2 || 9.6.0 || 10.7.0 || >=11.8.6 <12'
   commands: node test/instrumentation/modules/http/github-423.test.js
 
 mysql:
@@ -80,7 +68,6 @@ redis-v2-v4:
 redis:
   name: redis
   versions: '>=4.0.0 <4.6.9 || >4.6.9 <5.0.0'
-  node: '>=14.0.0'
   commands:
     - node test/instrumentation/modules/redis.test.js
     - node test/instrumentation/modules/redis-disabled.test.js
@@ -102,7 +89,6 @@ ioredis-v2-v4:
 ioredis-v4-v5:
   name: ioredis
   versions: '4.0.0 || 4.0.2 || 4.1.0 || 4.2.3 || 4.3.1 || 4.4.0 || 4.5.1 || 4.6.3 || 4.7.0 || 4.8.0 || 4.9.5 || 4.10.4 || 4.11.2 || 4.12.2 || 4.13.1 || 4.14.4 || 4.15.1 || 4.16.3 || 4.17.3 || 4.18.0 || 4.19.4 || 4.20.0 || 4.21.0 || 4.22.0 || 4.23.1 || 4.24.6 || 4.25.0 || 4.26.0 || 4.27.11 || ^4.28.5'
-  node: '>=6'
   commands: node test/instrumentation/modules/ioredis.test.js
   update-versions:
     mode: latest-minors
@@ -110,7 +96,6 @@ ioredis-v4-v5:
 ioredis:
   name: ioredis
   versions: '5.0.0 || 5.0.6 || 5.1.0 || 5.2.6 || ^5.3.2'
-  node: '>=12.22.0'
   commands: node test/instrumentation/modules/ioredis.test.js
   update-versions:
     mode: latest-minors
@@ -287,29 +272,15 @@ express-queue:
   versions: '>=0.0.11'
   commands: node test/instrumentation/modules/express-queue.test.js
 
-koa-router-v5-v11:
-  name: koa-router
-  versions: '>=5.2.0 <11'
-  node: '>=6.0.0'
-  peerDependencies: koa@2
-  commands: node test/instrumentation/modules/koa-router/old-name.test.js
 koa-router:
   name: koa-router
-  versions: '>=11 <13'
-  node: '>=12.0.0'
+  versions: '>=5.2.0 <13'
   peerDependencies: koa@2
   commands: node test/instrumentation/modules/koa-router/old-name.test.js
 
-'@koa/router-v8-v11':
-  name: '@koa/router'
-  versions: '>=8 <11'
-  node: '>=8.0.0'
-  peerDependencies: koa@2
-  commands: node test/instrumentation/modules/koa-router/new-name.test.js
 '@koa/router':
   name: '@koa/router'
-  versions: '>=11 <13'
-  node: '>=12.0.0'
+  versions: '>=8 <13'
   peerDependencies: koa@2
   commands: node test/instrumentation/modules/koa-router/new-name.test.js
 
