@@ -53,6 +53,10 @@ See the <<upgrade-to-v4>> guide.
 * Skip undici tests for `undici` `>=5.28.0` and NodeJS `<14.18.0`.
   ({pull}3755[#3755])
 
+* Change the log level of `Sending error to Elastic APM: ...` from `info` to
+  `debug`. There is no need to clutter the log output with this message.
+  ({issues}3748[#3748])
+
 
 ==== Unreleased
 
