@@ -36,7 +36,7 @@ async function run() {
   await producer.send({
     topic,
     messages: [
-      { value: 'message 1' },
+      { value: 'message 1', headers: { foo: 'bar' } },
       { value: 'message 2' },
       { value: 'message 3' },
     ],
@@ -47,6 +47,7 @@ async function run() {
   await consumer.run({
     eachMessage: async function ({ topic, partition, message }) {
       console.log(`message from topic(${topic}): ${message.value.toString()}`);
+      console.log(`message header ${message.headers}`);
       messagesConsumed++;
     },
   });
