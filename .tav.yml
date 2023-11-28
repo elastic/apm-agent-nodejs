@@ -153,15 +153,13 @@ mongodb-core:
     mode: latest-minors
     include: '>=1.2.19 <4' # latest minors subset of '>=1.2.19 <4'
 
-mongodb-3:
+mongodb-3-4:
   name: mongodb
-  versions: '>=3.3 <4'
+  versions: '>=3.3 <5'
   commands: node test/instrumentation/modules/mongodb/mongodb.test.js
-mongodb-4:
-  name: mongodb
-  versions: '>=4 <5'
-  node: '>=12.9.0'
-  commands: node test/instrumentation/modules/mongodb/mongodb.test.js
+  update-versions:
+    mode: latest-minors
+    include: '>=3.3 <5' # latest minors subset of '>=3.3 <5'
 mongodb-5:
   name: mongodb
   versions: '>=5 <6'
