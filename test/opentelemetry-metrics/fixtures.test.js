@@ -39,7 +39,13 @@ if (!semver.satisfies(process.version, '>=14')) {
   process.exit();
 }
 
-const undici = require('undici'); // import after we've excluded node <14
+const isUndiciIncompat = require('../_is_undici_incompat')();
+if (isUndiciIncompat) {
+  console.log(`# SKIP ${isUndiciIncompat}`);
+  process.exit();
+}
+
+const undici = require('undici'); // import after we've checked compatibility
 
 const fixturesDir = path.join(__dirname, 'fixtures');
 
