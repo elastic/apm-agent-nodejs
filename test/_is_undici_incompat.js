@@ -29,9 +29,6 @@ function isUndiciIncompat() {
   const undiciVer = require('undici/package.json').version;
   const msg = `undici@${undiciVer} is incompatible with node@${nodeVer}`;
 
-  console.log(
-    `compatibility check between undici@${undiciVer} and node@${nodeVer}`,
-  );
   if (
     semver.satisfies(undiciVer, '>=5.28.0') &&
     semver.satisfies(nodeVer, '<14.18.0')

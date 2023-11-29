@@ -11,14 +11,6 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0);
 }
 
-// `elasticsearch` has `undici` as a dependency so we need to check
-// for compatibility
-const isUndiciIncompat = require('../../_is_undici_incompat')();
-if (isUndiciIncompat) {
-  console.log(`# SKIP dependency issue: ${isUndiciIncompat}`);
-  process.exit();
-}
-
 process.env.ELASTIC_APM_TEST = true;
 var host = (process.env.ES_HOST || 'localhost') + ':9200';
 
