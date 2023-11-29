@@ -60,6 +60,41 @@
     },
     "containerId": "6548c6863fb748e72d1e2a4f824fde92f720952d062dede1318c2d6219a672d6",
     "podId": null
+  },
+  "gardener": {
+    "files": {
+      "/proc/self/mountinfo": [
+        "10112 5519 0:864 / / ro,relatime master:1972 - overlay overlay rw,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/35235/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/27346/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/27345/fs:/var/lib/containerd/io.containerd.snapsh",
+        "10113 10112 0:884 / /proc rw,nosuid,nodev,noexec,relatime - proc proc rw",
+        "10301 10112 0:926 / /dev rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755,inode64",
+        "10302 10301 0:930 / /dev/pts rw,nosuid,noexec,relatime - devpts devpts rw,gid=5,mode=620,ptmxmode=666",
+        "10519 10301 0:820 / /dev/mqueue rw,nosuid,nodev,noexec,relatime - mqueue mqueue rw",
+        "10520 10112 0:839 / /sys ro,nosuid,nodev,noexec,relatime - sysfs sysfs ro",
+        "10716 10520 0:26 /kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod121157b5_c67d_4c3e_9052_cb27bbb711fb.slice/cri-containerd-1cd3449e930b8a28c7595240fa32ba20c84f36d059e5fbe63104ad40057992d1.scope /sys/fs/cgroup ro,nosuid,nodev,noexec,relatime - cgroup2 cgroup rw",
+        "10736 10112 8:3 /var/lib/kubelet/pods/121157b5-c67d-4c3e-9052-cb27bbb711fb/volumes/kubernetes.io~empty-dir/tmpdir /tmp rw,relatime - ext4 /dev/sda3 rw,discard,prjquota,errors=remount-ro",
+        "10737 10112 0:786 / /vault/tls ro,relatime - tmpfs tmpfs rw,size=4194304k,inode64",
+        "10738 10112 8:3 /var/lib/kubelet/pods/121157b5-c67d-4c3e-9052-cb27bbb711fb/etc-hosts /etc/hosts rw,relatime - ext4 /dev/sda3 rw,discard,prjquota,errors=remount-ro",
+        "10739 10301 8:3 /var/lib/kubelet/pods/121157b5-c67d-4c3e-9052-cb27bbb711fb/containers/application-search-indexer/9bf2b38c /dev/termination-log rw,relatime - ext4 /dev/sda3 rw,discard,prjquota,errors=remount-ro",
+        "10740 10112 8:3 /var/lib/containerd/io.containerd.grpc.v1.cri/sandboxes/26a006f558da58874bc37863efe9d2b5d715afc54453d95b22a7809a4e65566c/hostname /etc/hostname ro,relatime - ext4 /dev/sda3 rw,discard,prjquota,errors=remount-ro",
+        "10741 10112 8:3 /var/lib/containerd/io.containerd.grpc.v1.cri/sandboxes/26a006f558da58874bc37863efe9d2b5d715afc54453d95b22a7809a4e65566c/resolv.conf /etc/resolv.conf ro,relatime - ext4 /dev/sda3 rw,discard,prjquota,errors=remount-ro",
+        "10761 10301 0:788 / /dev/shm rw,nosuid,nodev,noexec,relatime - tmpfs shm rw,size=65536k,inode64",
+        "10762 10112 0:787 / /var/run/secrets/kubernetes.io/serviceaccount ro,relatime - tmpfs tmpfs rw,size=4194304k,inode64",
+        "5630 10113 0:884 /bus /proc/bus ro,nosuid,nodev,noexec,relatime - proc proc rw",
+        "5631 10113 0:884 /fs /proc/fs ro,nosuid,nodev,noexec,relatime - proc proc rw",
+        "5632 10113 0:884 /irq /proc/irq ro,nosuid,nodev,noexec,relatime - proc proc rw",
+        "5633 10113 0:884 /sys /proc/sys ro,nosuid,nodev,noexec,relatime - proc proc rw",
+        "5634 10113 0:931 / /proc/acpi ro,relatime - tmpfs tmpfs ro,inode64",
+        "5635 10113 0:926 /null /proc/kcore rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755,inode64",
+        "5636 10113 0:926 /null /proc/keys rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755,inode64",
+        "5637 10113 0:926 /null /proc/timer_list rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755,inode64",
+        "5639 10520 0:932 / /sys/firmware ro,relatime - tmpfs tmpfs ro,inode64"
+      ],
+      "/proc/self/cgroup": [
+        "0::/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod121157b5_c67d_4c3e_9052_cb27bbb711fb.slice/cri-containerd-1cd3449e930b8a28c7595240fa32ba20c84f36d059e5fbe63104ad40057992d1.scope"
+      ]
+    },
+    "containerId": "1cd3449e930b8a28c7595240fa32ba20c84f36d059e5fbe63104ad40057992d1",
+    "podId": "121157b5-c67d-4c3e-9052-cb27bbb711fb"
   }
 }
 
