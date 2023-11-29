@@ -44,7 +44,7 @@ function getUseAgentLogs(stdout) {
 }
 
 /**
- * Returns the warnings emitted by the logger
+ * Returns the logs emitted by the agent's logger filtered by level
  * @param {string} stdout
  * @param {string} level
  * @returns {Object[]}

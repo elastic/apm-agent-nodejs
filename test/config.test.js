@@ -20,7 +20,6 @@ const Agent = require('../lib/agent');
 const { MockAPMServer } = require('./_mock_apm_server');
 const { MockLogger } = require('./_mock_logger');
 const { NoopApmClient } = require('../lib/apm-client/noop-apm-client');
-const { findObjInArray } = require('./_utils');
 const { secondsFromDuration } = require('../lib/config/normalizers');
 const {
   getDefaultOptions,
