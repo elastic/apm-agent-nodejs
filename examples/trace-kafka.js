@@ -17,11 +17,19 @@ const apm = require('../').start({
   serviceName: 'example-trace-kafka',
 });
 
+const { Buffer } = require('buffer');
+const { TextEncoder } = require('util');
+
 const { Kafka } = require('kafkajs');
 
 const topic = 'trace-kafka-topic';
 const kafka = new Kafka({ clientId: 'my-app', brokers: ['localhost:9093'] });
 const admin = kafka.admin();
+
+const headerStr = 'value inside buffer';
+const headerEnc = new TextEncoder().encode(headerStr);
+const headerBuf = Buffer.from(headerEnc);
+
 let producer, consumer;
 let messagesConsumed = 0;
 
@@ -37,7 +45,7 @@ async function run() {
     topic,
     messages: [
       { value: 'message 1', headers: { foo: 'bar' } },
-      { value: 'message 2' },
+      { value: 'message 2', headers: { foo: headerBuf } },
       { value: 'message 3' },
     ],
   });
@@ -47,7 +55,7 @@ async function run() {
   await consumer.run({
     eachMessage: async function ({ topic, partition, message }) {
       console.log(`message from topic(${topic}): ${message.value.toString()}`);
-      console.log(`message header ${message.headers}`);
+      console.log(`message header ${message.headers.foo}`);
       messagesConsumed++;
     },
   });
