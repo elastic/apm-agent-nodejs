@@ -20,15 +20,8 @@ const Agent = require('../lib/agent');
 const { MockAPMServer } = require('./_mock_apm_server');
 const { MockLogger } = require('./_mock_logger');
 const { NoopApmClient } = require('../lib/apm-client/noop-apm-client');
-const { secondsFromDuration } = require('../lib/config/normalizers');
-const {
-  getDefaultOptions,
-  ENV_TABLE,
-  DURATION_OPTS,
-} = require('../lib/config/schema');
+const { ENV_TABLE } = require('../lib/config/schema');
 const config = require('../lib/config/config');
-
-const DEFAULTS = getDefaultOptions();
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
 // that is unhelpful for these tests.
