@@ -565,9 +565,11 @@ aws-sdk:
     - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
   node: '>=14'
   # Test v3.15.0, current latest and 5 versions in between.
+  # - 3.377.0 was a bad release (https://github.com/open-telemetry/opentelemetry-js-contrib/issues/1828#issuecomment-1834276719)
   update-versions:
     mode: max-5
     include: '>=3.15.0 <4'
+    exclude: '3.377.0'
 
 '@aws-sdk/client-dynamodb':
   versions: '3.15.0 || 3.74.0 || 3.183.0 || 3.266.0 || 3.348.0 || 3.445.0 || ^3.454.0'
