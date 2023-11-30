@@ -431,12 +431,13 @@ const testFixtures = [
     env: {
       ELASTIC_APM_ABORTED_ERROR_THRESHOLD: '10s',
       ELASTIC_APM_API_REQUEST_TIME: '1m',
-      ELASTIC_APM_METRICS_INTERVAL: '500ms',
       ELASTIC_APM_EXIT_SPAN_MIN_DURATION: 'bogus',
+      ELASTIC_APM_METRICS_INTERVAL: '500ms',
       TEST_APM_START_OPTIONS: JSON.stringify({
         serverTimeout: 30,
         spanCompressionExactMatchMaxDuration: '200',
         spanCompressionSameKindMaxDuration: '-100ms',
+        spanStackTraceMinDuration: '-1s',
       }),
     },
     checkScriptResult: (t, err, stdout) => {
@@ -495,6 +496,11 @@ const testFixtures = [
         warnLogs[2].message,
         'invalid duration value "-100ms" for "spanCompressionSameKindMaxDuration" config option: using default "0ms"',
         'agent warns about a bogus value in the configuration',
+      );
+      t.equal(
+        resolvedConfig.spanStackTraceMinDuration,
+        -1,
+        'allowed negative are parsed correctly',
       );
     },
   },
