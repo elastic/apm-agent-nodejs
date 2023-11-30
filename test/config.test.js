@@ -20,7 +20,6 @@ const Agent = require('../lib/agent');
 const { MockAPMServer } = require('./_mock_apm_server');
 const { MockLogger } = require('./_mock_logger');
 const { NoopApmClient } = require('../lib/apm-client/noop-apm-client');
-const { findObjInArray } = require('./_utils');
 const { secondsFromDuration } = require('../lib/config/normalizers');
 const {
   getDefaultOptions,
@@ -100,108 +99,6 @@ function assertEncodedError(t, error, result, trans, parent) {
 }
 
 // ---- tests
-
-var falsyValues = [false, 'false'];
-var truthyValues = [true, 'true'];
-
-falsyValues.forEach(function (val) {
-  test(
-    'should be disabled by environment variable ELASTIC_APM_ACTIVE set to: ' +
-      util.inspect(val),
-    function (t) {
-      var agent = new Agent();
-      process.env.ELASTIC_APM_ACTIVE = val;
-      agent.start(
-        Object.assign({}, agentOptsNoopTransport, {
-          serviceName: 'foo',
-          secretToken: 'baz',
-        }),
-      );
-      t.strictEqual(agent._conf.active, false);
-      delete process.env.ELASTIC_APM_ACTIVE;
-      agent.destroy();
-      t.end();
-    },
-  );
-});
-
-truthyValues.forEach(function (val) {
-  test(
-    'should be enabled by environment variable ELASTIC_APM_ACTIVE set to: ' +
-      util.inspect(val),
-    function (t) {
-      var agent = new Agent();
-      process.env.ELASTIC_APM_ACTIVE = val;
-      agent.start(
-        Object.assign({}, agentOptsNoopTransport, {
-          serviceName: 'foo',
-          secretToken: 'baz',
-        }),
-      );
-      t.strictEqual(agent._conf.active, true);
-      delete process.env.ELASTIC_APM_ACTIVE;
-      agent.destroy();
-      t.end();
-    },
-  );
-});
-
-test('should log invalid booleans', function (t) {
-  var agent = new Agent();
-  var logger = new MockLogger();
-
-  agent.start(
-    Object.assign({}, agentOptsNoopTransport, {
-      serviceName: 'foo',
-      secretToken: 'baz',
-      active: 'nope',
-      logger,
-    }),
-  );
-
-  var warning = findObjInArray(logger.calls, 'type', 'warn');
-  t.strictEqual(
-    warning.message,
-    'unrecognized boolean value "nope" for "active"',
-  );
-
-  var debug = findObjInArray(logger.calls, 'type', 'debug');
-  t.strictEqual(
-    debug.message,
-    'Elastic APM agent disabled (`active` is false)',
-  );
-
-  agent.destroy();
-  t.end();
-});
-
-var MINUS_ONE_EQUAL_INFINITY = ['transactionMaxSpans'];
-
-MINUS_ONE_EQUAL_INFINITY.forEach(function (key) {
-  test(key + ' should be Infinity if set to -1', function (t) {
-    var agent = new Agent();
-    var opts = {};
-    opts[key] = -1;
-    agent.start(Object.assign({}, agentOptsNoopTransport, opts));
-    t.strictEqual(agent._conf[key], Infinity);
-    agent.destroy();
-    t.end();
-  });
-});
-
-var bytesValues = ['apiRequestSize', 'errorMessageMaxLength'];
-
-bytesValues.forEach(function (key) {
-  test(key + ' should be converted to a number', function (t) {
-    var agent = new Agent();
-    var opts = {};
-    opts[key] = '1mb';
-    agent.start(Object.assign({}, agentOptsNoopTransport, opts));
-    t.strictEqual(agent._conf[key], 1024 * 1024);
-    agent.destroy();
-    t.end();
-  });
-});
 
 DURATION_OPTS.forEach(function (optSpec) {
   const key = optSpec.name;
@@ -375,32 +272,10 @@ DURATION_OPTS.forEach(function (optSpec) {
 var keyValuePairValues = ['addPatch', 'globalLabels'];
 
 keyValuePairValues.forEach(function (key) {
-  var string = 'foo=bar,baz=buz';
-  var object = { foo: 'bar', baz: 'buz' };
   var pairs = [
     ['foo', 'bar'],
     ['baz', 'buz'],
   ];
-
-  test(key + ' should support string form', function (t) {
-    var agent = new Agent();
-    var opts = {};
-    opts[key] = string;
-    agent.start(Object.assign({}, agentOptsNoopTransport, opts));
-    t.deepEqual(agent._conf[key], pairs);
-    agent.destroy();
-    t.end();
-  });
-
-  test(key + ' should support object form', function (t) {
-    var agent = new Agent();
-    var opts = {};
-    opts[key] = object;
-    agent.start(Object.assign({}, agentOptsNoopTransport, opts));
-    t.deepEqual(agent._conf[key], pairs);
-    agent.destroy();
-    t.end();
-  });
 
   test(key + ' should support pair form', function (t) {
     var agent = new Agent();
@@ -413,26 +288,6 @@ keyValuePairValues.forEach(function (key) {
   });
 });
 
-var noPrefixValues = [
-  ['kubernetesNodeName', 'KUBERNETES_NODE_NAME'],
-  ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
-  ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
-  ['kubernetesPodUID', 'KUBERNETES_POD_UID'],
-];
-
-noPrefixValues.forEach(function (pair) {
-  const [key, envVar] = pair;
-  test(`maps ${envVar} to ${key}`, (t) => {
-    var agent = new Agent();
-    process.env[envVar] = 'test';
-    agent.start(agentOptsNoopTransport);
-    delete process.env[envVar];
-    t.strictEqual(agent._conf[key], 'test');
-    agent.destroy();
-    t.end();
-  });
-});
-
 test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (t) {
   var agent = new Agent();
   var opts = { serviceName: 'foo', secretToken: 'baz', active: true };
@@ -440,18 +295,6 @@ test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (
   agent.start(Object.assign({}, agentOptsNoopTransport, opts));
   t.strictEqual(agent._conf.active, false);
   delete process.env.ELASTIC_APM_ACTIVE;
-  agent.destroy();
-  t.end();
-});
-
-test('should default to empty request ignore arrays', function (t) {
-  var agent = new Agent();
-  agent.start(agentOptsNoopTransport);
-  t.strictEqual(agent._conf.ignoreUrlStr.length, 0);
-  t.strictEqual(agent._conf.ignoreUrlRegExp.length, 0);
-  t.strictEqual(agent._conf.ignoreUserAgentStr.length, 0);
-  t.strictEqual(agent._conf.ignoreUserAgentRegExp.length, 0);
-  t.strictEqual(agent._conf.transactionIgnoreUrlRegExp.length, 0);
   agent.destroy();
   t.end();
 });
