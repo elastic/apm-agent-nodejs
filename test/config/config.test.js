@@ -342,8 +342,10 @@ const testFixtures = [
         'Elastic APM agent disabled (`active` is false)',
         'got a debug log about agent disabled',
       );
-      // XXX: normalization turns this value to `undefined` because "bogus"
-      // is not a boolean. Do we want to keep it that way?
+      // TODO: normalization turns this value to `undefined` because "bogus"
+      // is not a boolean. This is not what should happen according to the specs
+      // so we need to change this behaviour
+      // https://github.com/elastic/apm/blob/main/specs/agents/configuration.md#invalid-configuration-values
       t.equal(
         resolvedConfig.active,
         undefined,
@@ -418,6 +420,87 @@ const testFixtures = [
         resolvedConfig.addPatch,
         pairs,
         'addPatch is parsed correctly from start options (object)',
+      );
+    },
+  },
+  {
+    name: 'use agent - should support duration options',
+    script: 'fixtures/use-agent.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    env: {
+      ELASTIC_APM_ABORTED_ERROR_THRESHOLD: '10s',
+      ELASTIC_APM_API_REQUEST_TIME: '1m',
+      ELASTIC_APM_EXIT_SPAN_MIN_DURATION: 'bogus',
+      ELASTIC_APM_METRICS_INTERVAL: '500ms',
+      TEST_APM_START_OPTIONS: JSON.stringify({
+        serverTimeout: 30,
+        spanCompressionExactMatchMaxDuration: '200',
+        spanCompressionSameKindMaxDuration: '-100ms',
+        spanStackTraceMinDuration: '-1s',
+      }),
+    },
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `use-agent.js script succeeded: err=${err}`);
+      const useAgentLogs = getUseAgentLogs(stdout);
+      const warnLogs = getApmLogs(stdout, 'warn');
+      const resolvedConfig = JSON.parse(useAgentLogs[2]);
+
+      t.equal(
+        resolvedConfig.abortedErrorThreshold,
+        10,
+        'seconds are parsed correcly',
+      );
+      t.equal(
+        resolvedConfig.apiRequestTime,
+        60,
+        'minutes are converted to seconds',
+      );
+      t.equal(
+        resolvedConfig.metricsInterval,
+        0.5,
+        'miliseconds are converted to seconds',
+      );
+      t.equal(
+        resolvedConfig.serverTimeout,
+        30,
+        'number value is accepted with default unit',
+      );
+      t.equal(
+        resolvedConfig.exitSpanMinDuration,
+        0,
+        'bogus value is not accepted and used default instead',
+      );
+      t.equal(
+        warnLogs[0].message,
+        'invalid duration value "bogus" for "exitSpanMinDuration" config option: using default "0ms"',
+        'agent warns about a bogus value in the configuration',
+      );
+      t.equal(
+        resolvedConfig.spanCompressionExactMatchMaxDuration,
+        0.2,
+        'string value with no unit is accepted with default unit',
+      );
+      t.equal(
+        warnLogs[1].message,
+        'units missing in duration value "200" for "spanCompressionExactMatchMaxDuration" config option: using default units "ms"',
+        'agent warns about a bogus value in the configuration',
+      );
+
+      t.equal(
+        resolvedConfig.spanCompressionSameKindMaxDuration,
+        0,
+        'not allowed negative values fallback into the default value',
+      );
+      t.equal(
+        warnLogs[2].message,
+        'invalid duration value "-100ms" for "spanCompressionSameKindMaxDuration" config option: using default "0ms"',
+        'agent warns about a bogus value in the configuration',
+      );
+      t.equal(
+        resolvedConfig.spanStackTraceMinDuration,
+        -1,
+        'allowed negative are parsed correctly',
       );
     },
   },
