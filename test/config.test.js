@@ -13,7 +13,6 @@ var os = require('os');
 var path = require('path');
 var util = require('util');
 
-var isRegExp = require('core-util-is').isRegExp;
 var test = require('tape');
 
 const Agent = require('../lib/agent');
