@@ -8,6 +8,8 @@
 
 const { NoopApmClient } = require('../../../lib/apm-client/noop-apm-client');
 
+const { replacer, reviver } = require('../_json-utils');
+
 const APM_START_OPTIONS = {
   transport: () => new NoopApmClient(),
 };
@@ -16,7 +18,7 @@ const APM_START_OPTIONS = {
 if (process.env.TEST_APM_START_OPTIONS) {
   Object.assign(
     APM_START_OPTIONS,
-    JSON.parse(process.env.TEST_APM_START_OPTIONS),
+    JSON.parse(process.env.TEST_APM_START_OPTIONS, reviver),
   );
 }
 // this prefix will be used to get info from the test suite
@@ -30,12 +32,6 @@ const APM_ENV_OPTIONS = Object.keys(process.env).reduce((acc, key) => {
   }
   return acc;
 }, {});
-
-// Make sure values like Infinity are passe back to test
-// TODO: check if necessary to add NaN and others
-function replacer(key, value) {
-  return value === Infinity ? 'Infinity' : value;
-}
 
 // Report options passed by env
 console.log(`${logPrefix}${JSON.stringify(APM_ENV_OPTIONS, replacer)}`);

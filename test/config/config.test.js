@@ -12,6 +12,7 @@ const { normalize } = require('../../lib/config/config');
 const { CONFIG_SCHEMA, getDefaultOptions } = require('../../lib/config/schema');
 
 const { runTestFixtures } = require('../_utils');
+const { reviver, replacer } = require('./_json-utils.js');
 
 const defaultOptions = getDefaultOptions();
 
@@ -301,7 +302,6 @@ const testFixtures = [
     },
     checkScriptResult: (t, err, stdout) => {
       t.error(err, `use-agent.js script succeeded: err=${err}`);
-      const reviver = (k, v) => (v === 'Infinity' ? Infinity : v);
       const useAgentLogs = getUseAgentLogs(stdout);
       const resolvedConfig = JSON.parse(useAgentLogs[2], reviver);
       const warnLogs = getApmLogs(stdout, 'warn');
@@ -392,7 +392,7 @@ const testFixtures = [
     },
   },
   {
-    name: 'use agent - should support ket/value pairs formats',
+    name: 'use agent - should support key/value pairs formats (string & object)',
     script: 'fixtures/use-agent.js',
     cwd: __dirname,
     noConvenienceConfig: true,
@@ -420,6 +420,35 @@ const testFixtures = [
         resolvedConfig.addPatch,
         pairs,
         'addPatch is parsed correctly from start options (object)',
+      );
+    },
+  },
+  {
+    name: 'use agent - should support key/value pairs formats (array)',
+    script: 'fixtures/use-agent.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    env: {
+      TEST_APM_START_OPTIONS: JSON.stringify({
+        globalLabels: [
+          ['foo', 'bar'],
+          ['baz', 'buz'],
+        ],
+      }),
+    },
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `use-agent.js script succeeded: err=${err}`);
+      const useAgentLogs = getUseAgentLogs(stdout);
+      const resolvedConfig = JSON.parse(useAgentLogs[2]);
+      const pairs = [
+        ['foo', 'bar'],
+        ['baz', 'buz'],
+      ];
+
+      t.deepEqual(
+        resolvedConfig.globalLabels,
+        pairs,
+        'globalLabels is parsed correctly from environment (array)',
       );
     },
   },
@@ -501,6 +530,69 @@ const testFixtures = [
         resolvedConfig.spanStackTraceMinDuration,
         -1,
         'allowed negative are parsed correctly',
+      );
+    },
+  },
+  {
+    name: 'use agent - should support string, regex & wildcards in ignore options',
+    script: 'fixtures/use-agent.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    env: {
+      ELASTIC_APM_TRANSACTION_IGNORE_URLS: 'foo,bar,/wil*card',
+      ELASTIC_APM_ELASTICSEARCH_CAPTURE_BODY_URLS: '*/_search,*/_eql/search',
+      TEST_APM_START_OPTIONS: JSON.stringify(
+        {
+          ignoreUrls: ['str1', /regex1/],
+          ignoreUserAgents: ['str2', /regex2/],
+        },
+        replacer,
+      ),
+    },
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `use-agent.js script succeeded: err=${err}`);
+      const useAgentLogs = getUseAgentLogs(stdout);
+      const resolvedConfig = JSON.parse(useAgentLogs[2], reviver);
+
+      t.deepEqual(
+        resolvedConfig.transactionIgnoreUrls,
+        ['foo', 'bar', '/wil*card'],
+        'transactionIgnoreUrls is parsed correctly from environment (wildcards)',
+      );
+      t.deepEqual(
+        resolvedConfig.transactionIgnoreUrlRegExp,
+        [/^foo$/i, /^bar$/i, /^\/wil.*card$/i],
+        'transactionIgnoreUrlRegExp is parsed correctly from environment (wildcards)',
+      );
+      t.deepEqual(
+        resolvedConfig.elasticsearchCaptureBodyUrls,
+        ['*/_search', '*/_eql/search'],
+        'elasticsearchCaptureBodyUrls is parsed correctly from environment (wildcards)',
+      );
+      t.deepEqual(
+        resolvedConfig.elasticsearchCaptureBodyUrlsRegExp,
+        [/^.*\/_search$/i, /^.*\/_eql\/search$/i],
+        'elasticsearchCaptureBodyUrls is parsed correctly from environment (wildcards)',
+      );
+      t.deepEqual(
+        resolvedConfig.ignoreUrlStr,
+        ['str1'],
+        'string items of ignoreUrl are added to the right config (ignoreUrlStr)',
+      );
+      t.deepEqual(
+        resolvedConfig.ignoreUrlRegExp,
+        [/regex1/],
+        'regexp items of ignoreUrl are added to the right config (ignoreUrlRegExp)',
+      );
+      t.deepEqual(
+        resolvedConfig.ignoreUserAgentStr,
+        ['str2'],
+        'string items of ignoreUserAgents are added to the right config (ignoreUserAgentStr)',
+      );
+      t.deepEqual(
+        resolvedConfig.ignoreUserAgentRegExp,
+        [/regex2/],
+        'regexp items of ignoreUserAgents are added to the right config (ignoreUserAgentRegExp)',
       );
     },
   },
