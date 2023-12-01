@@ -19,6 +19,12 @@ fi
 set -o errexit
 set -o pipefail
 
+# Make sure we have json package
+jsonPath=$(which json)
+if [ "$jsonPath" == "" ]; then
+    npm i -g json
+fi
+
 branch=main
 latestCompletedTavRun=$(gh run list -R elastic/apm-agent-nodejs -b "$branch" -w TAV -L5 --json status,databaseId | json -c 'this.status==="completed"' | json 0.databaseId)
 gh api --paginate repos/elastic/apm-agent-nodejs/actions/runs/$latestCompletedTavRun/jobs \
