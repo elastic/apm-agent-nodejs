@@ -51,6 +51,7 @@ const apm = require('../../../../..').start({
 const assert = require('assert');
 const crypto = require('crypto');
 
+process.env.AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE = 1;
 const AWS = require('aws-sdk');
 
 const TEST_QUEUE_NAME_PREFIX = 'elasticapmtest-queue-';
@@ -145,7 +146,7 @@ async function useSQS(sqsClient, queueName) {
   for (const attemptNum of [0, 1, 2, 3, 4]) {
     data = await sqsClient.receiveMessage(params).promise();
     log.info({ attemptNum, data }, 'receiveMessage');
-    if (data.Messages) {
+    if (data.Messages && data.Messages.length > 0) {
       data.Messages.forEach((msg) => {
         messages.push(msg);
       });

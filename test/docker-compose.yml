@@ -119,7 +119,7 @@ services:
 
   localstack:
     # https://hub.docker.com/r/localstack/localstack/tags
-    image: localstack/localstack:2.1.0
+    image: localstack/localstack:3.0.0
     environment:
       - "DATA_DIR=/var/lib/localstack"
     ports:

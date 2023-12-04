@@ -45,10 +45,6 @@ function makeARequest(url, opts, cb) {
 // an HTTP server, we manually start a transaction. More details at:
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
 const t0 = apm.startTransaction('t0');
-makeARequest(
-  'http://httpstat.us/200',
-  { headers: { accept: '*/*' } },
-  function () {
-    t0.end();
-  },
-);
+makeARequest('http://google.com/', { headers: { accept: '*/*' } }, function () {
+  t0.end();
+});

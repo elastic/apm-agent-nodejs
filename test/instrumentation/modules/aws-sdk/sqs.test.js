@@ -29,9 +29,9 @@ const {
   shouldIgnoreRequest,
 } = require('../../../../lib/instrumentation/modules/aws-sdk/sqs');
 
-const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost';
-const LOCALSTACK_PORT = 4566;
-const ENDPOINT = 'http://' + LOCALSTACK_HOST + ':' + LOCALSTACK_PORT;
+const localstackHost = process.env.LOCALSTACK_HOST || 'localhost:4566';
+const localstackHostname = localstackHost.split(':')[0];
+const endpoint = 'http://' + localstackHost;
 
 // ---- tests
 
@@ -206,13 +206,13 @@ tape.test('SQS usage scenario', function (t) {
       AWS_ACCESS_KEY_ID: 'fake',
       AWS_SECRET_ACCESS_KEY: 'fake',
       TEST_QUEUE_NAME: 'elasticapmtest-queue-1',
-      TEST_ENDPOINT: ENDPOINT,
+      TEST_ENDPOINT: endpoint,
       TEST_REGION: 'us-east-2',
     };
     t.comment(
       'executing test script with this env: ' + JSON.stringify(additionalEnv),
     );
-    console.time && console.time('exec use-s3');
+    console.time && console.time('exec use-sqs');
     execFile(
       process.execPath,
       ['fixtures/use-sqs.js'],
@@ -223,7 +223,7 @@ tape.test('SQS usage scenario', function (t) {
         env: Object.assign({}, process.env, additionalEnv),
       },
       function done(err, stdout, stderr) {
-        console.timeLog && console.timeLog('exec use-s3');
+        console.timeLog && console.timeLog('exec use-sqs');
         t.error(err, 'use-sqs.js did not error out');
         if (err) {
           t.comment('err: ' + util.inspect(err));
@@ -309,7 +309,7 @@ tape.test('SQS usage scenario', function (t) {
                 target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' },
               },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: {
@@ -338,7 +338,7 @@ tape.test('SQS usage scenario', function (t) {
                 target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' },
               },
               destination: {
-                address: LOCALSTACK_HOST,
+                address: localstackHostname,
                 port: 4566,
                 cloud: { region: 'us-east-2' },
                 service: {
@@ -384,7 +384,7 @@ tape.test('SQS usage scenario', function (t) {
                     },
                   },
                   destination: {
-                    address: LOCALSTACK_HOST,
+                    address: localstackHostname,
                     port: 4566,
                     cloud: { region: 'us-east-2' },
                     service: {
@@ -415,7 +415,7 @@ tape.test('SQS usage scenario', function (t) {
                     },
                   },
                   destination: {
-                    address: LOCALSTACK_HOST,
+                    address: localstackHostname,
                     port: 4566,
                     cloud: { region: 'us-east-2' },
                     service: {

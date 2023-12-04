@@ -28,14 +28,58 @@ Notes:
         ==== x.x.x - YYYY/MM/DD
 ////
 
-
 [[release-notes-4.x]]
 === Node.js Agent version 4.x
 
 See the <<upgrade-to-v4>> guide.
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Add the <<apm-client-headers>> config option, to allow adding custom headers
+  to HTTP requests made to APM server by the APM agent. ({issues}3759[#3759])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+* Skip undici tests for `undici` `>=5.28.0` and NodeJS `<14.18.0`.
+  ({pull}3755[#3755])
+
+* Change the log level of `Sending error to Elastic APM: ...` from `info` to
+  `debug`. There is no need to clutter the log output with this message.
+  ({issues}3748[#3748])
+
 
 ==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+* Explicitly mark this package as being of type="commonjs". The experimental
+  `node --experimental-default-type=module ...` option
+  https://nodejs.org/en/blog/release/v20.10.0#--experimental-default-type-flag-to-flip-module-defaults[added in Node.js v20.10.0]
+  means that a default to "commonjs" isn't guaranteed.
+
+
+[[release-notes-4.2.0]]
+==== 4.2.0 - 2023/11/23
 
 [float]
 ===== Breaking changes
@@ -55,6 +99,8 @@ See the <<upgrade-to-v4>> guide.
 
 * Add knex@3 instrumentation. ({pull}3659[#3659])
 
+* Update <<opentelemetry-bridge>> support to `@opentelemetry/api` version 1.7.0.
+
 [float]
 ===== Bug fixes
 
@@ -64,10 +110,9 @@ See the <<upgrade-to-v4>> guide.
 * Set `mongodb` span's outcome according to the result of the command being traced.
   ({pull}3695[#3695])
 
-[float]
-===== Chores
-
-* Add script to update TAV versions based on a config. ({pull}3680[#3680])
+* Fix `@aws-sdk/client-sqs` instrumentation which was failing for `SendMessageBatch`
+  command when any of the entities does not contain `MessageAttributes`.
+  ({issues}3746[#3746])
 
 
 [[release-notes-4.1.0]]

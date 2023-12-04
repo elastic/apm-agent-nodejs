@@ -250,7 +250,7 @@ function quoteEnv(env) {
  * @property {boolean} [noConvenienceConfig] By default this runner sets the
  *    `ELASTIC_APM_` envvars to disable central config, cloud metadata lookup,
  *    metrics, and the capturing of exceptions. The intent is to have a quieter
- *    and more helpful default for writing tests. Set this to `false` to disable
+ *    and more helpful default for writing tests. Set this to `true` to disable
  *    setting those envvars.
  * @property {boolean} [verbose] Set to `true` to include `t.comment()`s showing
  *    the command run and its output. This can be helpful to run the script
