@@ -655,28 +655,7 @@ const testFixtures = [
   },
   {
     name: 'pkg-zero-conf-valid - serviceName/serviceVersion inferred from package.json',
-    script: 'index.js',
-    cwd: path.resolve(__dirname, '../fixtures', 'pkg-zero-conf-valid'),
-    noConvenienceConfig: true,
-    checkScriptResult: (t, err, stdout) => {
-      t.error(err, `pkg-zero-conf-valid/index.js script succeeded: err=${err}`);
-      const lines = stdout.trim().split('\n');
-      const conf = JSON.parse(lines[lines.length - 1]);
-      t.equal(
-        conf.serviceName,
-        'validName',
-        'serviceName was inferred from package.json',
-      );
-      t.equal(
-        conf.serviceVersion,
-        '1.2.3',
-        'serviceVersion was inferred from package.json',
-      );
-    },
-  },
-  {
-    name: 'pkg-zero-conf-valid - serviceName/serviceVersion inferred from package.json even if cwd is out the package tree',
-    script: path.resolve(__dirname, '../fixtures/pkg-zero-conf-valid/index.js'),
+    script: 'fixtures/pkg-zero-conf-valid/index.js',
     cwd: __dirname,
     noConvenienceConfig: true,
     checkScriptResult: (t, err, stdout) => {
@@ -696,11 +675,29 @@ const testFixtures = [
     },
   },
   {
+    name: 'pkg-zero-conf-valid - serviceName/serviceVersion inferred from package.json even if cwd is out the package tree',
+    script: path.resolve(__dirname, 'fixtures/pkg-zero-conf-valid/index.js'),
+    cwd: '/',
+    noConvenienceConfig: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `pkg-zero-conf-valid/index.js script succeeded: err=${err}`);
+      const lines = stdout.trim().split('\n');
+      const conf = JSON.parse(lines[lines.length - 1]);
+      t.equal(
+        conf.serviceName,
+        'validName',
+        'serviceName was inferred from package.json',
+      );
+      t.equal(
+        conf.serviceVersion,
+        '1.2.3',
+        'serviceVersion was inferred from package.json',
+      );
+    },
+  },
+  {
     name: 'pkg-zero-conf-noname - serviceName/serviceVersion inferred from package.json even if there is no "name"',
-    script: path.resolve(
-      __dirname,
-      '../fixtures/pkg-zero-conf-noname/index.js',
-    ),
+    script: 'fixtures/pkg-zero-conf-noname/index.js',
     cwd: __dirname,
     noConvenienceConfig: true,
     checkScriptResult: (t, err, stdout) => {
@@ -726,10 +723,7 @@ const testFixtures = [
   // a normalized serviceName='ns-name'.
   {
     name: 'pkg-zero-conf-nsname - serviceName/serviceVersion inferred from namespaced package',
-    script: path.resolve(
-      __dirname,
-      '../fixtures/pkg-zero-conf-nsname/index.js',
-    ),
+    script: 'fixtures/pkg-zero-conf-nsname/index.js',
     cwd: __dirname,
     noConvenienceConfig: true,
     checkScriptResult: (t, err, stdout) => {
@@ -753,10 +747,7 @@ const testFixtures = [
   },
   {
     name: 'pkg-zero-conf-sanitize - serviceName/serviceVersion inferred package.json and sanitized',
-    script: path.resolve(
-      __dirname,
-      '../fixtures/pkg-zero-conf-sanitize/index.js',
-    ),
+    script: 'fixtures/pkg-zero-conf-sanitize/index.js',
     cwd: __dirname,
     noConvenienceConfig: true,
     checkScriptResult: (t, err, stdout) => {
@@ -785,7 +776,7 @@ const testFixtures = [
   },
   {
     name: 'pkg-zero-conf-weird - serviceName/serviceVersion inferred package.json and weirdd',
-    script: path.resolve(__dirname, '../fixtures/pkg-zero-conf-weird/index.js'),
+    script: 'fixtures/pkg-zero-conf-weird/index.js',
     cwd: __dirname,
     noConvenienceConfig: true,
     checkScriptResult: (t, err, stdout) => {
