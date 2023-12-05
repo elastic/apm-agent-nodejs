@@ -6,11 +6,7 @@
 
 'use strict';
 
-var cp = require('child_process');
-var fs = require('fs');
 var IncomingMessage = require('http').IncomingMessage;
-var os = require('os');
-var path = require('path');
 var util = require('util');
 
 var test = require('tape');
