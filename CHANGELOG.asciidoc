@@ -33,10 +33,9 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
-==== Unreleased
 
-[float]
-===== Breaking changes
+[[release-notes-4.3.0]]
+==== 4.3.0 - 2023/12/05
 
 [float]
 ===== Features
@@ -47,6 +46,9 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Bug fixes
 
+* Fix the dependency version range for `@elastic/ecs-pino-format`.
+  ({issues}3774[#3774])
+
 [float]
 ===== Chores
 
@@ -56,21 +58,6 @@ See the <<upgrade-to-v4>> guide.
 * Change the log level of `Sending error to Elastic APM: ...` from `info` to
   `debug`. There is no need to clutter the log output with this message.
   ({issues}3748[#3748])
-
-
-==== Unreleased
-
-[float]
-===== Breaking changes
-
-[float]
-===== Features
-
-[float]
-===== Bug fixes
-
-[float]
-===== Chores
 
 * Explicitly mark this package as being of type="commonjs". The experimental
   `node --experimental-default-type=module ...` option
