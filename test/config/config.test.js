@@ -6,6 +6,8 @@
 
 'use strict';
 
+const path = require('path');
+
 const test = require('tape');
 
 const { normalize } = require('../../lib/config/config');
@@ -593,6 +595,101 @@ const testFixtures = [
         resolvedConfig.ignoreUserAgentRegExp,
         [/regex2/],
         'regexp items of ignoreUserAgents are added to the right config (ignoreUserAgentRegExp)',
+      );
+    },
+  },
+  {
+    name: 'use agent - should not be active if the service name is invalid',
+    script: 'fixtures/use-agent.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    env: {
+      ELASTIC_APM_SERVICE_NAME: 'foo&bar',
+    },
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `use-agent.js script succeeded: err=${err}`);
+      const useAgentLogs = getUseAgentLogs(stdout);
+      const agentErrors = getApmLogs(stdout, 'error');
+      const resolvedConfig = JSON.parse(useAgentLogs[2], reviver);
+
+      t.equal(
+        agentErrors[0].message,
+        'serviceName "foo&bar" is invalid: contains invalid characters (allowed: a-z, A-Z, 0-9, _, -, <space>)',
+        'agent shows an error about the bogs service name',
+      );
+      t.equal(
+        agentErrors[1].message,
+        'Elastic APM is incorrectly configured: Missing serviceName (APM will be disabled)',
+        'agent shows an message telling it will be disabled',
+      );
+      t.equal(
+        resolvedConfig.active,
+        false,
+        'active property of configuration is false',
+      );
+    },
+  },
+  {
+    name: 'use agent - should be active if the service name valid',
+    script: 'fixtures/use-agent.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    env: {
+      ELASTIC_APM_SERVICE_NAME: 'fooBAR0123456789_- ',
+    },
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `use-agent.js script succeeded: err=${err}`);
+      const useAgentLogs = getUseAgentLogs(stdout);
+      const agentErrors = getApmLogs(stdout, 'error');
+      const resolvedConfig = JSON.parse(useAgentLogs[2], reviver);
+
+      t.equal(agentErrors.length, 0, 'agent shows no errors');
+      t.equal(
+        resolvedConfig.active,
+        true,
+        'active property of configuration is true',
+      );
+    },
+  },
+  {
+    name: 'pkg-zero-conf-valid - serviceName/serviceVersion inferred from package.json',
+    script: 'index.js',
+    cwd: path.resolve(__dirname, '../fixtures', 'pkg-zero-conf-valid'),
+    noConvenienceConfig: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `pkg-zero-conf-valid/index.js script succeeded: err=${err}`);
+      const lines = stdout.trim().split('\n');
+      const conf = JSON.parse(lines[lines.length - 1]);
+      t.equal(
+        conf.serviceName,
+        'validName',
+        'serviceName was inferred from package.json',
+      );
+      t.equal(
+        conf.serviceVersion,
+        '1.2.3',
+        'serviceVersion was inferred from package.json',
+      );
+    },
+  },
+  {
+    name: 'pkg-zero-conf-valid - serviceName/serviceVersion inferred from package.json even in cwd is out the package tree',
+    script: path.resolve(__dirname, '../fixtures/pkg-zero-conf-valid/index.js'),
+    cwd: '/',
+    noConvenienceConfig: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `pkg-zero-conf-valid/index.js script succeeded: err=${err}`);
+      const lines = stdout.trim().split('\n');
+      const conf = JSON.parse(lines[lines.length - 1]);
+      t.equal(
+        conf.serviceName,
+        'validName',
+        'serviceName was inferred from package.json',
+      );
+      t.equal(
+        conf.serviceVersion,
+        '1.2.3',
+        'serviceVersion was inferred from package.json',
       );
     },
   },
