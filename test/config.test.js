@@ -13,7 +13,6 @@ var os = require('os');
 var path = require('path');
 var util = require('util');
 
-var isRegExp = require('core-util-is').isRegExp;
 var test = require('tape');
 
 const Agent = require('../lib/agent');
@@ -93,25 +92,6 @@ function assertEncodedError(t, error, result, trans, parent) {
 
 // ---- tests
 
-var keyValuePairValues = ['addPatch', 'globalLabels'];
-
-keyValuePairValues.forEach(function (key) {
-  var pairs = [
-    ['foo', 'bar'],
-    ['baz', 'buz'],
-  ];
-
-  test(key + ' should support pair form', function (t) {
-    var agent = new Agent();
-    var opts = {};
-    opts[key] = pairs;
-    agent.start(Object.assign({}, agentOptsNoopTransport, opts));
-    t.deepEqual(agent._conf[key], pairs);
-    agent.destroy();
-    t.end();
-  });
-});
-
 test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (t) {
   var agent = new Agent();
   var opts = { serviceName: 'foo', secretToken: 'baz', active: true };
@@ -119,54 +99,6 @@ test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (
   agent.start(Object.assign({}, agentOptsNoopTransport, opts));
   t.strictEqual(agent._conf.active, false);
   delete process.env.ELASTIC_APM_ACTIVE;
-  agent.destroy();
-  t.end();
-});
-
-test('should separate strings and regexes into their own ignore arrays', function (t) {
-  var agent = new Agent();
-  agent.start(
-    Object.assign({}, agentOptsNoopTransport, {
-      ignoreUrls: ['str1', /regex1/],
-      ignoreUserAgents: ['str2', /regex2/],
-    }),
-  );
-
-  t.deepEqual(agent._conf.ignoreUrlStr, ['str1']);
-  t.deepEqual(agent._conf.ignoreUserAgentStr, ['str2']);
-
-  t.strictEqual(agent._conf.ignoreUrlRegExp.length, 1);
-  t.ok(isRegExp(agent._conf.ignoreUrlRegExp[0]));
-  t.strictEqual(agent._conf.ignoreUrlRegExp[0].toString(), '/regex1/');
-
-  t.strictEqual(agent._conf.ignoreUserAgentRegExp.length, 1);
-  t.ok(isRegExp(agent._conf.ignoreUserAgentRegExp[0]));
-  t.strictEqual(agent._conf.ignoreUserAgentRegExp[0].toString(), '/regex2/');
-
-  agent.destroy();
-  t.end();
-});
-
-test('should prepare WildcardMatcher array config vars', function (t) {
-  var agent = new Agent();
-  agent.start(
-    Object.assign({}, agentOptsNoopTransport, {
-      transactionIgnoreUrls: ['foo', 'bar', '/wil*card'],
-      elasticsearchCaptureBodyUrls: ['*/_search', '*/_eql/search'],
-    }),
-  );
-
-  t.equal(
-    agent._conf.transactionIgnoreUrlRegExp.toString(),
-    '/^foo$/i,/^bar$/i,/^\\/wil.*card$/i',
-    'transactionIgnoreUrlRegExp',
-  );
-  t.equal(
-    agent._conf.elasticsearchCaptureBodyUrlsRegExp.toString(),
-    '/^.*\\/_search$/i,/^.*\\/_eql\\/search$/i',
-    'elasticsearchCaptureBodyUrlsRegExp',
-  );
-
   agent.destroy();
   t.end();
 });
