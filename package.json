@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "The official Elastic APM agent for Node.js",
   "type": "commonjs",
   "main": "index.js",
@@ -87,7 +87,7 @@
   },
   "homepage": "https://github.com/elastic/apm-agent-nodejs",
   "dependencies": {
-    "@elastic/ecs-pino-format": "^1.4.0",
+    "@elastic/ecs-pino-format": "^1.5.0",
     "@opentelemetry/api": "^1.4.1",
     "@opentelemetry/core": "^1.11.0",
     "@opentelemetry/sdk-metrics": "^1.12.0",
@@ -105,7 +105,7 @@
     "fast-safe-stringify": "^2.0.7",
     "fast-stream-to-buffer": "^1.0.0",
     "http-headers": "^3.0.2",
-    "import-in-the-middle": "1.4.2",
+    "import-in-the-middle": "1.5.0",
     "json-bigint": "^1.0.0",
     "lru-cache": "^10.0.1",
     "measured-reporting": "^1.51.1",
@@ -175,6 +175,7 @@
     "https-pem": "^3.0.0",
     "ioredis": "^5.1.0",
     "js-yaml": "^4.1.0",
+    "json": "^11.0.0",
     "kafkajs": "^2.2.4",
     "knex": "^3.0.1",
     "koa": "^2.11.0",

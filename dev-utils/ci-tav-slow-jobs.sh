@@ -19,11 +19,22 @@ fi
 set -o errexit
 set -o pipefail
 
+json=./node_modules/.bin/json
+if [ ! -f "$json" ]; then
+    echo "Requirements:"
+    echo "   - install npm dependencies"
+    echo "   - cd into root folder of the project"
+    echo "Usage:"
+    echo "   ./dev-utils/ci-tav-slow-jobs.sh"
+    exit 1;
+fi
+
+
 branch=main
-latestCompletedTavRun=$(gh run list -R elastic/apm-agent-nodejs -b "$branch" -w TAV -L5 --json status,databaseId | json -c 'this.status==="completed"' | json 0.databaseId)
+latestCompletedTavRun=$(gh run list -R elastic/apm-agent-nodejs -b "$branch" -w TAV -L5 --json status,databaseId | $json -c 'this.status==="completed"' | $json 0.databaseId)
 gh api --paginate repos/elastic/apm-agent-nodejs/actions/runs/$latestCompletedTavRun/jobs \
-    | json -ga jobs \
-    | json -ga -e '
+    | $json -ga jobs \
+    | $json -ga -e '
         this.s = (new Date(this.completed_at || Date.now()) - new Date(this.started_at)) / 1000;
         this.minSec = Math.floor(this.s/60) + "m" + (this.s%60).toString().padStart(2,"0").slice(0,2) + "s"
         ' s minSec name \

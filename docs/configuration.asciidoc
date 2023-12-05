@@ -945,7 +945,7 @@ The value should include a time suffix ('m' for minutes, 's' for seconds, or
 [[apm-client-headers]]
 ==== `apmClientHeaders`
 
-[small]#Added in: REPLACEME#
+[small]#Added in: v4.3.0#
 
 * *Type:* Object
 * *Env:* `ELASTIC_APM_APM_CLIENT_HEADERS`
