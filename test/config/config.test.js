@@ -12,7 +12,7 @@ const { normalize } = require('../../lib/config/config');
 const { CONFIG_SCHEMA, getDefaultOptions } = require('../../lib/config/schema');
 
 const { runTestFixtures } = require('../_utils');
-const { reviver, replacer } = require('./_json-utils.js');
+const { reviver, replacer } = require('./json-utils.js');
 
 const defaultOptions = getDefaultOptions();
 
@@ -448,7 +448,7 @@ const testFixtures = [
       t.deepEqual(
         resolvedConfig.globalLabels,
         pairs,
-        'globalLabels is parsed correctly from environment (array)',
+        'globalLabels is parsed correctly from start options (array)',
       );
     },
   },
@@ -577,7 +577,7 @@ const testFixtures = [
       t.deepEqual(
         resolvedConfig.ignoreUrlStr,
         ['str1'],
-        'string items of ignoreUrl are added to the right config (ignoreUrlStr)',
+        'string items of ignoreUrls are added to the right config (ignoreUrlStr)',
       );
       t.deepEqual(
         resolvedConfig.ignoreUrlRegExp,

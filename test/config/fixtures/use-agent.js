@@ -8,7 +8,7 @@
 
 const { NoopApmClient } = require('../../../lib/apm-client/noop-apm-client');
 
-const { replacer, reviver } = require('../_json-utils');
+const { replacer, reviver } = require('../json-utils');
 
 const APM_START_OPTIONS = {
   transport: () => new NoopApmClient(),
