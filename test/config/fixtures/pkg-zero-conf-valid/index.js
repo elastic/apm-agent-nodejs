@@ -4,7 +4,8 @@
  * compliance with the BSD 2-Clause License.
  */
 
-const apm = require('../../..').start({
+const apm = require('../../../..').start({
   disableSend: true,
+  logLevel: 'off',
 });
 console.log(JSON.stringify(apm._conf));
