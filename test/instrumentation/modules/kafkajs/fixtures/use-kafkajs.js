@@ -23,9 +23,7 @@ const { Kafka } = require('kafkajs');
 /** @type {import('kafkajs').Admin} */
 let admin;
 /** @type {import('kafkajs').Consumer} */
-let consumerEach;
-/** @type {import('kafkajs').Consumer} */
-let consumerBatch;
+let consumer;
 /** @type {import('kafkajs').Producer} */
 let producer;
 
@@ -41,12 +39,10 @@ async function useKafkajsClient(kafkaClient, options) {
   const topicBatch = `${topic}-batch`;
   const log = apm.logger.child({
     'event.module': 'kafkajs',
-    topic,
   });
 
   admin = kafkaClient.admin();
-  consumerEach = kafkaClient.consumer({ groupId });
-  consumerBatch = kafkaClient.consumer({ groupId });
+  consumer = kafkaClient.consumer({ groupId });
   producer = kafkaClient.producer();
 
   // Create the topics & subscribe
@@ -57,31 +53,30 @@ async function useKafkajsClient(kafkaClient, options) {
   log.info('createTopics');
 
   await producer.connect();
-  await consumerEach.connect();
-  await consumerEach.subscribe({ topics: [topicEach], fromBeginning: true });
-  await consumerBatch.connect();
-  await consumerBatch.subscribe({ topics: [topicBatch], fromBeginning: true });
+  await consumer.connect();
+  await consumer.subscribe({
+    topics: [topicEach, topicBatch],
+    fromBeginning: true,
+  });
   log.info('all connected');
 
   let eachMessagesConsumed = 0;
   let batchMessagesConsumed = 0;
-  await consumerEach.run({
-    eachMessage: async function ({ topic, message }) {
+  await consumer.run({
+    eachMessage: async function (payload) {
+      const msgTopic = payload.topic;
       log.info(
-        { topic },
-        `each message from topic(${topic}): ${message.value.toString()}`,
+        { topic: msgTopic },
+        `each message from topic(${msgTopic}): ${payload.message.value.toString()}`,
       );
       eachMessagesConsumed++;
     },
-  });
-
-  await consumerBatch.run({
-    eachBatch: async function ({ batch }) {
-      const { topic } = batch;
-      batch.messages.forEach((message) => {
+    eachBatch: async function (payload) {
+      const batchTopic = payload.batch.topic;
+      payload.batch.messages.forEach((message) => {
         log.info(
-          { topic },
-          `batch message from topic(${topic}): ${message.value.toString()}`,
+          { topic: batchTopic },
+          `batch message from topic(${batchTopic}): ${message.value.toString()}`,
         );
         batchMessagesConsumed++;
       });
@@ -90,8 +85,9 @@ async function useKafkajsClient(kafkaClient, options) {
 
   // 1st test trasnsactions for each message received
   // Ensure an APM transaction so spans can happen.
+  let data;
   const eachTx = apm.startTransaction(`manual send to ${topicEach}`);
-  await producer.send({
+  data = await producer.send({
     topic: topicEach,
     messages: [
       { value: 'each message 1', headers: { foo: 'bar' } },
@@ -100,30 +96,34 @@ async function useKafkajsClient(kafkaClient, options) {
     ],
   });
   eachTx.end();
-  log.info({ topic: topicEach }, 'messages sent');
+  log.info({ topic: topicEach, data }, 'messages sent');
 
   const batchTx = apm.startTransaction(`manual send to ${topicBatch}`);
-  await producer.sendBatch({
-    topic: topicBatch,
-    messages: [
-      { value: 'batch message 1', headers: { foo: 'bar' } },
-      { value: 'batch message 2', headers: { foo: Buffer.from('bar') } }, // TODO: traceparent
-      { value: 'batch message 3' },
+  data = await producer.sendBatch({
+    topicMessages: [
+      {
+        topic: topicBatch,
+        messages: [
+          { value: 'batch message 1', headers: { foo: 'bar' } },
+          { value: 'batch message 2', headers: { foo: Buffer.from('bar') } }, // TODO: traceparent
+          { value: 'batch message 3' },
+        ],
+      },
     ],
   });
   batchTx.end();
-  log.info({ topic: topicBatch }, 'batch sent');
+  log.info({ topic: topicBatch, data }, 'batch sent');
 
   try {
     await waitUntil(() => {
+      console.log(eachMessagesConsumed, batchMessagesConsumed);
       return eachMessagesConsumed >= 3 && batchMessagesConsumed >= 3;
     }, 30000);
   } catch (err) {
     log.error(err, ' messages could not be consumed after 30s');
   }
 
-  await consumerEach.disconnect();
-  await consumerBatch.disconnect();
+  await consumer.disconnect();
   await producer.disconnect();
   await admin.deleteTopics({ topics: [topicEach, topicBatch] });
   await admin.disconnect();
