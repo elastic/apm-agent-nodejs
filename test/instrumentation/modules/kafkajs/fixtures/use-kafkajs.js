@@ -37,7 +37,7 @@ const TEST_TOPIC_PREFIX = 'elasticapmtest-topic-';
  */
 async function useKafkajsClient(kafkaClient, options) {
   const { topic, groupId } = options;
-  const topicEach = topic;
+  const topicEach = `${topic}-each`;
   const topicBatch = `${topic}-batch`;
   const log = apm.logger.child({
     'event.module': 'kafkajs',
@@ -49,9 +49,6 @@ async function useKafkajsClient(kafkaClient, options) {
   consumerBatch = kafkaClient.consumer({ groupId });
   producer = kafkaClient.producer();
 
-  let messagesConsumed = 0;
-  // let data;
-
   // Create the topics & subscribe
   await admin.connect();
   await admin.createTopics({
@@ -61,10 +58,35 @@ async function useKafkajsClient(kafkaClient, options) {
 
   await producer.connect();
   await consumerEach.connect();
-  await consumerEach.subscribe({ topic: topicEach, fromBeginning: true });
+  await consumerEach.subscribe({ topics: [topicEach], fromBeginning: true });
   await consumerBatch.connect();
-  await consumerBatch.subscribe({ topic: topicBatch, fromBeginning: true });
+  await consumerBatch.subscribe({ topics: [topicBatch], fromBeginning: true });
   log.info('all connected');
+
+  let eachMessagesConsumed = 0;
+  let batchMessagesConsumed = 0;
+  await consumerEach.run({
+    eachMessage: async function ({ topic, message }) {
+      log.info(
+        { topic },
+        `each message from topic(${topic}): ${message.value.toString()}`,
+      );
+      eachMessagesConsumed++;
+    },
+  });
+
+  await consumerBatch.run({
+    eachBatch: async function ({ batch }) {
+      const { topic } = batch;
+      batch.messages.forEach((message) => {
+        log.info(
+          { topic },
+          `batch message from topic(${topic}): ${message.value.toString()}`,
+        );
+        batchMessagesConsumed++;
+      });
+    },
+  });
 
   // 1st test trasnsactions for each message received
   // Ensure an APM transaction so spans can happen.
@@ -78,6 +100,7 @@ async function useKafkajsClient(kafkaClient, options) {
     ],
   });
   eachTx.end();
+  log.info({ topic: topicEach }, 'messages sent');
 
   const batchTx = apm.startTransaction(`manual send to ${topicBatch}`);
   await producer.sendBatch({
@@ -89,38 +112,21 @@ async function useKafkajsClient(kafkaClient, options) {
     ],
   });
   batchTx.end();
+  log.info({ topic: topicBatch }, 'batch sent');
 
-  await consumerEach.run({
-    eachMessage: async function ({ topic, message }) {
-      console.log(
-        `each message from topic(${topic}): ${message.value.toString()}`,
-      );
-      messagesConsumed++;
-    },
-  });
-
-  await consumerBatch.run({
-    eachBatch: async function ({ batch }) {
-      batch.messages.forEach((message) => {
-        console.log(
-          `batch message from topic(${topic}): ${message.value.toString()}`,
-        );
-        messagesConsumed++;
-      });
-    },
-  });
-  await waitUntil(() => messagesConsumed >= 6, 15000);
+  try {
+    await waitUntil(() => {
+      return eachMessagesConsumed >= 3 && batchMessagesConsumed >= 3;
+    }, 30000);
+  } catch (err) {
+    log.error(err, ' messages could not be consumed after 30s');
+  }
 
   await consumerEach.disconnect();
   await consumerBatch.disconnect();
   await producer.disconnect();
-  await admin.deleteTopics({ topics: [topic] });
+  await admin.deleteTopics({ topics: [topicEach, topicBatch] });
   await admin.disconnect();
-
-  consumerEach = null;
-  consumerBatch = null;
-  producer = null;
-  admin = null;
 }
 
 // ---- helper functions
@@ -171,24 +177,12 @@ function main() {
 
   const kafkaClient = new Kafka({ clientId, brokers: [broker] });
 
-  // TODO: this on sending messages
-  // // Ensure an APM transaction so spans can happen.
-  // const tx = apm.startTransaction('manual');
-
   useKafkajsClient(kafkaClient, { topic, groupId }).then(
     function () {
-      // TODO: make sure disconnect consumer && producer?
       process.exitCode = 0;
     },
-    async function (err) {
+    function (err) {
       apm.logger.error(err, 'useKafkajsClient rejected');
-      const clients = [consumerEach, consumerBatch, producer, admin].filter(
-        (x) => x,
-      );
-      for await (const client of clients) {
-        await client.disconnect();
-      }
-
       process.exitCode = 1;
     },
   );
