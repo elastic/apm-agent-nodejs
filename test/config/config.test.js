@@ -6,13 +6,17 @@
 
 'use strict';
 
+const path = require('path');
+var fs = require('fs');
+var os = require('os');
+
 const test = require('tape');
 
 const { normalize } = require('../../lib/config/config');
 const { CONFIG_SCHEMA, getDefaultOptions } = require('../../lib/config/schema');
 
 const { runTestFixtures } = require('../_utils');
-const { reviver, replacer } = require('./_json-utils.js');
+const { reviver, replacer } = require('./json-utils.js');
 
 const defaultOptions = getDefaultOptions();
 
@@ -448,7 +452,7 @@ const testFixtures = [
       t.deepEqual(
         resolvedConfig.globalLabels,
         pairs,
-        'globalLabels is parsed correctly from environment (array)',
+        'globalLabels is parsed correctly from start options (array)',
       );
     },
   },
@@ -577,7 +581,7 @@ const testFixtures = [
       t.deepEqual(
         resolvedConfig.ignoreUrlStr,
         ['str1'],
-        'string items of ignoreUrl are added to the right config (ignoreUrlStr)',
+        'string items of ignoreUrls are added to the right config (ignoreUrlStr)',
       );
       t.deepEqual(
         resolvedConfig.ignoreUrlRegExp,
@@ -593,6 +597,267 @@ const testFixtures = [
         resolvedConfig.ignoreUserAgentRegExp,
         [/regex2/],
         'regexp items of ignoreUserAgents are added to the right config (ignoreUserAgentRegExp)',
+      );
+    },
+  },
+  {
+    name: 'use agent - should not be active if the service name is invalid',
+    script: 'fixtures/use-agent.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    env: {
+      ELASTIC_APM_SERVICE_NAME: 'foo&bar',
+    },
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `use-agent.js script succeeded: err=${err}`);
+      const useAgentLogs = getUseAgentLogs(stdout);
+      const agentErrors = getApmLogs(stdout, 'error');
+      const resolvedConfig = JSON.parse(useAgentLogs[2], reviver);
+
+      t.equal(
+        agentErrors[0].message,
+        'serviceName "foo&bar" is invalid: contains invalid characters (allowed: a-z, A-Z, 0-9, _, -, <space>)',
+        'agent shows an error about the bogs service name',
+      );
+      t.equal(
+        agentErrors[1].message,
+        'Elastic APM is incorrectly configured: Missing serviceName (APM will be disabled)',
+        'agent shows an message telling it will be disabled',
+      );
+      t.equal(
+        resolvedConfig.active,
+        false,
+        'active property of configuration is false',
+      );
+    },
+  },
+  {
+    name: 'use agent - should be active if the service name valid',
+    script: 'fixtures/use-agent.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    env: {
+      ELASTIC_APM_SERVICE_NAME: 'fooBAR0123456789_- ',
+    },
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `use-agent.js script succeeded: err=${err}`);
+      const useAgentLogs = getUseAgentLogs(stdout);
+      const agentErrors = getApmLogs(stdout, 'error');
+      const resolvedConfig = JSON.parse(useAgentLogs[2], reviver);
+
+      t.equal(agentErrors.length, 0, 'agent shows no errors');
+      t.equal(
+        resolvedConfig.active,
+        true,
+        'active property of configuration is true',
+      );
+    },
+  },
+  {
+    name: 'pkg-zero-conf-valid - serviceName/serviceVersion inferred from package.json',
+    script: 'fixtures/pkg-zero-conf-valid/index.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `pkg-zero-conf-valid/index.js script succeeded: err=${err}`);
+      const lines = stdout.trim().split('\n');
+      const conf = JSON.parse(lines[lines.length - 1]);
+      t.equal(
+        conf.serviceName,
+        'validName',
+        'serviceName was inferred from package.json',
+      );
+      t.equal(
+        conf.serviceVersion,
+        '1.2.3',
+        'serviceVersion was inferred from package.json',
+      );
+    },
+  },
+  {
+    name: 'pkg-zero-conf-valid - serviceName/serviceVersion inferred from package.json even if cwd is out the package tree',
+    script: path.resolve(__dirname, 'fixtures/pkg-zero-conf-valid/index.js'),
+    cwd: '/',
+    noConvenienceConfig: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `pkg-zero-conf-valid/index.js script succeeded: err=${err}`);
+      const lines = stdout.trim().split('\n');
+      const conf = JSON.parse(lines[lines.length - 1]);
+      t.equal(
+        conf.serviceName,
+        'validName',
+        'serviceName was inferred from package.json',
+      );
+      t.equal(
+        conf.serviceVersion,
+        '1.2.3',
+        'serviceVersion was inferred from package.json',
+      );
+    },
+  },
+  {
+    name: 'pkg-zero-conf-noname - serviceName/serviceVersion inferred from package.json even if there is no "name"',
+    script: 'fixtures/pkg-zero-conf-noname/index.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(
+        err,
+        `pkg-zero-conf-noname/index.js script succeeded: err=${err}`,
+      );
+      const lines = stdout.trim().split('\n');
+      const conf = JSON.parse(lines[lines.length - 1]);
+      t.equal(
+        conf.serviceName,
+        'unknown-nodejs-service',
+        'serviceName was inferred from package.json wihtout "name"',
+      );
+      t.equal(
+        conf.serviceVersion,
+        '1.2.3',
+        'serviceVersion was inferred from package.json',
+      );
+    },
+  },
+  // A package.json#name that uses a scoped npm name, e.g. @ns/name, should get
+  // a normalized serviceName='ns-name'.
+  {
+    name: 'pkg-zero-conf-nsname - serviceName/serviceVersion inferred from namespaced package',
+    script: 'fixtures/pkg-zero-conf-nsname/index.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(
+        err,
+        `pkg-zero-conf-nsname/index.js script succeeded: err=${err}`,
+      );
+      const lines = stdout.trim().split('\n');
+      const conf = JSON.parse(lines[lines.length - 1]);
+      t.equal(
+        conf.serviceName,
+        'ns-name',
+        'serviceName was inferred and normalized from package.json',
+      );
+      t.equal(
+        conf.serviceVersion,
+        '1.2.3',
+        'serviceVersion was inferred from package.json',
+      );
+    },
+  },
+  {
+    name: 'pkg-zero-conf-sanitize - serviceName/serviceVersion inferred package.json and sanitized',
+    script: 'fixtures/pkg-zero-conf-sanitize/index.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(
+        err,
+        `pkg-zero-conf-sanitize/index.js script succeeded: err=${err}`,
+      );
+      const lines = stdout.trim().split('\n');
+      const conf = JSON.parse(lines[lines.length - 1]);
+      // serviceName sanitization changes any disallowed char to an underscore.
+      // The pkg-zero-conf-sanitize/package.json has a name starting with the
+      // 7 characters that an npm package name can have, but a serviceName
+      // cannot.
+      //    "name": "~*.!'()validNpmName"
+      t.equal(
+        conf.serviceName,
+        '_______validNpmName',
+        'serviceName was inferred and sanitized from package.json',
+      );
+      t.equal(
+        conf.serviceVersion,
+        '1.2.3',
+        'serviceVersion was inferred from package.json',
+      );
+    },
+  },
+  {
+    name: 'pkg-zero-conf-weird - serviceName/serviceVersion inferred package.json and weirdd',
+    script: 'fixtures/pkg-zero-conf-weird/index.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `pkg-zero-conf-weird/index.js script succeeded: err=${err}`);
+      const lines = stdout.trim().split('\n');
+      const logs = lines.map((l) => JSON.parse(l));
+      const logWarn = logs.find((log) => log['log.level'] === 'warn');
+      t.ok(
+        logWarn['log.level'] === 'warn' &&
+          logWarn.message.indexOf('serviceName') !== -1,
+        'there is a log.warn about "serviceName"',
+      );
+      const conf = JSON.parse(
+        // Filter out log lines from the APM agent itself. We just want the
+        // `console.log(...)` from the index.js script.
+        lines.filter((ln) => ln.indexOf('"log.level":') === -1)[0],
+      );
+      t.equal(
+        conf.serviceName,
+        'unknown-nodejs-service',
+        'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback',
+      );
+      t.equal(
+        conf.serviceVersion,
+        '1.2.3',
+        'serviceVersion was inferred from package.json',
+      );
+    },
+  },
+  {
+    name: 'pkg-zero-conf-none - serviceName/serviceVersion resolved to unknown if no package.json present',
+    script: (function () {
+      const path = require('path');
+      const fs = require('fs');
+      const os = require('os');
+
+      // To test the APM agent's fallback serviceName, we need to execute
+      // a script in a dir that has no package.json in its dir, or any dir up
+      // from it (we assume/hope that `os.tmpdir()` works for that).
+      const script = path.resolve(
+        os.tmpdir(),
+        'elastic-apm-node-zero-conf-test-script.js',
+      );
+      // Avoid Windows '\' path separators that are interpreted as escapes when
+      // interpolated into the script content below.
+      const agentDir = path
+        .resolve(__dirname, '..', '..')
+        .replace(new RegExp('\\' + path.win32.sep, 'g'), path.posix.sep);
+
+      fs.writeFileSync(
+        script,
+        `const apm = require('${agentDir}').start({
+          disableSend: true
+        })
+        console.log(JSON.stringify(apm._conf))`,
+      );
+      return script;
+    })(),
+    cwd: os.tmpdir(),
+    noConvenienceConfig: true,
+    checkScriptResult: (t, err, stdout) => {
+      t.error(
+        err,
+        `elastic-apm-node-zero-conf-test-script.js script succeeded: err=${err}`,
+      );
+      const lines = stdout.trim().split('\n');
+      const conf = JSON.parse(
+        // Filter out log lines from the APM agent itself. We just want the
+        // `console.log(...)` from the index.js script.
+        lines.filter((ln) => ln.indexOf('"log.level":') === -1)[0],
+      );
+      t.equal(
+        conf.serviceName,
+        'unknown-nodejs-service',
+        'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback',
+      );
+      t.equal(conf.serviceVersion, undefined, 'serviceVersion is undefined');
+
+      // remove the script
+      fs.unlinkSync(
+        path.resolve(os.tmpdir(), 'elastic-apm-node-zero-conf-test-script.js'),
       );
     },
   },
