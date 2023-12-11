@@ -51,6 +51,7 @@ async function useTheDb(knex) {
 }
 
 async function main() {
+  console.log('rinning use-knex-pg.mjs');
   await setupDb();
   const knex = createKnex(DBNAME);
 
