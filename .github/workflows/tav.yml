@@ -45,7 +45,8 @@ jobs:
             const permutations = []
             for (const mod of matrix.modules) {
               for (const nv of matrix.versions) {
-                if (mod.minVersion && nv >= mod.minVersion) {
+                const nvMajor = Number(nv.split('.')[0])
+                if (mod.minMajorVersion && nvMajor >= mod.minMajorVersion) {
                   permutations.push(`${mod.name} ${nv}`)
                 }
               }
