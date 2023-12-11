@@ -27,6 +27,7 @@ function createKnex(dbName = undefined) {
 async function setupDb() {
   const knex = createKnex();
   const res = await knex.from('pg_database').where('datname', DBNAME);
+  console.log(res);
   if (res.length < 1) {
     await knex.raw('CREATE DATABASE ??;', [DBNAME]);
   }
