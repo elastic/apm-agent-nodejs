@@ -59,7 +59,8 @@ function main(argv) {
       moduleNamesFromJson.add(moduleName);
     });
     for (const nv of tavJson.versions) {
-      if (mod.minVersion && nv >= mod.minVersion) {
+      const nvMajor = Number(nv.split('.')[0]);
+      if (mod.minMajorVersion && nvMajor >= mod.minMajorVersion) {
         matrix.push(`${mod.name} ${nv}`);
       }
     }

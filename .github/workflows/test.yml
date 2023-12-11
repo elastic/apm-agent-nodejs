@@ -130,7 +130,7 @@ jobs:
           - '21.0'
           - '20'
           - '20.0'
-          - '18'
+          - '18.18.2' # Skip >=18.19.0 until IITM double-import issue is resolved.
           - '18.0'
           - '16'
           - '16.0'
