@@ -37,6 +37,11 @@ See the <<upgrade-to-v4>> guide.
 [[release-notes-4.3.0]]
 ==== 4.3.0 - 2023/12/05
 
+*Known issue*: Using the APM agent's <<esm>> with Node v18.19.0 is currently
+not supported. Earlier versions of Node.js v18 and Node.js v20 and later
+*are* supported. See <https://github.com/elastic/apm-agent-nodejs/issues/3784>
+for details.
+
 [float]
 ===== Features
 
