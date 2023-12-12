@@ -40,6 +40,7 @@
     { "name": "ws", "minMajorVersion": 8 },
     { "name": "@koa/router,koa-router", "minMajorVersion": 8 },
     { "name": "handlebars,pug", "minMajorVersion": 8 },
-    { "name": "bluebird,got", "minMajorVersion": 8 }
+    { "name": "bluebird,got", "minMajorVersion": 8 },
+    { "name": "kafkajs", "minMajorVersion": 14 }
   ]
 }
