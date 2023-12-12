@@ -590,3 +590,10 @@ undici:
     mode: max-5
     include: '>=4.7.1 <6'
 
+kafkajs:
+  name: kafkajs
+  versions: '2.0.0 || 2.0.2 || 2.1.0 || ^2.2.4'
+  commands: node test/instrumentation/modules/kafkajs/kafkajs.test.js
+  update-versions:
+    mode: latest-minors
+    include: '>=2 <3'
