@@ -69,8 +69,8 @@ async function useKafkajsClient(kafkaClient, options) {
   data = await producer.send({
     topic,
     messages: [
-      { value: 'each message 1', headers: { foo: 'bar' } },
-      { value: 'each message 2', headers: { foo: Buffer.from('bar') } }, // TODO: traceparent
+      { value: 'each message 1', headers: { foo: 'string' } },
+      { value: 'each message 2', headers: { foo: Buffer.from('buffer') } },
       { value: 'each message 3' },
     ],
   });

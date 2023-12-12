@@ -74,8 +74,8 @@ async function useKafkajsClient(kafkaClient, options) {
       {
         topic,
         messages: [
-          { value: 'batch message 1', headers: { foo: 'bar' } },
-          { value: 'batch message 2', headers: { foo: Buffer.from('bar') } }, // TODO: traceparent
+          { value: 'batch message 1', headers: { foo: 'string' } },
+          { value: 'batch message 2', headers: { foo: Buffer.from('buffer') } },
           { value: 'batch message 3' },
         ],
       },

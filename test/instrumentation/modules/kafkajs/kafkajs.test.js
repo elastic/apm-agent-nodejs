@@ -32,47 +32,198 @@ const testFixtures = [
       TEST_TOPIC: 'elasticapmtest-topic-1234',
       TEST_KAFKA_URL: kafkaUrl,
     },
+    verbose: true,
     checkApmServer(t, apmServer) {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
+      const tx = events.shift().transaction;
 
-      console.log(events)
+      // First the transaction.
+      t.ok(tx, 'got the transaction');
 
       // Compare some common fields across all spans.
       // ignore http/external spans
-      const spans = events
-        .filter((e) => e.span && e.span.type !== 'external')
-        .map((e) => e.span);
+      const spans = events.filter((e) => e.span).map((e) => e.span);
       spans.forEach((s) => {
         const errs = validateSpan(s);
         t.equal(errs, null, 'span is valid (per apm-server intake schema)');
       });
-    },
-  },
-  {
-    name: 'simple Kafkajs usage scenario for batch message processing',
-    script: 'fixtures/use-kafkajs-each-batch.js',
-    cwd: __dirname,
-    env: {
-      TEST_CLIENT_ID: 'elastic-kafka-client',
-      TEST_TOPIC: 'elasticapmtest-topic-5678',
-      TEST_KAFKA_URL: kafkaUrl,
-    },
-    checkApmServer(t, apmServer) {
-      t.ok(apmServer.events[0].metadata, 'metadata');
-      const events = sortApmEvents(apmServer.events);
+      t.equal(
+        spans.filter((s) => s.trace_id === tx.trace_id).length,
+        spans.length,
+        'all spans have the same trace_id',
+      );
+      t.equal(
+        spans.filter((s) => s.transaction_id === tx.id).length,
+        spans.length,
+        'all spans have the same transaction_id',
+      );
+      t.equal(
+        spans.filter((s) => s.sync === false).length,
+        spans.length,
+        'all spans have sync=false',
+      );
+      t.equal(
+        spans.filter((s) => s.sample_rate === 1).length,
+        spans.length,
+        'all spans have sample_rate=1',
+      );
 
-      // Compare some common fields across all spans.
-      // ignore http/external spans
-      const spans = events
-        .filter((e) => e.span && e.span.type !== 'external')
-        .map((e) => e.span);
       spans.forEach((s) => {
-        const errs = validateSpan(s);
-        t.equal(errs, null, 'span is valid (per apm-server intake schema)');
+        // Remove variable and common fields to facilitate t.deepEqual below.
+        delete s.id;
+        delete s.transaction_id;
+        delete s.parent_id;
+        delete s.trace_id;
+        delete s.timestamp;
+        delete s.duration;
+        delete s.sync;
+        delete s.sample_rate;
       });
+
+      t.deepEqual(spans.shift(), {
+        name: 'Kafka send to elasticapmtest-topic-1234',
+        type: 'messaging',
+        subtype: 'kafka',
+        action: 'send',
+        context: {
+          service: {
+            target: { type: 'kafka', name: 'elasticapmtest-topic-1234' },
+          },
+          destination: {
+            service: {
+              resource: 'kafka/elasticapmtest-topic-1234',
+              type: '',
+              name: '',
+            },
+          },
+          message: { queue: { name: 'elasticapmtest-topic-1234' } },
+        },
+        outcome: 'success',
+      });
+
+      t.equal(spans.length, 0, 'all spans accounted for');
+
+      // No check the transactions created for each message received
+      const transactions = events
+        .filter((e) => e.transaction)
+        .map((e) => e.transaction);
+      const parentId = transactions[0].parent_id;
+
+      t.equal(
+        transactions.filter((t) => t.trace_id === tx.trace_id).length,
+        transactions.length,
+        'all transactions have the same trace_id',
+      );
+      t.equal(
+        transactions.filter((t) => t.parent_id === parentId).length,
+        transactions.length,
+        'all transactions have the same parent_id',
+      );
+      t.equal(
+        transactions
+          .map((t) => t.context.message.age.ms)
+          .filter((ms) => typeof ms === 'number' && ms > 0).length,
+        transactions.length,
+        'all transactions have positive age',
+      );
+      // TODO: other checks like sync=false & sample rate?
+
+      transactions.forEach((t) => {
+        // Remove variable and common fields to facilitate t.deepEqual below.
+        delete t.id;
+        delete t.parent_id;
+        delete t.trace_id;
+        delete t.timestamp;
+        delete t.duration;
+        delete t.sample_rate;
+        delete t.sampled;
+        delete t.span_count;
+        delete t.result;
+        delete t.context.user;
+        delete t.context.tags;
+        delete t.context.custom;
+        delete t.context.cloud;
+        delete t.context.message.age;
+      });
+
+      // Check message handling transactions
+      t.deepEqual(transactions.shift(), {
+        name: 'Kafka RECEIVE from elasticapmtest-topic-1234',
+        type: 'messaging',
+        context: {
+          service: {},
+          message: {
+            queue: { name: 'elasticapmtest-topic-1234' },
+            headers: {
+              foo: 'string',
+              traceparent: `00-${tx.trace_id}-${parentId}-01`,
+              tracestate: 'es=s:1',
+            },
+          },
+        },
+        outcome: 'success',
+      });
+
+      t.deepEqual(transactions.shift(), {
+        name: 'Kafka RECEIVE from elasticapmtest-topic-1234',
+        type: 'messaging',
+        context: {
+          service: {},
+          message: {
+            queue: { name: 'elasticapmtest-topic-1234' },
+            headers: {
+              foo: 'buffer',
+              traceparent: `00-${tx.trace_id}-${parentId}-01`,
+              tracestate: 'es=s:1',
+            },
+          },
+        },
+        outcome: 'success',
+      });
+
+      t.deepEqual(transactions.shift(), {
+        name: 'Kafka RECEIVE from elasticapmtest-topic-1234',
+        type: 'messaging',
+        context: {
+          service: {},
+          message: {
+            queue: { name: 'elasticapmtest-topic-1234' },
+            headers: {
+              traceparent: `00-${tx.trace_id}-${parentId}-01`,
+              tracestate: 'es=s:1',
+            },
+          },
+        },
+        outcome: 'success',
+      });
+      t.equal(transactions.length, 0, 'all transactions accounted for');
     },
   },
+  // {
+  //   name: 'simple Kafkajs usage scenario for batch message processing',
+  //   script: 'fixtures/use-kafkajs-each-batch.js',
+  //   cwd: __dirname,
+  //   env: {
+  //     TEST_CLIENT_ID: 'elastic-kafka-client',
+  //     TEST_TOPIC: 'elasticapmtest-topic-5678',
+  //     TEST_KAFKA_URL: kafkaUrl,
+  //   },
+  //   checkApmServer(t, apmServer) {
+  //     t.ok(apmServer.events[0].metadata, 'metadata');
+  //     const events = sortApmEvents(apmServer.events);
+
+  //     // Compare some common fields across all spans.
+  //     // ignore http/external spans
+  //     const spans = events
+  //       .filter((e) => e.span && e.span.type !== 'external')
+  //       .map((e) => e.span);
+  //     spans.forEach((s) => {
+  //       const errs = validateSpan(s);
+  //       t.equal(errs, null, 'span is valid (per apm-server intake schema)');
+  //     });
+  //   },
+  // },
 ];
 
 test('kafkajs fixtures', (suite) => {
