@@ -14,6 +14,7 @@ const apm = require('../../../../..').start({
   cloudProvider: 'none',
   stackTraceLimit: 4, // get it smaller for reviewing output
   logLevel: 'info',
+  ignoreMessageQueues: ['*-ignore'],
 });
 
 const { Buffer } = require('buffer');
@@ -34,6 +35,7 @@ const TEST_TOPIC_PREFIX = 'elasticapmtest-topic-';
  */
 async function useKafkajsClient(kafkaClient, options) {
   const { topic, groupId } = options;
+  const topicToIgnore = `${topic}-ignore`;
   const log = apm.logger.child({
     'event.module': 'kafkajs',
     topic,
@@ -46,18 +48,22 @@ async function useKafkajsClient(kafkaClient, options) {
   // Create the topics & subscribe
   await admin.connect();
   await admin.createTopics({
-    topics: [{ topic }],
+    topics: [{ topic }, { topic: topicToIgnore }],
   });
   log.info('createTopics');
 
   await producer.connect();
   await consumer.connect();
-  await consumer.subscribe({ topics: [topic], fromBeginning: true });
+  await consumer.subscribe({
+    topics: [topic, topicToIgnore],
+    fromBeginning: true,
+  });
   log.info('all connected');
 
   let batchMessagesConsumed = 0;
   await consumer.run({
     eachBatch: async function ({ batch }) {
+      log.info(`batch received for topic: ${batch.topic}`);
       batch.messages.forEach((message) => {
         log.info(`batch message received: ${message.value.toString()}`);
         batchMessagesConsumed++;
@@ -79,13 +85,21 @@ async function useKafkajsClient(kafkaClient, options) {
           { value: 'batch message 3' },
         ],
       },
+      {
+        topic: topicToIgnore,
+        messages: [
+          { value: 'ignore message 1' },
+          { value: 'ignore message 2' },
+          { value: 'ignore message 3' },
+        ],
+      },
     ],
   });
   batchTx.end();
   log.info({ data }, 'batch sent');
 
   try {
-    await waitUntil(() => batchMessagesConsumed >= 3, 5000);
+    await waitUntil(() => batchMessagesConsumed >= 6, 10000);
   } catch (err) {
     log.error(err, ' messages could not be consumed after 30s');
   }

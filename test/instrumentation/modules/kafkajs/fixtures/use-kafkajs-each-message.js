@@ -14,10 +14,10 @@ const apm = require('../../../../..').start({
   cloudProvider: 'none',
   stackTraceLimit: 4, // get it smaller for reviewing output
   logLevel: 'info',
+  ignoreMessageQueues: ['*-ignore'],
 });
 
 const { Buffer } = require('buffer');
-const assert = require('assert');
 
 const { Kafka } = require('kafkajs');
 /** @type {import('kafkajs').Admin} */
@@ -35,6 +35,7 @@ const TEST_TOPIC_PREFIX = 'elasticapmtest-topic-';
  */
 async function useKafkajsClient(kafkaClient, options) {
   const { topic, groupId } = options;
+  const topicToIgnore = `${topic}-ignore`;
   const log = apm.logger.child({
     'event.module': 'kafkajs',
     topic,
@@ -51,7 +52,10 @@ async function useKafkajsClient(kafkaClient, options) {
 
   await producer.connect();
   await consumer.connect();
-  await consumer.subscribe({ topics: [topic], fromBeginning: true });
+  await consumer.subscribe({
+    topics: [topic, topicToIgnore],
+    fromBeginning: true,
+  });
   log.info('all connected');
 
   let eachMessagesConsumed = 0;
@@ -74,13 +78,22 @@ async function useKafkajsClient(kafkaClient, options) {
       { value: 'each message 3' },
     ],
   });
-  eachTx.end();
   log.info({ data }, 'messages sent');
+  data = await producer.send({
+    topic: topicToIgnore,
+    messages: [
+      { value: 'ignore message 1' },
+      { value: 'ignore message 2' },
+      { value: 'ignore message 3' },
+    ],
+  });
+  log.info({ data }, 'messages to ignore sent');
+  eachTx.end();
 
   try {
-    await waitUntil(() => eachMessagesConsumed >= 3, 5000);
+    await waitUntil(() => eachMessagesConsumed >= 6, 10000);
   } catch (err) {
-    log.error(err, ' messages could not be consumed after 30s');
+    log.error(err, ' messages could not be consumed after 10s');
   }
 
   await consumer.disconnect();
