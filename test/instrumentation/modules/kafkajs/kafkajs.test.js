@@ -35,6 +35,7 @@ const testFixtures = [
       // https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner
       KAFKAJS_NO_PARTITIONER_WARNING: '1',
     },
+    verbose: true,
     checkApmServer(t, apmServer) {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
@@ -221,6 +222,7 @@ const testFixtures = [
       // https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner
       KAFKAJS_NO_PARTITIONER_WARNING: '1',
     },
+    verbose: true,
     checkApmServer(t, apmServer) {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
