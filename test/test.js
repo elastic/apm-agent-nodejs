@@ -51,6 +51,9 @@ function runTestFile(test, cb) {
         stdio: ['inherit', outFile, outFile],
       });
       ps.on('error', cb);
+      ps.stdout.on('data', (data) => {
+        console.log(`ps stdout: ${data}`);
+      });
       ps.on('close', function (code) {
         outFile.close(function onClose(closeErr) {
           if (closeErr) {
