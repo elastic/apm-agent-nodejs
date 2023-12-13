@@ -7,7 +7,6 @@
 'use strict';
 
 // Test instrumentation of the 'kafkajs' module.
-
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   console.log('# SKIP: GH Actions do not support docker services on Windows');
   process.exit(0);
@@ -17,7 +16,6 @@ const test = require('tape');
 
 const { validateSpan } = require('../../../_validate_schema');
 const { runTestFixtures, sortApmEvents } = require('../../../_utils');
-// const { NODE_VER_RANGE_IITM } = require('../../../testconsts');
 
 const kafkaUrl = process.env.KAFKA_URL || 'localhost:9093';
 
