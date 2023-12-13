@@ -352,11 +352,6 @@ function runTestFixtures(suite, testFixtures) {
             } else {
               t.error(err, `${tf.script} exited successfully: err=${err}`);
               if (err) {
-                console.log(err.name);
-                console.log(err.fileName);
-                console.log(err.lineNumber);
-                console.log(err.stack);
-                console.log(err);
                 if (!tf.verbose) {
                   t.comment(`stdout:\n|${formatForTComment(stdout)}`);
                   t.comment(`stderr:\n|${formatForTComment(stderr)}`);
