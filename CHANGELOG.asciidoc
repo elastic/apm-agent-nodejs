@@ -33,6 +33,21 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Add support for `kafkajs` version v2. ({issues}2905[#2905])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
 
 [[release-notes-4.3.0]]
 ==== 4.3.0 - 2023/12/05
