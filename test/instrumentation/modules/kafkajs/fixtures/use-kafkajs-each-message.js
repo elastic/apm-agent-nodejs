@@ -47,7 +47,10 @@ async function useKafkajsClient(kafkaClient, options) {
 
   // Create the topics & subscribe
   await admin.connect();
-  await admin.createTopics({ topics: [{ topic }] });
+  await admin.createTopics({
+    waitForLeaders: true,
+    topics: [{ topic, topicToIgnore }],
+  });
   log.info('topic created');
 
   await producer.connect();
