@@ -123,7 +123,6 @@ jobs:
           - nodelocalstackdata:/var/lib/localstack
 
       zookeeper:
-        # https://hub.docker.com/r/bitnami/zookeeper/tags
         image: bitnami/zookeeper:3.9.1
         env:
           ALLOW_ANONYMOUS_LOGIN: 'yes'
@@ -133,7 +132,6 @@ jobs:
           - nodezookeeperdata:/var/lib/zookeeper/data
         
       kafka:
-        # https://hub.docker.com/r/bitnami/kafka/tags
         image: bitnami/kafka:3.3.2
         ports:
           - "9093:9093"

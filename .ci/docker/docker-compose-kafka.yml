@@ -14,5 +14,5 @@ services:
         condition: service_healthy
 
 volumes:
-  nodelafkadata:
+  nodekafkadata:
     driver: local
