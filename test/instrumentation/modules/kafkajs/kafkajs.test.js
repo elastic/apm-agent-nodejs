@@ -33,6 +33,7 @@ const testFixtures = [
     cwd: __dirname,
     env: {
       TEST_CLIENT_ID: 'elastic-kafka-client',
+      TEST_GROUP_ID: `elastictest-kafka-group-${version}`,
       TEST_TOPIC: topicEach,
       TEST_KAFKA_URL: kafkaUrl,
       // Suppres warinings about new default partitioner
@@ -220,6 +221,7 @@ const testFixtures = [
     cwd: __dirname,
     env: {
       TEST_CLIENT_ID: 'elastic-kafka-client',
+      TEST_GROUP_ID: `elastictest-kafka-group-${version}`,
       TEST_TOPIC: topicBatch,
       TEST_KAFKA_URL: kafkaUrl,
       // Suppres warinings about new default partitioner
