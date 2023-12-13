@@ -154,8 +154,8 @@ jobs:
       matrix:
         node:
           - '21'
+          - '21.0'
           # XXX: Omit for now to avoid consuming too many resources
-          # - '21.0'
           # - '20'
           # - '20.0'
           # - '18.18.2' # Skip >=18.19.0 until IITM double-import issue is resolved.
