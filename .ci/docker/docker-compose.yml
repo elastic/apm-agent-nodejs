@@ -170,6 +170,13 @@ services:
       - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
     depends_on:
       - zookeeper
+    healthcheck:
+      # use netcat to check tcp connection available
+      test: nc -z localhost 9093 || exit -1
+      start_period: 15s
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
 volumes:
   nodepgdata:
