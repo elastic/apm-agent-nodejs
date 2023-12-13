@@ -155,6 +155,7 @@ function main() {
 
   useKafkajsClient(kafkaClient, { topic, groupId }).then(
     function () {
+      apm.logger.info('useKafkajsClient resolved');
       process.exitCode = 0;
     },
     function (err) {
