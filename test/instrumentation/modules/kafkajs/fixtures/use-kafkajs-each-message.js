@@ -95,14 +95,19 @@ async function useKafkajsClient(kafkaClient, options) {
 
   try {
     await waitUntil(() => eachMessagesConsumed >= 6, 10000);
+    log.info('messages consumed');
   } catch (err) {
     log.error(err, ' messages could not be consumed after 10s');
   }
 
   await consumer.disconnect();
+  log.info('consumer disconnect');
   await producer.disconnect();
+  log.info('producer disconnect');
   await admin.deleteTopics({ topics: [topic, topicToIgnore] });
+  log.info('topics deleted');
   await admin.disconnect();
+  log.info('admin disconnect');
 }
 
 // ---- helper functions
