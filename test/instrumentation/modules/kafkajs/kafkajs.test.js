@@ -21,6 +21,10 @@ const { runTestFixtures, sortApmEvents } = require('../../../_utils');
 
 const kafkaUrl = process.env.KAFKA_URL || 'localhost:9093';
 
+const version = process.version.replace(/\./g, '-');
+const topicEach = `elasticapmtest-topic-each-${version}`;
+const topicBatch = `elasticapmtest-topic-batch-${version}`;
+
 /** @type {import('../../../_utils').TestFixture[]} */
 const testFixtures = [
   {
@@ -29,7 +33,7 @@ const testFixtures = [
     cwd: __dirname,
     env: {
       TEST_CLIENT_ID: 'elastic-kafka-client',
-      TEST_TOPIC: 'elasticapmtest-topic-1234',
+      TEST_TOPIC: topicEach,
       TEST_KAFKA_URL: kafkaUrl,
       // Suppres warinings about new default partitioner
       // https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner
@@ -85,22 +89,22 @@ const testFixtures = [
       });
 
       t.deepEqual(spans.shift(), {
-        name: 'Kafka send to elasticapmtest-topic-1234',
+        name: `Kafka send to ${topicEach}`,
         type: 'messaging',
         subtype: 'kafka',
         action: 'send',
         context: {
           service: {
-            target: { type: 'kafka', name: 'elasticapmtest-topic-1234' },
+            target: { type: 'kafka', name: topicEach },
           },
           destination: {
             service: {
-              resource: 'kafka/elasticapmtest-topic-1234',
+              resource: `kafka/${topicEach}`,
               type: '',
               name: '',
             },
           },
-          message: { queue: { name: 'elasticapmtest-topic-1234' } },
+          message: { queue: { name: topicEach } },
         },
         outcome: 'success',
       });
@@ -159,12 +163,12 @@ const testFixtures = [
 
       // Check message handling transactions
       t.deepEqual(transactions.shift(), {
-        name: 'Kafka RECEIVE from elasticapmtest-topic-1234',
+        name: `Kafka RECEIVE from ${topicEach}`,
         type: 'messaging',
         context: {
           service: {},
           message: {
-            queue: { name: 'elasticapmtest-topic-1234' },
+            queue: { name: topicEach },
             headers: {
               foo: 'buffer',
               traceparent: `00-${tx.trace_id}-${parentId}-01`,
@@ -176,12 +180,12 @@ const testFixtures = [
       });
 
       t.deepEqual(transactions.shift(), {
-        name: 'Kafka RECEIVE from elasticapmtest-topic-1234',
+        name: `Kafka RECEIVE from ${topicEach}`,
         type: 'messaging',
         context: {
           service: {},
           message: {
-            queue: { name: 'elasticapmtest-topic-1234' },
+            queue: { name: topicEach },
             headers: {
               foo: 'string',
               traceparent: `00-${tx.trace_id}-${parentId}-01`,
@@ -193,12 +197,12 @@ const testFixtures = [
       });
 
       t.deepEqual(transactions.shift(), {
-        name: 'Kafka RECEIVE from elasticapmtest-topic-1234',
+        name: `Kafka RECEIVE from ${topicEach}`,
         type: 'messaging',
         context: {
           service: {},
           message: {
-            queue: { name: 'elasticapmtest-topic-1234' },
+            queue: { name: topicEach },
             headers: {
               traceparent: `00-${tx.trace_id}-${parentId}-01`,
               tracestate: 'es=s:1',
@@ -216,7 +220,7 @@ const testFixtures = [
     cwd: __dirname,
     env: {
       TEST_CLIENT_ID: 'elastic-kafka-client',
-      TEST_TOPIC: 'elasticapmtest-topic-5678',
+      TEST_TOPIC: topicBatch,
       TEST_KAFKA_URL: kafkaUrl,
       // Suppres warinings about new default partitioner
       // https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner
@@ -316,7 +320,7 @@ const testFixtures = [
         type: 'messaging',
         context: {
           service: { framework: { name: 'Kafka' } },
-          message: { queue: { name: 'elasticapmtest-topic-5678' } },
+          message: { queue: { name: topicBatch } },
         },
         links: [
           {
