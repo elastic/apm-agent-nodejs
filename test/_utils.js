@@ -313,7 +313,7 @@ function runTestFixtures(suite, testFixtures) {
           );
         }
         const start = Date.now();
-        const proc = execFile(
+        execFile(
           process.execPath,
           argv,
           {
@@ -332,7 +332,6 @@ function runTestFixtures(suite, testFixtures) {
           },
           async function done(err, stdout, stderr) {
             if (tf.verbose) {
-              t.comment(`exitCode: ${proc.exitCode}`);
               t.comment(`elapsed: ${(Date.now() - start) / 1000}s`);
               if (err) {
                 t.comment(`err:\n|${formatForTComment(err)}`);

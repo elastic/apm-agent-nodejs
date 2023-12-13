@@ -114,6 +114,18 @@ async function useKafkajsClient(kafkaClient, options) {
 // ---- helper functions
 
 /**
+ * Creates logger functions for KafkaJS
+ * @param {string} loglevel
+ * @returns {(log: any) => void}
+ */
+function apmKafkaLogger(logLevel) {
+  const method = logLevel === 'ERROR' ? 'error' : 'info';
+  return function (log) {
+    apm.logger[method](log);
+  };
+}
+
+/**
  * Retuns a promise which is resolved when the predicate becomes true or rejected
  * if the timeout is reached.
  * @param {() => boolean} predicate function which will return true to make ed of wait
@@ -157,7 +169,13 @@ function main() {
     );
   }
 
-  const kafkaClient = new Kafka({ clientId, brokers: [broker] });
+  const kafkaClient = new Kafka({
+    clientId,
+    brokers: [broker],
+    // To avoid prints directly on stderr
+    // https://kafka.js.org/docs/custom-logger
+    logCreator: apmKafkaLogger,
+  });
 
   useKafkajsClient(kafkaClient, { topic, groupId }).then(
     function () {

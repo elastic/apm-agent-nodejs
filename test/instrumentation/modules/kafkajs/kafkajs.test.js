@@ -41,10 +41,6 @@ const testFixtures = [
       KAFKAJS_NO_PARTITIONER_WARNING: '1',
     },
     verbose: true,
-    checkScriptResult(t, err, stdout, stderr) {
-      console.log('checkScriptResult err', err);
-      t.error(err, `script exited successfully: err=${err}`);
-    },
     checkApmServer(t, apmServer) {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
