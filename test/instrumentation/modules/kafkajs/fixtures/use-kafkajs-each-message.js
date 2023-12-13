@@ -93,12 +93,8 @@ async function useKafkajsClient(kafkaClient, options) {
   log.info({ data }, 'messages to ignore sent');
   eachTx.end();
 
-  try {
-    await waitUntil(() => eachMessagesConsumed >= 6, 10000);
-    log.info('messages consumed');
-  } catch (err) {
-    log.error(err, ' messages could not be consumed after 10s');
-  }
+  await waitUntil(() => eachMessagesConsumed >= 6, 10000);
+  log.info('messages consumed');
 
   await consumer.disconnect();
   log.info('consumer disconnect');
@@ -151,7 +147,7 @@ function waitUntil(predicate, timeout = 5000) {
 
 // ---- mainline
 
-function main() {
+async function main() {
   // Config vars.
   const clientId = process.env.TEST_CLIENT_ID || 'elastictest-kafka-client';
   const groupId = process.env.TEST_GROUP_ID || 'elastictest-kafka-group';
@@ -176,16 +172,25 @@ function main() {
     logCreator: apmKafkaLogger,
   });
 
-  useKafkajsClient(kafkaClient, { topic, groupId }).then(
-    function () {
-      apm.logger.info('useKafkajsClient resolved');
-      process.exitCode = 0;
-    },
-    function (err) {
-      apm.logger.error(err, 'useKafkajsClient rejected');
-      process.exitCode = 1;
-    },
-  );
+  // useKafkajsClient(kafkaClient, { topic, groupId }).then(
+  //   function () {
+  //     apm.logger.info('useKafkajsClient resolved');
+  //     process.exitCode = 0;
+  //   },
+  //   function (err) {
+  //     apm.logger.error(err, 'useKafkajsClient rejected');
+  //     process.exitCode = 1;
+  //   },
+  // );
+  try {
+    await useKafkajsClient(kafkaClient, { topic, groupId });
+  } catch (ex) {
+    apm.logger.info('useKafkajsClient rejected', ex);
+    process.exitCode = 1;
+  }
+
+  apm.logger.info('useKafkajsClient resolved');
+  process.exitCode = 0;
 }
 
 main();

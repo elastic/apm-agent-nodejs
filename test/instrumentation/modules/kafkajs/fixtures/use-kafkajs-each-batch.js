@@ -99,12 +99,8 @@ async function useKafkajsClient(kafkaClient, options) {
   batchTx.end();
   log.info({ data }, 'batch sent');
 
-  try {
-    await waitUntil(() => batchMessagesConsumed >= 6, 10000);
-    log.info('messages consumed');
-  } catch (err) {
-    log.error(err, ' messages could not be consumed after 30s');
-  }
+  await waitUntil(() => batchMessagesConsumed >= 6, 10000);
+  log.info('messages consumed');
 
   await consumer.disconnect();
   log.info('consumer disconnect');
