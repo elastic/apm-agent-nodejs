@@ -98,7 +98,7 @@ async function useKafkajsClient(kafkaClient, options) {
 
   await consumer.disconnect();
   await producer.disconnect();
-  await admin.deleteTopics({ topics: [topic] });
+  await admin.deleteTopics({ topics: [topic, topicToIgnore] });
   await admin.disconnect();
 }
 
