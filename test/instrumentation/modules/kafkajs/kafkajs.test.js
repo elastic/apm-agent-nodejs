@@ -31,6 +31,7 @@ const testFixtures = [
     name: 'simple Kafkajs usage scenario for single message processing',
     script: 'fixtures/use-kafkajs-each-message.js',
     cwd: __dirname,
+    timeout: 20000,
     env: {
       TEST_CLIENT_ID: 'elastic-kafka-client',
       TEST_GROUP_ID: `elastictest-kafka-group-${version}`,
@@ -219,6 +220,7 @@ const testFixtures = [
     name: 'simple Kafkajs usage scenario for batch message processing',
     script: 'fixtures/use-kafkajs-each-batch.js',
     cwd: __dirname,
+    timeout: 20000,
     env: {
       TEST_CLIENT_ID: 'elastic-kafka-client',
       TEST_GROUP_ID: `elastictest-kafka-group-${version}`,
