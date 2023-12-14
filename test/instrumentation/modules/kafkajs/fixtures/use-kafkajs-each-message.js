@@ -15,6 +15,8 @@ const apm = require('../../../../..').start({
   stackTraceLimit: 4, // get it smaller for reviewing output
   logLevel: 'info',
   ignoreMessageQueues: ['*-ignore'],
+  captureBody: process.env.TEST_CAPTURE_BODY || 'off',
+  captureHeaders: process.env.TEST_CAPTURE_HEADERS || false,
 });
 
 const { Buffer } = require('buffer');
