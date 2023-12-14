@@ -60,18 +60,22 @@ mysql2:
     - node test/instrumentation/modules/mysql2/pool-release-1.test.js
 
 # redis
-# - redis@4.6.9 was a bad release, it accidentally broke node v14 support
 redis-v2-v4:
   name: redis
   versions: '>=2.0.0 <4.0.0'
   commands: node test/instrumentation/modules/redis-2-3.test.js
 redis:
   name: redis
-  versions: '>=4.0.0 <4.6.9 || >4.6.9 <5.0.0'
+  versions: '4.0.0 || 4.0.6 || 4.1.1 || 4.2.0 || 4.3.1 || 4.4.0 || 4.5.1 || ^4.6.11'
   commands:
     - node test/instrumentation/modules/redis.test.js
     - node test/instrumentation/modules/redis-disabled.test.js
     - node test/instrumentation/modules/redis4-legacy.test.js
+  update-versions:
+    mode: latest-minors
+    include: '>=4.0.0 <5'
+    # redis@4.6.9 was a bad release, it accidentally broke node v14 support.
+    exclude: '4.6.9'
 
 # We want these version ranges:
 #   # v3.1.3 is broken in older versions of Node because of https://github.com/luin/ioredis/commit/d5867f7c7f03a770a8c0ca5680fdcbfcaf8488e7
