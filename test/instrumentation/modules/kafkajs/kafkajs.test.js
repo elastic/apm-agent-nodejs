@@ -17,7 +17,7 @@ const test = require('tape');
 const { validateSpan } = require('../../../_validate_schema');
 const { runTestFixtures, sortApmEvents } = require('../../../_utils');
 
-const kafkaUrl = process.env.KAFKA_URL || 'localhost:9093';
+const kafkaHost = process.env.KAFKA_HOST || 'localhost:9093';
 
 const version = process.version.replace(/\./g, '-');
 const topicEach = `elasticapmtest-topic-each-${version}`;
@@ -34,12 +34,11 @@ const testFixtures = [
       TEST_CLIENT_ID: 'elastic-kafka-client',
       TEST_GROUP_ID: `elastictest-kafka-group-${version}`,
       TEST_TOPIC: topicEach,
-      TEST_KAFKA_URL: kafkaUrl,
+      TEST_KAFKA_HOST: kafkaHost,
       // Suppres warinings about new default partitioner
       // https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner
       KAFKAJS_NO_PARTITIONER_WARNING: '1',
     },
-    verbose: true,
     checkApmServer(t, apmServer) {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
@@ -223,12 +222,11 @@ const testFixtures = [
       TEST_CLIENT_ID: 'elastic-kafka-client',
       TEST_GROUP_ID: `elastictest-kafka-group-${version}`,
       TEST_TOPIC: topicBatch,
-      TEST_KAFKA_URL: kafkaUrl,
+      TEST_KAFKA_HOST: kafkaHost,
       // Suppres warinings about new default partitioner
       // https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner
       KAFKAJS_NO_PARTITIONER_WARNING: '1',
     },
-    verbose: true,
     checkApmServer(t, apmServer) {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);

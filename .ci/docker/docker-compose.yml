@@ -146,7 +146,7 @@ services:
     ports:
       - "2181:2181"
     volumes:
-      - "zookeeper-volume:/bitnami"
+      - nodezookeeperdata:/bitnami
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
 
@@ -163,18 +163,19 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://kafka:9093
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
       - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
     depends_on:
       - zookeeper
+    # TODO: maybe not necessary  but figure out how to do this
     healthcheck:
       # use netcat to check tcp connection available
-      test: nc -z localhost 9093 || exit -1
-      start_period: 15s
-      interval: 5s
-      timeout: 10s
-      retries: 5
+      # test: nc -z localhost 9093 || exit -1
+      # start_period: 15s
+      # interval: 5s
+      # timeout: 10s
+      # retries: 5
 
 volumes:
   nodepgdata:
@@ -190,4 +191,8 @@ volumes:
   nodecassandradata:
     driver: local
   nodelocalstackdata:
+    driver: local
+  nodekafkadata:
+    driver: local
+  nodezookeeperdata:
     driver: local

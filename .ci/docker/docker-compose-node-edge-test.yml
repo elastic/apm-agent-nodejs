@@ -24,6 +24,7 @@ services:
       PGUSER: 'postgres'
       MEMCACHED_HOST: 'memcached'
       LOCALSTACK_HOST: 'localstack:4566'
+      KAFKA_HOST: 'kafka:9093'
       NODE_VERSION: ${NODE_VERSION}
       NODE_FULL_VERSION: ${NODE_FULL_VERSION}
       NVM_NODEJS_ORG_MIRROR: ${NVM_NODEJS_ORG_MIRROR}
