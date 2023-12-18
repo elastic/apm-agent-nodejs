@@ -282,7 +282,10 @@ const testFixtures = [
         action: 'send',
         context: {
           service: { target: { type: 'kafka' } },
-          destination: { service: { type: '', name: '', resource: 'kafka' } },
+          destination: {
+            service: { type: '', name: '', resource: 'kafka' },
+            target: { type: 'kafka' },
+          },
         },
         outcome: 'success',
       });
