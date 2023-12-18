@@ -33,6 +33,23 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Update import-in-the-middle to version v1.7.2 which includes a fix
+  for the double import issue with Node v18.19. ({issues}3784[#3784])
+
+[float]
+===== Chores
+
 
 [[release-notes-4.3.0]]
 ==== 4.3.0 - 2023/12/05
