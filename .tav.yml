@@ -348,7 +348,7 @@ cassandra-driver:
 # - restify v9 used `require('node:...')` that requires node >v14.18.0
 #   (https://nodejs.org/api/modules.html#core-modules)
 restify:
-  - -versions: '>=5.2.0 <8.0.0'
+  - versions: '>=5.2.0 <8.0.0'
     node: '<18.0.0'
     commands:
       - node test/instrumentation/modules/restify/basic.test.js
