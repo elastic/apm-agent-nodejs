@@ -38,44 +38,35 @@ mysql:
 #   8.0.0, however it uses an lru-cache that supports only node >=16.14! From
 #   trial and error the effective min supported node is v14.6.0.
 #   See https://github.com/elastic/apm-agent-nodejs/pull/3301#issuecomment-1530138870
-mysql2-v1-v1.6.0:
-  name: mysql2
-  versions: '>=1.0.0 <1.6.0'
-  commands:
-    - node test/instrumentation/modules/mysql2/mysql.test.js
-    - node test/instrumentation/modules/mysql2/pool-release-1.test.js
-mysql2-v1.6.0-v3:
-  name: mysql2
-  versions: '>=1.6.0 <1.6.2 || >=1.6.3 <2.2.3 || >=2.2.4 <3'
-  node: '>=8.0.0'
-  commands:
-    - node test/instrumentation/modules/mysql2/mysql.test.js
-    - node test/instrumentation/modules/mysql2/pool-release-1.test.js
 mysql2:
-  name: mysql2
-  versions: '>=3.0.0 <4'
-  node: '>=14.6.0'
-  commands:
-    - node test/instrumentation/modules/mysql2/mysql.test.js
-    - node test/instrumentation/modules/mysql2/pool-release-1.test.js
+  - versions: '>=1.0.0 <1.6.0'
+    commands:
+      - node test/instrumentation/modules/mysql2/mysql.test.js
+      - node test/instrumentation/modules/mysql2/pool-release-1.test.js
+  - versions: '>=1.6.0 <1.6.2 || >=1.6.3 <2.2.3 || >=2.2.4 <3'
+    node: '>=8.0.0'
+    commands:
+      - node test/instrumentation/modules/mysql2/mysql.test.js
+      - node test/instrumentation/modules/mysql2/pool-release-1.test.js
+  - versions: '>=3.0.0 <4'
+    node: '>=14.6.0'
+    commands:
+      - node test/instrumentation/modules/mysql2/mysql.test.js
+      - node test/instrumentation/modules/mysql2/pool-release-1.test.js
 
-# redis
-redis-v2-v4:
-  name: redis
-  versions: '>=2.0.0 <4.0.0'
-  commands: node test/instrumentation/modules/redis-2-3.test.js
 redis:
-  name: redis
-  versions: '4.0.0 || 4.0.6 || 4.1.1 || 4.2.0 || 4.3.1 || 4.4.0 || 4.5.1 || ^4.6.11'
-  commands:
-    - node test/instrumentation/modules/redis.test.js
-    - node test/instrumentation/modules/redis-disabled.test.js
-    - node test/instrumentation/modules/redis4-legacy.test.js
-  update-versions:
-    mode: latest-minors
-    include: '>=4.0.0 <5'
-    # redis@4.6.9 was a bad release, it accidentally broke node v14 support.
-    exclude: '4.6.9'
+  - versions: '>=2.0.0 <4.0.0'
+    commands: node test/instrumentation/modules/redis-2-3.test.js
+  - versions: '4.0.0 || 4.0.6 || 4.1.1 || 4.2.0 || 4.3.1 || 4.4.0 || 4.5.1 || ^4.6.11'
+    commands:
+      - node test/instrumentation/modules/redis.test.js
+      - node test/instrumentation/modules/redis-disabled.test.js
+      - node test/instrumentation/modules/redis4-legacy.test.js
+    update-versions:
+      mode: latest-minors
+      include: '>=4.0.0 <5'
+      # redis@4.6.9 was a bad release, it accidentally broke node v14 support.
+      exclude: '4.6.9'
 
 # We want these version ranges:
 #   # v3.1.3 is broken in older versions of Node because of https://github.com/luin/ioredis/commit/d5867f7c7f03a770a8c0ca5680fdcbfcaf8488e7
@@ -83,56 +74,48 @@ redis:
 #   versions: '^4.0.0'
 # However, there are a *lot* of ioredis releases, so we statically list a
 # subset (the first, plus then the latest in each major.minor).
-ioredis-v2-v4:
-  name: ioredis
-  versions: '2.0.0 || 2.0.1 || 2.1.0 || 2.2.0 || 2.3.1 || 2.4.3 || 2.5.0 || 3.0.0 || 3.1.4 || ^3.2.2'
-  commands: node test/instrumentation/modules/ioredis.test.js
-  update-versions:
-    mode: latest-minors
-    include: '>=2.0.0 <4'
-ioredis-v4-v5:
-  name: ioredis
-  versions: '4.0.0 || 4.7.0 || 4.12.1 || 4.17.2 || 4.24.4 || 4.28.0 || ^4.28.5'
-  commands: node test/instrumentation/modules/ioredis.test.js
-  # Test v4.0.0, latest v4 and 5 versions in between.
-  update-versions:
-    mode: max-5
-    include: '>=4.0.0 <5'
 ioredis:
-  name: ioredis
-  versions: '5.0.0 || 5.0.6 || 5.1.0 || 5.2.6 || ^5.3.2'
-  commands: node test/instrumentation/modules/ioredis.test.js
-  update-versions:
-    mode: latest-minors
-    include: '>=5.0.0 <6'
+  - versions: '2.0.0 || 2.0.1 || 2.1.0 || 2.2.0 || 2.3.1 || 2.4.3 || 2.5.0 || 3.0.0 || 3.1.4 || ^3.2.2'
+    commands: node test/instrumentation/modules/ioredis.test.js
+    update-versions:
+      mode: latest-minors
+      include: '>=2.0.0 <4'
+  - versions: '4.0.0 || 4.7.0 || 4.12.1 || 4.17.2 || 4.24.4 || 4.28.0 || ^4.28.5'
+    commands: node test/instrumentation/modules/ioredis.test.js
+    # Test v4.0.0, latest v4 and 5 versions in between.
+    update-versions:
+      mode: max-5
+      include: '>=4.0.0 <5'
+  - versions: '5.0.0 || 5.0.6 || 5.1.0 || 5.2.6 || ^5.3.2'
+    commands: node test/instrumentation/modules/ioredis.test.js
+    update-versions:
+      mode: latest-minors
+      include: '>=5.0.0 <6'
 
-pg-old-node:
-  name: pg
+pg:
   # We want this version range:
   #   versions: '>=4 <9'
   # but test a subset to reduce the test matrix. The last 4.x release was in
   # 2017, 5.x in 2017, 6.x in 2017, 7.x in 2020.
   #
   # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  versions: '4.0.0 || 4.5.7 || 5.2.1 || 6.4.2 || 7.18.2 || 8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || 8.7.3 || 8.8.0 || 8.9.0 || 8.10.0 || >8.10.0 <9'
-  node: '<14'
-  peerDependencies:
-    - knex@^0.20 # latest knex that supports back to node v8
-  commands:
-    - node test/instrumentation/modules/pg/pg.test.js
-    - node test/instrumentation/modules/pg/knex.test.js
-pg-new-node:
-  name: pg
+  - versions: '4.0.0 || 4.5.7 || 5.2.1 || 6.4.2 || 7.18.2 || 8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || 8.7.3 || 8.8.0 || 8.9.0 || 8.10.0 || >8.10.0 <9'
+    node: '<14'
+    peerDependencies:
+      - knex@^0.20 # latest knex that supports back to node v8
+    commands:
+      - node test/instrumentation/modules/pg/pg.test.js
+      - node test/instrumentation/modules/pg/knex.test.js
   # We want this version range:
   #   versions: '>=8.0.3 <9' # Prior versions didn't work in Node.js 14
   # but only the latest MAJOR.MINOR.x to reduce the test matrix.
   #
   # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  versions: '8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || 8.7.3 || 8.8.0 || 8.9.0 || 8.10.0 || >8.10.0 <9'
-  node: '>=14'
-  commands:
-    - node test/instrumentation/modules/pg/pg.test.js
-    - node test/instrumentation/modules/pg/knex.test.js
+  - versions: '8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || 8.7.3 || 8.8.0 || 8.9.0 || 8.10.0 || >8.10.0 <9'
+    node: '>=14'
+    commands:
+      - node test/instrumentation/modules/pg/pg.test.js
+      - node test/instrumentation/modules/pg/knex.test.js
 
 # Latest mongodb-core release (v3.2.7) was released in 2019. We test a subset
 # of the full supported range.
@@ -143,24 +126,19 @@ mongodb-core:
     mode: latest-minors
     include: '>=1.2.19 <4' # latest minors subset of '>=1.2.19 <4'
 
-mongodb-3-4:
-  name: mongodb
-  versions: '3.3.0 || 3.5.5 || 3.6.6 || 4.0.1 || 4.5.0 || 4.15.0 || ^4.17.1'
-  commands: node test/instrumentation/modules/mongodb/mongodb.test.js
-  # Test v3.3, latest v4 and 5 versions in between.
-  update-versions:
-    mode: max-5
-    include: '>=3.3 <5'
-mongodb-5:
-  name: mongodb
-  versions: '>=5 <6'
-  node: '>=14.20.1'
-  commands: node test/instrumentation/modules/mongodb/mongodb.test.js
 mongodb:
-  name: mongodb
-  versions: '>=6 <7'
-  node: '>=15.0.0'
-  commands: node test/instrumentation/modules/mongodb/mongodb.test.js
+  - versions: '3.3.0 || 3.5.5 || 3.6.6 || 4.0.1 || 4.5.0 || 4.15.0 || ^4.17.1'
+    commands: node test/instrumentation/modules/mongodb/mongodb.test.js
+    # Test v3.3, latest v4 and 5 versions in between.
+    update-versions:
+      mode: max-5
+      include: '>=3.3 <5'
+  - versions: '>=5 <6'
+    node: '>=14.20.1'
+    commands: node test/instrumentation/modules/mongodb/mongodb.test.js
+  - versions: '>=6 <7'
+    node: '>=15.0.0'
+    commands: node test/instrumentation/modules/mongodb/mongodb.test.js
 
 # Bluebird is effectively deprecated (https://github.com/petkaantonov/bluebird#%EF%B8%8Fnote%EF%B8%8F).
 # Testing the full set of supported bluebird releases (`>=2 <4`) is currently
@@ -177,52 +155,37 @@ bluebird:
 # - knex 0.21.0 min supported node is v10
 # - knex 1.0.0 min supported node is v12
 # - knex 3.0.0 min supported node is v16
-knex-v0.10-v0.17:
-  name: knex
+knex:
   # Latest 0.16 release was in 2019, therefore only test first and last in this range.
-  versions: '0.10.0 || 0.16.5'
-  commands: node test/instrumentation/modules/pg/knex.test.js
-knex-v0.17-v0.21:
-  name: knex
-  node: '>=8.6.0'
+  - versions: '0.10.0 || 0.16.5'
+    commands: node test/instrumentation/modules/pg/knex.test.js
   # Latest 0.20.x release was 2020-04, there only test first and last in this range.
-  versions: '0.17.0 || 0.20.15'
-  commands: node test/instrumentation/modules/pg/knex.test.js
-knex-v0.21-v1:
-  name: knex
-  node: '>=10.22.0'
-  versions: '0.21.21 || ^0.95.15' # latest majors subset of '>=0.21 <1'
-  commands: node test/instrumentation/modules/pg/knex.test.js
-knex-v1-v3:
-  name: knex
-  node: '>=12.0.0'
-  versions: '1.0.7 || ^2.5.1' # latest majors subset of '>=1 <3'
-  commands: node test/instrumentation/modules/pg/knex.test.js
-knex-v3-:
-  name: knex
-  node: '>=16'
-  versions: '^3.0.1'
-  commands: node test/instrumentation/modules/pg/knex.test.js
+  - versions: '0.17.0 || 0.20.15'
+    node: '>=8.6.0'
+    commands: node test/instrumentation/modules/pg/knex.test.js
+  - versions: '0.21.21 || ^0.95.15' # latest majors subset of '>=0.21 <1'
+    node: '>=10.22.0'
+    commands: node test/instrumentation/modules/pg/knex.test.js
+  - versions: '1.0.7 || ^2.5.1' # latest majors subset of '>=1 <3'
+    node: '>=12.0.0'
+    commands: node test/instrumentation/modules/pg/knex.test.js
+  - versions: '^3.0.1'
+    node: '>=16'
+    commands: node test/instrumentation/modules/pg/knex.test.js
 
-ws-old:
-  name: ws
-  versions: '>=1 <7'
-  commands: node test/instrumentation/modules/ws.test.js
-ws-new:
-  name: ws
-  node: '>=8.6.0'
-  versions: '>=7 <8'
-  commands: node test/instrumentation/modules/ws.test.js
+ws:
+  - versions: '>=1 <7'
+    commands: node test/instrumentation/modules/ws.test.js
+  - versions: '>=7 <8'
+    node: '>=8.6.0'
+    commands: node test/instrumentation/modules/ws.test.js
 
-graphql-v0.7-v16:
-  name: graphql
-  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16'
-  commands: node test/instrumentation/modules/graphql.test.js
 graphql:
-  name: graphql
-  node: '>=12'
-  versions: '>=16.0.0 <17'
-  commands: node test/instrumentation/modules/graphql.test.js
+  - versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16'
+    commands: node test/instrumentation/modules/graphql.test.js
+  - versions: '>=16.0.0 <17'
+    node: '>=12'
+    commands: node test/instrumentation/modules/graphql.test.js
 
 express:
   versions: '4.0.0 || 4.1.2 || 4.2.0 || 4.3.2 || 4.4.5 || 4.5.1 || 4.6.1 || 4.7.4 || 4.8.8 || 4.9.8 || 4.10.8 || 4.11.2 || 4.12.4 || 4.13.4 || 4.14.1 || 4.15.5 || 4.16.4 || 4.17.3 || ^4.18.2'
@@ -233,59 +196,52 @@ express:
     - node test/instrumentation/modules/express/set-framework.test.js
   update-versions:
     mode: latest-minors
-    # include requires an upper bound. v5 is still in beta 
+    # include requires an upper bound. v5 is still in beta
     # (5.0.0-beta.1": "2022-02-15T01:11:25.229Z) but we use 6 to make sure any
     # future release is included if we udpate
     include: '>=4 <6' # latest minors subset of '>=4 <6'
 
-apollo-server-express-2_graphql-14:
-  name: apollo-server-express
-  peerDependencies: graphql@^14.0.0
+apollo-server-express:
   # We want this version range:
   #   versions: '>=2.9.16 <2.2 || >= 2.3.2 <3'
   # but only the latest MAJOR.MINOR.x to reduce the test matrix.
   #
   # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  versions: '2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
-  node: '>=6'
-  commands: node test/instrumentation/modules/apollo-server-express.test.js
-apollo-server-express-2_graphql-15:
-  name: apollo-server-express
-  peerDependencies: graphql@^15.0.0
+  - versions: '2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
+    peerDependencies: graphql@^14.0.0
+    node: '>=6'
+    commands: node test/instrumentation/modules/apollo-server-express.test.js
   # We want this version range (2.12.0 was the first release of
   # apollo-server-express after graphql@15 was released):
-  #   versions: '>= 2.12.0 <3'
+  #   versions: '>=2.12.0 <3'
   # but only the latest MAJOR.MINOR.x to reduce the test matrix.
   #
   # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  versions: '2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
-  # Per https://github.com/graphql/graphql-js/releases/tag/v15.0.0
-  # graphql v15 supports node v8 as a minimum.
-  node: '>=8'
-  commands: node test/instrumentation/modules/apollo-server-express.test.js
-apollo-server-express-3_graphql-15:
-  name: apollo-server-express
-  peerDependencies: graphql@^15.0.0
+  - versions: '2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
+    peerDependencies: graphql@^15.0.0
+    # Per https://github.com/graphql/graphql-js/releases/tag/v15.0.0
+    # graphql v15 supports node v8 as a minimum.
+    node: '>=8'
+    commands: node test/instrumentation/modules/apollo-server-express.test.js
   # We want this version range:
   #   versions: '^3.0.0'
   # but only test the latest MAJOR.MINOR.x to reduce the test matrix.
   #
   # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  versions: '3.0.2 || 3.1.2 || 3.2.0 || 3.3.0 || 3.4.1 || 3.5.0 || 3.6.8 || 3.7.0 || 3.8.2 || 3.9.0 || ^3.10.2'
-  commands: node test/instrumentation/modules/apollo-server-express.test.js
+  - versions: '3.0.2 || 3.1.2 || 3.2.0 || 3.3.0 || 3.4.1 || 3.5.0 || 3.6.8 || 3.7.0 || 3.8.2 || 3.9.0 || ^3.10.2'
+    peerDependencies: graphql@^15.0.0
+    commands: node test/instrumentation/modules/apollo-server-express.test.js
 
 express-queue:
   versions: '>=0.0.11'
   commands: node test/instrumentation/modules/express-queue.test.js
 
 koa-router:
-  name: koa-router
   versions: '>=5.2.0 <13'
   peerDependencies: koa@2
   commands: node test/instrumentation/modules/koa-router/old-name.test.js
 
 '@koa/router':
-  name: '@koa/router'
   versions: '>=8 <13'
   peerDependencies: koa@2
   commands: node test/instrumentation/modules/koa-router/new-name.test.js
@@ -306,34 +262,27 @@ elasticsearch:
 #     "8.2.0" because they are stuck with stack version numbers. However,
 #     semver (and TAV) consider "-patch.N" to be a *prereleases*. This
 #     leads to some tortured "versions:" ranges below.
-'@elastic/elasticsearch-v7.0-v7.12':
-  name: '@elastic/elasticsearch'
-  versions: '>=7.0.0 <7.7.0 || >7.7.0 <7.12.0'
-  commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
-'@elastic/elasticsearch-v7.12-v8.2':
-  name: '@elastic/elasticsearch'
-  versions: '>=7.12.0 <8.2'
-  node: '>=12.0.0'
-  commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
-'@elastic/elasticsearch-v8.2-':
-  name: '@elastic/elasticsearch'
-  versions: '>=8.2.0-patch.1 <8.2.0 || >8.2.0'
-  node: '>=14.0.0'
-  commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
+'@elastic/elasticsearch':
+  - versions: '>=7.0.0 <7.7.0 || >7.7.0 <7.12.0'
+    commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
+  - versions: '>=7.12.0 <8.2'
+    node: '>=12.0.0'
+    commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
+  - versions: '>=8.2.0-patch.1 <8.2.0 || >8.2.0'
+    node: '>=14.0.0'
+    commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 
 handlebars:
   versions: '*'
   commands: node test/instrumentation/modules/handlebars.test.js
+
 # Pug v3 dropped node v8 support (https://github.com/pugjs/pug/releases/tag/pug%403.0.0).
-pug-v2:
-  name: 'pug'
-  versions: '0.1.0 || >2.0.0 <3.0.0'
-  commands: node test/instrumentation/modules/pug.test.js
 pug:
-  name: 'pug'
-  versions: '>=3.0.0'
-  node: '>8'
-  commands: node test/instrumentation/modules/pug.test.js
+  - versions: '0.1.0 || >2.0.0 <3.0.0'
+    commands: node test/instrumentation/modules/pug.test.js
+  - versions: '>=3.0.0'
+    node: '>8'
+    commands: node test/instrumentation/modules/pug.test.js
 
 # @hapi/hapi
 # - Package name: Starting with v17.9.0 and v18.2.0 the name changed from
@@ -347,62 +296,46 @@ pug:
 #     handling a POST.
 #   - @hapi/hapi@21: dropped support for node v12, and requires v14.10.0
 #     for 'performance.eventLoopUtilization'
-'@hapi/hapi-v17-v19':
-  name: '@hapi/hapi'
-  versions: '>=17.0.0 <19.0.0'
-  node: '>=8.12.0 <16.0.0'
-  commands:
-    - node test/instrumentation/modules/hapi/hapi.test.js
-    - node test/instrumentation/modules/hapi/set-framework.test.js
-'@hapi/hapi-v19-v20.1.2':
-  name: '@hapi/hapi'
-  versions: '>=19.0.0 <20.1.2'
-  node: '>=12.0.0 <16.0.0'
-  commands:
-    - node test/instrumentation/modules/hapi/hapi.test.js
-    - node test/instrumentation/modules/hapi/set-framework.test.js
-'@hapi/hapi-v20.1.2-v21':
-  name: '@hapi/hapi'
-  versions: '>=20.1.2 <21.0.0'
-  node: '>=12.0.0'
-  commands:
-    - node test/instrumentation/modules/hapi/hapi.test.js
-    - node test/instrumentation/modules/hapi/set-framework.test.js
-'@hapi/hapi-v21-':
-  name: '@hapi/hapi'
-  versions: '>=21.0.0'
-  node: '>=14.10.0'
-  commands:
-    - node test/instrumentation/modules/hapi/hapi.test.js
-    - node test/instrumentation/modules/hapi/set-framework.test.js
+'@hapi/hapi':
+  - versions: '>=17.0.0 <19.0.0'
+    node: '>=8.12.0 <16.0.0'
+    commands:
+      - node test/instrumentation/modules/hapi/hapi.test.js
+      - node test/instrumentation/modules/hapi/set-framework.test.js
+  - versions: '>=19.0.0 <20.1.2'
+    node: '>=12.0.0 <16.0.0'
+    commands:
+      - node test/instrumentation/modules/hapi/hapi.test.js
+      - node test/instrumentation/modules/hapi/set-framework.test.js
+  - versions: '>=20.1.2 <21.0.0'
+    node: '>=12.0.0'
+    commands:
+      - node test/instrumentation/modules/hapi/hapi.test.js
+      - node test/instrumentation/modules/hapi/set-framework.test.js
+  - versions: '>=21.0.0'
+    node: '>=14.10.0'
+    commands:
+      - node test/instrumentation/modules/hapi/hapi.test.js
+      - node test/instrumentation/modules/hapi/set-framework.test.js
 
-tedious-v1-v11:
-  name: tedious
-  node: '>=6'
-  # latest majors subset of '>=1.9.0 <4.0.0 || >4.0.1 <11'
-  versions: '1.9.0 || 1.15.0 || 2.7.1 || 3.0.1 || 4.2.0 || 5.0.3 || 6.7.1 || 7.0.0 || 8.3.1 || 9.2.3 || 10.0.0'
-  commands: node test/instrumentation/modules/tedious.test.js
-tedious-v11-v12:
-  name: tedious
-  node: '>=10.17.0'
-  versions: '11.0.0 || 11.8.0' # first and last subset of '11.x'
-  commands: node test/instrumentation/modules/tedious.test.js
-tedious-v12-v15:
-  name: tedious
-  node: '>=12.3.0'
-  # first and last majors subset of '12.x || 13.x || 14.x'
-  versions: '12.0.0 || 12.3.0 || 13.0.0 || 13.2.0 || 14.0.0 || 14.7.0 || >14.7.0 <15'
-  commands: node test/instrumentation/modules/tedious.test.js
-tedious-v15-v16:
-  name: tedious
-  node: '>=14'
-  versions: '15.0.0 || 15.1.3 || >15.1.3 <16' # first and last majors subset of '15.x'
-  commands: node test/instrumentation/modules/tedious.test.js
 tedious:
-  name: tedious
-  node: '>=16'
-  versions: '16.0.0 || 16.1.0 || >16.1.0 <17' # first and last majors subset of '16.x'
-  commands: node test/instrumentation/modules/tedious.test.js
+  # latest majors subset of '>=1.9.0 <4.0.0 || >4.0.1 <11'
+  - versions: '1.9.0 || 1.15.0 || 2.7.1 || 3.0.1 || 4.2.0 || 5.0.3 || 6.7.1 || 7.0.0 || 8.3.1 || 9.2.3 || 10.0.0'
+    node: '>=6'
+    commands: node test/instrumentation/modules/tedious.test.js
+  - versions: '11.0.0 || 11.8.0' # first and last subset of '11.x'
+    node: '>=10.17.0'
+    commands: node test/instrumentation/modules/tedious.test.js
+  # first and last majors subset of '12.x || 13.x || 14.x'
+  - versions: '12.0.0 || 12.3.0 || 13.0.0 || 13.2.0 || 14.0.0 || 14.7.0 || >14.7.0 <15'
+    node: '>=12.3.0'
+    commands: node test/instrumentation/modules/tedious.test.js
+  - versions: '15.0.0 || 15.1.3 || >15.1.3 <16' # first and last majors subset of '15.x'
+    node: '>=14'
+    commands: node test/instrumentation/modules/tedious.test.js
+  - versions: '16.0.0 || 16.1.0 || >16.1.0 <17' # first and last majors subset of '16.x'
+    node: '>=16'
+    commands: node test/instrumentation/modules/tedious.test.js
 
 
 cassandra-driver:
@@ -414,34 +347,27 @@ cassandra-driver:
 # - restify <v10 doesn't work with node v18+ (https://github.com/restify/node-restify/issues/1888)
 # - restify v9 used `require('node:...')` that requires node >v14.18.0
 #   (https://nodejs.org/api/modules.html#core-modules)
-restify-v5-v8:
-  name: restify
-  versions: '>=5.2.0 <8.0.0'
-  node: '<18.0.0'
-  commands:
-    - node test/instrumentation/modules/restify/basic.test.js
-    - node test/instrumentation/modules/restify/set-framework.test.js
-restify-v8-v9:
-  name: restify
-  versions: '>=8.0.0 <9.0.0'
-  node: '>=8.6.0 <18.0.0'
-  commands:
-    - node test/instrumentation/modules/restify/basic.test.js
-    - node test/instrumentation/modules/restify/set-framework.test.js
-restify-v9-v10:
-  name: restify
-  versions: '>=9.0.0 <10.0.0'
-  node: '>=14.18.0 <18.0.0'
-  commands:
-    - node test/instrumentation/modules/restify/basic.test.js
-    - node test/instrumentation/modules/restify/set-framework.test.js
-restify-v10-v12:
-  name: restify
-  versions: '>=10.0.0 <12.0.0'
-  node: '>=14.18.0'
-  commands:
-    - node test/instrumentation/modules/restify/basic.test.js
-    - node test/instrumentation/modules/restify/set-framework.test.js
+restify:
+  - versions: '>=5.2.0 <8.0.0'
+    node: '<18.0.0'
+    commands:
+      - node test/instrumentation/modules/restify/basic.test.js
+      - node test/instrumentation/modules/restify/set-framework.test.js
+  - versions: '>=8.0.0 <9.0.0'
+    node: '>=8.6.0 <18.0.0'
+    commands:
+      - node test/instrumentation/modules/restify/basic.test.js
+      - node test/instrumentation/modules/restify/set-framework.test.js
+  - versions: '>=9.0.0 <10.0.0'
+    node: '>=14.18.0 <18.0.0'
+    commands:
+      - node test/instrumentation/modules/restify/basic.test.js
+      - node test/instrumentation/modules/restify/set-framework.test.js
+  - versions: '>=10.0.0 <12.0.0'
+    node: '>=14.18.0'
+    commands:
+      - node test/instrumentation/modules/restify/basic.test.js
+      - node test/instrumentation/modules/restify/set-framework.test.js
 
 # https://www.fastify.io/docs/latest/LTS/
 # - #1086 suggests fastify@2.4.0 was a broken release, skip it.
@@ -450,51 +376,44 @@ restify-v10-v12:
 # - Do not run "test/sanitize-field-names/fastify.test.js" for older fastify,
 #   because the test file uses '@fastify/formbody', which only has versions
 #   for fastify >=3.
-fastify-v1:
-  name: fastify
-  versions: '1.0.0 || 1.14.6' # subset of '1.x'
-  node: '>=6 <12'
-  commands:
-    - node test/instrumentation/modules/fastify/fastify.test.js
-    - node test/instrumentation/modules/fastify/async-await.test.js
-    - node test/instrumentation/modules/fastify/set-framework.test.js
-fastify-v2:
-  name: fastify
-  versions: '2.0.0 || 2.15.3' # subset of '>=2.0.0 <2.4.0 || >2.4.0 <3'
-  node: '>=6 <15'
-  commands:
-    - node test/instrumentation/modules/fastify/fastify.test.js
-    - node test/instrumentation/modules/fastify/async-await.test.js
-    - node test/instrumentation/modules/fastify/set-framework.test.js
-fastify-v3:
-  name: fastify
-  # Update versions periodically with "./dev-utils/tav-versions-fastify.sh".
-  versions: '3.0.0 || 3.6.0 || 3.14.2 || 3.20.1 || 3.24.0 || 3.29.0 || ^3.29.5'
-  peerDependencies: '@fastify/formbody@^6.0.1'
-  node: '>=10'
-  commands:
-    - node test/instrumentation/modules/fastify/fastify.test.js
-    - node test/instrumentation/modules/fastify/async-await.test.js
-    - node test/instrumentation/modules/fastify/set-framework.test.js
-    - node test/sanitize-field-names/fastify.test.js
-  update-versions:
-    mode: max-5
-    include: '>=3 <4'
 fastify:
-  name: fastify
+  - versions: '1.0.0 || 1.14.6' # subset of '1.x'
+    node: '>=6 <12'
+    commands:
+      - node test/instrumentation/modules/fastify/fastify.test.js
+      - node test/instrumentation/modules/fastify/async-await.test.js
+      - node test/instrumentation/modules/fastify/set-framework.test.js
+  - versions: '2.0.0 || 2.15.3' # subset of '>=2.0.0 <2.4.0 || >2.4.0 <3'
+    node: '>=6 <15'
+    commands:
+      - node test/instrumentation/modules/fastify/fastify.test.js
+      - node test/instrumentation/modules/fastify/async-await.test.js
+      - node test/instrumentation/modules/fastify/set-framework.test.js
   # Update versions periodically with "./dev-utils/tav-versions-fastify.sh".
-  versions: '4.0.0 || 4.5.0 || 4.9.0 || 4.13.0 || 4.19.1 || 4.23.1 || ^4.24.3'
-  peerDependencies: '@fastify/formbody@^7'
-  node: '>=14.6.0'
-  commands:
-    - node test/instrumentation/modules/fastify/fastify.test.js
-    - node test/instrumentation/modules/fastify/async-await.test.js
-    - node test/instrumentation/modules/fastify/set-framework.test.js
-    - node test/sanitize-field-names/fastify.test.js
-  update-versions:
-    mode: max-5
-    include: '>=4 <5'
-    exclude: '4.0.1 || >=4.16.0 <=4.16.2'
+  - versions: '3.0.0 || 3.6.0 || 3.14.2 || 3.20.1 || 3.24.0 || 3.29.0 || ^3.29.5'
+    peerDependencies: '@fastify/formbody@^6.0.1'
+    node: '>=10'
+    commands:
+      - node test/instrumentation/modules/fastify/fastify.test.js
+      - node test/instrumentation/modules/fastify/async-await.test.js
+      - node test/instrumentation/modules/fastify/set-framework.test.js
+      - node test/sanitize-field-names/fastify.test.js
+    update-versions:
+      mode: max-5
+      include: '>=3 <4'
+  # Update versions periodically with "./dev-utils/tav-versions-fastify.sh".
+  - versions: '4.0.0 || 4.5.0 || 4.9.0 || 4.13.0 || 4.19.1 || 4.23.1 || ^4.24.3'
+    peerDependencies: '@fastify/formbody@^7'
+    node: '>=14.6.0'
+    commands:
+      - node test/instrumentation/modules/fastify/fastify.test.js
+      - node test/instrumentation/modules/fastify/async-await.test.js
+      - node test/instrumentation/modules/fastify/set-framework.test.js
+      - node test/sanitize-field-names/fastify.test.js
+    update-versions:
+      mode: max-5
+      include: '>=4 <5'
+      exclude: '4.0.1 || >=4.16.0 <=4.16.2'
 
 finalhandler:
   versions: '*'
@@ -586,7 +505,6 @@ aws-sdk:
 # - In undici@4.7.1 the `request.origin` property was added, which we need
 #   in the 'undici:request:create' diagnostic message.
 undici:
-  name: undici
   versions: '4.7.1 || 4.10.4 || 5.1.1 || 5.12.0 || 5.22.0 || 5.27.1 || ^5.28.2'
   commands: node test/instrumentation/modules/undici/undici.test.js
   # Test v4.7.1, latest v5 and 5 versions in between.
