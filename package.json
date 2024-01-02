@@ -25,10 +25,10 @@
     "bench:ci": "./test/benchmarks/scripts/run-benchmarks-ci.sh",
     "local:start": "./test/script/local-deps-start.sh",
     "local:stop": "./test/script/local-deps-stop.sh",
-    "docker:start": "docker compose -f ./test/docker-compose.yml up -d",
-    "docker:stop": "docker compose -f ./test/docker-compose.yml down",
+    "docker:start": "docker-compose -f ./test/docker-compose.yml up -d",
+    "docker:stop": "docker-compose -f ./test/docker-compose.yml down",
     "docker:clean": "./test/script/docker/cleanup.sh",
-    "docker:dev": "docker compose -f ./dev-utils/docker-compose.yml run --workdir=/agent nodejs-agent",
+    "docker:dev": "docker-compose -f ./dev-utils/docker-compose.yml run --workdir=/agent nodejs-agent",
     "package:snapshot": "rm -rf ./build/snapshot && mkdir -p ./build/snapshot && npm pack --pack-destination ./build/snapshot"
   },
   "directories": {
@@ -104,6 +104,7 @@
     "escape-string-regexp": "^4.0.0",
     "fast-safe-stringify": "^2.0.7",
     "fast-stream-to-buffer": "^1.0.0",
+    "fibers": "5.0.3",
     "http-headers": "^3.0.2",
     "import-in-the-middle": "1.7.2",
     "json-bigint": "^1.0.0",
