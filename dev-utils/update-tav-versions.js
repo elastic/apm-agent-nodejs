@@ -157,34 +157,6 @@ async function main() {
 // support functions
 
 /**
- * Tells if a TAV config is correct
- * @param {string} name
- * @param {TavConfig} config
- */
-function checkConfig(name, config) {
-  if (!config[UPDATE_PROP]) {
-    return;
-  }
-
-  const { mode, include } = config[UPDATE_PROP];
-
-  // Check format before doing fetch
-  if (mode.startsWith('max-')) {
-    const num = Number(mode.split('-')[1]);
-    if (isNaN(num)) {
-      throw new Error(
-        `Error: TAV config ${name} invalid "max-n" mode, "n" must be a number (current: ${mode})`,
-      );
-    }
-  }
-  if (!INCLUDE_REGEXP.test(include)) {
-    throw new Error(
-      `Error: TAV config ${name} include property must be in the form ">=SemVer <SemVer" (current: ${include})`,
-    );
-  }
-}
-
-/**
  * @param {string} name
  * @param {TavConfig} config the configration in .tav.yml
  * @param {string[]} pkgVersions list of all versions of the package
