@@ -46,38 +46,69 @@ const UPDATE_PROP = 'update-versions';
 const INCLUDE_REGEXP = /^>=\d+(\.\d+){0,2} <\d+(\.\d+){0,2}$/;
 
 async function main() {
-  /** @type {Map<string, string[]>} */
-  const pkgVersMap = new Map(); // versions per package name
-  /** @type {Map<string, string[] | string[][]>} */
-  const tavVersMap = new Map(); // versions per TAV configuration
-
+  // The `.tav.yml` content
   const tavContent = readFileSync(TAV_PATH, { encoding: 'utf-8' });
-  /** @type {Record<string, TavConfig | TavConfig[]>} */
+  /**
+   * New format may return a single config (object) or multiple
+   * configs (object array)
+   * @type {Record<string, TavConfig | TavConfig[]>}
+   */
   const tavConfig = yaml.load(tavContent);
+  // Array with the nemes of all pacakges configured for TAV
   const tavPackages = Object.keys(tavConfig);
 
-  tavPackages
-    // Only get the ones with config
-    .filter((pkgName) => {
-      const config = tavConfig[pkgName];
+  /**
+   * Contains all versions available per package
+   * @type {Map<string, string[]>}
+   */
+  const pkgVersMap = new Map();
+  /**
+   * Contains resolved versions per TAV configuration
+   * - if config only specifies one version range is an array of strings
+   * - if config specifies multiple version ranges is an array per range defined
+   * @type {Map<string, string[] | string[][]>}
+   */
+  const tavVersMap = new Map();
 
-      if (Array.isArray(config)) {
-        return config.some((c) => c[UPDATE_PROP]);
-      }
-      return config[UPDATE_PROP];
+  // Resolve versions for each package & range
+  tavPackages
+    // Check for valid config and filter out the ones wihtout it
+    .filter((pkgName) => {
+      const entry = tavConfig[pkgName];
+      let configs = Array.isArray(entry) ? entry : [entry];
+      let found = false;
+
+      configs.forEach((config) => {
+        if (!config[UPDATE_PROP]) {
+          return;
+        }
+
+        const { mode, include } = config[UPDATE_PROP];
+
+        // Check format before doing fetch
+        if (mode.startsWith('max-')) {
+          const num = Number(mode.split('-')[1]);
+          if (isNaN(num)) {
+            throw new Error(
+              `Error: TAV config ${pkgName} invalid "max-n" mode, "n" must be a number (current: ${mode})`,
+            );
+          }
+        }
+        if (!INCLUDE_REGEXP.test(include)) {
+          throw new Error(
+            `Error: TAV config ${pkgName} include property must be in the form ">=SemVer <SemVer" (current: ${include})`,
+          );
+        }
+        found = true;
+      });
+
+      return found;
     })
     .forEach((pkgName) => {
-      // Check configurations
-      const config = tavConfig[pkgName];
-      if (Array.isArray(config)) {
-        config.forEach((c) => checkConfig(pkgName, c));
-      } else {
-        checkConfig(pkgName, config);
-      }
-
       // Fetch versions for the package. Now with the new format each package
       // appears only once
       console.log(`Fetching versions for ${pkgName}`);
+      const config = tavConfig[pkgName];
       const pkgVersions = JSON.parse(
         execSync(`npm view ${pkgName} versions -j`, { encoding: 'utf-8' }),
       );
