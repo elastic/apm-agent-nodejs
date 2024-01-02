@@ -47,7 +47,7 @@ See the <<upgrade-to-v4>> guide.
 
 * Improve Fastify instrumentation to no longer cause the https://fastify.dev/docs/latest/Reference/Warnings/#FSTDEP017[`FSTDEP017`]
   and https://fastify.dev/docs/latest/Reference/Warnings/#FSTDEP018[`FSTDEP018`]
-  deprecation warnings.
+  deprecation warnings. ({pull}3814[#3814])
 
 [float]
 ===== Chores
