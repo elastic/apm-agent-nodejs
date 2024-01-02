@@ -18,6 +18,8 @@ To get you off the ground, we've prepared guides for setting up the Agent with a
 // end::web-frameworks-list[]
 
 Alternatively, you can <<custom-stack>>.
+For Kubernetes, we support auto-attachment using the {apm-attacher-ref}/index.html[APM attacher].
+
 To see an overview of which components of your application we instrument automatically,
 use the <<supported-technologies>> page.
 
