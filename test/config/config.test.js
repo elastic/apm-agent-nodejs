@@ -396,6 +396,24 @@ const testFixtures = [
     },
   },
   {
+    name: 'use agent - NODE_ENV envvar sets "environment"',
+    script: 'fixtures/use-agent.js',
+    cwd: __dirname,
+    noConvenienceConfig: true,
+    env: {
+      NODE_ENV: 'this-is-from-node-env',
+      TEST_APM_START_OPTIONS: JSON.stringify({
+        configFile: 'fixtures/use-agent-config.js',
+      }),
+    },
+    checkScriptResult: (t, err, stdout) => {
+      t.error(err, `use-agent.js script succeeded: err=${err}`);
+      const useAgentLogs = getUseAgentLogs(stdout);
+      const resolvedConfig = JSON.parse(useAgentLogs[2]);
+      t.equal(resolvedConfig.environment, 'this-is-from-node-env');
+    },
+  },
+  {
     name: 'use agent - should support key/value pairs formats (string & object)',
     script: 'fixtures/use-agent.js',
     cwd: __dirname,

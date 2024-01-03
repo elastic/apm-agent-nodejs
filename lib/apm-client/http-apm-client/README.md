@@ -56,7 +56,7 @@ See also the "Cloud & Extra Metadata" section below.
   specific framework, use this config option to log its version
 - `configuredHostname` - A user-configured hostname, if any, e.g. from the `ELASTIC_APM_HOSTNAME` envvar.
   See <https://github.com/elastic/apm/blob/main/specs/agents/metadata.md#hostname>.
-- `environment` - Environment name (default: `process.env.NODE_ENV || 'development'`)
+- `environment` - Environment name (e.g. 'development', 'production')
 - `containerId` - Docker container id, if not given will be parsed from `/proc/self/cgroup`
 - `kubernetesNodeName` - Kubernetes node name
 - `kubernetesNamespace` - Kubernetes namespace

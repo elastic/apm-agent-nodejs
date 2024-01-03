@@ -34,6 +34,25 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Fix bug where `NODE_ENV` environment value was not used as a default for
+  the <<environment>> config setting. The bug was introduced in v4.2.0.
+  ({issues}3807[#3807])
+
+[float]
+===== Chores
+
+
 [[release-notes-4.3.0]]
 ==== 4.3.0 - 2023/12/05
 
