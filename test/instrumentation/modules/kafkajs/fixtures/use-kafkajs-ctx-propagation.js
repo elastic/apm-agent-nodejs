@@ -6,6 +6,8 @@
 
 'use strict';
 
+const TEST_TOPIC_PREFIX = 'elasticapmtest-topic-';
+
 const apm = require('../../../../..').start({
   serviceName: 'use-kafkajs',
   captureExceptions: false,
@@ -14,12 +16,9 @@ const apm = require('../../../../..').start({
   cloudProvider: 'none',
   stackTraceLimit: 4, // get it smaller for reviewing output
   logLevel: 'info',
-  ignoreMessageQueues: ['*-ignore'],
-  captureBody: process.env.TEST_CAPTURE_BODY || 'off',
-  captureHeaders: process.env.TEST_CAPTURE_HEADERS || false,
+  ignoreMessageQueues:
+    process.env.TEST_MODE === 'send' ? [`${TEST_TOPIC_PREFIX}*`] : [],
 });
-
-const { Buffer } = require('buffer');
 
 const { Kafka } = require('kafkajs');
 /** @type {import('kafkajs').Admin} */
@@ -29,81 +28,77 @@ let consumer;
 /** @type {import('kafkajs').Producer} */
 let producer;
 
-const TEST_TOPIC_PREFIX = 'elasticapmtest-topic-';
-
 /**
  * @param {import('kafkajs').Kafka} kafkaClient
- * @param {{topic: string; groupId: string}} options
+ * @param {{topic: string; groupId: string, mode: string}} options
  */
 async function useKafkajsClient(kafkaClient, options) {
-  const { topic, groupId } = options;
-  const topicToIgnore = `${topic}-ignore`;
+  const { topic, groupId, mode } = options;
   const log = apm.logger.child({
     'event.module': 'kafkajs',
     topic,
   });
 
   admin = kafkaClient.admin();
-  consumer = kafkaClient.consumer({ groupId });
-  producer = kafkaClient.producer();
-
-  // Create the topics & subscribe
   await admin.connect();
   await admin.createTopics({
     waitForLeaders: true,
-    topics: [{ topic, topicToIgnore }],
+    topics: [{ topic }],
   });
-  log.info('topic created');
+  log.info('createTopics');
 
-  await producer.connect();
-  await consumer.connect();
-  await consumer.subscribe({
-    topics: [topic, topicToIgnore],
-    fromBeginning: true,
-  });
-  log.info('all connected');
+  if (mode === 'send') {
+    // On this mode we send some messages which are ingonerd as per agent config
+    // this must be executed 1st
+    producer = kafkaClient.producer();
+    await producer.connect();
+    log.info('producer connected');
+    let data;
+    const tx = apm.startTransaction(`manual send to ${topic}`);
+    data = await producer.send({
+      topic: topic,
+      messages: [{ value: 'message 1' }],
+    });
+    log.info({ data }, 'messages sent');
+    data = await producer.sendBatch({
+      topicMessages: [
+        {
+          topic: topic,
+          messages: [{ value: 'batch message 1' }],
+        },
+      ],
+    });
+    log.info({ data }, 'batch sent');
+    tx.end();
 
-  let eachMessagesConsumed = 0;
-  await consumer.run({
-    eachMessage: async function ({ message }) {
-      log.info(`message received: ${message.value.toString()}`);
-      eachMessagesConsumed++;
-    },
-  });
+    await producer.disconnect();
+    log.info('messages sent');
+  } else if (mode === 'consume') {
+    // On this mode we consumen the already sent messsages. This time they are
+    // instrumented (not ignored) and trace context should be added to transactions
+    // this must be executed 2nd
+    consumer = kafkaClient.consumer({ groupId });
+    await consumer.connect();
+    await consumer.subscribe({
+      topics: [topic],
+      fromBeginning: true,
+    });
+    log.info('consumer connected');
 
-  // 1st test trasnsactions for each message received
-  // Ensure an APM transaction so spans can happen.
-  let data;
-  const eachTx = apm.startTransaction(`manual send to ${topic}`);
-  data = await producer.send({
-    topic,
-    messages: [
-      { value: 'each message 1', headers: { foo: 'string' } },
-      { value: 'each message 2', headers: { foo: Buffer.from('buffer') } },
-      { value: 'each message 3' },
-    ],
-  });
-  log.info({ data }, 'messages sent');
-  data = await producer.send({
-    topic: topicToIgnore,
-    messages: [
-      { value: 'ignore message 1' },
-      { value: 'ignore message 2' },
-      { value: 'ignore message 3' },
-    ],
-  });
-  log.info({ data }, 'messages to ignore sent');
-  eachTx.end();
-
-  await waitUntil(() => eachMessagesConsumed >= 6, 10000);
-  log.info('messages consumed');
-
-  await consumer.disconnect();
-  log.info('consumer disconnect');
-  await producer.disconnect();
-  log.info('producer disconnect');
-  await admin.deleteTopics({ topics: [topic, topicToIgnore] });
-  log.info('topics deleted');
+    let messagesConsumed = 0;
+    await consumer.run({
+      eachMessage: async function ({ message }) {
+        log.info(`message received: ${message.value.toString()}`);
+        messagesConsumed++;
+      },
+    });
+    await waitUntil(() => messagesConsumed >= 2, 10000);
+    log.info('messages consumed');
+    await consumer.disconnect();
+    log.info('consumer disconnect');
+    await admin.deleteTopics({ topics: [topic] });
+    log.info('topics deleted');
+  }
   await admin.disconnect();
   log.info('admin disconnect');
 }
@@ -137,8 +132,9 @@ function waitUntil(predicate, timeout = 5000) {
 
 // ---- mainline
 
-async function main() {
+function main() {
   // Config vars.
+  const mode = process.env.TEST_MODE;
   const clientId = process.env.TEST_CLIENT_ID || 'elastictest-kafka-client';
   const groupId = process.env.TEST_GROUP_ID || 'elastictest-kafka-group';
   const broker = process.env.TEST_KAFKA_HOST || 'localhost:9093';
@@ -154,15 +150,21 @@ async function main() {
     );
   }
 
+  if (!mode) {
+    throw new Error(
+      `cannot use ${__filename} wihtout a "TEST_MODE" set to "send|consume" in the env.`,
+    );
+  }
+
   const kafkaClient = new Kafka({ clientId, brokers: [broker] });
 
-  useKafkajsClient(kafkaClient, { topic, groupId }).then(
+  useKafkajsClient(kafkaClient, { topic, groupId, mode }).then(
     function () {
-      apm.logger.info('useKafkajsClient resolved');
+      apm.logger.info(`useKafkajsClient in "${mode}" mode resolved`);
       process.exitCode = 0;
     },
     function (err) {
-      apm.logger.error(err, 'useKafkajsClient rejected');
+      apm.logger.error(err, `useKafkajsClient in "${mode}" mode rejected`);
       process.exitCode = 1;
     },
   );

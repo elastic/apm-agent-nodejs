@@ -154,7 +154,7 @@ function main() {
   // receiveing in it, and potentially *deleting* the topic.
   if (!topic.startsWith(TEST_TOPIC_PREFIX)) {
     throw new Error(
-      `cannot use bucket name "${topic}", it must start with ${TEST_TOPIC_PREFIX}`,
+      `cannot use topic name "${topic}", it must start with ${TEST_TOPIC_PREFIX}`,
     );
   }
 

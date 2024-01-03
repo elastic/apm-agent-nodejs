@@ -109,7 +109,7 @@ const testFixtures = [
 
       t.equal(spans.length, 0, 'all spans accounted for');
 
-      // No check the transactions created for each message received
+      // Now check the transactions created for each message received
       const transactions = events
         .filter((e) => e.transaction)
         .map((e) => e.transaction);
@@ -292,12 +292,10 @@ const testFixtures = [
 
       t.equal(spans.length, 0, 'all spans accounted for');
 
-      // No check the transactions created for each message received
+      // Now check the transactions created for each message received
       const transactions = events
         .filter((e) => e.transaction)
         .map((e) => e.transaction);
-
-      // NOTE: no checks like prev test since there is only on span
 
       transactions.forEach((t) => {
         // Remove variable and common fields to facilitate t.deepEqual below.
@@ -432,7 +430,7 @@ const testFixtures = [
 
       t.equal(spans.length, 0, 'all spans accounted for');
 
-      // No check the transactions created for each message received
+      // Now check the transactions created for each message received
       const transactions = events
         .filter((e) => e.transaction)
         .map((e) => e.transaction);
@@ -535,6 +533,99 @@ const testFixtures = [
         },
         outcome: 'success',
       });
+      t.equal(transactions.length, 0, 'all transactions accounted for');
+    },
+  },
+  {
+    name: 'simple Kafkajs usage scenario of context propagation while sending messages',
+    script: 'fixtures/use-kafkajs-ctx-propagation.js',
+    cwd: __dirname,
+    timeout: 20000,
+    env: {
+      TEST_CLIENT_ID: 'elastic-kafka-client',
+      TEST_GROUP_ID: `elastictest-kafka-group-${rand}`,
+      TEST_TOPIC: kafkaTopic,
+      TEST_KAFKA_HOST: kafkaHost,
+      TEST_CAPTURE_HEADERS: 'true',
+      TEST_MODE: 'send',
+      // Suppres warinings about new default partitioner
+      // https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner
+      KAFKAJS_NO_PARTITIONER_WARNING: '1',
+    },
+    checkApmServer(t, apmServer) {
+      t.ok(apmServer.events[0].metadata, 'metadata');
+      const events = sortApmEvents(apmServer.events);
+      const tx = events.shift().transaction;
+
+      // First the transaction.
+      t.ok(tx, 'got the send transaction');
+
+      // Check topic is ignored
+      const spans = events.filter((e) => e.span).map((e) => e.span);
+      t.equal(spans.length, 0, 'there are no spans');
+    },
+  },
+  {
+    name: 'simple Kafkajs usage scenario of context propagation while consuming messages',
+    script: 'fixtures/use-kafkajs-ctx-propagation.js',
+    cwd: __dirname,
+    timeout: 20000,
+    env: {
+      TEST_CLIENT_ID: 'elastic-kafka-client',
+      TEST_GROUP_ID: `elastictest-kafka-group-${rand}`,
+      TEST_TOPIC: kafkaTopic,
+      TEST_KAFKA_HOST: kafkaHost,
+      TEST_CAPTURE_HEADERS: 'true',
+      TEST_MODE: 'consume',
+      // Suppres warinings about new default partitioner
+      // https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner
+      KAFKAJS_NO_PARTITIONER_WARNING: '1',
+    },
+    checkApmServer(t, apmServer) {
+      t.ok(apmServer.events[0].metadata, 'metadata');
+      const events = sortApmEvents(apmServer.events);
+
+      // Consuming does not generate spans
+      const spans = events.filter((e) => e.span).map((e) => e.span);
+      t.equal(spans.length, 0, 'there are no spans');
+
+      // Check the transactions fo consuming messages have the proper trace
+      const transactions = events
+        .filter((e) => e.transaction)
+        .map((e) => e.transaction);
+
+      const firstTx = transactions.shift();
+      const secondTx = transactions.shift();
+
+      t.equal(
+        firstTx.trace_id,
+        secondTx.trace_id,
+        'all transactions have same trace ID',
+      );
+      t.equal(
+        firstTx.parent_id,
+        secondTx.parent_id,
+        'all transactions have same parent ID',
+      );
+      t.ok(
+        firstTx.context.message.headers.traceparent,
+        'first transactions have traceparent header',
+      );
+      t.ok(
+        firstTx.context.message.headers.tracestate,
+        'first transactions have tracestate header',
+      );
+      t.equal(
+        firstTx.context.message.headers.traceparent,
+        secondTx.context.message.headers.traceparent,
+        'all transactions have same traceparent',
+      );
+      t.equal(
+        firstTx.context.message.headers.tracestate,
+        secondTx.context.message.headers.tracestate,
+        'all transactions have same tracestate',
+      );
+
       t.equal(transactions.length, 0, 'all transactions accounted for');
     },
   },
