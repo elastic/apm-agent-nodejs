@@ -45,6 +45,10 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Bug fixes
 
+* Fix bug where `NODE_ENV` environment value was not used as a default for
+  the <<environment>> config setting. The bug was introduced in v4.2.0.
+  ({issues}3807[#3807])
+
 * Improve Fastify instrumentation to no longer cause the https://fastify.dev/docs/latest/Reference/Warnings/#FSTDEP017[`FSTDEP017`]
   and https://fastify.dev/docs/latest/Reference/Warnings/#FSTDEP018[`FSTDEP018`]
   deprecation warnings. ({pull}3814[#3814])
