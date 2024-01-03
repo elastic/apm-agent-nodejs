@@ -34,6 +34,25 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Improve Fastify instrumentation to no longer cause the https://fastify.dev/docs/latest/Reference/Warnings/#FSTDEP017[`FSTDEP017`]
+  and https://fastify.dev/docs/latest/Reference/Warnings/#FSTDEP018[`FSTDEP018`]
+  deprecation warnings. ({pull}3814[#3814])
+
+[float]
+===== Chores
+
+
 [[release-notes-4.3.0]]
 ==== 4.3.0 - 2023/12/05
 
