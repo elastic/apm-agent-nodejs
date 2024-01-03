@@ -9,13 +9,12 @@
 /** @typedef {import('semver').SemVer} SemVer */
 /**
  * @typedef {Object} TavConfig
- * @property {String} [name]
- * @property {String} versions
- * @property {String} node
- * @property {String[]} commands
+ * @property {string} versions
+ * @property {string} [node]
+ * @property {string | string[]} commands
  * @property {Object} update-versions
- * @property {String} update-versions.include
- * @property {String} [update-versions.exclude]
+ * @property {string} update-versions.include
+ * @property {string} [update-versions.exclude]
  */
 
 'use strict';
@@ -47,95 +46,83 @@ const UPDATE_PROP = 'update-versions';
 const INCLUDE_REGEXP = /^>=\d+(\.\d+){0,2} <\d+(\.\d+){0,2}$/;
 
 async function main() {
-  /** @type {Map<string, string[]>} */
-  const pkgVersMap = new Map(); // versions per package name
-  /** @type {Map<string, string[]>} */
-  const tavVersMap = new Map(); // versions per TAV configuration
-
+  // The `.tav.yml` content
   const tavContent = readFileSync(TAV_PATH, { encoding: 'utf-8' });
-  /** @type {Record<string, TavConfig>} */
+  /**
+   * New format may return a single config (object) or multiple
+   * configs (object array)
+   * @type {Record<string, TavConfig | TavConfig[]>}
+   */
   const tavConfig = yaml.load(tavContent);
-  const tavEntries = Object.entries(tavConfig);
+  // Array with the nemes of all pacakges configured for TAV
+  const tavPackages = Object.keys(tavConfig);
 
-  for (const entry of tavEntries) {
-    const [name, cfg] = entry;
+  /**
+   * Contains all versions available per package
+   * @type {Map<string, string[]>}
+   */
+  const pkgVersMap = new Map();
+  /**
+   * Contains resolved versions per TAV configuration
+   * - if config only specifies one version range is an array of strings
+   * - if config specifies multiple version ranges is an array per range defined
+   * @type {Map<string, string[] | string[][]>}
+   */
+  const tavVersMap = new Map();
 
-    if (!cfg[UPDATE_PROP]) continue;
+  // Resolve versions for each package & range
+  tavPackages
+    // Check for valid config and filter out the ones wihtout it
+    .filter((pkgName) => {
+      const entry = tavConfig[pkgName];
+      let configs = Array.isArray(entry) ? entry : [entry];
+      let found = false;
 
-    const { mode, include, exclude } = cfg[UPDATE_PROP];
+      configs.forEach((config) => {
+        if (!config[UPDATE_PROP]) {
+          return;
+        }
 
-    // Check format before doing fetch
-    if (mode.startsWith('max-')) {
-      const num = Number(mode.split('-')[1]);
-      if (isNaN(num)) {
-        throw new Error(
-          `Error: TAV config ${name} invalid "max-n" mode, "n" must be a number (current: ${mode})`,
-        );
-      }
-    }
-    if (!INCLUDE_REGEXP.test(include)) {
-      throw new Error(
-        `Error: TAV config ${name} include property must be in the form ">=SemVer <SemVer" (current: ${include})`,
-      );
-    }
+        const { mode, include } = config[UPDATE_PROP];
 
-    const pkgName = cfg.name || name;
-    let pkgVersions = pkgVersMap.get(pkgName);
+        // Check format before doing fetch
+        if (mode.startsWith('max-')) {
+          const num = Number(mode.split('-')[1]);
+          if (isNaN(num)) {
+            throw new Error(
+              `Error: TAV config ${pkgName} invalid "max-n" mode, "n" must be a number (current: ${mode})`,
+            );
+          }
+        }
+        if (!INCLUDE_REGEXP.test(include)) {
+          throw new Error(
+            `Error: TAV config ${pkgName} include property must be in the form ">=SemVer <SemVer" (current: ${include})`,
+          );
+        }
+        found = true;
+      });
 
-    if (!pkgVersions) {
+      return found;
+    })
+    .forEach((pkgName) => {
+      // Fetch versions for the package. Now with the new format each package
+      // appears only once
       console.log(`Fetching versions for ${pkgName}`);
-      pkgVersions = JSON.parse(
+      const config = tavConfig[pkgName];
+      const pkgVersions = JSON.parse(
         execSync(`npm view ${pkgName} versions -j`, { encoding: 'utf-8' }),
       );
       pkgVersMap.set(pkgName, pkgVersions);
-    }
 
-    let versions;
-    const filteredVers = pkgVersions
-      .filter((v) => semver.satisfies(v, include))
-      .filter((v) => !exclude || !semver.satisfies(v, exclude))
-      .map(semver.parse);
-
-    console.log(
-      `Calculating ${mode} for ${name} including ${include} and excluding ${
-        exclude || 'none'
-      }`,
-    );
-    if (mode === 'latest-minors') {
-      versions = getLatestMinors(filteredVers);
-    } else if (mode === 'latest-majors') {
-      versions = getLatestMajors(filteredVers);
-    } else if (mode.startsWith('max-')) {
-      const num = Number(mode.split('-')[1]);
-      versions = getMax(filteredVers, Number(num));
-    } else {
-      throw new Error(
-        `Error: Version selection mode for TAV config ${name} unknown (${mode})`,
-      );
-    }
-
-    if (versions.length === 0) {
-      console.log(
-        `Info: all versions excluded for TAV config ${name}, please review include/exclude. Skipping`,
-      );
-      continue;
-    }
-
-    // Assuming `include` is always in the form ">={Lower_limit} <{Higher_Limit}"
-    // - append lower version if not present
-    // - append a caret to the latest version in the list to test any higher version
-    const firstVers = versions[0];
-    const lastVers = versions[versions.length - 1];
-    const [low] = include.split(' ').map(semver.coerce);
-
-    if (semver.neq(firstVers, low)) {
-      versions.unshift(low);
-    }
-
-    versions = versions.map((v) => v.toString());
-    versions[versions.length - 1] = `^${lastVers.toString()}`;
-    tavVersMap.set(name, versions);
-  }
+      if (Array.isArray(config)) {
+        tavVersMap.set(
+          pkgName,
+          config.map((c) => resolveVersions(pkgName, c, pkgVersions)),
+        );
+      } else {
+        tavVersMap.set(pkgName, resolveVersions(pkgName, config, pkgVersions));
+      }
+    });
 
   // Now modify the file contents using the string so we do not loose comments
   const tavLines = tavContent.split('\n');
@@ -150,7 +137,17 @@ async function main() {
     } else if (tavToUpdate && line.startsWith('  versions:')) {
       console.log(`Updating versions of ${tavToUpdate}`);
       const tavVers = tavVersMap.get(tavToUpdate);
-      tavLines[idx] = `  versions: '${tavVers.join(' || ')}'`;
+      if (tavVers.length > 0) {
+        tavLines[idx] = `  versions: '${tavVers.join(' || ')}'`;
+      }
+    } else if (tavToUpdate && line.startsWith('  - versions:')) {
+      console.log(`Updating versions of ${tavToUpdate}`);
+      const tavMatrix = tavVersMap.get(tavToUpdate);
+      const tavVers = tavMatrix.shift();
+
+      if (tavVers.length > 0) {
+        tavLines[idx] = `  - versions: '${tavVers.join(' || ')}'`;
+      }
     }
   });
 
@@ -158,6 +155,64 @@ async function main() {
 }
 
 // support functions
+
+/**
+ * @param {string} name
+ * @param {TavConfig} config the configration in .tav.yml
+ * @param {string[]} pkgVersions list of all versions of the package
+ * @returns {string[]}
+ */
+function resolveVersions(name, config, pkgVersions) {
+  if (!config[UPDATE_PROP]) {
+    return [];
+  }
+
+  const { mode, include, exclude } = config[UPDATE_PROP];
+  let versions;
+  const filteredVers = pkgVersions
+    .filter((v) => semver.satisfies(v, include))
+    .filter((v) => !exclude || !semver.satisfies(v, exclude))
+    .map(semver.parse);
+
+  console.log(
+    `Calculating ${mode} for ${name} including ${include} and excluding ${
+      exclude || 'none'
+    }`,
+  );
+  if (mode === 'latest-minors') {
+    versions = getLatestMinors(filteredVers);
+  } else if (mode === 'latest-majors') {
+    versions = getLatestMajors(filteredVers);
+  } else if (mode.startsWith('max-')) {
+    const num = Number(mode.split('-')[1]);
+    versions = getMax(filteredVers, Number(num));
+  } else {
+    throw new Error(
+      `Error: Version selection mode for TAV config ${name} unknown (${mode})`,
+    );
+  }
+
+  if (versions.length === 0) {
+    console.log(
+      `Info: all versions excluded for TAV config ${name}, please review include/exclude.`,
+    );
+  }
+
+  // Assuming `include` is always in the form ">={Lower_limit} <{Higher_Limit}"
+  // - append lower version if not present
+  // - append a caret to the latest version in the list to test any higher version
+  const firstVers = versions[0];
+  const lastVers = versions[versions.length - 1];
+  const [low] = include.split(' ').map(semver.coerce);
+
+  if (semver.neq(firstVers, low)) {
+    versions.unshift(low);
+  }
+  versions = versions.map((v) => v.toString());
+  versions[versions.length - 1] = `^${lastVers.toString()}`;
+
+  return versions;
+}
 
 /**
  * From a given ordered list of versions returns the first, num in between and last. Example

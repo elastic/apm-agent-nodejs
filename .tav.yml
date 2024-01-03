@@ -57,7 +57,7 @@ mysql2:
 redis:
   - versions: '>=2.0.0 <4.0.0'
     commands: node test/instrumentation/modules/redis-2-3.test.js
-  - versions: '4.0.0 || 4.0.6 || 4.1.1 || 4.2.0 || 4.3.1 || 4.4.0 || 4.5.1 || ^4.6.11'
+  - versions: '4.0.0 || 4.0.6 || 4.1.1 || 4.2.0 || 4.3.1 || 4.4.0 || 4.5.1 || ^4.6.12'
     commands:
       - node test/instrumentation/modules/redis.test.js
       - node test/instrumentation/modules/redis-disabled.test.js
@@ -127,7 +127,7 @@ mongodb-core:
     include: '>=1.2.19 <4' # latest minors subset of '>=1.2.19 <4'
 
 mongodb:
-  - versions: '3.3.0 || 3.5.5 || 3.6.6 || 4.0.1 || 4.5.0 || 4.15.0 || ^4.17.1'
+  - versions: '3.3.0 || 3.5.5 || 3.6.6 || 4.0.1 || 4.5.0 || 4.15.0 || ^4.17.2'
     commands: node test/instrumentation/modules/mongodb/mongodb.test.js
     # Test v3.3, latest v4 and 5 versions in between.
     update-versions:
@@ -389,7 +389,6 @@ fastify:
       - node test/instrumentation/modules/fastify/fastify.test.js
       - node test/instrumentation/modules/fastify/async-await.test.js
       - node test/instrumentation/modules/fastify/set-framework.test.js
-  # Update versions periodically with "./dev-utils/tav-versions-fastify.sh".
   - versions: '3.0.0 || 3.6.0 || 3.14.2 || 3.20.1 || 3.24.0 || 3.29.0 || ^3.29.5'
     peerDependencies: '@fastify/formbody@^6.0.1'
     node: '>=10'
@@ -401,8 +400,7 @@ fastify:
     update-versions:
       mode: max-5
       include: '>=3 <4'
-  # Update versions periodically with "./dev-utils/tav-versions-fastify.sh".
-  - versions: '4.0.0 || 4.5.0 || 4.9.0 || 4.13.0 || 4.19.1 || 4.23.1 || ^4.24.3'
+  - versions: '4.0.0 || 4.5.1 || 4.9.2 || 4.15.0 || 4.22.0 || 4.24.3 || ^4.25.2'
     peerDependencies: '@fastify/formbody@^7'
     node: '>=14.6.0'
     commands:
@@ -439,7 +437,7 @@ aws-sdk:
   #   node ./dev-utils/update-tav-versions.js
   #
   # Test v2.858.0, every N=122 of 614 releases, and current latest.
-  versions: '2.858.0 || 2.988.0 || 2.1118.0 || 2.1248.0 || 2.1379.0 || 2.1509.0 || ^2.1510.0'
+  versions: '2.858.0 || 2.991.0 || 2.1124.0 || 2.1257.0 || 2.1391.0 || 2.1524.0 || ^2.1528.0'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js
@@ -460,7 +458,7 @@ aws-sdk:
 #   node ./dev-utils/update-tav-versions.js
 
 '@aws-sdk/client-s3':
-  versions: '3.15.0 || 3.75.0 || 3.180.0 || 3.276.0 || 3.358.0 || 3.456.0 || ^3.465.0'
+  versions: '3.15.0 || 3.78.0 || 3.186.0 || 3.288.0 || 3.373.0 || 3.474.0 || ^3.484.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
   node: '>=14'
@@ -472,7 +470,7 @@ aws-sdk:
     exclude: '3.377.0'
 
 '@aws-sdk/client-dynamodb':
-  versions: '3.15.0 || 3.75.0 || 3.186.0 || 3.271.0 || 3.353.0 || 3.458.0 || ^3.465.0'
+  versions: '3.15.0 || 3.78.0 || 3.193.0 || 3.282.0 || 3.369.0 || 3.477.0 || ^3.484.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
   node: '>=14'
@@ -482,7 +480,7 @@ aws-sdk:
     include: '>=3.15.0 <4'
 
 '@aws-sdk/client-sns':
-  versions: '3.15.0 || 3.75.0 || 3.186.0 || 3.271.0 || 3.354.0 || 3.462.0 || ^3.465.0'
+  versions: '3.15.0 || 3.76.0 || 3.190.0 || 3.278.0 || 3.360.0 || 3.474.0 || ^3.484.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-sns.test.js
   node: '>=14'
@@ -492,7 +490,7 @@ aws-sdk:
     include: '>=3.15.0 <4'
 
 '@aws-sdk/client-sqs':
-  versions: '3.15.0 || 3.74.0 || 3.185.0 || 3.271.0 || 3.353.0 || 3.454.0 || ^3.465.0'
+  versions: '3.15.0 || 3.76.0 || 3.192.0 || 3.282.0 || 3.369.0 || 3.476.0 || ^3.484.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-sqs.test.js
   node: '>=14'
