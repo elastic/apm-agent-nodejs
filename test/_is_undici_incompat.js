@@ -6,7 +6,7 @@
 
 'use strict';
 
-var semver = require('semver');
+const { satisfies } = require('semver');
 
 /**
  * Return whether the current 'undici' version is incompatible with the
@@ -29,9 +29,11 @@ function isUndiciIncompat() {
   const undiciVer = require('undici/package.json').version;
   const msg = `undici@${undiciVer} is incompatible with node@${nodeVer}`;
 
-  if (
-    semver.satisfies(undiciVer, '>=5.28.0') &&
-    semver.satisfies(nodeVer, '<14.18.0')
+  if (satisfies(undiciVer, '>=6.0.0') && satisfies(nodeVer, '<18.0.0')) {
+    return msg;
+  } else if (
+    satisfies(undiciVer, '>=5.28.0') &&
+    satisfies(nodeVer, '<14.18.0')
   ) {
     return msg;
   }
