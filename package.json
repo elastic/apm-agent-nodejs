@@ -206,7 +206,7 @@
     "thunky": "^1.1.0",
     "tree-kill": "^1.2.2",
     "typescript": "^5.0.2",
-    "undici": "^5.8.0",
+    "undici": "^6.2.1",
     "vasync": "^2.2.0",
     "wait-on": "^7.0.1",
     "ws": "^7.2.1"

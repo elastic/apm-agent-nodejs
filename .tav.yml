@@ -503,10 +503,16 @@ aws-sdk:
 # - In undici@4.7.1 the `request.origin` property was added, which we need
 #   in the 'undici:request:create' diagnostic message.
 undici:
-  versions: '4.7.1 || 4.10.4 || 5.1.1 || 5.12.0 || 5.22.0 || 5.27.1 || ^5.28.2'
-  commands: node test/instrumentation/modules/undici/undici.test.js
-  # Test v4.7.1, latest v5 and 5 versions in between.
-  update-versions:
-    mode: max-5
-    include: '>=4.7.1 <6'
+  - versions: '^6.0.0'
+    node: '>=18'
+    commands: node test/instrumentation/modules/undici/undici.test.js
+    update-versions:
+      mode: max-5
+      include: '>=6.0.0 <7'
+  - versions: '4.7.1 || 4.10.4 || 5.1.1 || 5.12.0 || 5.22.0 || 5.27.1 || ^5.28.2'
+    commands: node test/instrumentation/modules/undici/undici.test.js
+    # Test v4.7.1, latest v5 and 5 versions in between.
+    update-versions:
+      mode: max-5
+      include: '>=4.7.1 <6'
 
