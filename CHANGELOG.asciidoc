@@ -34,13 +34,8 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
-
-[float]
-===== Features
+[[release-notes-4.3.1]]
+==== 4.3.1 - 2024/01/11
 
 [float]
 ===== Bug fixes
