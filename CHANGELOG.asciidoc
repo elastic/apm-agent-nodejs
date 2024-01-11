@@ -56,6 +56,11 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Chores
 
+* Support `ELASTIC_APM_ACTIVATION_METHOD=K8S_ATTACH` (in addition to the
+  current `K8S` value) to indicate the agent is being started by
+  apm-k8s-attacher.  Newer releases of apm-k8s-attacher will be using this
+  value (to have a common value used between APM agents).
+
 
 [[release-notes-4.3.0]]
 ==== 4.3.0 - 2023/12/05
