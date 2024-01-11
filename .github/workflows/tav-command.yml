@@ -66,7 +66,8 @@ jobs:
               const permutations = []
               for (const mod of mods) {
                 for (const nv of vers) {
-                  if (mod.minVersion && nv >= mod.minVersion) {
+                  const nvMajor = Number(nv.split('.')[0]);
+                  if (mod.minMajorVersion && nvMajor >= mod.minMajorVersion) {
                     permutations.push(`${mod.name} ${nv}`)
                   }
                 }
