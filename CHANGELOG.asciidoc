@@ -34,13 +34,16 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-4.4.0]]
+==== 4.4.0 - 2024/01/12
 
 [float]
 ===== Features
+
+* Support `ELASTIC_APM_ACTIVATION_METHOD=K8S_ATTACH` (in addition to the
+  current `K8S` value) to indicate the agent is being started by
+  apm-k8s-attacher.  Newer releases of apm-k8s-attacher will be using this
+  value (to have a common value used between APM agents).
 
 [float]
 ===== Bug fixes
@@ -52,14 +55,6 @@ See the <<upgrade-to-v4>> guide.
 * Improve Fastify instrumentation to no longer cause the https://fastify.dev/docs/latest/Reference/Warnings/#FSTDEP017[`FSTDEP017`]
   and https://fastify.dev/docs/latest/Reference/Warnings/#FSTDEP018[`FSTDEP018`]
   deprecation warnings. ({pull}3814[#3814])
-
-[float]
-===== Chores
-
-* Support `ELASTIC_APM_ACTIVATION_METHOD=K8S_ATTACH` (in addition to the
-  current `K8S` value) to indicate the agent is being started by
-  apm-k8s-attacher.  Newer releases of apm-k8s-attacher will be using this
-  value (to have a common value used between APM agents).
 
 
 [[release-notes-4.3.0]]
