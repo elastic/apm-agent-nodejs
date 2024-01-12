@@ -37,19 +37,11 @@ for the latest (4.x) releases. The 3.x branch will be maintained until
 2024-03-07 (6 months after the 4.0.0 release).
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.51.0]]
+==== 3.51.0 - 2024/01/12
 
 [float]
 ===== Features
-
-[float]
-===== Bug fixes
-
-[float]
-===== Chores
 
 * Support `ELASTIC_APM_ACTIVATION_METHOD=K8S_ATTACH` (in addition to the
   current `K8S` value) to indicate the agent is being started by
