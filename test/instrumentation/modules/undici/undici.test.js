@@ -43,8 +43,10 @@ if (isUndiciIncompat) {
 const http = require('http');
 const { Writable } = require('stream');
 const { promisify } = require('util');
+const semver = require('semver');
 const test = require('tape');
 const undici = require('undici');
+const undiciVer = require('undici/package.json').version;
 
 const promisyApmFlush = promisify(apm.flush.bind(apm));
 let server;
@@ -240,15 +242,32 @@ if (global.AbortController) {
         { name: 'aTransName', type: 'manual', sampled: true },
         'error.transaction',
       );
-      t.equal(
-        error.exception.message,
-        'Request aborted',
-        'error.exception.message',
-      );
-      t.equal(error.exception.type, 'AbortError', 'error.exception.type');
-      t.equal(error.exception.code, 'UND_ERR_ABORTED', 'error.exception.code');
-      t.equal(error.exception.module, 'undici', 'error.exception.module');
       t.equal(error.exception.handled, true, 'error.exception.handled');
+      t.equal(error.exception.type, 'AbortError', 'error.exception.type');
+      if (semver.gte(undiciVer, '6.3.0')) {
+        // In undici@6.3.0 (https://github.com/nodejs/undici/pull/2592)
+        // `abort.reason` is used, if any. Node.js core AbortController's
+        // default reason uses "This operation was aborted".
+        t.equal(
+          error.exception.message,
+          'This operation was aborted',
+          'error.exception.message',
+        );
+        // https://developer.mozilla.org/en-US/docs/Web/API/DOMException#aborterror
+        t.equal(error.exception.code, '20', 'error.exception.code');
+      } else {
+        t.equal(
+          error.exception.message,
+          'Request aborted',
+          'error.exception.message',
+        );
+        t.equal(
+          error.exception.code,
+          'UND_ERR_ABORTED',
+          'error.exception.code',
+        );
+        t.equal(error.exception.module, 'undici', 'error.exception.module');
+      }
 
       t.end();
     }
