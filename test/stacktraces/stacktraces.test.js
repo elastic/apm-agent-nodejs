@@ -22,6 +22,12 @@ const {
   stackTraceFromErrStackString,
 } = require('../../lib/stacktraces');
 
+// Determine Node.js's default `Error.prepareStackTrace` value before any
+// tests run that might start the agent, which changes this value.
+const defaultNodePrepareStackTraceStr = Error.prepareStackTrace
+  ? Error.prepareStackTrace.name
+  : 'undefined';
+
 const log = logging.createLogger('off');
 
 // Execute 'node fixtures/throw-an-error.js' and assert APM server gets the
@@ -452,7 +458,7 @@ tape.test('gatherStackTrace()', function (suite) {
     });
   });
 
-  tape.test('Error.prepareStackTrace is set', function (t) {
+  tape.test('Error.prepareStackTrace is set when agent active', function (t) {
     const server = new MockAPMServer();
     server.start(function (serverUrl) {
       execFile(
@@ -479,32 +485,35 @@ tape.test('gatherStackTrace()', function (suite) {
     });
   });
 
-  tape.test('Error.prepareStackTrace is not set', function (t) {
-    const server = new MockAPMServer();
-    server.start(function (serverUrl) {
-      execFile(
-        process.execPath,
-        ['fixtures/get-prepare-stacktrace.js'],
-        {
-          cwd: __dirname,
-          timeout: 3000,
-          env: Object.assign({}, process.env, {
-            ELASTIC_APM_ACTIVE: false,
-          }),
-        },
-        function done(err, _stdout, _stderr) {
-          t.ok(!err);
-          t.equals(
-            _stdout.trim(),
-            'undefined',
-            'Error.prepareStackTrace is not set',
-          );
-          server.close();
-          t.end();
-        },
-      );
-    });
-  });
+  tape.test(
+    'Error.prepareStackTrace is Node.js default when agent is inactive',
+    function (t) {
+      const server = new MockAPMServer();
+      server.start(function (serverUrl) {
+        execFile(
+          process.execPath,
+          ['fixtures/get-prepare-stacktrace.js'],
+          {
+            cwd: __dirname,
+            timeout: 3000,
+            env: Object.assign({}, process.env, {
+              ELASTIC_APM_ACTIVE: false,
+            }),
+          },
+          function done(err, _stdout, _stderr) {
+            t.ok(!err);
+            t.equals(
+              _stdout.trim(),
+              defaultNodePrepareStackTraceStr,
+              'Error.prepareStackTrace is the Node.js default',
+            );
+            server.close();
+            t.end();
+          },
+        );
+      });
+    },
+  );
 
   suite.end();
 });
