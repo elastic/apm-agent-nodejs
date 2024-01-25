@@ -1,6 +1,5 @@
 name: update-specs
-pipelineid: update-specs
-title: synchronize schema specs
+pipelineid: update-schema-specs
 
 scms:
   default:
@@ -8,17 +7,28 @@ scms:
     spec:
       user: '{{ requiredEnv "GIT_USER" }}'
       email: '{{ requiredEnv "GIT_EMAIL" }}'
-      owner: elastic
-      repository: apm-agent-nodejs
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
       token: '{{ requiredEnv "GITHUB_TOKEN" }}'
       username: '{{ requiredEnv "GIT_USER" }}'
-      branch: main
+      branch: "{{ .github.branch }}"
+
+  apm-data:
+    kind: github
+    spec:
+      user: '{{ requiredEnv "GIT_USER" }}'
+      email: '{{ requiredEnv "GIT_EMAIL" }}'
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.apm_data_repository }}"
+      token: '{{ requiredEnv "GITHUB_TOKEN" }}'
+      username: '{{ requiredEnv "GIT_USER" }}'
+      branch: "{{ .github.branch }}"
 
 sources:
   sha:
     kind: file
     spec:
-      file: 'https://github.com/elastic/apm-data/commit/main.patch'
+      file: 'https://github.com/{{ .github.owner }}/{{ .github.apm_data_repository }}/commit/{{ .github.branch }}.patch'
       matchpattern: "^From\\s([0-9a-f]{40})\\s"
     transformers:
       - findsubmatch:
@@ -28,35 +38,24 @@ sources:
     dependson:
       - sha
     spec:
-      command: gh api /repos/elastic/apm-data/commits/{{ source "sha" }}/pulls --jq '.[].html_url'
+      command: gh api /repos/{{ .github.owner }}/{{ .github.apm_data_repository }}/commits/{{ source "sha" }}/pulls --jq '.[].html_url'
       environments:
         - name: GITHUB_TOKEN
         - name: PATH
-  error.json:
-    kind: file
+  agent-specs-tarball:
+    kind: shell
+    scmid: apm-data
+    dependson:
+      - sha
     spec:
-      file: https://raw.githubusercontent.com/elastic/apm-data/main/input/elasticapm/docs/spec/v2/error.json
-  metadata.json:
-    kind: file
-    spec:
-      file: https://raw.githubusercontent.com/elastic/apm-data/main/input/elasticapm/docs/spec/v2/metadata.json
-  metricset.json:
-    kind: file
-    spec:
-      file: https://raw.githubusercontent.com/elastic/apm-data/main/input/elasticapm/docs/spec/v2/metricset.json
-  span.json:
-    kind: file
-    spec:
-      file: https://raw.githubusercontent.com/elastic/apm-data/main/input/elasticapm/docs/spec/v2/span.json
-  transaction.json:
-    kind: file
-    spec:
-      file: https://raw.githubusercontent.com/elastic/apm-data/main/input/elasticapm/docs/spec/v2/transaction.json
+      command: tar cvzf {{ requiredEnv "GITHUB_WORKSPACE" }}/json-schema.tgz .
+      environments:
+        - name: PATH
+      workdir: "{{ .specs.apm_data_path }}"
 
 actions:
   pr:
     kind: "github/pullrequest"
-    title: '[Automation] Update JSON specs'
     scmid: default
     sourceid: sha
     spec:
@@ -66,50 +65,22 @@ actions:
         - "automation"
       description: |-
         ### What
-        APM agent json schema automatic sync
+        APM agent json server schema automatic sync
+
         ### Why
         *Changeset*
-        * https://github.com/elastic/apm-data/commit/{{ source "sha" }}
         * {{ source "pull_request" }}
+        * https://github.com/{{ .github.owner }}/{{ .github.apm_data_repository }}/commit/{{ source "sha" }}
+      title: '[Automation] Update JSON server schema specs'
 
 targets:
-  error.json:
-    name: error.json
+  agent-json-schema:
+    name: APM agent json server schema {{ source "sha" }}
     scmid: default
-    sourceid: error.json
-    kind: file
+    disablesourceinput: true
+    kind: shell
     spec:
-      file: test/integration/api-schema/apm-server-schema/error.json
-      forcecreate: true
-  metadata.json:
-    name: metadata.json
-    scmid: default
-    sourceid: metadata.json
-    kind: file
-    spec:
-      file: test/integration/api-schema/apm-server-schema/metadata.json
-      forcecreate: true
-  metricset.json:
-    name: metricset.json
-    scmid: default
-    sourceid: metricset.json
-    kind: file
-    spec:
-      file: test/integration/api-schema/apm-server-schema/metricset.json
-      forcecreate: true
-  span.json:
-    name: span.json
-    scmid: default
-    sourceid: span.json
-    kind: file
-    spec:
-      file: test/integration/api-schema/apm-server-schema/span.json
-      forcecreate: true
-  transaction.json:
-    name: transaction.json
-    scmid: default
-    sourceid: transaction.json
-    kind: file
-    spec:
-      file: test/integration/api-schema/apm-server-schema/transaction.json
-      forcecreate: true
+      # git diff helps to print what it changed, If it is empty, then updatecli report a success with no changes applied.
+      # See https://www.updatecli.io/docs/plugins/resource/shell/#_shell_target
+      command: 'tar -xzf {{ requiredEnv "GITHUB_WORKSPACE" }}/json-schema.tgz && git --no-pager diff'
+      workdir: "{{ .apm_agent.server_schema_specs_path  }}"

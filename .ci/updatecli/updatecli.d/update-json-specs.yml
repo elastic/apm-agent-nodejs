@@ -1,6 +1,5 @@
-name: update-jsons-specs
+name: update-json-specs
 pipelineid: update-json-specs
-title: Synchronize json specs
 
 scms:
   default:
@@ -8,17 +7,27 @@ scms:
     spec:
       user: '{{ requiredEnv "GIT_USER" }}'
       email: '{{ requiredEnv "GIT_EMAIL" }}'
-      owner: elastic
-      repository: apm-agent-nodejs
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
       token: '{{ requiredEnv "GITHUB_TOKEN" }}'
       username: '{{ requiredEnv "GIT_USER" }}'
-      branch: main
+      branch: "{{ .github.branch }}"
+  apm:
+    kind: github
+    spec:
+      user: '{{ requiredEnv "GIT_USER" }}'
+      email: '{{ requiredEnv "GIT_EMAIL" }}'
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.apm_repository }}"
+      token: '{{ requiredEnv "GITHUB_TOKEN" }}'
+      username: '{{ requiredEnv "GIT_USER" }}'
+      branch: "{{ .github.branch }}"
 
 sources:
   sha:
     kind: file
     spec:
-      file: 'https://github.com/elastic/apm/commit/main.patch'
+      file: 'https://github.com/{{ .github.owner }}/{{ .github.apm_repository }}/commit/{{ .github.branch }}.patch'
       matchpattern: "^From\\s([0-9a-f]{40})\\s"
     transformers:
       - findsubmatch:
@@ -28,41 +37,23 @@ sources:
     dependson:
       - sha
     spec:
-      command: gh api /repos/elastic/apm/commits/{{ source "sha" }}/pulls --jq '.[].html_url'
+      command: gh api /repos/{{ .github.owner }}/{{ .github.apm_repository }}/commits/{{ source "sha" }}/pulls --jq '.[].html_url'
       environments:
         - name: GITHUB_TOKEN
         - name: PATH
-  container_metadata_discovery.json:
-    kind: file
+  agents-json-specs-tarball:
+    kind: shell
+    scmid: apm
+    dependson:
+      - sha
     spec:
-      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/container_metadata_discovery.json
-  service_resource_inference.json:
-    kind: file
-    spec:
-      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/service_resource_inference.json
-  span_types.json:
-    kind: file
-    spec:
-      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/span_types.json
-  sql_signature_examples.json:
-    kind: file
-    spec:
-      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/sql_signature_examples.json
-  sql_token_examples.json:
-    kind: file
-    spec:
-      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/sql_token_examples.json
-  w3c_distributed_tracing.json:
-    kind: file
-    spec:
-      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/w3c_distributed_tracing.json
-  wildcard_matcher_tests.json:
-    kind: file
-    spec:
-      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/wildcard_matcher_tests.json
+      command: tar cvzf {{ requiredEnv "GITHUB_WORKSPACE" }}/json-specs.tgz .
+      environments:
+        - name: PATH
+      workdir: "{{ .specs.apm_json_path }}"
+
 actions:
   pr:
-    title: '[Automation] Update JSON specs'
     kind: "github/pullrequest"
     scmid: default
     spec:
@@ -73,58 +64,21 @@ actions:
       description: |-
         ### What
         APM agent specs automatic sync
+
         ### Why
         *Changeset*
-        * https://github.com/elastic/apm/commit/{{ source "sha" }}
         * {{ source "pull_request" }}
+        * https://github.com/{{ .github.owner }}/{{ .github.apm_repository }}/commit/{{ source "sha" }}
+      title: '[Automation] Update JSON specs'
 
 targets:
-  container_metadata_discovery.json:
-    name: container_metadata_discovery.json
+  agent-json-specs:
+    name: APM agent json specs {{ source "sha" }}
     scmid: default
-    sourceid: container_metadata_discovery.json
-    kind: file
+    disablesourceinput: true
+    kind: shell
     spec:
-      file: test/fixtures/json-specs/container_metadata_discovery.json
-  service_resource_inference.json:
-    name: service_resource_inference.json
-    scmid: default
-    sourceid: service_resource_inference.json
-    kind: file
-    spec:
-      file: test/fixtures/json-specs/service_resource_inference.json
-  span_types.json:
-    name: span_types.json
-    scmid: default
-    sourceid: span_types.json
-    kind: file
-    spec:
-      file: test/fixtures/json-specs/span_types.json
-  sql_signature_examples.json:
-    name: sql_signature_examples.json
-    scmid: default
-    sourceid: sql_signature_examples.json
-    kind: file
-    spec:
-      file: test/fixtures/json-specs/sql_signature_examples.json
-  sql_token_examples.json:
-    name: sql_token_examples.json
-    scmid: default
-    sourceid: sql_token_examples.json
-    kind: file
-    spec:
-      file: test/fixtures/json-specs/sql_token_examples.json
-  w3c_distributed_tracing.json:
-    name: w3c_distributed_tracing.json
-    scmid: default
-    sourceid: w3c_distributed_tracing.json
-    kind: file
-    spec:
-      file: test/fixtures/json-specs/w3c_distributed_tracing.json
-  wildcard_matcher_tests.json:
-    name: wildcard_matcher_tests.json
-    scmid: default
-    sourceid: wildcard_matcher_tests.json
-    kind: file
-    spec:
-      file: test/fixtures/json-specs/wildcard_matcher_tests.json
+      # git diff helps to print what it changed, If it is empty, then updatecli report a success with no changes applied.
+      # See https://www.updatecli.io/docs/plugins/resource/shell/#_shell_target
+      command: 'tar -xzf {{ requiredEnv "GITHUB_WORKSPACE" }}/json-specs.tgz && git --no-pager diff'
+      workdir: "{{ .apm_agent.json_specs_path }}"
