@@ -1,0 +1,86 @@
+name: update-specs
+pipelineid: update-schema-specs
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: '{{ requiredEnv "GIT_USER" }}'
+      email: '{{ requiredEnv "GIT_EMAIL" }}'
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: '{{ requiredEnv "GITHUB_TOKEN" }}'
+      username: '{{ requiredEnv "GIT_USER" }}'
+      branch: "{{ .github.branch }}"
+
+  apm-data:
+    kind: github
+    spec:
+      user: '{{ requiredEnv "GIT_USER" }}'
+      email: '{{ requiredEnv "GIT_EMAIL" }}'
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.apm_data_repository }}"
+      token: '{{ requiredEnv "GITHUB_TOKEN" }}'
+      username: '{{ requiredEnv "GIT_USER" }}'
+      branch: "{{ .github.branch }}"
+
+sources:
+  sha:
+    kind: file
+    spec:
+      file: 'https://github.com/{{ .github.owner }}/{{ .github.apm_data_repository }}/commit/{{ .github.branch }}.patch'
+      matchpattern: "^From\\s([0-9a-f]{40})\\s"
+    transformers:
+      - findsubmatch:
+          pattern: "[0-9a-f]{40}"
+  pull_request:
+    kind: shell
+    dependson:
+      - sha
+    spec:
+      command: gh api /repos/{{ .github.owner }}/{{ .github.apm_data_repository }}/commits/{{ source "sha" }}/pulls --jq '.[].html_url'
+      environments:
+        - name: GITHUB_TOKEN
+        - name: PATH
+  agent-specs-tarball:
+    kind: shell
+    scmid: apm-data
+    dependson:
+      - sha
+    spec:
+      command: tar cvzf {{ requiredEnv "GITHUB_WORKSPACE" }}/json-schema.tgz .
+      environments:
+        - name: PATH
+      workdir: "{{ .specs.apm_data_path }}"
+
+actions:
+  pr:
+    kind: "github/pullrequest"
+    scmid: default
+    sourceid: sha
+    spec:
+      automerge: false
+      draft: false
+      labels:
+        - "automation"
+      description: |-
+        ### What
+        APM agent json server schema automatic sync
+
+        ### Why
+        *Changeset*
+        * {{ source "pull_request" }}
+        * https://github.com/{{ .github.owner }}/{{ .github.apm_data_repository }}/commit/{{ source "sha" }}
+      title: '[Automation] Update JSON server schema specs'
+
+targets:
+  agent-json-schema:
+    name: APM agent json server schema {{ source "sha" }}
+    scmid: default
+    disablesourceinput: true
+    kind: shell
+    spec:
+      # git diff helps to print what it changed, If it is empty, then updatecli report a success with no changes applied.
+      # See https://www.updatecli.io/docs/plugins/resource/shell/#_shell_target
+      command: 'tar -xzf {{ requiredEnv "GITHUB_WORKSPACE" }}/json-schema.tgz && git --no-pager diff'
+      workdir: "{{ .apm_agent.server_schema_specs_path  }}"
