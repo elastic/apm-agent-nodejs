@@ -1,0 +1,12 @@
+github:
+  owner: "elastic"
+  repository: "apm-agent-nodejs"
+  apm_repository: "apm"
+  apm_data_repository: "apm-data"
+  branch: "main"
+specs:
+  apm_data_path: "input/elasticapm/docs/spec/v2"
+  apm_json_path: "tests/agents/json-specs"
+apm_agent:
+  json_specs_path: "test/fixtures/json-specs"
+  server_schema_specs_path: "test/integration/api-schema/apm-server-schema"
