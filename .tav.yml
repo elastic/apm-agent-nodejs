@@ -187,11 +187,19 @@ ws:
     commands: node test/instrumentation/modules/ws.test.js
 
 graphql:
-  - versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16'
+  - versions: '0.7.0 || 0.10.0 || 0.12.0 || 14.2.1 || 14.5.7 || 15.6.0 || ^15.8.0'
     commands: node test/instrumentation/modules/graphql.test.js
-  - versions: '>=16.0.0 <17'
+    update-versions:
+      mode: max-5
+      include: '>=0.7.0 <16'
+      # Testing with 0.11.0 was "buggy".
+      exclude: '0.11.0'
+  - versions: '16.0.0 || 16.0.1 || 16.1.0 || 16.2.0 || 16.3.0 || 16.4.0 || 16.5.0 || 16.6.0 || 16.7.1 || ^16.8.1'
     node: '>=12'
     commands: node test/instrumentation/modules/graphql.test.js
+    update-versions:
+      mode: latest-minors
+      include: '>=16.0.0 <17'
 
 express:
   versions: '4.0.0 || 4.1.2 || 4.2.0 || 4.3.2 || 4.4.5 || 4.5.1 || 4.6.1 || 4.7.4 || 4.8.8 || 4.9.8 || 4.10.8 || 4.11.2 || 4.12.4 || 4.13.4 || 4.14.1 || 4.15.5 || 4.16.4 || 4.17.3 || ^4.18.2'
