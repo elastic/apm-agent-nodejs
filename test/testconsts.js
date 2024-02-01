@@ -17,8 +17,9 @@ const os = require('os');
 //   https://github.com/nodejs/node/pull/42881
 // - Current node v20 does not work with IITM
 //   https://github.com/DataDog/import-in-the-middle/pull/27
-const NODE_VER_RANGE_IITM = '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 <20';
-const NODE_VER_RANGE_IITM_GE14 = '^14.13.1 || ^16.0.0 || ^18.1.0 <20'; // NODE_VER_RANGE_IITM minus node v12
+//   XXX see if we are good with iitm@1.7.3 now.
+const NODE_VER_RANGE_IITM = '^12.20.0 || ^14.13.1 || ^16.0.0 || >=18.1.0';
+const NODE_VER_RANGE_IITM_GE14 = '^14.13.1 || ^16.0.0 || >=18.1.0'; // NODE_VER_RANGE_IITM minus node v12
 
 // This can be passed as tape test options for tests that are timing sensitive,
 // to *skip* those tests on Windows CI.
