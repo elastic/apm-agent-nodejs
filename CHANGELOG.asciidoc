@@ -34,8 +34,34 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Add support for <<esm,instrumentation of ES module-using (ESM) code>> with
+  Node.js versions matching `^18.19.0 || >=20.2.0`. Before this version of
+  the APM agent, ESM instrumentation was only supported for some *earlier*
+  Node.js versions. Changes in Node.js's ESM loader in v18.19.0 and v20 broke
+  earlier ESM support. ({issues}3784[#3784], {pull}3844[#3844])
+
+[float]
+===== Chores
+
+
 [[release-notes-4.4.0]]
 ==== 4.4.0 - 2024/01/12
+
+*Known issue*: Using the APM agent's <<esm>> with Node.js *v18.19.0* is not
+supported in this version. Upgrade to APM agent version v4.5.0 or later, or use
+Node.js v18.18.1 or earlier.
+See https://github.com/elastic/apm-agent-nodejs/issues/3784 for details.
 
 [float]
 ===== Features
@@ -60,10 +86,10 @@ See the <<upgrade-to-v4>> guide.
 [[release-notes-4.3.0]]
 ==== 4.3.0 - 2023/12/05
 
-*Known issue*: Using the APM agent's <<esm>> with Node v18.19.0 is currently
-not supported. Earlier versions of Node.js v18 and Node.js v20 and later
-*are* supported. See <https://github.com/elastic/apm-agent-nodejs/issues/3784>
-for details.
+*Known issue*: Using the APM agent's <<esm>> with Node.js *v18.19.0* is not
+supported in this version. Upgrade to APM agent version v4.5.0 or later, or use
+Node.js v18.18.1 or earlier.
+See https://github.com/elastic/apm-agent-nodejs/issues/3784 for details.
 
 [float]
 ===== Features
