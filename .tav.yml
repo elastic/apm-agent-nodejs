@@ -1,6 +1,12 @@
 # This file is used by tool TAV - Test All Versions.
 # See: https://github.com/watson/test-all-versions
 
+# Maintenance note: Many of the blocks below have an "update-versions" config.
+# This is used by the `update-tav-versions.js` script to update the "versions:"
+# (field that `tav` uses) down to a reasonably-sized subset of versions to test.
+# The following should be run periodically to update "versions":
+#   node ./dev-utils/update-tav-versions.js
+
 '@apollo/server':
   versions: ^4.0.0
   peerDependencies: graphql@^16.6.0
@@ -174,18 +180,26 @@ knex:
     commands: node test/instrumentation/modules/pg/knex.test.js
 
 ws:
-  - versions: '>=1 <7'
+  - versions: '1.0.0 || 2.2.1 || 5.0.0 || 6.2.1 || 7.4.0 || 7.5.7 || ^7.5.9'
     commands: node test/instrumentation/modules/ws.test.js
-  - versions: '>=7 <8'
-    node: '>=8.6.0'
-    commands: node test/instrumentation/modules/ws.test.js
+    update-versions:
+      mode: max-5
+      include: '>=1 <8'
 
 graphql:
-  - versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16'
+  - versions: '0.7.0 || 0.10.0 || 0.12.0 || 14.2.1 || 14.5.7 || 15.6.0 || ^15.8.0'
     commands: node test/instrumentation/modules/graphql.test.js
-  - versions: '>=16.0.0 <17'
+    update-versions:
+      mode: max-5
+      include: '>=0.7.0 <16'
+      # Testing with 0.11.0 was "buggy".
+      exclude: '0.11.0'
+  - versions: '16.0.0 || 16.0.1 || 16.1.0 || 16.2.0 || 16.3.0 || 16.4.0 || 16.5.0 || 16.6.0 || 16.7.1 || ^16.8.1'
     node: '>=12'
     commands: node test/instrumentation/modules/graphql.test.js
+    update-versions:
+      mode: latest-minors
+      include: '>=16.0.0 <17'
 
 express:
   versions: '4.0.0 || 4.1.2 || 4.2.0 || 4.3.2 || 4.4.5 || 4.5.1 || 4.6.1 || 4.7.4 || 4.8.8 || 4.9.8 || 4.10.8 || 4.11.2 || 4.12.4 || 4.13.4 || 4.14.1 || 4.15.5 || 4.16.4 || 4.17.3 || ^4.18.2'
@@ -273,8 +287,11 @@ elasticsearch:
     commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 
 handlebars:
-  versions: '*'
+  versions: '1.0.0 || 1.0.6 || 2.0.0 || 4.0.3 || 4.1.1 || 4.4.2 || 4.7.4 || ^4.7.8'
   commands: node test/instrumentation/modules/handlebars.test.js
+  update-versions:
+    mode: max-5
+    include: '>=1 <5'
 
 # Pug v3 dropped node v8 support (https://github.com/pugjs/pug/releases/tag/pug%403.0.0).
 pug:
@@ -400,7 +417,7 @@ fastify:
     update-versions:
       mode: max-5
       include: '>=3 <4'
-  - versions: '4.0.0 || 4.5.1 || 4.9.2 || 4.15.0 || 4.22.0 || 4.24.3 || ^4.25.2'
+  - versions: '4.0.0 || 4.5.1 || 4.9.2 || 4.15.0 || 4.22.0 || 4.24.3 || ^4.26.0'
     peerDependencies: '@fastify/formbody@^7'
     node: '>=14.6.0'
     commands:
@@ -422,22 +439,11 @@ memcached:
   commands: node test/instrumentation/modules/memcached.test.js
 
 aws-sdk:
-  # We want this version range:
-  #   versions: '>=2.858 <2.1372.0 || >2.1372.0 <3'
-  # However, awk-sdk releases *very* frequently (almost every day) and there
-  # is no need to test *all* those releases. Instead we statically list a subset
-  # of versions to test.
-  #
   # - v2.1372.0 changed the SQS client protocol from "query" to "json", which
   #   isn't supported in localstack. It was reverted in v2.1373.0.
   # - v2.1491.0 and up changed protocol to "json" again, eventually supported
   #   in localstack v3.
-  #
-  # Maintenance note: This should be updated periodically using:
-  #   node ./dev-utils/update-tav-versions.js
-  #
-  # Test v2.858.0, every N=122 of 614 releases, and current latest.
-  versions: '2.858.0 || 2.991.0 || 2.1124.0 || 2.1257.0 || 2.1391.0 || 2.1524.0 || ^2.1528.0'
+  versions: '2.858.0 || 2.995.0 || 2.1132.0 || 2.1269.0 || 2.1407.0 || 2.1544.0 || ^2.1549.0'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js
@@ -449,20 +455,11 @@ aws-sdk:
     include: '>=2.858.0 <3'
     exclude: '2.1372.0'
 
-# For all AWS-SDK clients want this version range:
-#   versions: '>=3.15.0 <4'
-# However, @awk-sdk/client-* releases *very* frequently (almost every day) and there
-# is no need to test *all* those releases. Instead we statically list a subset
-# of versions to test.
-# Maintenance note: This should be updated periodically using:
-#   node ./dev-utils/update-tav-versions.js
-
 '@aws-sdk/client-s3':
-  versions: '3.15.0 || 3.78.0 || 3.186.0 || 3.288.0 || 3.373.0 || 3.474.0 || ^3.484.0'
+  versions: '3.15.0 || 3.81.0 || 3.196.0 || 3.298.0 || 3.397.0 || 3.503.0 || ^3.504.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
   node: '>=14'
-  # Test v3.15.0, current latest and 5 versions in between.
   # - 3.377.0 was a bad release (https://github.com/open-telemetry/opentelemetry-js-contrib/issues/1828#issuecomment-1834276719)
   update-versions:
     mode: max-5
@@ -470,31 +467,28 @@ aws-sdk:
     exclude: '3.377.0'
 
 '@aws-sdk/client-dynamodb':
-  versions: '3.15.0 || 3.78.0 || 3.193.0 || 3.282.0 || 3.369.0 || 3.477.0 || ^3.484.0'
+  versions: '3.15.0 || 3.80.0 || 3.197.0 || 3.292.0 || 3.387.0 || 3.499.0 || ^3.504.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
   node: '>=14'
-  # Test v3.15.0, current latest and 5 versions in between.
   update-versions:
     mode: max-5
     include: '>=3.15.0 <4'
 
 '@aws-sdk/client-sns':
-  versions: '3.15.0 || 3.76.0 || 3.190.0 || 3.278.0 || 3.360.0 || 3.474.0 || ^3.484.0'
+  versions: '3.15.0 || 3.80.0 || 3.198.0 || 3.293.0 || 3.388.0 || 3.503.1 || ^3.504.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-sns.test.js
   node: '>=14'
-  # Test v3.15.0, current latest and 5 versions in between.
   update-versions:
     mode: max-5
     include: '>=3.15.0 <4'
 
 '@aws-sdk/client-sqs':
-  versions: '3.15.0 || 3.76.0 || 3.192.0 || 3.282.0 || 3.369.0 || 3.476.0 || ^3.484.0'
+  versions: '3.15.0 || 3.79.0 || 3.197.0 || 3.293.0 || 3.387.0 || 3.499.0 || ^3.504.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-sqs.test.js
   node: '>=14'
-  # Test v3.15.0, current latest and 5 versions in between.
   update-versions:
     mode: max-5
     include: '>=3.15.0 <4'
@@ -503,7 +497,7 @@ aws-sdk:
 # - In undici@4.7.1 the `request.origin` property was added, which we need
 #   in the 'undici:request:create' diagnostic message.
 undici:
-  - versions: '^6.0.0'
+  - versions: '6.0.0 || 6.0.1 || 6.1.0 || 6.2.0 || 6.2.1 || 6.3.0 || 6.4.0 || 6.5.0 || ^6.6.0'
     node: '>=18'
     commands: node test/instrumentation/modules/undici/undici.test.js
     update-versions:
@@ -511,7 +505,6 @@ undici:
       include: '>=6.0.0 <7'
   - versions: '4.7.1 || 4.10.4 || 5.1.1 || 5.12.0 || 5.22.0 || 5.27.1 || ^5.28.2'
     commands: node test/instrumentation/modules/undici/undici.test.js
-    # Test v4.7.1, latest v5 and 5 versions in between.
     update-versions:
       mode: max-5
       include: '>=4.7.1 <6'
