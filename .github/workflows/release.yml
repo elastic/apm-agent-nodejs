@@ -36,7 +36,7 @@ jobs:
       - run: make -C .ci push-docker
 
       - name: Read AWS vault secrets
-        uses: hashicorp/vault-action@v2.7.4
+        uses: hashicorp/vault-action@v2.8.0
         with:
           url: ${{ secrets.VAULT_ADDR }}
           method: approle
@@ -56,7 +56,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Read NPM vault secrets
-        uses: hashicorp/vault-action@v2.7.4
+        uses: hashicorp/vault-action@v2.8.0
         with:
           url: ${{ secrets.VAULT_ADDR }}
           method: approle
