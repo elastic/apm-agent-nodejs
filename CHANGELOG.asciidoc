@@ -34,13 +34,8 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
-
-[float]
-===== Features
+[[release-notes-4.4.1]]
+==== 4.4.1 - 2024/02/06
 
 [float]
 ===== Bug fixes
@@ -50,9 +45,6 @@ See the <<upgrade-to-v4>> guide.
   the APM agent, ESM instrumentation was only supported for some *earlier*
   Node.js versions. Changes in Node.js's ESM loader in v18.19.0 and v20 broke
   earlier ESM support. ({issues}3784[#3784], {pull}3844[#3844])
-
-[float]
-===== Chores
 
 
 [[release-notes-4.4.0]]
