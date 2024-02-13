@@ -61,13 +61,13 @@ mysql2:
       - node test/instrumentation/modules/mysql2/pool-release-1.test.js
 
 redis:
-  - versions:
-      mode: latest-minors
-      include: '>=4.0.0 <5'
-      # redis@4.6.9 was a bad release, it accidentally broke node v14 support.
-      exclude: '4.6.9'
+  - versions: '>=2.0.0 <4.0.0'
     commands: node test/instrumentation/modules/redis-2-3.test.js
-  - versions: '4.0.0 || 4.0.6 || 4.1.1 || 4.2.0 || 4.3.1 || 4.4.0 || 4.5.1 || ^4.6.13'
+  - versions:
+    mode: latest-minors
+    include: '>=4.0.0 <5'
+    # redis@4.6.9 was a bad release, it accidentally broke node v14 support.
+    exclude: '4.6.9'
     commands:
       - node test/instrumentation/modules/redis.test.js
       - node test/instrumentation/modules/redis-disabled.test.js
