@@ -58,10 +58,10 @@ redis:
   - versions: '>=2.0.0 <4.0.0'
     commands: node test/instrumentation/modules/redis-2-3.test.js
   - versions:
-    mode: latest-minors
-    include: '>=4.0.0 <5'
-    # redis@4.6.9 was a bad release, it accidentally broke node v14 support.
-    exclude: '4.6.9'
+      mode: latest-minors
+      include: '>=4.0.0 <5'
+      # redis@4.6.9 was a bad release, it accidentally broke node v14 support.
+      exclude: '4.6.9'
     commands:
       - node test/instrumentation/modules/redis.test.js
       - node test/instrumentation/modules/redis-disabled.test.js
