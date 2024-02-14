@@ -1,12 +1,6 @@
 # This file is used by tool TAV - Test All Versions.
 # See: https://github.com/watson/test-all-versions
 
-# Maintenance note: Many of the blocks below have an "update-versions" config.
-# This is used by the `update-tav-versions.js` script to update the "versions:"
-# (field that `tav` uses) down to a reasonably-sized subset of versions to test.
-# The following should be run periodically to update "versions":
-#   node ./dev-utils/update-tav-versions.js
-
 '@apollo/server':
   versions: ^4.0.0
   peerDependencies: graphql@^16.6.0
