@@ -22,6 +22,9 @@ const kafkaHost = process.env.KAFKA_HOST || 'localhost:9093';
 const rand = Math.floor(Math.random() * 1000);
 const kafkaTopic = `elasticapmtest-topic-each-${rand}`;
 
+// this map will be used to stash data to be used among different tests
+const store = new Map();
+
 /** @type {import('../../../_utils').TestFixture[]} */
 const testFixtures = [
   {
@@ -538,6 +541,10 @@ const testFixtures = [
       // First the transaction.
       t.ok(tx, 'got the send transaction');
 
+      // Stash the trace context data to use it on the assertions of the next test
+      store.set('ctx-propagation-parent-id', tx.id);
+      store.set('ctx-propagation-trace-id', tx.trace_id);
+
       // Check topic is ignored
       const spans = events.filter((e) => e.span).map((e) => e.span);
       t.equal(spans.length, 0, 'there are no spans');
@@ -566,44 +573,42 @@ const testFixtures = [
       const spans = events.filter((e) => e.span).map((e) => e.span);
       t.equal(spans.length, 0, 'there are no spans');
 
+      // Gat stashed data from previous test
+      const traceId = store.get('ctx-propagation-trace-id');
+      const parentId = store.get('ctx-propagation-parent-id');
+
       // Check the transactions fo consuming messages have the proper trace
       const transactions = events
         .filter((e) => e.transaction)
         .map((e) => e.transaction);
 
-      const firstTx = transactions.shift();
-      const secondTx = transactions.shift();
-
-      t.equal(
-        firstTx.trace_id,
-        secondTx.trace_id,
-        'all transactions have same trace ID',
-      );
-      t.equal(
-        firstTx.parent_id,
-        secondTx.parent_id,
-        'all transactions have same parent ID',
-      );
       t.ok(
-        firstTx.context.message.headers.traceparent,
-        'first transactions have traceparent header',
-      );
-      t.ok(
-        firstTx.context.message.headers.tracestate,
-        'first transactions have tracestate header',
-      );
-      t.equal(
-        firstTx.context.message.headers.traceparent,
-        secondTx.context.message.headers.traceparent,
-        'all transactions have same traceparent',
-      );
-      t.equal(
-        firstTx.context.message.headers.tracestate,
-        secondTx.context.message.headers.tracestate,
-        'all transactions have same tracestate',
+        transactions.every((t) => t.trace_id === traceId),
+        'all transactions have the right trace_id',
       );
 
-      t.equal(transactions.length, 0, 'all transactions accounted for');
+      t.ok(
+        transactions.every((t) => t.parent_id === parentId),
+        'all transactions have the right parent_id',
+      );
+
+      t.ok(
+        transactions.every((t) => {
+          const traceparent = t.context.message.headers.traceparent;
+          return traceparent === `00-${t.trace_id}-${parentId}-01`;
+        }),
+        'all transactions have the right traceparent header',
+      );
+
+      t.ok(
+        transactions.every((t) => {
+          const tracestate = t.context.message.headers.tracestate;
+          return tracestate === 'es=s:1';
+        }),
+        'all transactions have the right tracestate header',
+      );
+
+      t.equal(transactions.length, 2, 'get the right amount of transactions');
     },
   },
 ];

@@ -74,7 +74,7 @@ async function useKafkajsClient(kafkaClient, options) {
     await producer.disconnect();
     log.info('messages sent');
   } else if (mode === 'consume') {
-    // On this mode we consumen the already sent messsages. This time they are
+    // On this mode we consume the already sent messsages. This time they are
     // instrumented (not ignored) and trace context should be added to transactions
     // this must be executed 2nd
     consumer = kafkaClient.consumer({ groupId });
