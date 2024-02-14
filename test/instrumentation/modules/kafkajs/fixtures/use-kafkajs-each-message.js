@@ -80,7 +80,7 @@ async function useKafkajsClient(kafkaClient, options) {
     messages: [
       { value: 'each message 1', headers: { foo: 'string' } },
       { value: 'each message 2', headers: { foo: Buffer.from('buffer') } },
-      { value: 'each message 3' },
+      { value: 'each message 3', headers: { auth: 'secret_token' } },
     ],
   });
   log.info({ data }, 'messages sent');

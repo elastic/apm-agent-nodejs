@@ -144,6 +144,7 @@ services:
 
   kafka:
     # https://hub.docker.com/r/bitnami/kafka/tags
+    # Config ref: https://github.com/bitnami/containers/tree/main/bitnami/kafka#how-to-use-this-image
     image: bitnami/kafka:3.3.2
     ports:
       - "9093:9093"

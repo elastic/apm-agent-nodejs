@@ -25,6 +25,7 @@
     { "name": "generic-pool", "minMajorVersion": 8 },
     { "name": "graphql", "minMajorVersion": 8 },
     { "name": "ioredis", "minMajorVersion": 8 },
+    { "name": "kafkajs", "minMajorVersion": 14 },
     { "name": "knex", "minMajorVersion": 8 },
     { "name": "memcached", "minMajorVersion": 8 },
     { "name": "mongodb", "minMajorVersion": 8 },
@@ -40,7 +41,6 @@
     { "name": "ws", "minMajorVersion": 8 },
     { "name": "@koa/router,koa-router", "minMajorVersion": 8 },
     { "name": "handlebars,pug", "minMajorVersion": 8 },
-    { "name": "bluebird,got", "minMajorVersion": 8 },
-    { "name": "kafkajs", "minMajorVersion": 14 }
+    { "name": "bluebird,got", "minMajorVersion": 8 }
   ]
 }

@@ -49,6 +49,7 @@ const testFixtures = [
       // Compare some common fields across all spans.
       // ignore http/external spans
       const spans = events.filter((e) => e.span).map((e) => e.span);
+      const parentId = spans[0].id;
       spans.forEach((s) => {
         const errs = validateSpan(s);
         t.equal(errs, null, 'span is valid (per apm-server intake schema)');
@@ -113,7 +114,6 @@ const testFixtures = [
       const transactions = events
         .filter((e) => e.transaction)
         .map((e) => e.transaction);
-      const parentId = transactions[0].parent_id;
 
       t.equal(
         transactions.filter((t) => t.trace_id === tx.trace_id).length,
@@ -132,7 +132,6 @@ const testFixtures = [
         transactions.length,
         'all transactions have positive age',
       );
-      // TODO: other checks like sync=false & sample rate?
 
       // NOTE: messages could arrive in different order so we sort them
       // to properly do the assertions
@@ -202,6 +201,7 @@ const testFixtures = [
           message: {
             queue: { name: kafkaTopic },
             headers: {
+              auth: '[REDACTED]',
               traceparent: `00-${tx.trace_id}-${parentId}-01`,
               tracestate: 'es=s:1',
             },
@@ -292,7 +292,7 @@ const testFixtures = [
 
       t.equal(spans.length, 0, 'all spans accounted for');
 
-      // Now check the transactions created for each message received
+      // Now check the transactions created
       const transactions = events
         .filter((e) => e.transaction)
         .map((e) => e.transaction);
@@ -316,21 +316,13 @@ const testFixtures = [
 
       // Check message handling transactions
       t.deepEqual(transactions.shift(), {
-        name: 'Kafka RECEIVE from batch',
+        name: `Kafka RECEIVE from ${kafkaTopic}`,
         type: 'messaging',
         context: {
           service: { framework: { name: 'Kafka' } },
           message: { queue: { name: kafkaTopic } },
         },
         links: [
-          {
-            trace_id: tx.trace_id,
-            span_id: spanId,
-          },
-          {
-            trace_id: tx.trace_id,
-            span_id: spanId,
-          },
           {
             trace_id: tx.trace_id,
             span_id: spanId,
@@ -453,7 +445,6 @@ const testFixtures = [
         transactions.length,
         'all transactions have positive age',
       );
-      // TODO: other checks like sync=false & sample rate?
 
       // NOTE: messages could arrive in different order so we sort them
       // to properly do the assertions
@@ -525,6 +516,7 @@ const testFixtures = [
           message: {
             queue: { name: kafkaTopic },
             headers: {
+              auth: '[REDACTED]',
               traceparent: `00-${tx.trace_id}-${parentId}-01`,
               tracestate: 'es=s:1',
             },
