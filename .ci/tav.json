@@ -1,6 +1,5 @@
 {
-  "// versions": "Skip >=18.19.0 until IITM double-import issue is resolved.",
-  "versions": [ "21", "20", "18.18.2", "16", "14" ],
+  "versions": [ "21", "20", "18", "16", "14" ],
   "// modules": [
     "List of instrumented modules with the minimum Node major version supported.",
     "minMajorVersion for each module should be kept in sync with .tav.yml"

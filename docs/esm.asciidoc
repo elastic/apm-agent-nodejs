@@ -70,10 +70,8 @@ As well, the APM agent must also be separately *started* -- for example via `--r
 
 Automatic instrumentation of ES modules is based on the experimental Node.js Loaders API. ESM support in the Elastic APM Node.js agent will remain *experimental* while the Loaders API is experimental.
 
-ESM auto-instrumentation is only supported for Node.js versions that match *`^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 <20`*.
+ESM auto-instrumentation is only supported for Node.js versions that match *`^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 || >=20.2.0`*.
 The behavior when using `node --experimental-loader=elastic-apm-node/loader.mjs` with earlier Node.js versions is undefined and unsupported.
-
-Notably, ESM auto-instrumentation is *not* supported with Node.js v20 because of changes in the Loaders API. Using the loader with Node.js v20 can result in crashes in `import ...` statements that attempt named imports from some CommonJS modules. The error message will be of the form `SyntaxError: The requested module '<module name>' does not provide an export named '<export name>'`. (You can track https://github.com/DataDog/import-in-the-middle/issues/29[this issue] for progress.)
 
 
 [float]

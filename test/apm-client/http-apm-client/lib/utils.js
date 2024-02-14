@@ -230,6 +230,7 @@ function validOpts(opts) {
       agentVersion: 'my-agent-version',
       serviceName: 'my-service-name',
       userAgent: 'my-user-agent',
+      environment: 'development',
     },
     opts,
   );
