@@ -93,7 +93,7 @@ Automatic instrumentation of ES modules is currently limited as described here. 
 | `http`                     |             | See <<esm-compat-node>> above. |
 | `https`                    |             | See <<esm-compat-node>> above. |
 | `ioredis`                  | >=2 <6      | |
-| `knex`                     | >=0.20.0 <3 | Also, only with pg@8. |
+| `knex`                     | >=0.20.0 <4 | Also, only with pg@8. |
 | `pg`                       | ^8          | |
 |=======================================================================
 
