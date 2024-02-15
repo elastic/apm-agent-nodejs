@@ -33,6 +33,23 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+* update `test-all-versions` to `v6.1.0` which supports include, exclude & mode
+  in versions configuration. The `update-tav-versions.js` script is not necessary
+  anymore.
 
 [[release-notes-4.4.1]]
 ==== 4.4.1 - 2024/02/06

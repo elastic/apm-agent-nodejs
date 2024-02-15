@@ -1,12 +1,6 @@
 # This file is used by tool TAV - Test All Versions.
 # See: https://github.com/watson/test-all-versions
 
-# Maintenance note: Many of the blocks below have an "update-versions" config.
-# This is used by the `update-tav-versions.js` script to update the "versions:"
-# (field that `tav` uses) down to a reasonably-sized subset of versions to test.
-# The following should be run periodically to update "versions":
-#   node ./dev-utils/update-tav-versions.js
-
 '@apollo/server':
   versions: ^4.0.0
   peerDependencies: graphql@^16.6.0
@@ -63,16 +57,15 @@ mysql2:
 redis:
   - versions: '>=2.0.0 <4.0.0'
     commands: node test/instrumentation/modules/redis-2-3.test.js
-  - versions: '4.0.0 || 4.0.6 || 4.1.1 || 4.2.0 || 4.3.1 || 4.4.0 || 4.5.1 || ^4.6.12'
-    commands:
-      - node test/instrumentation/modules/redis.test.js
-      - node test/instrumentation/modules/redis-disabled.test.js
-      - node test/instrumentation/modules/redis4-legacy.test.js
-    update-versions:
+  - versions:
       mode: latest-minors
       include: '>=4.0.0 <5'
       # redis@4.6.9 was a bad release, it accidentally broke node v14 support.
       exclude: '4.6.9'
+    commands:
+      - node test/instrumentation/modules/redis.test.js
+      - node test/instrumentation/modules/redis-disabled.test.js
+      - node test/instrumentation/modules/redis4-legacy.test.js
 
 # We want these version ranges:
 #   # v3.1.3 is broken in older versions of Node because of https://github.com/luin/ioredis/commit/d5867f7c7f03a770a8c0ca5680fdcbfcaf8488e7
@@ -81,22 +74,19 @@ redis:
 # However, there are a *lot* of ioredis releases, so we statically list a
 # subset (the first, plus then the latest in each major.minor).
 ioredis:
-  - versions: '2.0.0 || 2.0.1 || 2.1.0 || 2.2.0 || 2.3.1 || 2.4.3 || 2.5.0 || 3.0.0 || 3.1.4 || ^3.2.2'
-    commands: node test/instrumentation/modules/ioredis.test.js
-    update-versions:
+  - versions:
       mode: latest-minors
       include: '>=2.0.0 <4'
-  - versions: '4.0.0 || 4.7.0 || 4.12.1 || 4.17.2 || 4.24.4 || 4.28.0 || ^4.28.5'
     commands: node test/instrumentation/modules/ioredis.test.js
-    # Test v4.0.0, latest v4 and 5 versions in between.
-    update-versions:
-      mode: max-5
+  - versions:
+      # Test v4.0.0, latest v4 and 5 versions in between.
+      mode: max-7
       include: '>=4.0.0 <5'
-  - versions: '5.0.0 || 5.0.6 || 5.1.0 || 5.2.6 || ^5.3.2'
     commands: node test/instrumentation/modules/ioredis.test.js
-    update-versions:
+  - versions:
       mode: latest-minors
       include: '>=5.0.0 <6'
+    commands: node test/instrumentation/modules/ioredis.test.js
 
 pg:
   # We want this version range:
@@ -126,19 +116,17 @@ pg:
 # Latest mongodb-core release (v3.2.7) was released in 2019. We test a subset
 # of the full supported range.
 mongodb-core:
-  versions: '1.2.19 || 1.2.32 || 1.3.21 || 2.0.14 || 2.1.20 || 3.0.11 || 3.1.11 || ^3.2.7'
-  commands: node test/instrumentation/modules/mongodb-core.test.js
-  update-versions:
+  versions:
     mode: latest-minors
-    include: '>=1.2.19 <4' # latest minors subset of '>=1.2.19 <4'
+    include: '>=1.2.19 <4'
+  commands: node test/instrumentation/modules/mongodb-core.test.js
 
 mongodb:
-  - versions: '3.3.0 || 3.5.5 || 3.6.6 || 4.0.1 || 4.5.0 || 4.15.0 || ^4.17.2'
-    commands: node test/instrumentation/modules/mongodb/mongodb.test.js
-    # Test v3.3, latest v4 and 5 versions in between.
-    update-versions:
-      mode: max-5
+  - versions:
+      # Test v3.3, latest v4 and 5 versions in between.
+      mode: max-7
       include: '>=3.3 <5'
+    commands: node test/instrumentation/modules/mongodb/mongodb.test.js
   - versions: '>=5 <6'
     node: '>=14.20.1'
     commands: node test/instrumentation/modules/mongodb/mongodb.test.js
@@ -180,40 +168,35 @@ knex:
     commands: node test/instrumentation/modules/pg/knex.test.js
 
 ws:
-  - versions: '1.0.0 || 2.2.1 || 5.0.0 || 6.2.1 || 7.4.0 || 7.5.7 || ^7.5.9'
-    commands: node test/instrumentation/modules/ws.test.js
-    update-versions:
+  - versions:
       mode: max-5
       include: '>=1 <8'
+    commands: node test/instrumentation/modules/ws.test.js
 
 graphql:
-  - versions: '0.7.0 || 0.10.0 || 0.12.0 || 14.2.1 || 14.5.7 || 15.6.0 || ^15.8.0'
-    commands: node test/instrumentation/modules/graphql.test.js
-    update-versions:
+  - versions:
       mode: max-5
       include: '>=0.7.0 <16'
-      # Testing with 0.11.0 was "buggy".
-      exclude: '0.11.0'
-  - versions: '16.0.0 || 16.0.1 || 16.1.0 || 16.2.0 || 16.3.0 || 16.4.0 || 16.5.0 || 16.6.0 || 16.7.1 || ^16.8.1'
-    node: '>=12'
+      exclude: '0.11.0' # Testing with 0.11.0 was "buggy".
     commands: node test/instrumentation/modules/graphql.test.js
-    update-versions:
+  - versions:
       mode: latest-minors
       include: '>=16.0.0 <17'
+    node: '>=12'
+    commands: node test/instrumentation/modules/graphql.test.js
 
 express:
-  versions: '4.0.0 || 4.1.2 || 4.2.0 || 4.3.2 || 4.4.5 || 4.5.1 || 4.6.1 || 4.7.4 || 4.8.8 || 4.9.8 || 4.10.8 || 4.11.2 || 4.12.4 || 4.13.4 || 4.14.1 || 4.15.5 || 4.16.4 || 4.17.3 || ^4.18.2'
-  commands:
-    - node test/instrumentation/modules/express/basic.test.js
-    - node test/instrumentation/modules/express/capture-exceptions-off.test.js
-    - node test/instrumentation/modules/express/capture-exceptions-on.test.js
-    - node test/instrumentation/modules/express/set-framework.test.js
-  update-versions:
+  versions:
     mode: latest-minors
     # include requires an upper bound. v5 is still in beta
     # (5.0.0-beta.1": "2022-02-15T01:11:25.229Z) but we use 6 to make sure any
     # future release is included if we udpate
     include: '>=4 <6' # latest minors subset of '>=4 <6'
+  commands:
+    - node test/instrumentation/modules/express/basic.test.js
+    - node test/instrumentation/modules/express/capture-exceptions-off.test.js
+    - node test/instrumentation/modules/express/capture-exceptions-on.test.js
+    - node test/instrumentation/modules/express/set-framework.test.js
 
 apollo-server-express:
   # We want this version range:
@@ -287,11 +270,10 @@ elasticsearch:
     commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 
 handlebars:
-  versions: '1.0.0 || 1.0.6 || 2.0.0 || 4.0.3 || 4.1.1 || 4.4.2 || 4.7.4 || ^4.7.8'
-  commands: node test/instrumentation/modules/handlebars.test.js
-  update-versions:
-    mode: max-5
+  versions:
+    mode: max-7
     include: '>=1 <5'
+  commands: node test/instrumentation/modules/handlebars.test.js
 
 # Pug v3 dropped node v8 support (https://github.com/pugjs/pug/releases/tag/pug%403.0.0).
 pug:
@@ -354,7 +336,6 @@ tedious:
     node: '>=16'
     commands: node test/instrumentation/modules/tedious.test.js
 
-
 cassandra-driver:
   # 3.1.0 is broken
   versions: '>=3 <3.1.0 || >3.1.0 <5'
@@ -406,7 +387,9 @@ fastify:
       - node test/instrumentation/modules/fastify/fastify.test.js
       - node test/instrumentation/modules/fastify/async-await.test.js
       - node test/instrumentation/modules/fastify/set-framework.test.js
-  - versions: '3.0.0 || 3.6.0 || 3.14.2 || 3.20.1 || 3.24.0 || 3.29.0 || ^3.29.5'
+  - versions:
+      mode: max-7
+      include: '>=3 <4'
     peerDependencies: '@fastify/formbody@^6.0.1'
     node: '>=10'
     commands:
@@ -414,10 +397,10 @@ fastify:
       - node test/instrumentation/modules/fastify/async-await.test.js
       - node test/instrumentation/modules/fastify/set-framework.test.js
       - node test/sanitize-field-names/fastify.test.js
-    update-versions:
-      mode: max-5
-      include: '>=3 <4'
-  - versions: '4.0.0 || 4.5.1 || 4.9.2 || 4.15.0 || 4.22.0 || 4.24.3 || ^4.26.0'
+  - versions:
+      mode: max-7
+      include: '>=4 <5'
+      exclude: '4.0.1 || >=4.16.0 <=4.16.2'
     peerDependencies: '@fastify/formbody@^7'
     node: '>=14.6.0'
     commands:
@@ -425,10 +408,6 @@ fastify:
       - node test/instrumentation/modules/fastify/async-await.test.js
       - node test/instrumentation/modules/fastify/set-framework.test.js
       - node test/sanitize-field-names/fastify.test.js
-    update-versions:
-      mode: max-5
-      include: '>=4 <5'
-      exclude: '4.0.1 || >=4.16.0 <=4.16.2'
 
 finalhandler:
   versions: '*'
@@ -443,69 +422,61 @@ aws-sdk:
   #   isn't supported in localstack. It was reverted in v2.1373.0.
   # - v2.1491.0 and up changed protocol to "json" again, eventually supported
   #   in localstack v3.
-  versions: '2.858.0 || 2.995.0 || 2.1132.0 || 2.1269.0 || 2.1407.0 || 2.1544.0 || ^2.1549.0'
+  versions:
+    mode: max-7
+    include: '>=2.858.0 <3'
+    exclude: '2.1372.0'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js
     - node test/instrumentation/modules/aws-sdk/sns.test.js
     - node test/instrumentation/modules/aws-sdk/sqs.test.js
     - node test/instrumentation/modules/aws-sdk/dynamodb.test.js
-  update-versions:
-    mode: max-5
-    include: '>=2.858.0 <3'
-    exclude: '2.1372.0'
 
 '@aws-sdk/client-s3':
-  versions: '3.15.0 || 3.81.0 || 3.196.0 || 3.298.0 || 3.397.0 || 3.503.0 || ^3.504.0'
-  commands:
-    - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
-  node: '>=14'
-  # - 3.377.0 was a bad release (https://github.com/open-telemetry/opentelemetry-js-contrib/issues/1828#issuecomment-1834276719)
-  update-versions:
-    mode: max-5
+  versions:
+    # - 3.377.0 was a bad release (https://github.com/open-telemetry/opentelemetry-js-contrib/issues/1828#issuecomment-1834276719)
+    mode: max-7
     include: '>=3.15.0 <4'
     exclude: '3.377.0'
-
-'@aws-sdk/client-dynamodb':
-  versions: '3.15.0 || 3.80.0 || 3.197.0 || 3.292.0 || 3.387.0 || 3.499.0 || ^3.504.0'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
   node: '>=14'
-  update-versions:
-    mode: max-5
+
+'@aws-sdk/client-dynamodb':
+  versions:
+    mode: max-7
     include: '>=3.15.0 <4'
+  commands:
+    - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
+  node: '>=14'
 
 '@aws-sdk/client-sns':
-  versions: '3.15.0 || 3.80.0 || 3.198.0 || 3.293.0 || 3.388.0 || 3.503.1 || ^3.504.0'
+  versions:
+    mode: max-7
+    include: '>=3.15.0 <4'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-sns.test.js
   node: '>=14'
-  update-versions:
-    mode: max-5
-    include: '>=3.15.0 <4'
 
 '@aws-sdk/client-sqs':
-  versions: '3.15.0 || 3.79.0 || 3.197.0 || 3.293.0 || 3.387.0 || 3.499.0 || ^3.504.0'
+  versions:
+    mode: max-7
+    include: '>=3.15.0 <4'
   commands:
     - node test/instrumentation/modules/@aws-sdk/client-sqs.test.js
   node: '>=14'
-  update-versions:
-    mode: max-5
-    include: '>=3.15.0 <4'
 
 # - undici@4.7.0 added its diagnostics_channel support.
 # - In undici@4.7.1 the `request.origin` property was added, which we need
 #   in the 'undici:request:create' diagnostic message.
 undici:
-  - versions: '6.0.0 || 6.0.1 || 6.1.0 || 6.2.0 || 6.2.1 || 6.3.0 || 6.4.0 || 6.5.0 || ^6.6.0'
+  - versions:
+      mode: max-7
+      include: '>=6.0.0 <7'
     node: '>=18'
     commands: node test/instrumentation/modules/undici/undici.test.js
-    update-versions:
-      mode: max-5
-      include: '>=6.0.0 <7'
-  - versions: '4.7.1 || 4.10.4 || 5.1.1 || 5.12.0 || 5.22.0 || 5.27.1 || ^5.28.2'
-    commands: node test/instrumentation/modules/undici/undici.test.js
-    update-versions:
-      mode: max-5
+  - versions:
+      mode: max-7
       include: '>=4.7.1 <6'
-
+    commands: node test/instrumentation/modules/undici/undici.test.js
