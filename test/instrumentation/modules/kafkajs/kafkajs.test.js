@@ -341,7 +341,7 @@ const testFixtures = [
     },
   },
   {
-    name: 'simple Kafkajs usage scenario for `captureHeaders=false` and `capturebody=all` on message reception',
+    name: 'simple Kafkajs usage scenario for `captureHeaders=false` and `captureBody=all` on message reception',
     script: 'fixtures/use-kafkajs-each-message.js',
     cwd: __dirname,
     timeout: 20000,
