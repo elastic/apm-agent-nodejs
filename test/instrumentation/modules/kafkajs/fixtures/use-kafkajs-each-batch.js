@@ -6,6 +6,8 @@
 
 'use strict';
 
+const MUST_IGNORE_TOPIC = process.env.TEST_IGNORE_TOPIC === 'true';
+
 const apm = require('../../../../..').start({
   serviceName: 'use-kafkajs',
   captureExceptions: false,
@@ -14,7 +16,7 @@ const apm = require('../../../../..').start({
   cloudProvider: 'none',
   stackTraceLimit: 4, // get it smaller for reviewing output
   logLevel: 'info',
-  ignoreMessageQueues: ['*-ignore'],
+  ignoreMessageQueues: MUST_IGNORE_TOPIC ? ['*-ignore'] : [],
 });
 
 const { Buffer } = require('buffer');

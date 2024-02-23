@@ -218,7 +218,7 @@ const testFixtures = [
     },
   },
   {
-    name: 'simple Kafkajs usage scenario for batch message processing',
+    name: 'simple Kafkajs usage scenario for batch message processing with a single topic not ignored',
     script: 'fixtures/use-kafkajs-each-batch.js',
     cwd: __dirname,
     timeout: 20000,
@@ -227,6 +227,135 @@ const testFixtures = [
       TEST_GROUP_ID: `elastictest-kafka-group-${rand}`,
       TEST_TOPIC: kafkaTopic,
       TEST_KAFKA_HOST: kafkaHost,
+      TEST_IGNORE_TOPIC: 'true',
+      // Suppres warinings about new default partitioner
+      // https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner
+      KAFKAJS_NO_PARTITIONER_WARNING: '1',
+    },
+    checkApmServer(t, apmServer) {
+      t.ok(apmServer.events[0].metadata, 'metadata');
+      const events = sortApmEvents(apmServer.events);
+      const tx = events.shift().transaction;
+
+      // First the transaction.
+      t.ok(tx, 'got the send batch transaction');
+
+      // Compare some common fields across all spans.
+      // ignore http/external spans
+      const spans = events.filter((e) => e.span).map((e) => e.span);
+      const spanId = spans[0].id;
+      spans.forEach((s) => {
+        const errs = validateSpan(s);
+        t.equal(errs, null, 'span is valid (per apm-server intake schema)');
+      });
+      t.equal(
+        spans.filter((s) => s.trace_id === tx.trace_id).length,
+        spans.length,
+        'all spans have the same trace_id',
+      );
+      t.equal(
+        spans.filter((s) => s.transaction_id === tx.id).length,
+        spans.length,
+        'all spans have the same transaction_id',
+      );
+      t.equal(
+        spans.filter((s) => s.sync === false).length,
+        spans.length,
+        'all spans have sync=false',
+      );
+      t.equal(
+        spans.filter((s) => s.sample_rate === 1).length,
+        spans.length,
+        'all spans have sample_rate=1',
+      );
+
+      spans.forEach((s) => {
+        // Remove variable and common fields to facilitate t.deepEqual below.
+        delete s.id;
+        delete s.transaction_id;
+        delete s.parent_id;
+        delete s.trace_id;
+        delete s.timestamp;
+        delete s.duration;
+        delete s.sync;
+        delete s.sample_rate;
+      });
+
+      // The 1st batch has only one topic which is not ignored
+      // so the span has message context and also
+      // - service.target.name
+      // - destination.service.resource
+      t.deepEqual(spans.shift(), {
+        name: `Kafka send to ${kafkaTopic}`,
+        type: 'messaging',
+        subtype: 'kafka',
+        action: 'send',
+        context: {
+          service: { target: { type: 'kafka', name: kafkaTopic } },
+          destination: {
+            service: { type: '', name: '', resource: `kafka/${kafkaTopic}` },
+          },
+          message: { queue: { name: kafkaTopic } },
+        },
+        outcome: 'success',
+      });
+
+      t.equal(spans.length, 0, 'all spans accounted for');
+
+      // Now check the transactions created
+      const transactions = events
+        .filter((e) => e.transaction)
+        .map((e) => e.transaction);
+
+      transactions.forEach((t) => {
+        // Remove variable and common fields to facilitate t.deepEqual below.
+        delete t.id;
+        delete t.parent_id;
+        delete t.trace_id;
+        delete t.timestamp;
+        delete t.duration;
+        delete t.sample_rate;
+        delete t.sampled;
+        delete t.span_count;
+        delete t.result;
+        delete t.context.user;
+        delete t.context.tags;
+        delete t.context.custom;
+        delete t.context.cloud;
+      });
+
+      // Check message handling transactions
+      t.deepEqual(transactions.shift(), {
+        name: `Kafka RECEIVE from ${kafkaTopic}`,
+        type: 'messaging',
+        context: {
+          service: { framework: { name: 'Kafka' } },
+          message: { queue: { name: kafkaTopic } },
+        },
+        links: [
+          {
+            trace_id: tx.trace_id,
+            span_id: spanId,
+          },
+        ],
+
+        outcome: 'success',
+      });
+
+      t.equal(transactions.length, 0, 'all transactions accounted for');
+    },
+  },
+  {
+    name: 'simple Kafkajs usage scenario for batch message processing without ignored topics',
+    script: 'fixtures/use-kafkajs-each-batch.js',
+    cwd: __dirname,
+    timeout: 20000,
+    env: {
+      TEST_CLIENT_ID: 'elastic-kafka-client',
+      TEST_GROUP_ID: `elastictest-kafka-group-${rand}`,
+      TEST_TOPIC: kafkaTopic,
+      TEST_KAFKA_HOST: kafkaHost,
+      TEST_IGNORE_TOPIC: 'false',
       // Suppres warinings about new default partitioner
       // https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner
       KAFKAJS_NO_PARTITIONER_WARNING: '1',
@@ -281,7 +410,7 @@ const testFixtures = [
       });
 
       t.deepEqual(spans.shift(), {
-        name: 'Kafka send messages batch',
+        name: `Kafka send`,
         type: 'messaging',
         subtype: 'kafka',
         action: 'send',
@@ -289,7 +418,6 @@ const testFixtures = [
           service: { target: { type: 'kafka' } },
           destination: {
             service: { type: '', name: '', resource: 'kafka' },
-            target: { type: 'kafka' },
           },
         },
         outcome: 'success',
@@ -300,7 +428,12 @@ const testFixtures = [
       // Now check the transactions created
       const transactions = events
         .filter((e) => e.transaction)
-        .map((e) => e.transaction);
+        .map((e) => e.transaction)
+        // We cannot ensure the order of the received batches so we have to sort
+        // to do the assertions properly
+        .sort((ta, tb) => {
+          return ta.name < tb.name ? -1 : 1;
+        });
 
       transactions.forEach((t) => {
         // Remove variable and common fields to facilitate t.deepEqual below.
@@ -326,6 +459,23 @@ const testFixtures = [
         context: {
           service: { framework: { name: 'Kafka' } },
           message: { queue: { name: kafkaTopic } },
+        },
+        links: [
+          {
+            trace_id: tx.trace_id,
+            span_id: spanId,
+          },
+        ],
+
+        outcome: 'success',
+      });
+
+      t.deepEqual(transactions.shift(), {
+        name: `Kafka RECEIVE from ${kafkaTopic}-ignore`,
+        type: 'messaging',
+        context: {
+          service: { framework: { name: 'Kafka' } },
+          message: { queue: { name: `${kafkaTopic}-ignore` } },
         },
         links: [
           {
