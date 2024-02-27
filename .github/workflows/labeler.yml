@@ -35,13 +35,16 @@ jobs:
       run: |
         echo "::debug::isTeamMember: ${{ steps.checkUserMember.outputs.isTeamMember }}"
         echo "::debug::isExcluded: ${{ steps.checkUserMember.outputs.isExcluded }}"
-    - name: Add community and triage lables
+    - name: Add community and triage labels
       if: steps.checkUserMember.outputs.isTeamMember != 'true' && steps.checkUserMember.outputs.isExcluded != 'true'
       uses: AlexanderWert/issue-labeler@v2.3
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         configuration-path: .github/community-label.yml
         enable-versioned-regex: 0
+      permissions:
+        issues: write
+        pull-requests: write
     - name: Assign new internal pull requests to project
       uses: elastic/assign-one-project-github-action@1.2.2
       if: (steps.checkUserMember.outputs.isTeamMember == 'true' || steps.checkUserMember.outputs.isExcluded == 'true') && github.event.pull_request
