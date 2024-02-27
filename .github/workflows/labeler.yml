@@ -14,12 +14,15 @@ jobs:
   triage:
     runs-on: ubuntu-latest
     steps:
-    - name: Add agent-nodejs label
+    - name: Add agent-nodejs label to this issue/PR
       uses: AlexanderWert/issue-labeler@v2.3
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         configuration-path: .github/labeler-config.yml
         enable-versioned-regex: 0
+      permissions:
+        issues: write
+        pull-requests: write
     - name: Check team membership for user
       uses: elastic/get-user-teams-membership@1.1.0
       id: checkUserMember
