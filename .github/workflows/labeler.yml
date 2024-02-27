@@ -7,9 +7,6 @@ on:
 env:
   MY_GITHUB_TOKEN: ${{ secrets.APM_TECH_USER_TOKEN }}
 
-permissions:
-  contents: read
-
 jobs:
   triage:
     runs-on: ubuntu-latest
@@ -42,9 +39,6 @@ jobs:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         configuration-path: .github/community-label.yml
         enable-versioned-regex: 0
-      permissions:
-        issues: write
-        pull-requests: write
     - name: Assign new internal pull requests to project
       uses: elastic/assign-one-project-github-action@1.2.2
       if: (steps.checkUserMember.outputs.isTeamMember == 'true' || steps.checkUserMember.outputs.isExcluded == 'true') && github.event.pull_request
