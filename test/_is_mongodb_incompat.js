@@ -39,7 +39,7 @@ function isMongodbIncompat() {
       return msg;
     }
   } else if (semver.satisfies(mongodbVer, '>=6.0.0')) {
-    if (!semver.satisfies(nodeVer, '>=15.0.0')) {
+    if (!semver.satisfies(nodeVer, '>=16.20.1')) {
       return msg;
     }
   }
