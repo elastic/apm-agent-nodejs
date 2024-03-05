@@ -131,7 +131,7 @@ mongodb:
     node: '>=14.20.1'
     commands: node test/instrumentation/modules/mongodb/mongodb.test.js
   - versions: '>=6 <7'
-    node: '>=15.0.0'
+    node: '>=16.20.1'
     commands: node test/instrumentation/modules/mongodb/mongodb.test.js
 
 # Bluebird is effectively deprecated (https://github.com/petkaantonov/bluebird#%EF%B8%8Fnote%EF%B8%8F).
