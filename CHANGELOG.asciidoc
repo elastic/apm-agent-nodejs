@@ -41,7 +41,7 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Features
 
-* Add support for `tedious` version v17. ({pull}[#])
+* Add support for `tedious` version v17. ({pull}3901[#3901])
 
 [float]
 ===== Bug fixes
