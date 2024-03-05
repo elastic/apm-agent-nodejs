@@ -336,7 +336,7 @@ tedious:
     node: '>=16'
     commands: node test/instrumentation/modules/tedious.test.js
   - versions: '>=17.0.0 <18' # first and last majors subset of '17.x' (as for now there is only v17.0.0)
-    node: '>=20'
+    node: '18.x || >=20'
     commands: node test/instrumentation/modules/tedious.test.js
 
 cassandra-driver:
