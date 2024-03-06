@@ -25,8 +25,10 @@ const otel = require('@opentelemetry/api');
 const semver = require('semver');
 const tape = require('tape');
 
+const { safeGetPackageVersion } = require('../_utils');
+
 const supportsGetActiveSpan = semver.satisfies(
-  require('@opentelemetry/api/package.json').version,
+  safeGetPackageVersion('@opentelemetry/api').version,
   '>=1.2.0',
 );
 
