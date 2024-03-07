@@ -286,7 +286,7 @@ const testFixtures = [
       // - service.target.name
       // - destination.service.resource
       t.deepEqual(spans.shift(), {
-        name: `Kafka send to ${kafkaTopic}`,
+        name: `Kafka SEND to ${kafkaTopic}`,
         type: 'messaging',
         subtype: 'kafka',
         action: 'send',
