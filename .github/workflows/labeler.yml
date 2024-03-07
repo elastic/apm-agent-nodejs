@@ -9,6 +9,9 @@ env:
 
 permissions:
   contents: read
+  # This permission is needed to add labels to issues/PRs per
+  # https://docs.github.com/en/rest/issues/labels?apiVersion=2022-11-28#add-labels-to-an-issue
+  issues: write
 
 jobs:
   triage:
@@ -20,9 +23,6 @@ jobs:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         configuration-path: .github/labeler-config.yml
         enable-versioned-regex: 0
-      permissions:
-        issues: write
-        pull-requests: write
     - name: Check team membership for user
       uses: elastic/get-user-teams-membership@1.1.0
       id: checkUserMember
@@ -45,9 +45,6 @@ jobs:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         configuration-path: .github/community-label.yml
         enable-versioned-regex: 0
-      permissions:
-        issues: write
-        pull-requests: write
     - name: Assign new internal pull requests to project
       uses: elastic/assign-one-project-github-action@1.2.2
       if: (steps.checkUserMember.outputs.isTeamMember == 'true' || steps.checkUserMember.outputs.isExcluded == 'true') && github.event.pull_request
