@@ -44,7 +44,7 @@ jobs:
           url: ${{ secrets.VAULT_ADDR }}
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET_ID }}
-          channel: "#apm-agent-nodejs"
+          channel: "#apm-agent-node"
           message: |
             :ghost: [${{ github.repository }}] microbenchmark *${{ github.ref_name }}* failed to run in Buildkite.
             Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)

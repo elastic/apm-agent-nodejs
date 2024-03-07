@@ -131,7 +131,7 @@ mongodb:
     node: '>=14.20.1'
     commands: node test/instrumentation/modules/mongodb/mongodb.test.js
   - versions: '>=6 <7'
-    node: '>=15.0.0'
+    node: '>=16.20.1'
     commands: node test/instrumentation/modules/mongodb/mongodb.test.js
 
 # Bluebird is effectively deprecated (https://github.com/petkaantonov/bluebird#%EF%B8%8Fnote%EF%B8%8F).
@@ -334,6 +334,9 @@ tedious:
     commands: node test/instrumentation/modules/tedious.test.js
   - versions: '16.0.0 || 16.1.0 || >16.1.0 <17' # first and last majors subset of '16.x'
     node: '>=16'
+    commands: node test/instrumentation/modules/tedious.test.js
+  - versions: '>=17.0.0 <18' # first and last majors subset of '17.x' (as for now there is only v17.0.0)
+    node: '18.x || >=20'
     commands: node test/instrumentation/modules/tedious.test.js
 
 cassandra-driver:
