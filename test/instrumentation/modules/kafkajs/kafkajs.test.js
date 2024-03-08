@@ -91,7 +91,7 @@ const testFixtures = [
       });
 
       t.deepEqual(spans.shift(), {
-        name: `Kafka send to ${kafkaTopic}`,
+        name: `Kafka SEND to ${kafkaTopic}`,
         type: 'messaging',
         subtype: 'kafka',
         action: 'send',
@@ -410,7 +410,7 @@ const testFixtures = [
       });
 
       t.deepEqual(spans.shift(), {
-        name: `Kafka send`,
+        name: `Kafka SEND`,
         type: 'messaging',
         subtype: 'kafka',
         action: 'send',
@@ -555,7 +555,7 @@ const testFixtures = [
       });
 
       t.deepEqual(spans.shift(), {
-        name: `Kafka send to ${kafkaTopic}`,
+        name: `Kafka SEND to ${kafkaTopic}`,
         type: 'messaging',
         subtype: 'kafka',
         action: 'send',
