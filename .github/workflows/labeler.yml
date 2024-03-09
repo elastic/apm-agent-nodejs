@@ -18,6 +18,7 @@ jobs:
       uses: actions-ecosystem/action-add-labels@v1
       with:
         labels: agent-nodejs
+
     - name: Check team membership for user
       uses: elastic/get-user-teams-membership@1.1.0
       id: checkUserMember
@@ -29,6 +30,7 @@ jobs:
           dependabot
           dependabot[bot]
         GITHUB_TOKEN: ${{ secrets.APM_TECH_USER_TOKEN }}
+
     - name: Add community and triage labels
       if: steps.checkUserMember.outputs.isTeamMember != 'true' && steps.checkUserMember.outputs.isExcluded != 'true'
       uses: actions-ecosystem/action-add-labels@v1
