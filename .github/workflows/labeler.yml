@@ -4,25 +4,21 @@ on:
     types: [opened]
   pull_request_target:
     types: [opened]
-env:
-  MY_GITHUB_TOKEN: ${{ secrets.APM_TECH_USER_TOKEN }}
 
+# 'issues: write' for https://docs.github.com/en/rest/issues/labels?apiVersion=2022-11-28#add-labels-to-an-issue
 permissions:
   contents: read
-  # This permission is needed to add labels to issues/PRs per
-  # https://docs.github.com/en/rest/issues/labels?apiVersion=2022-11-28#add-labels-to-an-issue
   issues: write
 
 jobs:
   triage:
     runs-on: ubuntu-latest
     steps:
-    - name: Add agent-nodejs label to this issue/PR
-      uses: AlexanderWert/issue-labeler@v2.3
+    - name: Add agent-nodejs label
+      uses: actions-ecosystem/action-add-labels@v1
       with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
-        configuration-path: .github/labeler-config.yml
-        enable-versioned-regex: 0
+        labels: agent-nodejs
+
     - name: Check team membership for user
       uses: elastic/get-user-teams-membership@1.1.0
       id: checkUserMember
@@ -34,21 +30,11 @@ jobs:
           dependabot
           dependabot[bot]
         GITHUB_TOKEN: ${{ secrets.APM_TECH_USER_TOKEN }}
-    - name: Show team membership
-      run: |
-        echo "::debug::isTeamMember: ${{ steps.checkUserMember.outputs.isTeamMember }}"
-        echo "::debug::isExcluded: ${{ steps.checkUserMember.outputs.isExcluded }}"
+
     - name: Add community and triage labels
       if: steps.checkUserMember.outputs.isTeamMember != 'true' && steps.checkUserMember.outputs.isExcluded != 'true'
-      uses: AlexanderWert/issue-labeler@v2.3
+      uses: actions-ecosystem/action-add-labels@v1
       with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
-        configuration-path: .github/community-label.yml
-        enable-versioned-regex: 0
-    - name: Assign new internal pull requests to project
-      uses: elastic/assign-one-project-github-action@1.2.2
-      if: (steps.checkUserMember.outputs.isTeamMember == 'true' || steps.checkUserMember.outputs.isExcluded == 'true') && github.event.pull_request
-      with:
-        project: 'https://github.com/orgs/elastic/projects/454'
-        project_id: '5882982'
-        column_name: 'In Progress'
+        labels: |
+          community
+          triage
