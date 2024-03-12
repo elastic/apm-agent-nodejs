@@ -51,6 +51,9 @@ See the <<upgrade-to-v4>> guide.
   included changes that resulted in the APM agent's instrumentation breaking it.
   ({pull}3897[#3897])
 
+* Fix a path normalization issue that broke (or partially broke) instrumentation
+  of some modules on Windows: Next.js, redis v4+, mongodb. ({pull}3905[#3905])
+
 [float]
 ===== Chores
 
