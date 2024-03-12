@@ -1,0 +1,28 @@
+version: '2.1'
+
+services:
+  zookeeper:
+    extends:
+      file: docker-compose.yml
+      service: zookeeper
+  kafka:
+    extends:
+      file: docker-compose.yml
+      service: kafka
+    depends_on:
+      - zookeeper
+  node_tests:
+    extends:
+      file: docker-compose-node-test.yml
+      service: node_tests
+    depends_on:
+      - kafka
+      # TODO: uncomment this if health_check is necessary
+      # kafka:
+      #   condition: service_healthy
+
+volumes:
+  nodekafkadata:
+    driver: local
+  nodezookeeperdata:
+    driver: local

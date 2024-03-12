@@ -37,6 +37,10 @@ services:
     extends:
       file: docker-compose.yml
       service: redis
+  kafka:
+    extends:
+      file: docker-compose.yml
+      service: kafka
   node_tests:
     extends:
       file: docker-compose-node-edge-test.yml
@@ -60,6 +64,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      kafka:
+        condition: service_healthy
 
 volumes:
   nodepgdata:
@@ -75,4 +81,6 @@ volumes:
   nodeesdata:
     driver: local
   nodecassandradata:
+    driver: local
+  nodekafkadata:
     driver: local

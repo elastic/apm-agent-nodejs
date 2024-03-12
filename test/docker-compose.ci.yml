@@ -12,6 +12,7 @@ services:
       CASSANDRA_HOST: 'cassandra'
       MEMCACHED_HOST: 'memcached'
       LOCALSTACK_HOST: 'localstack:4566'
+      KAFKA_HOST: 'kafka:9093'
       PGHOST: 'postgres'
       PGUSER: 'postgres'
     depends_on:
@@ -32,4 +33,6 @@ services:
       memcached:
         condition: service_started
       localstack:
+        condition: service_started
+      kafka:
         condition: service_started

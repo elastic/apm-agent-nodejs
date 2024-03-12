@@ -483,3 +483,9 @@ undici:
       mode: max-7
       include: '>=4.7.1 <6'
     commands: node test/instrumentation/modules/undici/undici.test.js
+
+kafkajs:
+  versions:
+    mode: latest-minors
+    include: '>=2 <3'
+  commands: node test/instrumentation/modules/kafkajs/kafkajs.test.js
