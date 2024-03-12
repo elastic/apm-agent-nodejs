@@ -187,8 +187,12 @@ See https://github.com/elastic/apm-agent-nodejs/issues/3784 for details.
 * Add support for `@aws-sdk/client-dynamodb`, one of the AWS SDK v3 clients.
   ({issues}2958[#2958])
 
+[float]
+===== Bug fixes
 * Add support for `@aws-sdk/client-sns`, one of the AWS SDK v3 clients.
   ({issues}2956[#2956])
+
+* The problem of route name not being captured in Express.Use direct use in middleware has been resolved.
 
 * Add support for `@aws-sdk/client-sqs`, one of the AWS SDK v3 clients.
   ({issues}2957[#2957])
