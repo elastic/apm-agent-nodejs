@@ -335,7 +335,7 @@ tedious:
   - versions: '16.0.0 || 16.1.0 || >16.1.0 <17' # first and last majors subset of '16.x'
     node: '>=16'
     commands: node test/instrumentation/modules/tedious.test.js
-  - versions: '>=17.0.0 <18' # first and last majors subset of '17.x' (as for now there is only v17.0.0)
+  - versions: '>=17.0.0 <19' # first and last majors subset of '17.x' (as for now there is only v17.0.0)
     node: '18.x || >=20'
     commands: node test/instrumentation/modules/tedious.test.js
 

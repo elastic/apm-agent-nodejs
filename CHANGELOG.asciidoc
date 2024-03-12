@@ -42,7 +42,7 @@ See the <<upgrade-to-v4>> guide.
 ===== Features
 
 * Update <<opentelemetry-bridge>> support to `@opentelemetry/api` version 1.8.0.
-* Add support for `tedious` version v17. ({pull}3901[#3901])
+* Add support for `tedious` versions 17 and 18. ({pull}3901[#3901], {pull}3911[#3911])
 
 [float]
 ===== Bug fixes
