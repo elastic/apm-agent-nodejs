@@ -125,6 +125,31 @@ jobs:
         volumes:
           - nodelocalstackdata:/var/lib/localstack
 
+      zookeeper:
+        image: bitnami/zookeeper:3.9.1
+        env:
+          ALLOW_ANONYMOUS_LOGIN: 'yes'
+        ports:
+          - "2181:2181"
+        volumes:
+          - nodezookeeperdata:/var/lib/zookeeper/data
+        
+      kafka:
+        image: bitnami/kafka:3.3.2
+        ports:
+          - "9093:9093"
+        volumes:
+          - nodekafkadata:/var/lib/kafka/data
+        env:
+          KAFKA_BROKER_ID: '1'
+          KAFKA_CFG_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+          ALLOW_PLAINTEXT_LISTENER: 'yes'
+          KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: 'CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT'
+          KAFKA_CFG_LISTENERS: 'CLIENT://:9092,EXTERNAL://:9093'
+          KAFKA_CFG_ADVERTISED_LISTENERS: 'CLIENT://kafka:9092,EXTERNAL://localhost:9093'
+          KAFKA_CFG_INTER_BROKER_LISTENER_NAME: 'CLIENT'
+          KAFKA_CFG_DELETE_TOPIC_ENABLE: 'true'
+
     strategy:
       fail-fast: false
       matrix:

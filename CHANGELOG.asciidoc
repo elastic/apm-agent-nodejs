@@ -40,6 +40,8 @@ See the <<upgrade-to-v4>> guide.
 ===== Features
 
 * Update <<opentelemetry-bridge>> support to `@opentelemetry/api` version 1.8.0.
+* Add support for `tedious` versions 17 and 18. ({pull}3901[#3901], {pull}3911[#3911])
+* Add support for `kafkajs` version v2. ({issues}2905[#2905])
 
 [float]
 ===== Bug fixes
@@ -49,6 +51,9 @@ See the <<upgrade-to-v4>> guide.
   ({pull}3897[#3897])
 * Fix hostname detection on Windows in some cases (where a powershell profile
   could break collection). ({pull}3899[#3899])
+
+* Fix a path normalization issue that broke (or partially broke) instrumentation
+  of some modules on Windows: Next.js, redis v4+, mongodb. ({pull}3905[#3905])
 
 [float]
 ===== Chores

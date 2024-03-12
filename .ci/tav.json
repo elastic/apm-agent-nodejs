@@ -24,6 +24,7 @@
     { "name": "generic-pool", "minMajorVersion": 8 },
     { "name": "graphql", "minMajorVersion": 8 },
     { "name": "ioredis", "minMajorVersion": 8 },
+    { "name": "kafkajs", "minMajorVersion": 14 },
     { "name": "knex", "minMajorVersion": 8 },
     { "name": "memcached", "minMajorVersion": 8 },
     { "name": "mongodb", "minMajorVersion": 8 },

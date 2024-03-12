@@ -216,6 +216,9 @@ elif [[ -n "${TAV_MODULE}" ]]; then
     aws-sdk|@aws-sdk/client-s3|@aws-sdk/client-dynamodb|@aws-sdk/client-sns|@aws-sdk/client-sqs)
       DOCKER_COMPOSE_FILE=docker-compose-localstack.yml
       ;;
+    kafkajs)
+      DOCKER_COMPOSE_FILE=docker-compose-kafka.yml
+      ;;
     *)
       # Just the "node_tests" container. No additional services needed for testing.
       DOCKER_COMPOSE_FILE=docker-compose-node-test.yml

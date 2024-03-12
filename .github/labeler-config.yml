@@ -1,3 +1,0 @@
-# add 'agent-nodejs' label to all new issues
-agent-nodejs:
-  - '.*'
