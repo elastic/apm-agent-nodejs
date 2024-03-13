@@ -34,7 +34,7 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 [[release-notes-4.5.0]]
-==== 4.5.0 - 2024/03/12
+==== 4.5.0 - 2024/03/13
 
 [float]
 ===== Features
