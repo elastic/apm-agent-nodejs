@@ -41,6 +41,10 @@ services:
     extends:
       file: docker-compose.yml
       service: kafka
+  zookeeper:
+    extends:
+      file: docker-compose.yml
+      service: zookeeper
   node_tests:
     extends:
       file: docker-compose-node-edge-test.yml
@@ -83,4 +87,6 @@ volumes:
   nodecassandradata:
     driver: local
   nodekafkadata:
+    driver: local
+  nodezookeeperdata:
     driver: local

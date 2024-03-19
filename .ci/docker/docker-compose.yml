@@ -168,14 +168,12 @@ services:
       - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
     depends_on:
       - zookeeper
-    # TODO: maybe not necessary  but figure out how to do this
     healthcheck:
-      # use netcat to check tcp connection available
-      # test: nc -z localhost 9093 || exit -1
-      # start_period: 15s
-      # interval: 5s
-      # timeout: 10s
-      # retries: 5
+      # Kafka healthcheck ideas from https://github.com/wurstmeister/kafka-docker/issues/167
+      test: kafka-cluster.sh cluster-id --bootstrap-server localhost:9092 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 volumes:
   nodepgdata:
