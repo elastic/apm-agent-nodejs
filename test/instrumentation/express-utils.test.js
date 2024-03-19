@@ -30,8 +30,7 @@ test('#getPathFromRequest', function (t) {
   t.test('should return path for an invalid host header', function (t) {
     const req = createRequest(
       'https://test.com/foo/bar?query=value#hash',
-      // eslint-disable-next-line prettier/prettier, no-useless-escape
-      'invalid\host\name',
+      'invalid[hostname',
     );
     const path = getPathFromRequest(req, false, true);
     t.equals(path, '/foo/bar');
