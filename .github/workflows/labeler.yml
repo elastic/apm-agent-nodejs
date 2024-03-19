@@ -5,36 +5,30 @@ on:
   pull_request_target:
     types: [opened]
 
-# 'issues: write' for https://docs.github.com/en/rest/issues/labels?apiVersion=2022-11-28#add-labels-to-an-issue
+# '*: write' permissions for https://docs.github.com/en/rest/issues/labels?apiVersion=2022-11-28#add-labels-to-an-issue
 permissions:
   contents: read
   issues: write
+  pull_requests: write
 
 jobs:
   triage:
     runs-on: ubuntu-latest
     steps:
-    - name: Add agent-nodejs label
-      uses: actions-ecosystem/action-add-labels@v1
-      with:
-        labels: agent-nodejs
-
-    - name: Check team membership for user
-      uses: elastic/get-user-teams-membership@1.1.0
-      id: checkUserMember
+    - id: is_elastic_member
+      uses: elastic/apm-pipeline-library/.github/actions/is-member-elastic-org@current
       with:
         username: ${{ github.actor }}
-        team: 'apm'
-        usernamesToExclude: |
-          apmmachine
-          dependabot
-          dependabot[bot]
-        GITHUB_TOKEN: ${{ secrets.APM_TECH_USER_TOKEN }}
+        token: ${{ secrets.APM_TECH_USER_TOKEN }}
 
     - name: Add community and triage labels
-      if: steps.checkUserMember.outputs.isTeamMember != 'true' && steps.checkUserMember.outputs.isExcluded != 'true'
-      uses: actions-ecosystem/action-add-labels@v1
+      if: contains(steps.is_elastic_member.outputs.result, 'false') && github.actor != 'dependabot[bot]'
+      uses: actions/github-script@v7
       with:
-        labels: |
-          community
-          triage
+        script: |
+          github.rest.issues.addLabels({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: ["community", "triage"]
+          })
