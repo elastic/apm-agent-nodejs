@@ -501,6 +501,12 @@ const testFixtures = [
       TEST_DB,
       TEST_COLLECTION,
     },
+    // The `getMore` command seems to be queued outside the connection pool
+    // for versions <4.11.0 and as a result the `find` command is properly
+    // linked to the parent transaction but not the `getMore` commands from
+    // the cursor. Since v4.11.0 was published in 2022-09-19 there was a decision
+    // to skip this test for earlier version
+    // Ref: https://github.com/elastic/apm-agent-nodejs/pull/3919#issuecomment-2005283132
     versionRanges: {
       mongodb: '>=4.11.0',
     },
