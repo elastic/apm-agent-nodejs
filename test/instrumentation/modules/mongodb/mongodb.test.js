@@ -64,7 +64,7 @@ const testFixtures = [
       TEST_COLLECTION,
       TEST_USE_CALLBACKS: String(TEST_USE_CALLBACKS),
     },
-    verbose: true,
+    verbose: false,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
@@ -414,7 +414,7 @@ const testFixtures = [
       TEST_COLLECTION,
       TEST_USE_CALLBACKS: String(TEST_USE_CALLBACKS),
     },
-    verbose: true,
+    verbose: false,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
@@ -500,6 +500,9 @@ const testFixtures = [
       TEST_PORT,
       TEST_DB,
       TEST_COLLECTION,
+    },
+    versionRanges: {
+      mongodb: '>=4.11.0',
     },
     verbose: false,
     checkApmServer: (t, apmServer) => {
