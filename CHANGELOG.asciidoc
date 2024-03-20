@@ -33,6 +33,25 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Fix path resolution for requests that contain invalid characters in its
+  host header. ({pull}3923[#3923])
+* Fix span names for `getMore` command of mongodb. ({pull}3919[#3919])
+
+[float]
+===== Chores
+
+
 [[release-notes-4.5.0]]
 ==== 4.5.0 - 2024/03/13
 
@@ -46,7 +65,6 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Bug fixes
 
-* Fix span names for `getMore` command of mongodb. ({pull}3919[#3919])
 * Fix instrumentation of mongodb to not break mongodb@6.4.0. Mongodb v6.4.0
   included changes that resulted in the APM agent's instrumentation breaking it.
   ({pull}3897[#3897])
