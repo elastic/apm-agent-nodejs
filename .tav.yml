@@ -325,12 +325,19 @@ tedious:
   - versions: '11.0.0 || 11.8.0' # first and last subset of '11.x'
     node: '>=10.17.0'
     commands: node test/instrumentation/modules/tedious.test.js
-  # first and last majors subset of '12.x || 13.x || 14.x'
+  # First and last majors subset of '12.x || 13.x || 14.x'.
+  # These advertise a min-supported Node.js version of 12.3.0. However,
+  # as of @azure/core-rest-pipeline@1.15.0 they effectively have a
+  # min-working Node.js of >=16 (possibly >=18).
   - versions: '12.0.0 || 12.3.0 || 13.0.0 || 13.2.0 || 14.0.0 || 14.7.0 || >14.7.0 <15'
-    node: '>=12.3.0'
+    node: '>=16'
     commands: node test/instrumentation/modules/tedious.test.js
-  - versions: '15.0.0 || 15.1.3 || >15.1.3 <16' # first and last majors subset of '15.x'
-    node: '>=14'
+  # First and last majors subset of '15.x'.
+  # These advertise a min-supported Node.js version of 14. However,
+  # as of @azure/core-rest-pipeline@1.15.0 they effectively have a
+  # min-working Node.js of >=16 (possibly >=18).
+  - versions: '15.0.0 || 15.1.3 || >15.1.3 <16'
+    node: '>=16'
     commands: node test/instrumentation/modules/tedious.test.js
   - versions: '16.0.0 || 16.1.0 || >16.1.0 <17' # first and last majors subset of '16.x'
     node: '>=16'
