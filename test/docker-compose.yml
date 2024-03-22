@@ -141,6 +141,13 @@ services:
       - nodezookeeperdata:/var/lib/zookeeper/data
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    healthcheck:
+      # Using 'srvr' instead of the more common 'ruok' because this bitnami
+      # image does not have 'ruok' on the '4lw.commands.whitelist' in zoo.cfg.
+      test: ["CMD-SHELL", "echo srvr | nc -w 2 localhost 2181"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   kafka:
     # https://hub.docker.com/r/bitnami/kafka/tags
