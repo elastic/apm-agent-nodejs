@@ -318,24 +318,28 @@ pug:
       - node test/instrumentation/modules/hapi/set-framework.test.js
 
 tedious:
-  # latest majors subset of '>=1.9.0 <4.0.0 || >4.0.1 <11'
-  - versions: '1.9.0 || 1.15.0 || 2.7.1 || 3.0.1 || 4.2.0 || 5.0.3 || 6.7.1 || 7.0.0 || 8.3.1 || 9.2.3 || 10.0.0'
+  - versions:
+      include: '>=1 <11'
+      mode: latest-majors
     node: '>=6'
     commands: node test/instrumentation/modules/tedious.test.js
-  - versions: '11.0.0 || 11.8.0' # first and last subset of '11.x'
+  - versions:
+      include: '>=11 <12'
+      mode: latest-majors
     node: '>=10.17.0'
     commands: node test/instrumentation/modules/tedious.test.js
-  # first and last majors subset of '12.x || 13.x || 14.x'
-  - versions: '12.0.0 || 12.3.0 || 13.0.0 || 13.2.0 || 14.0.0 || 14.7.0 || >14.7.0 <15'
-    node: '>=12.3.0'
-    commands: node test/instrumentation/modules/tedious.test.js
-  - versions: '15.0.0 || 15.1.3 || >15.1.3 <16' # first and last majors subset of '15.x'
-    node: '>=14'
-    commands: node test/instrumentation/modules/tedious.test.js
-  - versions: '16.0.0 || 16.1.0 || >16.1.0 <17' # first and last majors subset of '16.x'
+  # Tedious v12,v13,v14 advertise a min-supported Node.js version of 12.3.0.
+  # Tedious v15 advertises a min-supported Node.js version of 14.
+  # However, as of @azure/core-rest-pipeline@1.15.0 they effectively have a
+  # min-working Node.js of >=16 (possibly >=18).
+  - versions:
+      include: '>=12 <17'
+      mode: latest-majors
     node: '>=16'
     commands: node test/instrumentation/modules/tedious.test.js
-  - versions: '>=17.0.0 <19' # first and last majors subset of '17.x' (as for now there is only v17.0.0)
+  - versions:
+      include: '>=17 <19'
+      mode: latest-majors
     node: '18.x || >=20'
     commands: node test/instrumentation/modules/tedious.test.js
 
