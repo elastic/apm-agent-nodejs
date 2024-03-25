@@ -32,6 +32,7 @@ services:
 
   mssql:
     image: mcr.microsoft.com/mssql/server
+    platform: linux/amd64
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Very(!)Secure
