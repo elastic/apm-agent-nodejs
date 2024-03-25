@@ -37,10 +37,12 @@ env:
 
 # Create Docker image
 build-docker: validate-version
+	@echo "Obsoleted, use GitHub actions"
 	docker build -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(AGENT_VERSION) \
   --build-arg AGENT_DIR=$(DIST_DIR) ..
 
 push-docker: build-docker
+	@echo "Obsoleted, use GitHub actions"
 	../dev-utils/push-docker.sh $(DOCKER_REGISTRY) $(DOCKER_IMAGE_NAME) $(AGENT_VERSION)
 
 # List all the AWS regions
