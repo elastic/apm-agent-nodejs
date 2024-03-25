@@ -81,6 +81,9 @@
     "distributed-tracing"
   ],
   "author": "Thomas Watson Steen <w@tson.dk> (https://twitter.com/wa7son)",
+  "contributors": [
+    "Elastic Observability <https://www.elastic.co/observability>"
+  ],
   "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/elastic/apm-agent-nodejs/issues"
