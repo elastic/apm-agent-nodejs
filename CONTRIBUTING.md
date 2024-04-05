@@ -209,9 +209,10 @@ A release involves the following published artifacts:
    (The GitHub Actions CI "release" workflow will handle all the release
    steps -- including the `npm publish`. See the appropriate run at:
    https://github.com/elastic/apm-agent-nodejs/actions/workflows/release.yml)
-4. If this is the for the latest major (currently `4.x`), then reset the latest
-   major branch to point to the current main, e.g.:
-   `git branch -f 4.x main && git push origin 4.x`
+4. If this is for the latest major (currently `4.x`), then the "4.x" branch
+   needs to be updated to the same state as the release tag on "main".
+   **Open a PR to rebase all commits from main on to the "4.x" branch,
+   get it approved, merge with the rebase strategy.**
    (The periodic [docs CI job](https://elasticsearch-ci.elastic.co/view/Docs/job/elastic+docs+master+build/)
    uses this branch to update the [published docs](https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-4.x.html).)
 
