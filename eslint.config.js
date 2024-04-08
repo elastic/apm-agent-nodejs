@@ -11,6 +11,7 @@ const licenseHeaderPlugin = require('eslint-plugin-license-header');
 const nPlugin = require('eslint-plugin-n');
 const promisePlugin = require('eslint-plugin-promise');
 const importPlugin = require('eslint-plugin-import');
+const prettierPlugin = require('eslint-plugin-prettier');
 
 module.exports = [
   {
@@ -23,9 +24,74 @@ module.exports = [
       },
       parserOptions: {
         ecmaFeatures: {
-          jsx: true,  // to parse nextjs files
-        }
+          jsx: true, // to parse nextjs files
+        },
       },
+    },
+    plugins: {
+      'license-header': licenseHeaderPlugin,
+      n: nPlugin,
+      promise: promisePlugin,
+      import: importPlugin,
+      prettier: prettierPlugin,
+    },
+    rules: {
+      ...eslintJs.configs.recommended.rules,
+      ...prettierConfig.rules,
+      // ...prettierPlugin.rules,
+      'prettier/prettier': ['error'],
+      'license-header/header': ['error', './dev-utils/license-header.js'],
+      // Restoring some config from standardjs that we want to maintain at least
+      // for now -- to assist with transition to prettier.
+      // TODO: remove these ?????
+      'no-unused-vars': [
+        // See taav for possible better 'no-unused-vars' rule.
+        'error',
+        {
+          args: 'none',
+          caughtErrors: 'none',
+          ignoreRestSiblings: true,
+          vars: 'all',
+        },
+      ],
+      'no-empty': [
+        'error',
+        {
+          allowEmptyCatch: true,
+        },
+      ],
+      'no-constant-condition': [
+        'error',
+        {
+          checkLoops: false,
+        },
+      ],
+      'n/handle-callback-err': ['error', '^(err|error)$'],
+      'n/no-callback-literal': ['error'],
+      'n/no-deprecated-api': ['error'],
+      'n/no-exports-assign': ['error'],
+      'n/no-new-require': ['error'],
+      'n/no-path-concat': ['error'],
+      'n/process-exit-as-throw': ['error'],
+      'promise/param-names': ['error'],
+      // Undo this config from eslint:recommended for now (standardjs didn't have it.)
+      'require-yield': ['off'],
+      'import/export': 'error',
+      'import/first': 'error',
+      'import/no-absolute-path': [
+        'error',
+        { esmodule: true, commonjs: true, amd: false },
+      ],
+      'import/no-duplicates': 'error',
+      'import/no-named-default': 'error',
+      'import/no-webpack-loader-syntax': 'error',
+      // Some defaults have changed in v9
+      'dot-notation': ['error'],
+      'new-cap': ['error', { capIsNew: false }],
+      'no-eval': ['error', { allowIndirect: true }],
+      'no-new': ['error'],
+      yoda: ['error'],
+      'valid-typeof': ['error'],
     },
     ignores: [
       // NOTE: Now ignore patters must be in glob expressions
@@ -34,7 +100,7 @@ module.exports = [
       '.nyc_output/**',
       'build/**',
       'node_modules/**',
-      'elastic-apm-node.js',
+      '**/elastic-apm-node.js',
       'examples/esbuild/dist/**',
       'examples/typescript/dist/**',
       'examples/nextjs/**',
@@ -50,94 +116,7 @@ module.exports = [
       'test/types/transpile/index.js',
       'test/types/transpile-default/index.js',
       'test_output/**',
-      'tmp/**'
+      'tmp/**',
     ],
-    plugins: {
-      'license-header': licenseHeaderPlugin,
-      n: nPlugin,
-      promise: promisePlugin,
-      import: importPlugin,
-    },
-    rules: {
-      ...eslintJs.configs.recommended.rules,
-      ...prettierConfig.rules,
-      'license-header/header': ['error', './dev-utils/license-header.js'],
-      // Restoring some config from standardjs that we want to maintain at least
-      // for now -- to assist with transition to prettier.
-      // TODO: remove these ?????
-      'no-unused-vars': [ // See taav for possible better 'no-unused-vars' rule.
-        'error',
-        {
-          'args': 'none',
-          'caughtErrors': 'none',
-          'ignoreRestSiblings': true,
-          'vars': 'all'
-        }
-      ],
-      'no-empty': [
-        'error',
-        {
-          'allowEmptyCatch': true
-        }
-      ],
-      'no-constant-condition': [
-        'error',
-        {
-          'checkLoops': false
-        }
-      ],
-      'n/handle-callback-err': [
-        'error',
-        '^(err|error)$'
-      ],
-      'n/no-callback-literal': [
-        'error'
-      ],
-      'n/no-deprecated-api': [
-        'error'
-      ],
-      'n/no-exports-assign': [
-        'error'
-      ],
-      'n/no-new-require': [
-        'error'
-      ],
-      'n/no-path-concat': [
-        'error'
-      ],
-      'n/process-exit-as-throw': [
-        'error'
-      ],
-      'promise/param-names': [
-        'error'
-      ],
-      // Undo this config from eslint:recommended for now (standardjs didn't have it.)
-      'require-yield': [ 'off' ],
-      'import/export': 'error',
-      'import/first': 'error',
-      'import/no-absolute-path': ['error', { 'esmodule': true, 'commonjs': true, 'amd': false }],
-      'import/no-duplicates': 'error',
-      'import/no-named-default': 'error',
-      'import/no-webpack-loader-syntax': 'error',
-      // Some defaults have changed in v9
-      'dot-notation': [
-        'error'
-      ],
-      'new-cap': [
-        'error', { 'capIsNew': false }
-      ],
-      'no-eval': [
-        'error', { 'allowIndirect': true }
-      ],
-      'no-new': [
-        'error'
-      ],
-      'yoda': [
-        'error'
-      ],
-      'valid-typeof': [
-        'error'
-      ],
-    }
   },
 ];
