@@ -24,7 +24,7 @@ module.exports = [
       },
       parserOptions: {
         ecmaFeatures: {
-          jsx: true, // to parse nextjs files
+          jsx: true, // to parse nextjs files, see TODO comment below
         },
       },
     },
@@ -38,7 +38,6 @@ module.exports = [
     rules: {
       ...eslintJs.configs.recommended.rules,
       ...prettierConfig.rules,
-      // ...prettierPlugin.rules,
       'prettier/prettier': ['error'],
       'license-header/header': ['error', './dev-utils/license-header.js'],
       // Restoring some config from standardjs that we want to maintain at least
@@ -103,13 +102,24 @@ module.exports = [
       '**/elastic-apm-node.js',
       'examples/esbuild/dist/**',
       'examples/typescript/dist/**',
-      'examples/nextjs/**',
+      // TODO: see comment below about JSX syntax
+      // 'examples/nextjs/**',
       'examples/an-azure-function-app/**',
       'lib/opentelemetry-bridge/opentelemetry-core-mini/**',
       'test/babel/out.js',
       'test/lambda/fixtures/esbuild-bundled-handler/hello.js',
-      'test/instrumentation/modules/next/a-nextjs-app/pages/**',
-      'test/instrumentation/modules/next/a-nextjs-app/components/**',
+      // NOTE: seems that eslint is parsing this files even when we ignore it and the parser
+      // is not taking into account that they are in JSX syntax so it gives an error with the
+      // message
+      // ```
+      // ./apm-agent-nodejs/test/instrumentation/modules/next/a-nextjs-app/pages/an-ssr-page.js
+      // 22:5  error  Parsing error: Unexpected token <
+      // ```
+      // when added eslint recognizes the syntas and lints the file suggesting a lot of changes
+      // to discus with @trentm
+      //
+      // 'test/instrumentation/modules/next/a-nextjs-app/pages/**',
+      // 'test/instrumentation/modules/next/a-nextjs-app/components/**',
       'test/sourcemaps/fixtures/lib/**',
       'test/sourcemaps/fixtures/src/**',
       'test/stacktraces/fixtures/dist/**',
