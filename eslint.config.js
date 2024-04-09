@@ -52,7 +52,7 @@ module.exports = [
       },
       parserOptions: {
         ecmaFeatures: {
-          jsx: true, // to parse nextjs files, see TODO comment below
+          jsx: true, // to parse nextjs files
         },
       },
     },
@@ -68,9 +68,9 @@ module.exports = [
       ...prettierConfig.rules,
       'prettier/prettier': ['error'],
       'license-header/header': ['error', './dev-utils/license-header.js'],
+
       // Restoring some config from standardjs that we want to maintain at least
       // for now -- to assist with transition to prettier.
-      // TODO: remove these ?????
       'no-unused-vars': [
         // See taav for possible better 'no-unused-vars' rule.
         'error',
