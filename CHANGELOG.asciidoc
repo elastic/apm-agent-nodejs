@@ -47,6 +47,9 @@ See the <<upgrade-to-v4>> guide.
 * Fix path resolution for requests that contain invalid characters in its
   host header. ({pull}3923[#3923])
 * Fix span names for `getMore` command of mongodb. ({pull}3919[#3919])
+* Fix undici instrumentation to cope with a bug in undici@6.11.0 where
+  `request.addHeader()` was accidentally removed. (It was re-added in
+  undici@6.11.1.)
 
 [float]
 ===== Chores
