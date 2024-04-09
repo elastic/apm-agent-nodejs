@@ -15,6 +15,34 @@ const prettierPlugin = require('eslint-plugin-prettier');
 
 module.exports = [
   {
+    // This block should *only* have the "ignores" property.
+    // https://eslint.org/docs/latest/use/configure/configuration-files#globally-ignoring-files-with-ignores
+    ignores: [
+      '*.example.js', // a pattern for uncommited local dev files to avoid linting
+      '*.example.mjs', // a pattern for uncommited local dev files to avoid linting
+
+      'test_output/**',
+      'tmp/**',
+      '.nyc_output/**',
+      'build/**',
+      'node_modules/**',
+      '**/elastic-apm-node.js',
+      '**/.next/**',
+
+      'examples/esbuild/dist/**',
+      'examples/typescript/dist/**',
+      'examples/an-azure-function-app/**',
+      'lib/opentelemetry-bridge/opentelemetry-core-mini/**',
+      'test/babel/out.js',
+      'test/lambda/fixtures/esbuild-bundled-handler/hello.js',
+      'test/sourcemaps/fixtures/lib/**',
+      'test/sourcemaps/fixtures/src/**',
+      'test/stacktraces/fixtures/dist/**',
+      'test/types/transpile/index.js',
+      'test/types/transpile-default/index.js',
+    ],
+  },
+  {
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -92,41 +120,5 @@ module.exports = [
       yoda: ['error'],
       'valid-typeof': ['error'],
     },
-    ignores: [
-      // NOTE: Now ignore patters must be in glob expressions
-      '**/*.example.js', // a pattern for uncommited local dev files to avoid linting
-      '**/*.example.mjs', // a pattern for uncommited local dev files to avoid linting
-      '.nyc_output/**',
-      'build/**',
-      'node_modules/**',
-      '**/elastic-apm-node.js',
-      'examples/esbuild/dist/**',
-      'examples/typescript/dist/**',
-      // TODO: see comment below about JSX syntax
-      // 'examples/nextjs/**',
-      'examples/an-azure-function-app/**',
-      'lib/opentelemetry-bridge/opentelemetry-core-mini/**',
-      'test/babel/out.js',
-      'test/lambda/fixtures/esbuild-bundled-handler/hello.js',
-      // NOTE: seems that eslint is parsing this files even when we ignore it and the parser
-      // is not taking into account that they are in JSX syntax so it gives an error with the
-      // message
-      // ```
-      // ./apm-agent-nodejs/test/instrumentation/modules/next/a-nextjs-app/pages/an-ssr-page.js
-      // 22:5  error  Parsing error: Unexpected token <
-      // ```
-      // when added eslint recognizes the syntas and lints the file suggesting a lot of changes
-      // to discus with @trentm
-      //
-      // 'test/instrumentation/modules/next/a-nextjs-app/pages/**',
-      // 'test/instrumentation/modules/next/a-nextjs-app/components/**',
-      'test/sourcemaps/fixtures/lib/**',
-      'test/sourcemaps/fixtures/src/**',
-      'test/stacktraces/fixtures/dist/**',
-      'test/types/transpile/index.js',
-      'test/types/transpile-default/index.js',
-      'test_output/**',
-      'tmp/**',
-    ],
   },
 ];
