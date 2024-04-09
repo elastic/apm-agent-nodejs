@@ -6,30 +6,31 @@
 
 // A static page.
 
-import Image from 'next/image'
-import Header from '../components/Header'
+/* eslint-disable no-unused-vars */
+import Image from 'next/image';
+import Header from '../components/Header';
 
-import img from '../public/elastic-logo.png'
+import img from '../public/elastic-logo.png';
 
 // Runs at build time.
-export async function getStaticProps () {
+export async function getStaticProps() {
   return {
     props: {
-      buildTime: Date.now()
-    }
-  }
+      buildTime: Date.now(),
+    },
+  };
 }
 
-function APage ({ buildTime }) {
+function APage({ buildTime }) {
   return (
     <>
-      <Header/>
+      <Header />
       <main>
         <div>This is APage (built at {new Date(buildTime).toISOString()})</div>
         <Image src={img} width="300" alt="Elastic logo" />
       </main>
     </>
-  )
+  );
 }
 
-export default APage
+export default APage;

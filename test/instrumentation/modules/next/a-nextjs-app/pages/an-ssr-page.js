@@ -6,26 +6,29 @@
 
 // A server-side rendered page.
 
-import Header from '../components/Header'
+/* eslint-disable no-unused-vars */
+import Header from '../components/Header';
 
 // Gets called on every request.
-export async function getServerSideProps () {
+export async function getServerSideProps() {
   return {
     props: {
-      currTime: Date.now()
-    }
-  }
+      currTime: Date.now(),
+    },
+  };
 }
 
-function AnSSRPage ({ currTime }) {
+function AnSSRPage({ currTime }) {
   return (
     <>
-      <Header/>
+      <Header />
       <main>
-        <div>This is AnSSRPage (currTime is {new Date(currTime).toISOString()})</div>
+        <div>
+          This is AnSSRPage (currTime is {new Date(currTime).toISOString()})
+        </div>
       </main>
     </>
-  )
+  );
 }
 
-export default AnSSRPage
+export default AnSSRPage;

@@ -4,10 +4,11 @@
  * compliance with the BSD 2-Clause License.
  */
 
-import Head from 'next/head'
-import Link from 'next/link'
+/* eslint-disable no-unused-vars */
+import Head from 'next/head';
+import Link from 'next/link';
 
-function Header () {
+function Header() {
   return (
     <>
       <Head>
@@ -25,7 +26,7 @@ function Header () {
         </div>
       </header>
     </>
-  )
+  );
 }
 
-export default Header
+export default Header;
