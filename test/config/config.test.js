@@ -219,7 +219,7 @@ const testFixtures = [
       });
       // Add the manual values
       Object.assign(startOpts, startOptsManual);
-      envVars['TEST_APM_START_OPTIONS'] = JSON.stringify(startOpts);
+      envVars.TEST_APM_START_OPTIONS = JSON.stringify(startOpts);
       return envVars;
     })(),
     checkScriptResult: (t, err, stdout) => {

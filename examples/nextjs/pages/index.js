@@ -1,6 +1,13 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
+/* eslint-disable no-unused-vars */
+import Head from 'next/head';
+import Image from 'next/image';
+import styles from '../styles/Home.module.css';
 
 export default function Home() {
   return (
@@ -65,5 +72,5 @@ export default function Home() {
         </a>
       </footer>
     </div>
-  )
+  );
 }

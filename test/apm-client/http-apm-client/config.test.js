@@ -103,9 +103,9 @@ test('should work without new', function (t) {
 
 test("null value config options shouldn't throw", function (t) {
   t.doesNotThrow(function () {
+    // eslint-disable-next-line no-new
     new HttpApmClient(
       validOpts({
-        // eslint-disable-line no-new
         size: null,
         time: null,
         serverTimeout: null,
@@ -195,9 +195,9 @@ test('custom headers', function (t) {
 
 test('serverUrl is invalid', function (t) {
   t.throws(function () {
+    // eslint-disable-next-line no-new
     new HttpApmClient(
       validOpts({
-        // eslint-disable-line no-new
         serverUrl: 'invalid',
         apmServerVersion: '8.0.0',
       }),
