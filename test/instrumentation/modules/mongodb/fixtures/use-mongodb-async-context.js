@@ -20,6 +20,12 @@ const http = require('http');
 const MongoClient = require('mongodb').MongoClient;
 
 // ---- support functions
+async function makeRequest(url) {
+  return new Promise((resolve, reject) => {
+    http.request(url).on('response', resolve).on('error', reject).end();
+  });
+}
+
 /**
  *
  * @param {import('mongodb').MongoClient} mongodbClient
@@ -29,15 +35,18 @@ async function useMongodbAsyncContext(options) {
   const { port } = options;
   const serverUrl = `http://localhost:${port}`;
 
-  const reqs = new Array(50).fill(serverUrl).map((url) => {
-    return new Promise((resolve, reject) => {
-      http.request(url).on('response', resolve).on('error', reject).end();
-    });
-  });
+  // 1st fill with some data
+  await makeRequest(`${serverUrl}/insert`);
 
-  // Wait for all request to finish and make sure APM Server
-  // receives all spans
+  const reqs = new Array(50).fill(`${serverUrl}/find`).map(makeRequest);
+
+  // Wait for all request to finish
   await Promise.all(reqs);
+
+  // Clear the data
+  await makeRequest(`${serverUrl}/delete`);
+
+  // Make sure APM Server receives all spans
   await apm.flush();
 }
 
@@ -54,20 +63,58 @@ async function main() {
   const server = http.createServer(function (req, res) {
     req.resume();
     req.on('end', function () {
-      mongodbClient
-        .db(db)
-        .collection(col)
-        .find()
-        .toArray()
-        .then(JSON.stringify)
-        .then(function (body) {
-          res.writeHead(200, {
-            server: 'trace-mongodb-cats-server',
-            'content-type': 'text/plain',
-            'content-length': Buffer.byteLength(body),
+      const successBody = JSON.stringify({ success: true });
+      const failureBody = JSON.stringify({ success: true });
+      if (req.url === '/insert') {
+        const items = new Array(500).fill({}).map((_, num) => ({ num }));
+        mongodbClient
+          .db(db)
+          .collection(col)
+          .insertMany(items)
+          .then(function () {
+            res.writeHead(200, {
+              server: 'trace-mongodb-cats-server',
+              'content-type': 'text/plain',
+              'content-length': Buffer.byteLength(successBody),
+            });
+            res.end(successBody);
           });
-          res.end(body);
+      } else if (req.url === '/find') {
+        mongodbClient
+          .db(db)
+          .collection(col)
+          .find()
+          .toArray()
+          .then(JSON.stringify)
+          .then(function (body) {
+            res.writeHead(200, {
+              server: 'trace-mongodb-cats-server',
+              'content-type': 'text/plain',
+              'content-length': Buffer.byteLength(body),
+            });
+            res.end(body);
+          });
+      } else if (req.url === '/delete') {
+        mongodbClient
+          .db(db)
+          .collection(col)
+          .deleteMany({})
+          .then(function (body) {
+            res.writeHead(200, {
+              server: 'trace-mongodb-cats-server',
+              'content-type': 'text/plain',
+              'content-length': Buffer.byteLength(successBody),
+            });
+            res.end(successBody);
+          });
+      } else {
+        res.writeHead(200, {
+          server: 'trace-mongodb-cats-server',
+          'content-type': 'text/plain',
+          'content-length': Buffer.byteLength(failureBody),
         });
+        res.end(failureBody);
+      }
     });
   });
   server.listen();

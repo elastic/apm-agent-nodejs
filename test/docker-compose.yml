@@ -32,6 +32,7 @@ services:
 
   mssql:
     image: mcr.microsoft.com/mssql/server
+    platform: linux/amd64
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Very(!)Secure
@@ -141,6 +142,13 @@ services:
       - nodezookeeperdata:/var/lib/zookeeper/data
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    healthcheck:
+      # Using 'srvr' instead of the more common 'ruok' because this bitnami
+      # image does not have 'ruok' on the '4lw.commands.whitelist' in zoo.cfg.
+      test: ["CMD-SHELL", "echo srvr | nc -w 2 localhost 2181"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   kafka:
     # https://hub.docker.com/r/bitnami/kafka/tags
@@ -162,10 +170,9 @@ services:
     depends_on:
       - zookeeper
     healthcheck:
-      # use netcat to check tcp connection available
-      test: nc -z localhost 9093 || exit -1
-      start_period: 15s
-      interval: 5s
+      # Kafka healthcheck ideas from https://github.com/wurstmeister/kafka-docker/issues/167
+      test: kafka-cluster.sh cluster-id --bootstrap-server localhost:9092 || exit 1
+      interval: 30s
       timeout: 10s
       retries: 5
 

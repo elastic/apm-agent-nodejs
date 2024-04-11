@@ -33,6 +33,23 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+[[release-notes-4.5.1]]
+==== 4.5.1 - 2024/04/11
+
+[float]
+===== Bug fixes
+
+* Fix path resolution for requests that contain invalid characters in its
+  host header. ({pull}3923[#3923])
+* Fix span names for `getMore` command of mongodb. ({pull}3919[#3919])
+* Fix undici instrumentation to cope with a bug in undici@6.11.0 where
+  `request.addHeader()` was accidentally removed. (It was re-added in
+  undici@6.11.1.) ({pull}3963[#3963])
+* Update undici instrumentation to avoid possibly adding a *second*
+  'traceparent' header to outgoing HTTP requests, because this can break
+  Elasticsearch requests. ({issues}3964[#3964])
+
+
 [[release-notes-4.5.0]]
 ==== 4.5.0 - 2024/03/13
 

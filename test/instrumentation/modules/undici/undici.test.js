@@ -274,6 +274,45 @@ if (global.AbortController) {
   });
 }
 
+test('undici no duplicate headers', async (t) => {
+  apm._apmClient.clear();
+  const aTrans = apm.startTransaction('aTransName');
+
+  const url = origin + '/ping';
+  const { statusCode, body } = await undici.request(url, {
+    headers: {
+      traceparent: 'this-value-is-not-from-elastic-apm-node',
+    },
+  });
+  t.equal(statusCode, 200, 'statusCode');
+  await consumeResponseBody(body);
+
+  aTrans.end();
+  t.error(await promisyApmFlush(), 'no apm.flush() error');
+
+  t.equal(apm._apmClient.spans.length, 1);
+  const span = apm._apmClient.spans[0];
+  assertUndiciSpan(t, span, url);
+
+  // If there is already a 'traceparent' header in the way, the APM agent
+  // should at least *not* result in duplicate headers, even if that means
+  // breaking distributed tracing.
+  let numTraceparentHeaders = 0;
+  let numTracestateHeaders = 0;
+  for (let i = 0; i < lastServerReq.rawHeaders.length; i += 2) {
+    const k = lastServerReq.rawHeaders[i].toLowerCase();
+    if (k === 'traceparent') {
+      numTraceparentHeaders++;
+    } else if (k === 'tracestate') {
+      numTracestateHeaders++;
+    }
+  }
+  t.equal(numTraceparentHeaders, 1, 'just one traceparent header');
+  t.equal(numTracestateHeaders, 0, 'tracestate header was skipped');
+
+  t.end();
+});
+
 test('teardown', (t) => {
   undici.getGlobalDispatcher().close(); // Close kept-alive sockets.
   server.close();

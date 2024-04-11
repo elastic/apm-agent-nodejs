@@ -64,7 +64,7 @@ const testFixtures = [
       TEST_COLLECTION,
       TEST_USE_CALLBACKS: String(TEST_USE_CALLBACKS),
     },
-    verbose: true,
+    verbose: false,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
@@ -414,7 +414,7 @@ const testFixtures = [
       TEST_COLLECTION,
       TEST_USE_CALLBACKS: String(TEST_USE_CALLBACKS),
     },
-    verbose: true,
+    verbose: false,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
@@ -501,6 +501,15 @@ const testFixtures = [
       TEST_DB,
       TEST_COLLECTION,
     },
+    // The `getMore` command seems to be queued outside the connection pool
+    // for versions <4.11.0 and as a result the `find` command is properly
+    // linked to the parent transaction but not the `getMore` commands from
+    // the cursor. Since v4.11.0 was published in 2022-09-19 there was a decision
+    // to skip this test for earlier version
+    // Ref: https://github.com/elastic/apm-agent-nodejs/pull/3919#issuecomment-2005283132
+    versionRanges: {
+      mongodb: '>=4.11.0',
+    },
     verbose: false,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata');
@@ -514,16 +523,51 @@ const testFixtures = [
         .filter((e) => e.span && e.span.type !== 'external')
         .map((e) => e.span);
 
-      while (transactions.length) {
-        const tx = transactions.shift();
-        const idx = spans.findIndex((s) => s.parent_id === tx.id);
+      const extractSpans = (tx) => {
+        const result = [];
+        let i = 0;
 
-        t.ok(idx !== -1, 'transaction has a child span');
+        while (i < spans.length) {
+          if (spans[i].parent_id === tx.id) {
+            result.push(...spans.splice(i, 1));
+          } else {
+            i++;
+          }
+        }
 
-        const [span] = spans.splice(idx, 1);
+        return result;
+      };
 
-        t.equal(span.name, 'elasticapm.test.find', 'span.name');
+      let tx = transactions.shift();
+      let txSpans = extractSpans(tx);
+
+      // Assertions for insert transaction
+      t.ok(tx, 'insert transaction');
+      t.ok(txSpans.length === 1, 'insert spans length');
+      t.equal(txSpans[0].name, 'elasticapm.test.insert', 'span.name');
+
+      // Assertions for all find transactions
+      while (transactions.length - 1) {
+        tx = transactions.shift();
+        txSpans = extractSpans(tx);
+
+        t.ok(txSpans.length > 0, 'transaction has child spans');
+
+        txSpans.forEach((s, idx) => {
+          if (idx === 0) {
+            t.equal(s.name, 'elasticapm.test.find', 'span.name');
+          } else {
+            t.equal(s.name, 'elasticapm.test.getMore', 'span.name');
+          }
+        });
       }
+
+      // Assertions for delete transaction
+      tx = transactions.shift();
+      txSpans = extractSpans(tx);
+
+      t.ok(txSpans.length === 1, 'delete spans length');
+      t.equal(txSpans[0].name, 'elasticapm.test.delete', 'span.name');
 
       t.equal(spans.length, 0, 'all spans accounted for');
     },
