@@ -50,6 +50,9 @@ See the <<upgrade-to-v4>> guide.
 * Fix undici instrumentation to cope with a bug in undici@6.11.0 where
   `request.addHeader()` was accidentally removed. (It was re-added in
   undici@6.11.1.)
+* Update undici instrumentation to avoid possibly adding a *second*
+  'traceparent' header to outgoing HTTP requests, because this can break
+  Elasticsearch requests. ({issues}3964[#3964])
 
 [float]
 ===== Chores
