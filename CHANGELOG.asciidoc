@@ -33,7 +33,7 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
-[[release-notes-4.5.0]]
+[[release-notes-4.5.1]]
 ==== 4.5.1 - 2024/04/11
 
 [float]
