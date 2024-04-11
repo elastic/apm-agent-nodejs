@@ -41,11 +41,13 @@ mkdir -p nodejs/node_modules/elastic-apm-node
     tar --strip-components=1 -xf elastic-apm-node-*.tgz;
     rm elastic-apm-node-*.tgz;
     cp $TOP/package-lock.json ./;
+    cp $TOP/.npmrc ./;
     # Then install the "package-lock.json"-dictated dependencies (excluding
     # devDependencies).  Use '--ignore-scripts' to have confidence no code but
     # ours and npm's is running.
     npm ci --omit=dev --ignore-scripts;
-    rm package-lock.json)
+    rm package-lock.json;
+    rm .npmrc)
 
 # Generate a NOTICE file including the licenses of all included deps.
 NOTICE=nodejs/node_modules/elastic-apm-node/NOTICE.md
