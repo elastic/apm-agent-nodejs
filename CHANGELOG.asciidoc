@@ -33,8 +33,8 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
-[[release-notes-4.5.1]]
-==== 4.5.1 - 2024/04/11
+[[release-notes-4.5.2]]
+==== 4.5.2 - 2024/04/12
 
 [float]
 ===== Bug fixes
