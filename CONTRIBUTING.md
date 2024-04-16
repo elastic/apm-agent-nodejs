@@ -202,19 +202,27 @@ A release involves the following published artifacts:
         ```
    If there are particular highlights for the release, then it can be helpful
    to point those out in the PR description.
+
 2. Get your PR reviewed, ensure PR checks pass, then merge.
+
 3. Working on the elastic repo now (not a fork), tag the merged commit with:
    `git tag vx.y.x && git push origin vx.y.z`.
    For example: `git tag v1.2.3 && git push origin v1.2.3`.
    (The GitHub Actions CI "release" workflow will handle all the release
    steps -- including the `npm publish`. See the appropriate run at:
    https://github.com/elastic/apm-agent-nodejs/actions/workflows/release.yml)
+
 4. If this is for the latest major (currently `4.x`), then the "4.x" branch
-   needs to be updated to the same state as the release tag on "main".
-   **Open a PR to rebase all commits from main on to the "4.x" branch,
-   get it approved, merge with the rebase strategy.**
-   (The periodic [docs CI job](https://elasticsearch-ci.elastic.co/view/Docs/job/elastic+docs+master+build/)
-   uses this branch to update the [published docs](https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-4.x.html).)
+   needs to be updated to the same state as the release tag on "main". Use
+   the [update-4x-branch.sh](./dev-utils/update-4x-branch.sh) script for this.
+
+    - Run `./dev-utils/update-4x-branch.sh` to create a working dir with the
+      needed changes.
+    - Follow its instructions to create a PR from this working dir.
+    - Ensure the "buildkite/docs-build-pr" workflow passes for this branch.
+    - "Squash and merge" the PR.
+    - The periodic docs CI will update the
+      [published docs](https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-4.x.html).
 
 If this is a new major release, then:
 
