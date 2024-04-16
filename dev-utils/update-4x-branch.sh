@@ -33,8 +33,9 @@ if [[ ! ("$TARGTAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]$) ]]; then
 fi
 # echo "TARGTAG=$TARGTAG"
 
+readonly NUM_COMMITS_SANITY_GUARD=200
 LASTTAG=$(
-    git log --pretty=format:%h -30 | tail -n +2 | while read sha; do
+    git log --pretty=format:%h -$NUM_COMMITS_SANITY_GUARD | tail -n +2 | while read sha; do
         possible=$(git tag --points-at $sha)
         if [[ "$possible" =~ ^v[0-9]+\.[0-9]+\.[0-9]$ ]]; then
             echo $possible
@@ -43,7 +44,7 @@ LASTTAG=$(
     done
 )
 if [[ -z "$LASTTAG" ]]; then
-    fatal "could not find previous release tag in last 30 commits"
+    fatal "could not find previous release tag in last $NUM_COMMITS_SANITY_GUARD commits"
 fi
 # echo "LASTTAG=$LASTTAG"
 
