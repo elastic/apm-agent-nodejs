@@ -481,7 +481,7 @@ undici:
   - versions:
       mode: max-7
       include: '>=6.0.0 <7'
-    node: '>=18'
+    node: '>=18.17.0'
     commands: node test/instrumentation/modules/undici/undici.test.js
   - versions:
       mode: max-7
