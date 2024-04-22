@@ -161,8 +161,6 @@ const testFixtures = [
         delete t.context.message.age;
       });
 
-      console.dir(transactions, { depth: 9 });
-
       // Check message handling transactions.
       // Headers should be captured by default and redacted
       // according to the default value of `sanitizeFieldNames`
