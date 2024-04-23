@@ -33,6 +33,23 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Fix message handling for tombstone messages in `kafkajs` instrumentation.
+  ({pull}3985[#3985])
+
+[float]
+===== Chores
+
 [[release-notes-4.5.2]]
 ==== 4.5.2 - 2024/04/12
 
