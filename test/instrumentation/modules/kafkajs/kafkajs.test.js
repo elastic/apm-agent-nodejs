@@ -172,7 +172,7 @@ const testFixtures = [
           message: {
             queue: { name: kafkaTopic },
             headers: {
-              foo: 'buffer',
+              foo: 'foo 1',
               traceparent: `00-${tx.trace_id}-${parentId}-01`,
               tracestate: 'es=s:1',
             },
@@ -189,7 +189,7 @@ const testFixtures = [
           message: {
             queue: { name: kafkaTopic },
             headers: {
-              foo: 'string',
+              foo: 'foo 2',
               traceparent: `00-${tx.trace_id}-${parentId}-01`,
               tracestate: 'es=s:1',
             },
@@ -206,7 +206,25 @@ const testFixtures = [
           message: {
             queue: { name: kafkaTopic },
             headers: {
+              foo: 'foo 3',
               auth: '[REDACTED]',
+              traceparent: `00-${tx.trace_id}-${parentId}-01`,
+              tracestate: 'es=s:1',
+            },
+          },
+        },
+        outcome: 'success',
+      });
+
+      t.deepEqual(transactions.shift(), {
+        name: `Kafka RECEIVE from ${kafkaTopic}`,
+        type: 'messaging',
+        context: {
+          service: {},
+          message: {
+            queue: { name: kafkaTopic },
+            headers: {
+              foo: 'foo 4',
               traceparent: `00-${tx.trace_id}-${parentId}-01`,
               tracestate: 'es=s:1',
             },
@@ -661,6 +679,18 @@ const testFixtures = [
           message: {
             queue: { name: kafkaTopic },
             body: 'each message 3',
+          },
+        },
+        outcome: 'success',
+      });
+
+      t.deepEqual(transactions.shift(), {
+        name: `Kafka RECEIVE from ${kafkaTopic}`,
+        type: 'messaging',
+        context: {
+          service: {},
+          message: {
+            queue: { name: kafkaTopic },
           },
         },
         outcome: 'success',
