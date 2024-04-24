@@ -64,7 +64,7 @@ async function useKafkajsClient(kafkaClient, options) {
   let eachMessagesConsumed = 0;
   await consumer.run({
     eachMessage: async function ({ message }) {
-      log.info(`message received: ${message.value.toString()}`);
+      log.info(`message received: ${message.value?.toString()}`);
       eachMessagesConsumed++;
     },
   });
@@ -76,9 +76,14 @@ async function useKafkajsClient(kafkaClient, options) {
   data = await producer.send({
     topic,
     messages: [
-      { value: 'each message 1', headers: { foo: 'string' } },
-      { value: 'each message 2', headers: { foo: Buffer.from('buffer') } },
-      { value: 'each message 3', headers: { auth: 'this_is_a_secret' } },
+      { value: 'each message 1', headers: { foo: 'foo 1' } },
+      { value: 'each message 2', headers: { foo: Buffer.from('foo 2') } },
+      {
+        value: 'each message 3',
+        headers: { foo: 'foo 3', auth: 'this_is_a_secret' },
+      },
+      // https://github.com/elastic/apm-agent-nodejs/issues/3980
+      { value: null, headers: { foo: 'foo 4' } },
     ],
   });
   log.info({ data }, 'messages sent');

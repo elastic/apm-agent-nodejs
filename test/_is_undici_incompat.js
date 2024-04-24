@@ -29,7 +29,10 @@ function isUndiciIncompat() {
   const undiciVer = require('undici/package.json').version;
   const msg = `undici@${undiciVer} is incompatible with node@${nodeVer}`;
 
-  if (satisfies(undiciVer, '>=6.0.0') && satisfies(nodeVer, '<18.0.0')) {
+  if (satisfies(undiciVer, '>=6.13.0') && satisfies(nodeVer, '<18.17.0')) {
+    // See discussion at https://github.com/nodejs/undici/issues/3123
+    return msg;
+  } else if (satisfies(undiciVer, '>=6.0.0') && satisfies(nodeVer, '<18.0.0')) {
     return msg;
   } else if (
     satisfies(undiciVer, '>=5.28.0') &&
