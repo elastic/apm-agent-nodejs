@@ -74,7 +74,7 @@ jobs:
         with:
           subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
           subject-digest: ${{ steps.docker-push.outputs.digest }}
-          push-to-registry: false
+          push-to-registry: true
 
       - name: Read AWS vault secrets
         uses: hashicorp/vault-action@v3.0.0
