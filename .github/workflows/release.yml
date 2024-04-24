@@ -6,7 +6,6 @@ on:
       - v*.*.*
     branches:
       - main
-      - provenance
 
 permissions:
   contents: write
@@ -39,12 +38,12 @@ jobs:
 
       - run: make -C .ci dist
 
-      - name: generate build provenance
+      - name: Attest Lambda layer zip
         uses: github-early-access/generate-build-provenance@main
         with:
-          subject-path: "${{ github.workspace }}/build/aws/*.zip"
+          subject-path: "${{ github.workspace }}/build/aws/elastic-apm-node-lambda-layer-*.zip"
 
-      - id: setup-docker
+      - id: docker-vars
         name: Set up docker variables
         run: |-
           if [ "${{ startsWith(github.ref, 'refs/tags') }}" == "false" ] ; then
@@ -59,22 +58,22 @@ jobs:
 
       # Use docker/build-push-action@v5.3.0 in conjunction with github-early-access/generate-build-provenance@main
       - name: Build and Push Docker Image
-        id: push
+        id: docker-push
         uses: docker/build-push-action@v5.3.0
         with:
           context: .
           push: true
           tags: |
-            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.setup-docker.outputs.tag }}
-            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.setup-docker.outputs.latest }}
+            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.docker-vars.outputs.tag }}
+            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.docker-vars.outputs.latest }}
           build-args: |
             AGENT_DIR=/build/dist/nodejs
 
-      - name: Attest image
+      - name: Attest Docker image
         uses: github-early-access/generate-build-provenance@main
         with:
-          subject-name: "${{ env.DOCKER_IMAGE_NAME }}:${{ steps.setup-docker.outputs.tag }}"
-          subject-digest: ${{ steps.push.outputs.digest }}
+          subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
+          subject-digest: ${{ steps.docker-push.outputs.digest }}
           push-to-registry: false
 
       - name: Read AWS vault secrets
