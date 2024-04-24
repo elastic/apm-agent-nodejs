@@ -35,16 +35,6 @@ clean:
 env:
 	@env | sort
 
-# Create Docker image
-build-docker: validate-version
-	@echo "Obsoleted, use GitHub actions"
-	docker build -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(AGENT_VERSION) \
-  --build-arg AGENT_DIR=$(DIST_DIR) ..
-
-push-docker: build-docker
-	@echo "Obsoleted, use GitHub actions"
-	../dev-utils/push-docker.sh $(DOCKER_REGISTRY) $(DOCKER_IMAGE_NAME) $(AGENT_VERSION)
-
 # List all the AWS regions
 get-all-aws-regions:
 	@mkdir -p $(AWS_FOLDER)
@@ -100,11 +90,6 @@ create-arn-file: validate-release-notes-url
 
 github-release: validate-ref-name
 	../dev-utils/github-release.sh "$(GITHUB_REF_NAME)" "$(AWS_FOLDER)/$(SUFFIX_ARN_FILE)"
-
-validate-version:
-ifndef AGENT_VERSION
-	$(error AGENT_VERSION is undefined)
-endif
 
 validate-ref-name:
 ifndef GITHUB_REF_NAME
