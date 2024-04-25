@@ -8,6 +8,7 @@ on:
       - main
 
 permissions:
+  attestations: write
   contents: write
   id-token: write
   pull-requests: read
