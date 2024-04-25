@@ -56,7 +56,6 @@ jobs:
             echo "latest=latest" >> "${GITHUB_OUTPUT}"
           fi
 
-      # Use docker/build-push-action@v5.3.0 in conjunction with github-early-access/generate-build-provenance@main
       - name: Build and Push Docker Image
         id: docker-push
         uses: docker/build-push-action@v5.3.0
