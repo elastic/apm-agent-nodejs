@@ -4,14 +4,20 @@ on:
   push:
     tags:
       - v*.*.*
+    branches:
+      - main
 
 permissions:
+  attestations: write
   contents: write
+  id-token: write
   pull-requests: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_IMAGE_NAME: docker.elastic.co/observability/apm-agent-nodejs
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,7 +39,42 @@ jobs:
 
       - run: make -C .ci dist
 
-      - run: make -C .ci push-docker
+      - name: Attest Lambda layer zip
+        uses: github-early-access/generate-build-provenance@main
+        with:
+          subject-path: "${{ github.workspace }}/build/aws/elastic-apm-node-lambda-layer-*.zip"
+
+      - id: docker-vars
+        name: Set up docker variables
+        run: |-
+          if [ "${{ startsWith(github.ref, 'refs/tags') }}" == "false" ] ; then
+            # for testing purposes
+            echo "tag=test" >> "${GITHUB_OUTPUT}"
+            echo "latest=test-latest" >> "${GITHUB_OUTPUT}"
+          else
+            # version without v prefix (e.g. 1.2.3)
+            echo "tag=${GITHUB_REF_NAME/v/}" >> "${GITHUB_OUTPUT}"
+            echo "latest=latest" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Build and Push Docker Image
+        id: docker-push
+        uses: docker/build-push-action@v5.3.0
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.docker-vars.outputs.tag }}
+            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.docker-vars.outputs.latest }}
+          build-args: |
+            AGENT_DIR=/build/dist/nodejs
+
+      - name: Attest Docker image
+        uses: github-early-access/generate-build-provenance@main
+        with:
+          subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
+          subject-digest: ${{ steps.docker-push.outputs.digest }}
+          push-to-registry: true
 
       - name: Read AWS vault secrets
         uses: hashicorp/vault-action@v3.0.0
@@ -46,12 +87,15 @@ jobs:
             secret/observability-team/ci/service-account/apm-aws-lambda access_key_id | AWS_ACCESS_KEY_ID ;
             secret/observability-team/ci/service-account/apm-aws-lambda secret_access_key | AWS_SECRET_ACCESS_KEY
 
-      - name: Publish AWS lambda
+      - name: Publish AWS lambda (only for tag release)
+        if: startsWith(github.ref, 'refs/tags')
         run: make -C .ci publish-in-all-aws-regions create-arn-file
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - run: make -C .ci github-release
+      - name: create github release (only for tag release)
+        run: make -C .ci github-release
+        if: startsWith(github.ref, 'refs/tags')
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -66,12 +110,13 @@ jobs:
             secret/jenkins-ci/npmjs/elasticmachine token | NPMJS_TOKEN ;
             totp/code/npmjs-elasticmachine code | TOTP_CODE
 
-      - name: npm publish
+      - name: npm publish (only for tag release)
+        if: startsWith(github.ref, 'refs/tags')
         run: |-
           echo "//registry.npmjs.org/:_authToken=${{ env.NPMJS_TOKEN }}" > .npmrc
-          npm publish --otp=${{ env.TOTP_CODE }}
+          npm publish --otp=${{ env.TOTP_CODE }} --provenance
 
-      - if: always()
+      - if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
         uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
         with:
           vaultUrl: ${{ secrets.VAULT_ADDR }}

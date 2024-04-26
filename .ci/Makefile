@@ -1,10 +1,7 @@
 SHELL = /bin/bash -eo pipefail
 MAKEFLAGS += --no-print-directory
 AWS_FOLDER = ../build/aws
-DIST_DIR = /build/dist/nodejs
 LAMBDA_LAYER_ZIP_FILE = ../build/dist/elastic-apm-node-lambda-layer.zip
-DOCKER_IMAGE_NAME = observability/apm-agent-nodejs
-DOCKER_REGISTRY = docker.elastic.co
 SUFFIX_ARN_FILE = arn-file.md
 AGENT_VERSION = $(subst v,,$(GITHUB_REF_NAME))
 MAJOR_VERSION = $(shell cut -d '.' -f 1 <<< $(AGENT_VERSION))
@@ -34,14 +31,6 @@ clean:
 
 env:
 	@env | sort
-
-# Create Docker image
-build-docker: validate-version
-	docker build -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(AGENT_VERSION) \
-  --build-arg AGENT_DIR=$(DIST_DIR) ..
-
-push-docker: build-docker
-	../dev-utils/push-docker.sh $(DOCKER_REGISTRY) $(DOCKER_IMAGE_NAME) $(AGENT_VERSION)
 
 # List all the AWS regions
 get-all-aws-regions:
@@ -98,11 +87,6 @@ create-arn-file: validate-release-notes-url
 
 github-release: validate-ref-name
 	../dev-utils/github-release.sh "$(GITHUB_REF_NAME)" "$(AWS_FOLDER)/$(SUFFIX_ARN_FILE)"
-
-validate-version:
-ifndef AGENT_VERSION
-	$(error AGENT_VERSION is undefined)
-endif
 
 validate-ref-name:
 ifndef GITHUB_REF_NAME
