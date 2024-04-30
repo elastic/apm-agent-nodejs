@@ -133,7 +133,7 @@ jobs:
           - "2181:2181"
         volumes:
           - nodezookeeperdata:/var/lib/zookeeper/data
-        
+
       kafka:
         image: bitnami/kafka:3.3.2
         ports:
@@ -154,8 +154,8 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '21'
-          - '21.0'
+          - '22'
+          - '22.0'
           - '20'
           - '20.0'
           - '18'
