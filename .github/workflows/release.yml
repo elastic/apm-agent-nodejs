@@ -8,16 +8,16 @@ on:
       - main
 
 permissions:
-  attestations: write
-  contents: write
-  id-token: write
-  pull-requests: read
+  contents: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      DOCKER_IMAGE_NAME: docker.elastic.co/observability/apm-agent-nodejs
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,14 +27,6 @@ jobs:
         with:
           node-version: 'v16.20.2'
 
-      - uses: elastic/apm-pipeline-library/.github/actions/docker-login@current
-        with:
-          registry: docker.elastic.co
-          secret: secret/observability-team/ci/docker-registry/prod
-          url: ${{ secrets.VAULT_ADDR }}
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-
       - run: make -C .ci env
 
       - run: make -C .ci dist
@@ -43,38 +35,6 @@ jobs:
         uses: github-early-access/generate-build-provenance@main
         with:
           subject-path: "${{ github.workspace }}/build/aws/elastic-apm-node-lambda-layer-*.zip"
-
-      - id: docker-vars
-        name: Set up docker variables
-        run: |-
-          if [ "${{ startsWith(github.ref, 'refs/tags') }}" == "false" ] ; then
-            # for testing purposes
-            echo "tag=test" >> "${GITHUB_OUTPUT}"
-            echo "latest=test-latest" >> "${GITHUB_OUTPUT}"
-          else
-            # version without v prefix (e.g. 1.2.3)
-            echo "tag=${GITHUB_REF_NAME/v/}" >> "${GITHUB_OUTPUT}"
-            echo "latest=latest" >> "${GITHUB_OUTPUT}"
-          fi
-
-      - name: Build and Push Docker Image
-        id: docker-push
-        uses: docker/build-push-action@v5.3.0
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.docker-vars.outputs.tag }}
-            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.docker-vars.outputs.latest }}
-          build-args: |
-            AGENT_DIR=/build/dist/nodejs
-
-      - name: Attest Docker image
-        uses: github-early-access/generate-build-provenance@main
-        with:
-          subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
-          subject-digest: ${{ steps.docker-push.outputs.digest }}
-          push-to-registry: true
 
       - name: Read AWS vault secrets
         uses: hashicorp/vault-action@v3.0.0
@@ -116,8 +76,79 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${{ env.NPMJS_TOKEN }}" > .npmrc
           npm publish --otp=${{ env.TOTP_CODE }} --provenance
 
-      - if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
-        uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
+  publish-docker:
+    needs:
+      - release
+    runs-on: ubuntu-latest
+    permissions:
+      attestations: write
+      id-token: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        dockerfile: [ 'Dockerfile', 'Dockerfile.wolfi' ]
+    env:
+      DOCKER_IMAGE_NAME: docker.elastic.co/observability/apm-agent-nodejs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: elastic/apm-pipeline-library/.github/actions/docker-login@current
+        with:
+          registry: docker.elastic.co
+          secret: secret/observability-team/ci/docker-registry/prod
+          url: ${{ secrets.VAULT_ADDR }}
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+
+      - id: docker-vars
+        name: Set up docker variables
+        run: |-
+          TAG=test
+          LATEST=test-latest
+          if [ "${{ startsWith(github.ref, 'refs/tags') }}" == "true" ] ; then
+            # version without v prefix (e.g. 1.2.3)
+            TAG="${GITHUB_REF_NAME/v/}"
+            LATEST=latest
+          fi
+          if [ "${{ contains(matrix.dockerfile, 'wolfi') }}" == "true" ] ; then
+            # version without v prefix (e.g. 1.2.3)
+            TAG="${TAG}-wolfi"
+            LATEST="latest-wolfi"
+          fi
+          echo "tag=${TAG}"       >> "${GITHUB_OUTPUT}"
+          echo "latest=${LATEST}" >> "${GITHUB_OUTPUT}"
+
+      - name: Build and Push Docker Image
+        id: docker-push
+        uses: docker/build-push-action@v5.3.0
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.docker-vars.outputs.tag }}
+            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.docker-vars.outputs.latest }}
+          build-args: |
+            AGENT_DIR=/build/dist/nodejs
+
+      - name: Attest Docker image
+        uses: github-early-access/generate-build-provenance@main
+        with:
+          subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
+          subject-digest: ${{ steps.docker-push.outputs.digest }}
+          push-to-registry: true
+
+  notify:
+    runs-on: ubuntu-latest
+    if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
+    needs:
+      - publish-docker
+      - release
+    steps:
+      - id: check
+        uses: elastic/apm-pipeline-library/.github/actions/check-dependent-jobs@current
+        with:
+          needs: ${{ toJSON(needs) }}
+      - uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
         with:
           vaultUrl: ${{ secrets.VAULT_ADDR }}
           vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
