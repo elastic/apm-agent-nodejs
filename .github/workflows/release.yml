@@ -113,7 +113,7 @@ jobs:
           if [ "${{ contains(matrix.dockerfile, 'wolfi') }}" == "true" ] ; then
             # version without v prefix (e.g. 1.2.3)
             TAG="${TAG}-wolfi"
-            LATEST="latest-wolfi"
+            LATEST="${LATEST}-wolfi"
           fi
           echo "tag=${TAG}"       >> "${GITHUB_OUTPUT}"
           echo "latest=${LATEST}" >> "${GITHUB_OUTPUT}"
