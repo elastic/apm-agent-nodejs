@@ -132,6 +132,7 @@ jobs:
         uses: docker/build-push-action@v5.3.0
         with:
           context: .
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: |
             ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.docker-vars.outputs.tag }}
