@@ -76,6 +76,12 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${{ env.NPMJS_TOKEN }}" > .npmrc
           npm publish --otp=${{ env.TOTP_CODE }} --provenance
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-distribution
+          path: ./build/dist
+          retention-days: 1
+
   publish-docker:
     needs:
       - release
@@ -99,7 +105,10 @@ jobs:
           url: ${{ secrets.VAULT_ADDR }}
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET_ID }}
-
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-distribution
+          path: ./build/dist
       - id: docker-vars
         name: Set up docker variables
         run: |-
