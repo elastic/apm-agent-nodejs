@@ -49,9 +49,13 @@ jobs:
         uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81  # v5.5.1
         with:
           images: ${{ env.DOCKER_IMAGE_NAME }}
+          flavor: |
+            latest=auto
           tags: |
-            type=raw,value=latest,prefix=test-,enable={{is_default_branch}}
+            # "1.2.3" and "latest" Docker tags on push of git tag "v1.2.3"
             type=semver,pattern={{version}}
+            # "edge" Docker tag on git push to default branch
+            type=edge
 
       - name: Build and Push Docker Image
         id: docker-push
