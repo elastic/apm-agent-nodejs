@@ -44,28 +44,27 @@ jobs:
         with:
           subject-path: "${{ github.workspace }}/build/aws/elastic-apm-node-lambda-layer-*.zip"
 
-      - id: docker-vars
-        name: Set up docker variables
-        run: |-
-          if [ "${{ startsWith(github.ref, 'refs/tags') }}" == "false" ] ; then
-            # for testing purposes
-            echo "tag=test" >> "${GITHUB_OUTPUT}"
-            echo "latest=test-latest" >> "${GITHUB_OUTPUT}"
-          else
-            # version without v prefix (e.g. 1.2.3)
-            echo "tag=${GITHUB_REF_NAME/v/}" >> "${GITHUB_OUTPUT}"
-            echo "latest=latest" >> "${GITHUB_OUTPUT}"
-          fi
+      - name: Extract metadata (tags, labels)
+        id: docker-meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81  # v5.5.1
+        with:
+          images: ${{ env.DOCKER_IMAGE_NAME }}
+          flavor: |
+            latest=auto
+          tags: |
+            # "1.2.3" and "latest" Docker tags on push of git tag "v1.2.3"
+            type=semver,pattern={{version}}
+            # "edge" Docker tag on git push to default branch
+            type=edge
 
       - name: Build and Push Docker Image
         id: docker-push
-        uses: docker/build-push-action@v5.3.0
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0  # v5.3.0
         with:
           context: .
           push: true
-          tags: |
-            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.docker-vars.outputs.tag }}
-            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.docker-vars.outputs.latest }}
+          tags: ${{ steps.docker-meta.outputs.tags }}
+          labels: ${{ steps.docker-meta.outputs.labels }}
           build-args: |
             AGENT_DIR=/build/dist/nodejs
 
