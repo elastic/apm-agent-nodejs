@@ -33,6 +33,47 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+- Change how the "cookie" HTTP request header is represented in APM transaction
+  data to avoid a rare, but possible, intake bug where the transaction could be
+  rejected due to a mapping conflict.
+
+  Before this change a `Cookie: foo=bar; sessionid=42` HTTP request header
+  would be represented in the transaction document in Elasticsearch with these
+  document fields (the example assumes <<sanitize-field-names>> matches
+  "sessionid", as it does by default):
+
+  ```
+  http.request.headers.cookie: "[REDACTED]"
+  ...
+  http.request.cookies.foo: "bar"
+  http.request.cookies.sessionid: "[REDACTED]"
+  ```
+
+  After this change it is represented as:
+
+  ```
+  http.request.headers.cookie: "foo=bar; sessionid=REDACTED"
+  ```
+
+  In other words, `http.request.cookies` are no longer separated out.
+  ({issues}4006[#4006])
+
+
+[float]
+===== Chores
+
+
 [[release-notes-4.5.3]]
 ==== 4.5.3 - 2024/04/23
 
