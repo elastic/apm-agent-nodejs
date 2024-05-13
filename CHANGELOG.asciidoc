@@ -33,13 +33,8 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
-==== Unreleased
-
-[float]
-===== Breaking changes
-
-[float]
-===== Features
+[[release-notes-4.5.4]]
+==== 4.5.4 - 2024/05/13
 
 [float]
 ===== Bug fixes
@@ -68,10 +63,6 @@ See the <<upgrade-to-v4>> guide.
 
   In other words, `http.request.cookies` are no longer separated out.
   ({issues}4006[#4006])
-
-
-[float]
-===== Chores
 
 
 [[release-notes-4.5.3]]
