@@ -11,6 +11,7 @@ var http = require('http');
 var test = require('tape');
 
 var parsers = require('../lib/parsers');
+const { normalizeSanitizeFieldNames } = require('../lib/config/normalizers');
 
 test('#getContextFromResponse()', function (t) {
   t.test('for error (before headers)', function (t) {
@@ -276,6 +277,68 @@ test('#getContextFromRequest()', function (t) {
       const parsed = parsers.getContextFromRequest(req, conf);
       t.equals(parsed.body, '<Buffer>');
     }
+    t.end();
+  });
+
+  t.test('cookie header fields are sanitized', function (t) {
+    const conf = { captureHeaders: true, sanitizeFieldNames: ['*session*'] };
+    normalizeSanitizeFieldNames(conf);
+    const req = {
+      httpVersion: '1.1',
+      method: 'GET',
+      url: '/',
+      headers: {
+        host: 'example.com',
+        cookie: 'foo=bar%3Bbaz; spam=eggs; sessionid=42',
+      },
+    };
+    const parsed = parsers.getContextFromRequest(req, conf);
+    t.deepEqual(parsed, {
+      http_version: '1.1',
+      method: 'GET',
+      url: {
+        raw: '/',
+        protocol: 'http:',
+        hostname: 'example.com',
+        pathname: '/',
+        full: 'http://example.com/',
+      },
+      headers: {
+        host: 'example.com',
+        cookie: 'foo=bar%3Bbaz; spam=eggs; sessionid=REDACTED',
+      },
+    });
+    t.end();
+  });
+
+  t.test('cookie header is in sanitizeFieldNames', function (t) {
+    const conf = {
+      captureHeaders: true,
+      sanitizeFieldNames: ['*session*', 'cookie'],
+    };
+    normalizeSanitizeFieldNames(conf);
+    const req = {
+      httpVersion: '1.1',
+      method: 'GET',
+      url: '/',
+      headers: {
+        host: 'example.com',
+        cookie: 'foo=bar%3Bbaz; spam=eggs; sessionid=42',
+      },
+    };
+    const parsed = parsers.getContextFromRequest(req, conf);
+    t.deepEqual(parsed, {
+      http_version: '1.1',
+      method: 'GET',
+      url: {
+        raw: '/',
+        protocol: 'http:',
+        hostname: 'example.com',
+        pathname: '/',
+        full: 'http://example.com/',
+      },
+      headers: { host: 'example.com', cookie: '[REDACTED]' },
+    });
     t.end();
   });
 
