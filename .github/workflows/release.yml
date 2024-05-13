@@ -119,6 +119,8 @@ jobs:
             latest=auto
             suffix=${{ contains(matrix.dockerfile, 'wolfi') && '-wolfi' || '' }}
           tags: |
+            # test
+            type=raw,value=latest,prefix=test-,enable=${{ github.ref == format('refs/heads/{0}', 'test-wolfi') }}
             # "1.2.3" and "latest" Docker tags on push of git tag "v1.2.3"
             type=semver,pattern={{version}}
             # "edge" Docker tag on git push to default branch
