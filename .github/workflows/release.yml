@@ -62,6 +62,7 @@ jobs:
         uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0  # v5.3.0
         with:
           context: .
+          file: 'Dockerfile'
           push: true
           tags: ${{ steps.docker-meta.outputs.tags }}
           labels: ${{ steps.docker-meta.outputs.labels }}
@@ -73,6 +74,39 @@ jobs:
         with:
           subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
           subject-digest: ${{ steps.docker-push.outputs.digest }}
+          push-to-registry: true
+
+      - name: Extract metadata (tags, labels) (wolfi)
+        id: docker-meta-wolfi
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81  # v5.5.1
+        with:
+          images: ${{ env.DOCKER_IMAGE_NAME }}
+          flavor: |
+            latest=auto
+            suffix=-wolfi
+          tags: |
+            # "1.2.3" and "latest" Docker tags on push of git tag "v1.2.3"
+            type=semver,pattern={{version}}
+            # "edge" Docker tag on git push to default branch
+            type=edge
+
+      - name: Build and Push Docker Image (wolfi)
+        id: docker-push-wolfi
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0  # v5.3.0
+        with:
+          context: .
+          file: 'Dockerfile.wolfi'
+          push: true
+          tags: ${{ steps.docker-meta-wolfi.outputs.tags }}
+          labels: ${{ steps.docker-meta-wolfi.outputs.labels }}
+          build-args: |
+            AGENT_DIR=/build/dist/nodejs
+
+      - name: Attest Docker image (wolfi)
+        uses: github-early-access/generate-build-provenance@main
+        with:
+          subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
+          subject-digest: ${{ steps.docker-push-wolfi.outputs.digest }}
           push-to-registry: true
 
       - name: Read AWS vault secrets
