@@ -8,16 +8,16 @@ on:
       - test-wolfi
 
 permissions:
-  contents: read
+  attestations: write
+  contents: write
+  id-token: write
+  pull-requests: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    permissions:
-      attestations: write
-      contents: write
-      id-token: write
-      pull-requests: read
+    env:
+      DOCKER_IMAGE_NAME: docker.elastic.co/observability/apm-agent-nodejs
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,6 +27,14 @@ jobs:
         with:
           node-version: 'v16.20.2'
 
+      - uses: elastic/apm-pipeline-library/.github/actions/docker-login@current
+        with:
+          registry: docker.elastic.co
+          secret: secret/observability-team/ci/docker-registry/prod
+          url: ${{ secrets.VAULT_ADDR }}
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+
       - run: make -C .ci env
 
       - run: make -C .ci dist
@@ -35,6 +43,75 @@ jobs:
         uses: github-early-access/generate-build-provenance@main
         with:
           subject-path: "${{ github.workspace }}/build/aws/elastic-apm-node-lambda-layer-*.zip"
+
+      - name: Extract metadata (tags, labels)
+        id: docker-meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81  # v5.5.1
+        with:
+          images: ${{ env.DOCKER_IMAGE_NAME }}
+          flavor: |
+            latest=auto
+          tags: |
+            # test
+            type=raw,value=latest,prefix=test-,enable=${{ github.ref == format('refs/heads/{0}', 'test-wolfi') }}
+            # "1.2.3" and "latest" Docker tags on push of git tag "v1.2.3"
+            type=semver,pattern={{version}}
+            # "edge" Docker tag on git push to default branch
+            type=edge
+
+      - name: Build and Push Docker Image
+        id: docker-push
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0  # v5.3.0
+        with:
+          context: .
+          file: 'Dockerfile'
+          push: true
+          tags: ${{ steps.docker-meta.outputs.tags }}
+          labels: ${{ steps.docker-meta.outputs.labels }}
+          build-args: |
+            AGENT_DIR=/build/dist/nodejs
+
+      - name: Attest Docker image
+        uses: github-early-access/generate-build-provenance@main
+        with:
+          subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
+          subject-digest: ${{ steps.docker-push.outputs.digest }}
+          push-to-registry: true
+
+      - name: Extract metadata (tags, labels) (wolfi)
+        id: docker-meta-wolfi
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81  # v5.5.1
+        with:
+          images: ${{ env.DOCKER_IMAGE_NAME }}
+          flavor: |
+            latest=auto
+            suffix=-wolfi
+          tags: |
+            # test
+            type=raw,value=latest,prefix=test-,enable=${{ github.ref == format('refs/heads/{0}', 'test-wolfi') }}
+            # "1.2.3" and "latest" Docker tags on push of git tag "v1.2.3"
+            type=semver,pattern={{version}}
+            # "edge" Docker tag on git push to default branch
+            type=edge
+
+      - name: Build and Push Docker Image (wolfi)
+        id: docker-push-wolfi
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0  # v5.3.0
+        with:
+          context: .
+          file: 'Dockerfile.wolfi'
+          push: true
+          tags: ${{ steps.docker-meta-wolfi.outputs.tags }}
+          labels: ${{ steps.docker-meta-wolfi.outputs.labels }}
+          build-args: |
+            AGENT_DIR=/build/dist/nodejs
+
+      - name: Attest Docker image (wolfi)
+        uses: github-early-access/generate-build-provenance@main
+        with:
+          subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
+          subject-digest: ${{ steps.docker-push-wolfi.outputs.digest }}
+          push-to-registry: true
 
       - name: Read AWS vault secrets
         uses: hashicorp/vault-action@v3.0.0
@@ -76,87 +153,8 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${{ env.NPMJS_TOKEN }}" > .npmrc
           npm publish --otp=${{ env.TOTP_CODE }} --provenance
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: build-distribution
-          path: ./build/dist
-          retention-days: 1
-
-  publish-docker:
-    needs:
-      - release
-    runs-on: ubuntu-latest
-    permissions:
-      attestations: write
-      id-token: write
-      contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        dockerfile: [ 'Dockerfile', 'Dockerfile.wolfi' ]
-    env:
-      DOCKER_IMAGE_NAME: docker.elastic.co/observability/apm-agent-nodejs
-    steps:
-      - uses: actions/checkout@v4
-      - uses: elastic/apm-pipeline-library/.github/actions/docker-login@current
-        with:
-          registry: docker.elastic.co
-          secret: secret/observability-team/ci/docker-registry/prod
-          url: ${{ secrets.VAULT_ADDR }}
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-distribution
-          path: ./build/dist
-
-      - name: Extract metadata (tags, labels)
-        id: docker-meta
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81  # v5.5.1
-        with:
-          images: ${{ env.DOCKER_IMAGE_NAME }}
-          flavor: |
-            latest=auto
-            suffix=${{ contains(matrix.dockerfile, 'wolfi') && '-wolfi' || '' }}
-          tags: |
-            # test
-            type=raw,value=latest,prefix=test-,enable=${{ github.ref == format('refs/heads/{0}', 'test-wolfi') }}
-            # "1.2.3" and "latest" Docker tags on push of git tag "v1.2.3"
-            type=semver,pattern={{version}}
-            # "edge" Docker tag on git push to default branch
-            type=edge
-
-      - name: Build and Push Docker Image
-        id: docker-push
-        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0  # v5.3.0
-        with:
-          context: .
-          file: ${{ matrix.dockerfile }}
-          push: true
-          tags: ${{ steps.docker-meta.outputs.tags }}
-          labels: ${{ steps.docker-meta.outputs.labels }}
-          build-args: |
-            AGENT_DIR=/build/dist/nodejs
-
-      - name: Attest Docker image
-        uses: github-early-access/generate-build-provenance@main
-        with:
-          subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
-          subject-digest: ${{ steps.docker-push.outputs.digest }}
-          push-to-registry: true
-
-  notify:
-    runs-on: ubuntu-latest
-    if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
-    needs:
-      - publish-docker
-      - release
-    steps:
-      - id: check
-        uses: elastic/apm-pipeline-library/.github/actions/check-dependent-jobs@current
-        with:
-          needs: ${{ toJSON(needs) }}
-      - uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
+      - if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
+        uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
         with:
           vaultUrl: ${{ secrets.VAULT_ADDR }}
           vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
