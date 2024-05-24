@@ -34,9 +34,13 @@
         connectionLimit: 5,
       });
 
-      const rows = await conn.execute('SELECT 1  + ? as val', [1]);
+      const rows = await conn.queryStream('SELECT 1  + ? as val', [1]);
+
+      for await (const row of rows) {
+        console.log(row);
+      }
       // rows: [ {val: 1}, meta: ... ]
-      console.log(rows);
+      // console.log(rows);
       // const res = await conn.query('INSERT INTO myTable value (?, ?)', [
       //   1,
       //   'mariadb',
