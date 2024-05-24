@@ -59,11 +59,7 @@ var factories = [
 ];
 // var executors = ['execute'];
 // var executors = ['queryStream'];
-var executors = [
-  'query',
-  'execute',
-  //  'queryStream'
-];
+var executors = ['query', 'execute', 'queryStream'];
 
 var universalArgumentSets = [
   {
@@ -101,66 +97,68 @@ factories.forEach(function (f) {
         var argumentSets = universalArgumentSets;
 
         if (executor === 'queryStream') {
-          // if (!['pool'].includes(type)) {
-          //   t.test('streaming promise', function (t) {
-          //     argumentSets.forEach(function (argumentSet) {
-          //       var query = argumentSet.query;
-          //       var names = argumentSet.names;
-          //       var values = argumentSet.values;
-          //       var name = `${type}.${executor}(${names.join(', ')})`;
-          //       var args = values(query);
-          //       t.test(name, function (t) {
-          //         resetAgent(function (data) {
-          //           console.log('RESET');
-          //           assertBasicQuery(t, query, data);
-          //           t.end();
-          //         });
-          //         factory(function () {
-          //           console.log('INIT TRANSACIONC');
-          //           agent.startTransaction('foo');
-          //           var stream = queryablePromise[executor].apply(
-          //             queryablePromise,
-          //             args,
-          //           );
-          //           t.ok(
-          //             agent.currentSpan === null,
-          //             'mariadb span should not spill into calling code',
-          //           );
-          //           basicQueryStream(stream, t);
-          //         });
-          //       });
-          //     });
-          //   });
-          //   executor = 'query';
-          //   t.test('streaming callback', function (t) {
-          //     argumentSets.forEach(function (argumentSet) {
-          //       var query = argumentSet.query;
-          //       var names = argumentSet.names;
-          //       var values = argumentSet.values;
-          //       var name = `${type}.${executor}(${names.join(', ')})`;
-          //       var args = values(query);
-          //       t.test(name, function (t) {
-          //         resetAgent(function (data) {
-          //           console.log('RESET');
-          //           assertBasicQuery(t, query, data);
-          //           t.end();
-          //         });
-          //         factory(function () {
-          //           console.log('INIT TRANSACIONC');
-          //           agent.startTransaction('foo');
-          //           var stream = queryable[executor].apply(queryable, args);
-          //           t.ok(
-          //             agent.currentSpan === null,
-          //             'mariadb span should not spill into calling code',
-          //           );
-          //           basicQueryStream(stream, t);
-          //         });
-          //       });
-          //     });
-          //   });
-          // } else {
-          //   t.end();
-          // }
+          if (!['pool'].includes(type)) {
+            t.test('streaming promise', function (t) {
+              argumentSets.forEach(function (argumentSet) {
+                var query = argumentSet.query;
+                var names = argumentSet.names;
+                var values = argumentSet.values;
+                var name = `${type}.${executor}(${names.join(', ')})`;
+                var args = values(query);
+                t.test(name, function (t) {
+                  resetAgent(function (data) {
+                    console.log('RESET');
+                    assertBasicQuery(t, query, data);
+                    t.end();
+                  });
+                  factory(function () {
+                    console.log('INIT TRANSACIONC');
+                    agent.startTransaction('foo');
+                    var stream = queryablePromise[executor].apply(
+                      queryablePromise,
+                      args,
+                    );
+                    t.ok(
+                      agent.currentSpan === null,
+                      'mariadb span should not spill into calling code',
+                    );
+                    basicQueryStream(stream, t);
+                  });
+                });
+              });
+            });
+            if (hasCallback) {
+              t.test('streaming callback', function (t) {
+                argumentSets.forEach(function (argumentSet) {
+                  var query = argumentSet.query;
+                  var names = argumentSet.names;
+                  var values = argumentSet.values;
+                  var name = `${type}.${executor}(${names.join(', ')})`;
+                  var args = values(query);
+                  t.test(name, function (t) {
+                    resetAgent(function (data) {
+                      console.log('RESET');
+                      assertBasicQuery(t, query, data);
+                      t.end();
+                    });
+                    factory(function () {
+                      console.log('INIT TRANSACIONC');
+                      agent.startTransaction('foo');
+                      var stream = queryable.query.apply(queryable, args);
+                      console.log(stream);
+                      t.ok(
+                        agent.currentSpan === null,
+                        'mariadb span should not spill into calling code',
+                      );
+                      basicQueryStream(stream, t);
+                    });
+                  });
+                });
+              });
+            }
+          } else {
+            t.end();
+          }
         } else {
           if (hasCallback) {
             t.test('callback', function (t) {
