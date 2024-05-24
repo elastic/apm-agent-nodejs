@@ -61,6 +61,20 @@ services:
       timeout: 10s
       retries: 30
 
+  mariadb:
+    image: bitnami/mariadb:11.2
+    environment:
+      ALLOW_EMPTY_PASSWORD: 1
+    ports:
+      - "3306:3306"
+    volumes:
+      - nodemariadata:/bitnami/mariadb
+    healthcheck:
+      test: ["CMD", "mariadb" ,"-h", "mariadb", "-P", "3306", "-u", "root", "-e", "SELECT 1"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+
   redis:
     image: redis
     ports:
@@ -184,6 +198,8 @@ volumes:
   nodemssqldata:
     driver: local
   nodemysqldata:
+    driver: local
+  nodemariadata:
     driver: local
   nodeesdata:
     driver: local
