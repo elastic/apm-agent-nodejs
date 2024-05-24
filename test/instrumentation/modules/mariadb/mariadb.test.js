@@ -42,15 +42,28 @@ var connectionOptions = utils.credentials();
 var queryable;
 var queryablePromise;
 var factories = [
-  [createConnection, 'connection'],
-  [createPool, 'pool'],
-  [createPoolAndGetConnection, 'pool > connection'],
-  [createPoolClusterAndGetConnection, 'poolCluster > connection'],
-  // [createPoolClusterAndGetConnectionViaOf, 'poolCluster > of > connection'],
+  [createConnection, 'connection', true],
+  [createPool, 'pool', true],
+  [createPoolAndGetConnection, 'pool > connection', true],
+  [createPoolClusterAndGetConnection, 'poolCluster > connection', true],
+  [
+    createPoolClusterAndGetConnectionViaOf,
+    'poolCluster > of > connection',
+    false,
+  ],
+  [
+    createPoolClusterAndGetConnectionViaOfDirect,
+    'poolCluster > ofConnection',
+    false,
+  ],
 ];
 // var executors = ['execute'];
 // var executors = ['queryStream'];
-var executors = ['query', 'execute', 'queryStream'];
+var executors = [
+  'query',
+  'execute',
+  // 'queryStream',
+];
 
 var universalArgumentSets = [
   {
@@ -78,7 +91,7 @@ var universalArgumentSets = [
 factories.forEach(function (f) {
   var factory = f[0];
   var type = f[1];
-  // var hasPromises = f[2];
+  var hasCallback = f[2];
 
   test('mariadb.' + factory.name, function (t) {
     t.on('end', teardown);
@@ -88,47 +101,14 @@ factories.forEach(function (f) {
         var argumentSets = universalArgumentSets;
 
         if (executor === 'queryStream') {
-          if (type === 'pool') {
-            t.end();
-          } else {
-            t.end();
-            // t.test('streaming', function (t) {
-            //   argumentSets.forEach(function (argumentSet) {
-            //     var query = argumentSet.query;
-            //     var names = argumentSet.names;
-            //     var values = argumentSet.values;
-            //     var name = `${type}.${executor}(${names.join(', ')})`;
-            //     var args = values(query);
-            //     t.test(name, function (t) {
-            //       resetAgent(function (data) {
-            //         assertBasicQuery(t, query, data);
-            //         t.end();
-            //       });
-            //       factory(function () {
-            //         agent.startTransaction('foo');
-            //         var stream = queryablePromise[executor].apply(
-            //           queryablePromise,
-            //           args,
-            //         );
-            //         t.ok(
-            //           agent.currentSpan === null,
-            //           'mariadb span should not spill into calling code',
-            //         );
-            //         basicQueryStream(stream, t);
-            //       });
-            //     });
-            //   });
-            // });
-          }
-        } else {
-          t.test('callback', function (t) {
+          t.test('streaming', function (t) {
             argumentSets.forEach(function (argumentSet) {
               var query = argumentSet.query;
               var names = argumentSet.names;
               var values = argumentSet.values;
 
-              var name = `${type}.${executor}(${names.join(', ')}, callback)`;
-              var args = values(query, basicQueryCallback(t));
+              var name = `${type}.${executor}(${names.join(', ')})`;
+              var args = values(query);
 
               t.test(name, function (t) {
                 resetAgent(function (data) {
@@ -137,46 +117,73 @@ factories.forEach(function (f) {
                 });
                 factory(function () {
                   agent.startTransaction('foo');
-                  console.log('EMPEZANDO');
-                  queryable[executor].apply(queryable, args);
+                  var stream = queryablePromise[executor].apply(
+                    queryable,
+                    args,
+                  );
                   t.ok(
                     agent.currentSpan === null,
-                    'mariadb span should not spill into calling code',
+                    'mysql2 span should not spill into calling code',
                   );
+                  basicQueryStream(stream, t);
                 });
               });
             });
           });
-
-          // t.test('promise', function (t) {
-          //   universalArgumentSets.forEach(function (argumentSet) {
-          //     var query = argumentSet.query;
-          //     var names = argumentSet.names;
-          //     var values = argumentSet.values;
-
-          //     var name = `${type}.${executor}(${names.join(', ')})`;
-          //     var args = values(query);
-
-          //     t.test(name, function (t) {
-          //       resetAgent(function (data) {
-          //         assertBasicQuery(t, query, data);
-          //         t.end();
-          //       });
-          //       factory(function () {
-          //         agent.startTransaction('foo');
-          //         var promise = queryablePromise[executor].apply(
-          //           queryablePromise,
-          //           args,
-          //         );
-          //         t.ok(
-          //           agent.currentSpan === null,
-          //           'mariadb span should not spill into calling code',
-          //         );
-          //         basicQueryPromise(t, promise);
-          //       });
-          //     });
-          //   });
-          // });
+        } else {
+          if (hasCallback) {
+            t.test('callback', function (t) {
+              argumentSets.forEach(function (argumentSet) {
+                var query = argumentSet.query;
+                var names = argumentSet.names;
+                var values = argumentSet.values;
+                var name = `${type}.${executor}(${names.join(', ')}, callback)`;
+                var args = values(query, basicQueryCallback(t));
+                t.test(name, function (t) {
+                  resetAgent(function (data) {
+                    assertBasicQuery(t, query, data);
+                    t.end();
+                  });
+                  factory(function () {
+                    agent.startTransaction('foo');
+                    console.log('EMPEZANDO');
+                    queryable[executor].apply(queryable, args);
+                    t.ok(
+                      agent.currentSpan === null,
+                      'mariadb span should not spill into calling code',
+                    );
+                  });
+                });
+              });
+            });
+          }
+          t.test('promise', function (t) {
+            universalArgumentSets.forEach(function (argumentSet) {
+              var query = argumentSet.query;
+              var names = argumentSet.names;
+              var values = argumentSet.values;
+              var name = `${type}.${executor}(${names.join(', ')})`;
+              var args = values(query);
+              t.test(name, function (t) {
+                resetAgent(function (data) {
+                  assertBasicQuery(t, query, data);
+                  t.end();
+                });
+                factory(function () {
+                  agent.startTransaction('foo');
+                  var promise = queryablePromise[executor].apply(
+                    queryablePromise,
+                    args,
+                  );
+                  t.ok(
+                    agent.currentSpan === null,
+                    'mariadb span should not spill into calling code',
+                  );
+                  basicQueryPromise(t, promise);
+                });
+              });
+            });
+          });
         }
       });
     });
@@ -599,20 +606,40 @@ function createPoolClusterAndGetConnection(cb) {
 function createPoolClusterAndGetConnectionViaOf(cb) {
   setup(function () {
     _teardown = function teardown() {
-      if (cluster) {
-        queryable.end();
-        cluster.end();
-        cluster = undefined;
-        queryable = undefined;
+      if (clusterPromise) {
+        queryablePromise.end();
+        clusterPromise.end();
+        clusterPromise = undefined;
+        queryablePromise = undefined;
       }
     };
 
-    var cluster = mariadb.createPoolCluster();
-    cluster.add('master-test', connectionOptions);
-    cluster.of('.*', 'RANDOM').getConnection(function (err, conn) {
-      console.log('OBTENIDA');
-      if (err) throw err;
-      queryable = conn;
+    var clusterPromise = mariadbPromise.createPoolCluster();
+    clusterPromise.add('master-test', connectionOptions);
+    clusterPromise
+      .of('.*', 'RANDOM')
+      .getConnection()
+      .then((conn) => {
+        queryablePromise = conn;
+        cb();
+      });
+  });
+}
+function createPoolClusterAndGetConnectionViaOfDirect(cb) {
+  setup(function () {
+    _teardown = function teardown() {
+      if (clusterPromise) {
+        queryablePromise.end();
+        clusterPromise.end();
+        clusterPromise = undefined;
+        queryablePromise = undefined;
+      }
+    };
+
+    var clusterPromise = mariadbPromise.createPoolCluster();
+    clusterPromise.add('master-test', connectionOptions);
+    clusterPromise.getConnection('.*', 'RANDOM').then((conn) => {
+      queryablePromise = conn;
       cb();
     });
   });
