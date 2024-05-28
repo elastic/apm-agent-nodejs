@@ -11,6 +11,7 @@ scms:
       token: '{{ requiredEnv "GITHUB_TOKEN" }}'
       username: '{{ requiredEnv "GITHUB_ACTOR" }}'
       branch: "{{ .github.branch }}"
+      commitusingapi: true
 
   apm-data:
     kind: github
