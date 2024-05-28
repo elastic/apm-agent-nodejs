@@ -524,7 +524,7 @@ function basicQueryCallback(t) {
       'mariadb span should not spill into calling code',
     );
     t.error(err);
-    console.log(rows);
+
     t.strictEqual(rows[0].solution, 2);
     agent.endTransaction();
   };
