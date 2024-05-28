@@ -59,7 +59,7 @@ var factories = [
 ];
 // var executors = ['execute'];
 // var executors = ['queryStream'];
-var executors = ['query', 'execute', 'queryStream'];
+var executors = ['query', 'execute', 'queryStream', 'batch', 'prepare'];
 
 var universalArgumentSets = [
   {
@@ -84,6 +84,19 @@ var universalArgumentSets = [
   },
 ];
 
+var batchArgumentSets = [
+  {
+    names: ['sql', 'values'],
+    query: 'INSERT INTO users (name) VALUES (?)',
+    values: (query, cb) => [query, [['test'], ['test2']], cb],
+  },
+  {
+    names: ['options', 'values'],
+    query: 'INSERT INTO users (name) VALUES (?)',
+    values: (query, cb) => [{ sql: query }, [['test'], ['test2']], cb],
+  },
+];
+
 factories.forEach(function (f) {
   var factory = f[0];
   var type = f[1];
@@ -94,7 +107,8 @@ factories.forEach(function (f) {
     executors.forEach(function (executor) {
       t.test(executor, function (t) {
         var isQuery = executor === 'query';
-        var argumentSets = universalArgumentSets;
+        var argumentSets =
+          executor === 'batch' ? batchArgumentSets : universalArgumentSets;
 
         if (executor === 'queryStream') {
           if (!['pool'].includes(type)) {
@@ -107,12 +121,10 @@ factories.forEach(function (f) {
                 var args = values(query);
                 t.test(name, function (t) {
                   resetAgent(function (data) {
-                    console.log('RESET');
                     assertBasicQuery(t, query, data);
                     t.end();
                   });
                   factory(function () {
-                    console.log('INIT TRANSACIONC');
                     agent.startTransaction('foo');
                     var stream = queryablePromise[executor].apply(
                       queryablePromise,
@@ -137,15 +149,12 @@ factories.forEach(function (f) {
                   var args = values(query);
                   t.test(name, function (t) {
                     resetAgent(function (data) {
-                      console.log('RESET');
                       assertBasicQuery(t, query, data);
                       t.end();
                     });
                     factory(function () {
-                      console.log('INIT TRANSACIONC');
                       agent.startTransaction('foo');
                       var stream = queryable.query.apply(queryable, args);
-                      console.log(stream);
                       t.ok(
                         agent.currentSpan === null,
                         'mariadb span should not spill into calling code',
@@ -159,6 +168,69 @@ factories.forEach(function (f) {
           } else {
             t.end();
           }
+        } else if (executor === 'prepare') {
+          if (!['pool'].includes(type)) {
+            t.test('prepare', function (t) {
+              argumentSets.forEach(function (argumentSet) {
+                var query = argumentSet.query;
+                var names = argumentSet.names;
+                var values = argumentSet.values;
+                var name = `${type}.${executor}(${names.join(', ')})`;
+                var args = values(query);
+                t.test(name, function (t) {
+                  resetAgent(function (data) {
+                    assertBasicQuery(t, query, data);
+                    t.end();
+                  });
+                  factory(function () {
+                    agent.startTransaction('foo');
+                    queryablePromise[executor]
+                      .apply(queryablePromise, [args[0]])
+                      .then((preparedStatement) => {
+                        var result = preparedStatement.execute(args[1]);
+
+                        t.ok(
+                          agent.currentSpan === null,
+                          'mariadb span should not spill into calling code',
+                        );
+                        basicQueryPromise(t, result);
+                      });
+                  });
+                });
+              });
+            });
+            t.test('prepare stream', function (t) {
+              argumentSets.forEach(function (argumentSet) {
+                var query = argumentSet.query;
+                var names = argumentSet.names;
+                var values = argumentSet.values;
+                var name = `${type}.${executor}(${names.join(', ')})`;
+                var args = values(query);
+                t.test(name, function (t) {
+                  resetAgent(function (data) {
+                    assertBasicQuery(t, query, data);
+                    t.end();
+                  });
+                  factory(function () {
+                    agent.startTransaction('foo');
+                    queryablePromise[executor]
+                      .apply(queryablePromise, [args[0]])
+                      .then((preparedStatement) => {
+                        var result = preparedStatement.executeStream(args[1]);
+
+                        t.ok(
+                          agent.currentSpan === null,
+                          'mariadb span should not spill into calling code',
+                        );
+                        basicQueryStream(result, t);
+                      });
+                  });
+                });
+              });
+            });
+          } else {
+            t.end();
+          }
         } else {
           if (hasCallback) {
             t.test('callback', function (t) {
@@ -167,15 +239,22 @@ factories.forEach(function (f) {
                 var names = argumentSet.names;
                 var values = argumentSet.values;
                 var name = `${type}.${executor}(${names.join(', ')}, callback)`;
-                var args = values(query, basicQueryCallback(t));
+                var args =
+                  executor === 'batch'
+                    ? values(query, batchQueryCallback(t))
+                    : values(query, basicQueryCallback(t));
                 t.test(name, function (t) {
                   resetAgent(function (data) {
-                    assertBasicQuery(t, query, data);
+                    assertBasicQuery(
+                      t,
+                      query,
+                      data,
+                      executor === 'batch' ? 'INSERT INTO users' : 'SELECT',
+                    );
                     t.end();
                   });
                   factory(function () {
                     agent.startTransaction('foo');
-                    console.log('EMPEZANDO');
                     queryable[executor].apply(queryable, args);
                     t.ok(
                       agent.currentSpan === null,
@@ -187,7 +266,7 @@ factories.forEach(function (f) {
             });
           }
           t.test('promise', function (t) {
-            universalArgumentSets.forEach(function (argumentSet) {
+            argumentSets.forEach(function (argumentSet) {
               var query = argumentSet.query;
               var names = argumentSet.names;
               var values = argumentSet.values;
@@ -195,7 +274,12 @@ factories.forEach(function (f) {
               var args = values(query);
               t.test(name, function (t) {
                 resetAgent(function (data) {
-                  assertBasicQuery(t, query, data);
+                  assertBasicQuery(
+                    t,
+                    query,
+                    data,
+                    executor === 'batch' ? 'INSERT INTO users' : 'SELECT',
+                  );
                   t.end();
                 });
                 factory(function () {
@@ -208,7 +292,11 @@ factories.forEach(function (f) {
                     agent.currentSpan === null,
                     'mariadb span should not spill into calling code',
                   );
-                  basicQueryPromise(t, promise);
+                  if (executor === 'batch') {
+                    batchQueryPromise(t, promise);
+                  } else {
+                    basicQueryPromise(t, promise);
+                  }
                 });
               });
             });
@@ -417,9 +505,25 @@ function basicQueryPromise(t, p) {
 
   p.then(
     function (response) {
-      console.log('Ejecutada');
       var rows = response[0];
       t.strictEqual(rows.solution, 2);
+      done();
+    },
+    function (error) {
+      t.error(error);
+      done();
+    },
+  );
+}
+function batchQueryPromise(t, p) {
+  function done() {
+    agent.endTransaction();
+  }
+
+  p.then(
+    function (response) {
+      var rows = response;
+      t.strictEqual(rows.affectedRows, 2);
       done();
     },
     function (error) {
@@ -431,7 +535,6 @@ function basicQueryPromise(t, p) {
 
 function basicQueryCallback(t) {
   return function (err, rows, fields) {
-    console.log('CALLBACK');
     t.ok(
       agent.currentSpan === null,
       'mariadb span should not spill into calling code',
@@ -441,11 +544,21 @@ function basicQueryCallback(t) {
     agent.endTransaction();
   };
 }
+function batchQueryCallback(t) {
+  return function (err, rows, fields) {
+    t.ok(
+      agent.currentSpan === null,
+      'mariadb span should not spill into calling code',
+    );
+    t.error(err);
+    t.strictEqual(rows.affectedRows, 2);
+    agent.endTransaction();
+  };
+}
 
 function basicQueryStream(stream, t) {
   var results = 0;
   stream.on('error', function (err) {
-    console.log('ERROR', err);
     t.ok(
       agent.currentSpan === null,
       'mariadb span should not be active in user code',
@@ -453,9 +566,6 @@ function basicQueryStream(stream, t) {
     t.error(err);
   });
   stream.on('data', function (row) {
-    console.log(agent.currentSpan);
-
-    console.log('DATA');
     t.ok(
       agent.currentSpan === null,
       'mariadb span should not be active in user code',
@@ -464,19 +574,16 @@ function basicQueryStream(stream, t) {
     t.strictEqual(row.solution, 2);
   });
   stream.on('end', function () {
-    console.log('END');
-
     t.ok(
       agent.currentSpan === null,
       'mariadb span should not be active in user code',
     );
     t.strictEqual(results, 1);
-    console.log('testes', results);
     agent.endTransaction();
   });
 }
 
-function assertBasicQuery(t, sql, data) {
+function assertBasicQuery(t, sql, data, spanName = 'SELECT') {
   t.strictEqual(data.transactions.length, 1);
   t.strictEqual(data.spans.length, 1);
 
@@ -484,11 +591,11 @@ function assertBasicQuery(t, sql, data) {
   var span = data.spans[0];
 
   t.strictEqual(trans.name, 'foo');
-  assertSpan(t, span, sql);
+  assertSpan(t, span, sql, spanName);
 }
 
-function assertSpan(t, span, sql) {
-  t.strictEqual(span.name, 'SELECT', 'span.name');
+function assertSpan(t, span, sql, spanName = 'SELECT') {
+  t.strictEqual(span.name, spanName, 'span.name');
   t.strictEqual(span.type, 'db', 'span.type');
   t.strictEqual(span.subtype, 'mariadb', 'span.subtype');
   t.strictEqual(span.action, 'query', 'span.action');
@@ -528,7 +635,6 @@ function assertSpan(t, span, sql) {
 function createConnection(cb) {
   setup(function () {
     _teardown = function teardown() {
-      console.log('CERRANDO');
       if (queryable) {
         queryable.end();
         queryable = undefined;
@@ -544,10 +650,18 @@ function createConnection(cb) {
     queryable.connect((err) => {
       if (err) throw err;
 
-      mariadbPromise.createConnection(connectionOptions).then(function (conn2) {
-        queryablePromise = conn2;
-        cb();
-      });
+      mariadbPromise
+        .createConnection(connectionOptions)
+        .then(async function (conn2) {
+          queryablePromise = conn2;
+
+          await queryablePromise.execute('DROP TABLE IF EXISTS users');
+
+          await queryablePromise.execute(
+            'CREATE TABLE users (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))',
+          );
+          cb();
+        });
     });
   });
 }
@@ -568,7 +682,15 @@ function createPool(cb) {
     queryable = mariadb.createPool(connectionOptions);
     queryablePromise = mariadbPromise.createPool(connectionOptions);
 
-    cb();
+    queryablePromise.execute('DROP TABLE IF EXISTS users').then(() => {
+      queryablePromise
+        .execute(
+          'CREATE TABLE users (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))',
+        )
+        .then(() => {
+          cb();
+        });
+    });
   });
 }
 
@@ -598,7 +720,16 @@ function createPoolAndGetConnection(cb) {
 
       poolPromise.getConnection().then(function (conn) {
         queryablePromise = conn;
-        cb();
+
+        queryablePromise.execute('DROP TABLE IF EXISTS users').then(() => {
+          queryablePromise
+            .execute(
+              'CREATE TABLE users (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))',
+            )
+            .then(() => {
+              cb();
+            });
+        });
       });
     });
   });
@@ -633,7 +764,16 @@ function createPoolClusterAndGetConnection(cb) {
 
       clusterPromise.getConnection().then(function (conn2) {
         queryablePromise = conn2;
-        cb();
+
+        queryablePromise.execute('DROP TABLE IF EXISTS users').then(() => {
+          queryablePromise
+            .execute(
+              'CREATE TABLE users (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))',
+            )
+            .then(() => {
+              cb();
+            });
+        });
       });
     });
   });
@@ -657,7 +797,16 @@ function createPoolClusterAndGetConnectionViaOf(cb) {
       .getConnection()
       .then((conn) => {
         queryablePromise = conn;
-        cb();
+
+        queryablePromise.execute('DROP TABLE IF EXISTS users').then(() => {
+          queryablePromise
+            .execute(
+              'CREATE TABLE users (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))',
+            )
+            .then(() => {
+              cb();
+            });
+        });
       });
   });
 }
@@ -676,7 +825,16 @@ function createPoolClusterAndGetConnectionViaOfDirect(cb) {
     clusterPromise.add('master-test', connectionOptions);
     clusterPromise.getConnection('.*', 'RANDOM').then((conn) => {
       queryablePromise = conn;
-      cb();
+
+      queryablePromise.execute('DROP TABLE IF EXISTS users').then(() => {
+        queryablePromise
+          .execute(
+            'CREATE TABLE users (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))',
+          )
+          .then(() => {
+            cb();
+          });
+      });
     });
   });
 }
