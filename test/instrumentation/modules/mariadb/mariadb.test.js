@@ -36,7 +36,6 @@ var test = require('tape');
 
 var utils = require('./_utils');
 var mockClient = require('../../../_mock_http_client');
-var findObjInArray = require('../../../_utils').findObjInArray;
 
 var connectionOptions = utils.credentials();
 var queryable;
@@ -106,7 +105,6 @@ factories.forEach(function (f) {
     t.on('end', teardown);
     executors.forEach(function (executor) {
       t.test(executor, function (t) {
-        var isQuery = executor === 'query';
         var argumentSets =
           executor === 'batch' ? batchArgumentSets : universalArgumentSets;
 
@@ -845,7 +843,7 @@ function setup(cb) {
 }
 
 // placeholder variable to hold the teardown function created by the setup function
-var _teardown = function () { };
+var _teardown = function () {};
 var teardown = function () {
   _teardown();
 };
