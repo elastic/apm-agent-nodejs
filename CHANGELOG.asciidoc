@@ -33,13 +33,37 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Mark the published AWS Lambda layers as supporting the "nodejs20.x" Lambda
+  Runtime (`--compatible-runtimes`). The "nodejs20.x" runtime was released by
+  AWS on 2023-11-15. ({issues}4033[#4033])
++
+Note that this Node.js APM agent supports Node.js 20.x, so the new AWS Lambda
+runtime was supported when it was released. However, the metadata stating
+compatible runtimes (which is advisory) was not updated until now.
+
+[float]
+===== Chores
+
+
 [[release-notes-4.5.4]]
 ==== 4.5.4 - 2024/05/13
 
 [float]
 ===== Bug fixes
 
-- Change how the "cookie" HTTP request header is represented in APM transaction
+* Change how the "cookie" HTTP request header is represented in APM transaction
   data to avoid a rare, but possible, intake bug where the transaction could be
   rejected due to a mapping conflict.
 +
