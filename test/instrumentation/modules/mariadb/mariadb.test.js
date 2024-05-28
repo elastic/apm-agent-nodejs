@@ -14,9 +14,9 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 const semver = require('semver');
 const { safeGetPackageVersion } = require('../../../_utils');
 const mariadbVer = safeGetPackageVersion('mariadb');
-if (semver.gte(mariadbVer, '3.0.0') && semver.lt(process.version, '14.6.0')) {
+if (semver.gte(mariadbVer, '3.0.0') && semver.lt(process.version, '14.0.0')) {
   console.log(
-    `# SKIP mysql2@${mariadbVer} does not support node ${process.version}`,
+    `# SKIP mariadb@${mariadbVer} does not support node ${process.version}`,
   );
   process.exit();
 }

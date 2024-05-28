@@ -6,7 +6,7 @@
 
 'use strict';
 
-var mysql = require('mysql2');
+var mariadb = require('mariadb/callback');
 
 exports.reset = reset;
 exports.credentials = credentials;
@@ -23,7 +23,9 @@ function credentials(conf) {
 }
 
 function reset(cb) {
-  var client = mysql.createConnection(credentials({ database: 'mysql' }));
+  var client = mariadb.createConnection(
+    credentials({ database: 'test_elastic_apm' }),
+  );
 
   client.connect(function (err) {
     if (err) throw err;

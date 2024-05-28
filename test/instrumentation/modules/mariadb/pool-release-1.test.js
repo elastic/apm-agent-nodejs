@@ -13,10 +13,10 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 
 const semver = require('semver');
 const { safeGetPackageVersion } = require('../../../_utils');
-const mysql2Ver = safeGetPackageVersion('mysql2');
-if (semver.gte(mysql2Ver, '3.0.0') && semver.lt(process.version, '14.6.0')) {
+const mariadbVer = safeGetPackageVersion('mariadb');
+if (semver.gte(mariadbVer, '3.0.0') && semver.lt(process.version, '14.0.0')) {
   console.log(
-    `# SKIP mysql2@${mysql2Ver} does not support node ${process.version}`,
+    `# SKIP mariadb@${mariadbVer} does not support node ${process.version}`,
   );
   process.exit();
 }
@@ -29,7 +29,7 @@ var agent = require('../../../..').start({
   centralConfig: false,
 });
 
-var mysql = require('mysql2');
+var mariadb = require('mariadb/callback');
 var test = require('tape');
 
 var utils = require('./_utils');
@@ -38,7 +38,9 @@ test('release connection prior to transaction', function (t) {
   createPool(function (pool) {
     pool.getConnection(function (err, conn) {
       t.error(err);
+      console.log('Test1');
       conn.release(); // important to release connection before starting the transaction
+      console.log('Test2');
 
       agent.startTransaction('foo');
       t.ok(agent.currentTransaction);
@@ -55,7 +57,7 @@ test('release connection prior to transaction', function (t) {
 
 function createPool(cb) {
   setup(function () {
-    cb(mysql.createPool(utils.credentials()));
+    cb(mariadb.createPool(utils.credentials()));
   });
 }
 
