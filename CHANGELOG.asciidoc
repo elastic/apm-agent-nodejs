@@ -33,6 +33,21 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+Add support for mariadb >=3.3.0 instrumentation
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
 [[release-notes-4.5.4]]
 ==== 4.5.4 - 2024/05/13
 
