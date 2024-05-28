@@ -12,7 +12,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 }
 
 const semver = require('semver');
-const { safeGetPackageVersion } = require('../../../_utils');
+const { safeGetPackageVersion, findObjInArray } = require('../../../_utils');
 const mariadbVer = safeGetPackageVersion('mariadb');
 if (semver.gte(mariadbVer, '3.0.0') && semver.lt(process.version, '14.0.0')) {
   console.log(
@@ -303,196 +303,182 @@ factories.forEach(function (f) {
       });
     });
 
-    // t.test('simultaneous queries', function (t) {
-    //   t.test('on same connection', function (t) {
-    //     resetAgent(4, function (data) {
-    //       t.strictEqual(data.transactions.length, 1);
-    //       t.strictEqual(data.spans.length, 3);
+    t.test('simultaneous queries', function (t) {
+      t.test('on same connection', function (t) {
+        resetAgent(4, function (data) {
+          t.strictEqual(data.transactions.length, 1);
+          t.strictEqual(data.spans.length, 3);
 
-    //       var trans = data.transactions[0];
+          var trans = data.transactions[0];
 
-    //       t.strictEqual(trans.name, 'foo');
+          t.strictEqual(trans.name, 'foo');
 
-    //       data.spans.forEach(function (span) {
-    //         assertSpan(t, span, sql);
-    //         t.equal(
-    //           span.parent_id,
-    //           trans.id,
-    //           'each mysql2 span is a child of the transaction',
-    //         );
-    //       });
+          data.spans.forEach(function (span) {
+            assertSpan(t, span, sql);
+            t.equal(
+              span.parent_id,
+              trans.id,
+              'each mariadb span is a child of the transaction',
+            );
+          });
 
-    //       t.end();
-    //     });
+          t.end();
+        });
 
-    //     var sql = 'SELECT 1 + ? AS solution';
+        var sql = 'SELECT 1 + ? AS solution';
 
-    //     factory(function () {
-    //       var n = 0;
-    //       var trans = agent.startTransaction('foo');
+        factory(function () {
+          var n = 0;
+          var trans = agent.startTransaction('foo');
 
-    //       queryable.query(sql, [1], function (err, rows, fields) {
-    //         t.error(err);
-    //         t.strictEqual(rows[0].solution, 2);
-    //         if (++n === 3) done();
-    //       });
-    //       queryable.query(sql, [2], function (err, rows, fields) {
-    //         t.error(err);
-    //         t.strictEqual(rows[0].solution, 3);
-    //         if (++n === 3) done();
-    //       });
-    //       queryable.query(sql, [3], function (err, rows, fields) {
-    //         t.error(err);
-    //         t.strictEqual(rows[0].solution, 4);
-    //         if (++n === 3) done();
-    //       });
+          queryablePromise.query(sql, [1]).then((rows) => {
+            t.strictEqual(rows[0].solution, 2);
+            if (++n === 3) done();
+          });
+          queryablePromise.query(sql, [2]).then((rows) => {
+            t.strictEqual(rows[0].solution, 3);
+            if (++n === 3) done();
+          });
+          queryablePromise.query(sql, [3]).then((rows) => {
+            t.strictEqual(rows[0].solution, 4);
+            if (++n === 3) done();
+          });
 
-    //       function done() {
-    //         trans.end();
-    //       }
-    //     });
-    //   });
+          function done() {
+            trans.end();
+          }
+        });
+      });
 
-    //   t.test('on different connections', function (t) {
-    //     resetAgent(4, function (data) {
-    //       t.strictEqual(data.transactions.length, 1);
-    //       t.strictEqual(data.spans.length, 3);
+      t.test('on different connections', function (t) {
+        resetAgent(4, function (data) {
+          t.strictEqual(data.transactions.length, 1);
+          t.strictEqual(data.spans.length, 3);
 
-    //       var trans = data.transactions[0];
+          var trans = data.transactions[0];
 
-    //       t.strictEqual(trans.name, 'foo');
+          t.strictEqual(trans.name, 'foo');
 
-    //       data.spans.forEach(function (span) {
-    //         assertSpan(t, span, sql);
-    //         t.equal(
-    //           span.parent_id,
-    //           trans.id,
-    //           'each mysql2 span is a child of the transaction',
-    //         );
-    //       });
+          data.spans.forEach(function (span) {
+            assertSpan(t, span, sql);
+            t.equal(
+              span.parent_id,
+              trans.id,
+              'each mariadb span is a child of the transaction',
+            );
+          });
 
-    //       t.end();
-    //     });
+          t.end();
+        });
 
-    //     var sql = 'SELECT 1 + ? AS solution';
+        var sql = 'SELECT 1 + ? AS solution';
 
-    //     createPool(function () {
-    //       var n = 0;
-    //       var trans = agent.startTransaction('foo');
+        createPool(function () {
+          var n = 0;
+          var trans = agent.startTransaction('foo');
 
-    //       queryable.getConnection(function (err, conn) {
-    //         t.error(err);
-    //         conn.query(sql, [1], function (err, rows, fields) {
-    //           t.error(err);
-    //           t.strictEqual(rows[0].solution, 2);
-    //           if (++n === 3) done();
-    //         });
-    //       });
-    //       queryable.getConnection(function (err, conn) {
-    //         t.error(err);
-    //         conn.query(sql, [2], function (err, rows, fields) {
-    //           t.error(err);
-    //           t.strictEqual(rows[0].solution, 3);
-    //           if (++n === 3) done();
-    //         });
-    //       });
-    //       queryable.getConnection(function (err, conn) {
-    //         t.error(err);
-    //         conn.query(sql, [3], function (err, rows, fields) {
-    //           t.error(err);
-    //           t.strictEqual(rows[0].solution, 4);
-    //           if (++n === 3) done();
-    //         });
-    //       });
+          queryablePromise.getConnection().then(function (conn) {
+            conn.query(sql, [1]).then(function (rows) {
+              t.strictEqual(rows[0].solution, 2);
+              if (++n === 3) done();
+            });
+          });
+          queryablePromise.getConnection().then(function (conn) {
+            conn.query(sql, [2]).then(function (rows) {
+              t.strictEqual(rows[0].solution, 3);
+              if (++n === 3) done();
+            });
+          });
+          queryablePromise.getConnection().then(function (conn) {
+            conn.query(sql, [3]).then(function (rows) {
+              t.strictEqual(rows[0].solution, 4);
+              if (++n === 3) done();
+            });
+          });
 
-    //       function done() {
-    //         trans.end();
-    //       }
-    //     });
-    //   });
-    // });
+          function done() {
+            trans.end();
+          }
+        });
+      });
+    });
 
-    // t.test('simultaneous transactions', function (t) {
-    //   resetAgent(6, function (data) {
-    //     t.strictEqual(data.transactions.length, 3);
-    //     t.strictEqual(data.spans.length, 3);
-    //     var names = data.transactions
-    //       .map(function (trans) {
-    //         return trans.name;
-    //       })
-    //       .sort();
-    //     t.deepEqual(names, ['bar', 'baz', 'foo']);
+    t.test('simultaneous transactions', function (t) {
+      resetAgent(6, function (data) {
+        t.strictEqual(data.transactions.length, 3);
+        t.strictEqual(data.spans.length, 3);
+        var names = data.transactions
+          .map(function (trans) {
+            return trans.name;
+          })
+          .sort();
+        t.deepEqual(names, ['bar', 'baz', 'foo']);
 
-    //     data.transactions.forEach(function (trans) {
-    //       const span = findObjInArray(data.spans, 'transaction_id', trans.id);
-    //       t.ok(span, 'transaction should have span');
-    //       assertSpan(t, span, sql);
-    //     });
+        data.transactions.forEach(function (trans) {
+          const span = findObjInArray(data.spans, 'transaction_id', trans.id);
+          t.ok(span, 'transaction should have span');
+          assertSpan(t, span, sql);
+        });
 
-    //     t.end();
-    //   });
+        t.end();
+      });
 
-    //   var sql = 'SELECT 1 + ? AS solution';
+      var sql = 'SELECT 1 + ? AS solution';
 
-    //   factory(function () {
-    //     setImmediate(function () {
-    //       var trans = agent.startTransaction('foo');
-    //       queryable.query(sql, [1], function (err, rows, fields) {
-    //         t.error(err);
-    //         t.strictEqual(rows[0].solution, 2);
-    //         trans.end();
-    //       });
-    //     });
+      factory(function () {
+        setImmediate(function () {
+          var trans = agent.startTransaction('foo');
+          queryablePromise.query(sql, [1]).then(function (rows) {
+            t.strictEqual(rows[0].solution, 2);
+            trans.end();
+          });
+        });
 
-    //     setImmediate(function () {
-    //       var trans = agent.startTransaction('bar');
-    //       queryable.query(sql, [2], function (err, rows, fields) {
-    //         t.error(err);
-    //         t.strictEqual(rows[0].solution, 3);
-    //         trans.end();
-    //       });
-    //     });
+        setImmediate(function () {
+          var trans = agent.startTransaction('bar');
+          queryablePromise.query(sql, [2]).then(function (rows) {
+            t.strictEqual(rows[0].solution, 3);
+            trans.end();
+          });
+        });
 
-    //     setImmediate(function () {
-    //       var trans = agent.startTransaction('baz');
-    //       queryable.query(sql, [3], function (err, rows, fields) {
-    //         t.error(err);
-    //         t.strictEqual(rows[0].solution, 4);
-    //         trans.end();
-    //       });
-    //     });
-    //   });
-    // });
+        setImmediate(function () {
+          var trans = agent.startTransaction('baz');
+          queryablePromise.query(sql, [3]).then(function (rows) {
+            t.strictEqual(rows[0].solution, 4);
+            trans.end();
+          });
+        });
+      });
+    });
 
-    // // Only pools have a getConnection function
-    // if (type === 'pool') {
-    //   t.test('connection.release()', function (t) {
-    //     resetAgent(function (data) {
-    //       assertBasicQuery(t, sql, data);
-    //       t.end();
-    //     });
+    // Only pools have a getConnection function
+    if (type === 'pool') {
+      t.test('connection.release()', function (t) {
+        resetAgent(function (data) {
+          assertBasicQuery(t, sql, data);
+          t.end();
+        });
 
-    //     var sql = 'SELECT 1 + 1 AS solution';
+        var sql = 'SELECT 1 + 1 AS solution';
 
-    //     factory(function () {
-    //       agent.startTransaction('foo');
+        factory(function () {
+          agent.startTransaction('foo');
 
-    //       queryable.getConnection(function (err, conn) {
-    //         t.error(err);
-    //         conn.release();
+          queryablePromise.getConnection().then(function (conn) {
+            conn.release();
 
-    //         queryable.getConnection(function (err, conn) {
-    //           t.error(err);
-    //           conn.query(sql, basicQueryCallback(t));
-    //           t.ok(
-    //             agent.currentSpan === null,
-    //             'mysql2 span should not spill into calling code',
-    //           );
-    //         });
-    //       });
-    //     });
-    //   });
-    // }
+            queryablePromise.getConnection().then(function (conn) {
+              basicQueryPromise(t, conn.query(sql));
+              t.ok(
+                agent.currentSpan === null,
+                'mariadb span should not spill into calling code',
+              );
+            });
+          });
+        });
+      });
+    }
   });
 });
 
@@ -538,6 +524,7 @@ function basicQueryCallback(t) {
       'mariadb span should not spill into calling code',
     );
     t.error(err);
+    console.log(rows);
     t.strictEqual(rows[0].solution, 2);
     agent.endTransaction();
   };
@@ -843,7 +830,7 @@ function setup(cb) {
 }
 
 // placeholder variable to hold the teardown function created by the setup function
-var _teardown = function () {};
+var _teardown = function () { };
 var teardown = function () {
   _teardown();
 };
