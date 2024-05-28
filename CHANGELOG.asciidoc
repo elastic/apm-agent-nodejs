@@ -40,7 +40,7 @@ See the <<upgrade-to-v4>> guide.
 
 [float]
 ===== Features
-Add support for mariadb >=3.3.0 instrumentation
+Add support for mariadb >=3.1.0 instrumentation
 
 [float]
 ===== Bug fixes

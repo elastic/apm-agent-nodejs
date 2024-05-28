@@ -55,7 +55,7 @@ mysql2:
       - node test/instrumentation/modules/mysql2/pool-release-1.test.js
 
 mariadb:
-  - versions: '>=3.3.0 <4'
+  - versions: '>=3.1.0 <4'
     node: '>=14.0.0'
     commands:
       - node test/instrumentation/modules/mariadb/mariadb.test.js
