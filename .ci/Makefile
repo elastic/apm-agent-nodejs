@@ -60,7 +60,7 @@ publish: validate-layer-name validate-aws-default-region
 		--layer-name "$(ELASTIC_LAYER_NAME)" \
 		--description "AWS Lambda Extension Layer for the Elastic APM Node.js Agent" \
 		--license "Apache-2.0" \
-		--compatible-runtimes nodejs18.x nodejs16.x nodejs14.x \
+		--compatible-runtimes nodejs20.x nodejs18.x nodejs16.x nodejs14.x \
 		--zip-file "fileb://./$(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(GITHUB_REF_NAME).zip"
 
 # Grant public access to the given LAYER in the given AWS region
