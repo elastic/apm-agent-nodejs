@@ -45,6 +45,11 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Bug fixes
 
+* Fix instrumentation for recent `@aws-sdk/client-*` releases that use
+  `@smithy/smithy-client` v3. (For example `@aws-sdk/client-s3@3.575.0` released
+  2024-05-13 updated to smithy-client v3.) Before this change the APM agent had
+  been limiting patching of `@smithy/smithy-client` to `>=1 <3`.
+
 * Mark the published AWS Lambda layers as supporting the "nodejs20.x" Lambda
   Runtime (`--compatible-runtimes`). The "nodejs20.x" runtime was released by
   AWS on 2023-11-15. ({issues}4033[#4033])
