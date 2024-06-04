@@ -33,7 +33,6 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
-
 ==== Unreleased
 
 [float]
@@ -41,6 +40,7 @@ See the <<upgrade-to-v4>> guide.
 
 [float]
 ===== Features
+Add support for mariadb >=3.1.0 instrumentation
 
 [float]
 ===== Bug fixes
@@ -60,7 +60,6 @@ compatible runtimes (which is advisory) was not updated until now.
 
 [float]
 ===== Chores
-
 
 [[release-notes-4.5.4]]
 ==== 4.5.4 - 2024/05/13

@@ -31,6 +31,7 @@
     { "name": "mongodb-core", "minMajorVersion": 8 },
     { "name": "mysql", "minMajorVersion": 8 },
     { "name": "mysql2", "minMajorVersion": 8 },
+    { "name": "mariadb", "minMajorVersion": 14 },
     { "name": "next", "minMajorVersion": 14 },
     { "name": "pg", "minMajorVersion": 8 },
     { "name": "redis", "minMajorVersion": 8 },
