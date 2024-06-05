@@ -34,10 +34,8 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-4.6.0]]
+==== 4.6.0 - 2024/06/05
 
 [float]
 ===== Features
@@ -64,9 +62,6 @@ See the <<upgrade-to-v4>> guide.
 Note that this Node.js APM agent supports Node.js 20.x, so the new AWS Lambda
 runtime was supported when it was released. However, the metadata stating
 compatible runtimes (which is advisory) was not updated until now.
-
-[float]
-===== Chores
 
 
 [[release-notes-4.5.4]]
