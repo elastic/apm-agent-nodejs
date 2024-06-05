@@ -42,6 +42,12 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Features
 
+* Make published `docker.elastic.co/observability/apm-agent-nodejs` Docker
+  images multi-platform, with support for `linux/amd64,linux/arm64` for now.
+  This is necessary for users of the Elastic APM Attacher for Kubernetes,
+  when deploying to k8s nodes that are ARM64 (e.g. Gravitron on AWS).
+  ({issues}4038[#4038])
+
 [float]
 ===== Bug fixes
 
@@ -49,6 +55,7 @@ See the <<upgrade-to-v4>> guide.
   `@smithy/smithy-client` v3. (For example `@aws-sdk/client-s3@3.575.0` released
   2024-05-13 updated to smithy-client v3.) Before this change the APM agent had
   been limiting patching of `@smithy/smithy-client` to `>=1 <3`.
+  ({pull}4036[#4036])
 
 * Mark the published AWS Lambda layers as supporting the "nodejs20.x" Lambda
   Runtime (`--compatible-runtimes`). The "nodejs20.x" runtime was released by
