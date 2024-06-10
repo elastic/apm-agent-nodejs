@@ -169,6 +169,17 @@ sUpdateName.updateName('three');
 sUpdateName.end();
 sUpdateName.updateName('four'); // updateName after end should *not* take
 
+// Span#addLink, Span#addLinks
+const sAddLinks = tracer.startSpan('sAddLinks');
+const linkContext = {
+  traceId: '8b46594050c89c3d87248476ed8e0c57',
+  spanId: 'ffe4cfa94865ee2a',
+  traceFlags: otel.TraceFlags.SAMPLED,
+};
+sAddLinks.addLink({ context: linkContext });
+sAddLinks.addLinks([{ context: linkContext }]);
+sAddLinks.end();
+
 // Span#end
 // Specify approximately "now" in each of the supported TimeInput formats.
 // OTel HrTime is `[<seconds since epoch>, <nanoseconds>]`.

@@ -308,3 +308,33 @@ Non-HTTP transactions will begin with an outcome of `unknown`.
 * `outcome` +{type-string}+
 
 The `setOutcome` method allows an end user to override the Node.js agent's default setting of a transaction's `outcome` property.  The `setOutcome` method accepts a string of either `success`, `failure`, or `unknown`, and will force the agent to report this value for a specific span.
+
+[[transaction-addlink]]
+==== `transaction.addLink(link)`
+
+[small]#Added in: REPLACEME#
+
+* `link` +{type-link}+
+
+A transaction can refer to zero or more other transactions or spans (separate
+from its parent). Span links will be shown in the Kibana APM app trace view. The
+`link` argument is an object with a single "context" field that is a
+`Transaction`, `Span`, OpenTelemetry `SpanContext` object, or W3C trace-context
+'traceparent' string.
+For example: `transaction.addLink({ context: anotherSpan })`.
+
+[[transaction-addlinks]]
+==== `transaction.addLinks([links])`
+
+[small]#Added in: REPLACEME#
+
+* `links` +{type-array}+ Span links.
+
+Add span links to this transaction.
+
+A transaction can refer to zero or more other transactions or spans (separate
+from its parent). Span links will be shown in the Kibana APM app trace view. The
+`link` argument is an object with a single "context" field that is a
+`Transaction`, `Span`, OpenTelemetry `SpanContext` object, or W3C trace-context
+'traceparent' string.
+For example: `transaction.addLinks([{ context: anotherSpan }])`.
