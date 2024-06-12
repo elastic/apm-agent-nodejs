@@ -176,8 +176,10 @@ const linkContext = {
   spanId: 'ffe4cfa94865ee2a',
   traceFlags: otel.TraceFlags.SAMPLED,
 };
-sAddLinks.addLink({ context: linkContext });
-sAddLinks.addLinks([{ context: linkContext }]);
+rv = sAddLinks.addLink({ context: linkContext });
+assert.strictEqual(rv, sAddLinks, 'addLink return value is the span');
+rv = sAddLinks.addLinks([{ context: linkContext }]);
+assert.strictEqual(rv, sAddLinks, 'addLinks return value is the span');
 sAddLinks.end();
 
 // Span#end
