@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_IMAGE_NAME: docker.elastic.co/observability/apm-agent-nodejs
+      # TODO: use keyless
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,7 +47,7 @@ jobs:
       - run: make -C .ci dist
 
       - name: Attest Lambda layer zip
-        uses: actions/attest-build-provenance@173725a1209d09b31f9d30a3890cf2757ebbff0d  # v1.1.2
+        uses: actions/attest-build-provenance@49df96e17e918a15956db358890b08e61c704919  # v1.2.0
         with:
           subject-path: "${{ github.workspace }}/build/aws/elastic-apm-node-lambda-layer-*.zip"
 
@@ -75,7 +78,7 @@ jobs:
             AGENT_DIR=/build/dist/nodejs
 
       - name: Attest Docker image
-        uses: actions/attest-build-provenance@173725a1209d09b31f9d30a3890cf2757ebbff0d  # v1.1.2
+        uses: actions/attest-build-provenance@49df96e17e918a15956db358890b08e61c704919  # v1.2.0
         with:
           subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
           subject-digest: ${{ steps.docker-push.outputs.digest }}
@@ -109,22 +112,11 @@ jobs:
             AGENT_DIR=/build/dist/nodejs
 
       - name: Attest Docker image (wolfi)
-        uses: github-early-access/generate-build-provenance@main
+        uses: actions/attest-build-provenance@49df96e17e918a15956db358890b08e61c704919  # v1.2.0
         with:
           subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
           subject-digest: ${{ steps.docker-push-wolfi.outputs.digest }}
           push-to-registry: true
-
-      - name: Read AWS vault secrets
-        uses: hashicorp/vault-action@v3.0.0
-        with:
-          url: ${{ secrets.VAULT_ADDR }}
-          method: approle
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-          secrets: |
-            secret/observability-team/ci/service-account/apm-aws-lambda access_key_id | AWS_ACCESS_KEY_ID ;
-            secret/observability-team/ci/service-account/apm-aws-lambda secret_access_key | AWS_SECRET_ACCESS_KEY
 
       - name: Publish AWS lambda (only for tag release)
         if: startsWith(github.ref, 'refs/tags')
@@ -156,10 +148,8 @@ jobs:
           npm publish --otp=${{ env.TOTP_CODE }} --provenance
 
       - if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
-        uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
+        uses: elastic/oblt-actions/slack/notify-result@v1
         with:
-          vaultUrl: ${{ secrets.VAULT_ADDR }}
-          vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
-          vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
-          slackChannel: "#apm-agent-node"
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-node"
           message: '[${{ github.repository }}] Release *${{ github.ref_name }}*'

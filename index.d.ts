@@ -150,6 +150,8 @@ declare namespace apm {
     setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
     addLabels (labels: Labels, stringify?: boolean): boolean;
     setOutcome(outcome: Outcome): void;
+    addLink (link: Link): void;
+    addLinks (links: Link[]): void;
 
     startSpan(
       name?: string | null,
@@ -201,6 +203,8 @@ declare namespace apm {
     addLabels (labels: Labels, stringify?: boolean): boolean;
     setOutcome(outcome: Outcome): void;
     setServiceTarget(type?: string | null, name?: string | null): void;
+    addLink (link: Link): void;
+    addLinks (links: Link[]): void;
     end (endTime?: number): void;
   }
 
@@ -349,8 +353,8 @@ declare namespace apm {
   // equivalent APIs in "opentelemetry-js-api/src/trace/link.ts". Currently
   // span link attributes are not supported.
   export interface Link {
-    /** A W3C trace-context 'traceparent' string, Transaction, or Span. */
-    context: Transaction | Span | string; // This is a SpanContext in OTel.
+    /** A W3C trace-context 'traceparent' string, Transaction, Span, or OTel SpanContext. */
+    context: Transaction | Span | {traceId: string, spanId: string} | string;
   }
 
   export interface TransactionOptions {

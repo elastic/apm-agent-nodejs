@@ -226,6 +226,37 @@ test('#addLabels', function (t) {
   t.end();
 });
 
+test('#addLink, #addLinks', function (t) {
+  var trans = new Transaction(agent);
+
+  const theTraceId = '00000000000000000000000000000001';
+  trans.addLink({
+    context: { traceId: theTraceId, spanId: '0000000000000002' },
+  });
+  t.deepEqual(trans._links, [
+    {
+      trace_id: theTraceId,
+      span_id: '0000000000000002',
+    },
+  ]);
+
+  trans.addLinks([
+    {
+      context: { traceId: theTraceId, spanId: '0000000000000003' },
+    },
+    {
+      context: { traceId: theTraceId, spanId: '0000000000000004' },
+    },
+  ]);
+  t.deepEqual(trans._links, [
+    { trace_id: theTraceId, span_id: '0000000000000002' },
+    { trace_id: theTraceId, span_id: '0000000000000003' },
+    { trace_id: theTraceId, span_id: '0000000000000004' },
+  ]);
+
+  t.end();
+});
+
 test('#startSpan()', function (t) {
   t.test('basic', function (t) {
     var trans = new Transaction(agent);
