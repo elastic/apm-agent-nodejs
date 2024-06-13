@@ -312,7 +312,7 @@ The `setOutcome` method allows an end user to override the Node.js agent's defau
 [[transaction-addlink]]
 ==== `transaction.addLink(link)`
 
-[small]#Added in: REPLACEME#
+[small]#Added in: v4.7.0#
 
 * `link` +{type-link}+
 
@@ -326,7 +326,7 @@ For example: `transaction.addLink({ context: anotherSpan })`.
 [[transaction-addlinks]]
 ==== `transaction.addLinks([links])`
 
-[small]#Added in: REPLACEME#
+[small]#Added in: v4.7.0#
 
 * `links` +{type-array}+ Span links.
 
