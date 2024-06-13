@@ -147,7 +147,7 @@ async function checkEventsHaveTestMetrics(t, events, extraMetricNames = []) {
 
 async function checkHasPrometheusMetrics(t) {
   const { statusCode, body } = await undici.request(
-    'http://localhost:9464/metrics',
+    'http://127.0.0.1:9464/metrics',
   );
   t.equal(statusCode, 200, 'prometheus exporter is still working');
   const text = await body.text();
