@@ -192,6 +192,11 @@ apm.logger.fatal('')
     trans.startSpan('foo', 'type', 'subtype', { exitSpan: true })
     trans.startSpan('foo', { links: [{ context: '00-12345678901234567890123456789012-1234567890123456-01' }] })
 
+    trans.addLink({ context: '00-12345678901234567890123456789012-1234567890123456-01' })
+    trans.addLink({ context: { traceId: '12345678901234567890123456789012', spanId: '1234567890123456' }})
+    trans.addLinks([{ context: '00-12345678901234567890123456789012-1234567890123456-01' }])
+    trans.addLinks([{ context: { traceId: '12345678901234567890123456789012', spanId: '1234567890123456' }}])
+
     function ensureParentId (id: string) {}
     ensureParentId(trans.ensureParentId())
 
@@ -224,6 +229,11 @@ apm.logger.fatal('')
       span.setServiceTarget('myServiceTargetType', 'myServiceTargetName')
       span.setServiceTarget(null, null)
       span.setServiceTarget()
+
+      span.addLink({ context: '00-12345678901234567890123456789012-1234567890123456-01' })
+      span.addLink({ context: { traceId: '12345678901234567890123456789012', spanId: '1234567890123456' }})
+      span.addLinks([{ context: '00-12345678901234567890123456789012-1234567890123456-01' }])
+      span.addLinks([{ context: { traceId: '12345678901234567890123456789012', spanId: '1234567890123456' }}])
 
       span.end()
       span.end(42)

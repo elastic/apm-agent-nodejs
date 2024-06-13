@@ -78,6 +78,13 @@ tape.test('OTelBridgeNonRecordingSpan', (suite) => {
       'setStatus',
     );
     t.equal(nrsOTelSpan.updateName('anotherName'), nrsOTelSpan, 'updateName');
+    const linkContext = {
+      traceId: '8b46594050c89c3d87248476ed8e0c57',
+      spanId: 'ffe4cfa94865ee2a',
+      traceFlags: otel.TraceFlags.SAMPLED,
+    };
+    t.equal(nrsOTelSpan.addLink(linkContext), nrsOTelSpan, 'addLink');
+    t.equal(nrsOTelSpan.addLinks([linkContext]), nrsOTelSpan, 'addLinks');
     t.equal(nrsOTelSpan.end(), undefined, 'end');
     t.equal(nrsOTelSpan.isRecording(), false, 'isRecording');
     t.equal(

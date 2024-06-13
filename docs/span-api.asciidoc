@@ -242,3 +242,33 @@ If false-y values (e.g. `null`) are given for both `type` and `name`, then `serv
 If this method is not called, the service target values are inferred from other span fields (https://github.com/elastic/apm/blob/main/specs/agents/tracing-spans-service-target.md#field-values[spec]).
 
 `service.target.*` fields are ignored for APM Server before v8.3.
+
+[[span-addlink]]
+==== `span.addLink(link)`
+
+[small]#Added in: REPLACEME#
+
+* `link` +{type-link}+
+
+A span can refer to zero or more other transactions or spans (separate
+from its parent). Span links will be shown in the Kibana APM app trace view. The
+`link` argument is an object with a single "context" field that is a
+`Transaction`, `Span`, OpenTelemetry `SpanContext` object, or W3C trace-context
+'traceparent' string.
+For example: `span.addLink({ context: anotherSpan })`.
+
+[[span-addlinks]]
+==== `span.addLinks([links])`
+
+[small]#Added in: REPLACEME#
+
+* `links` +{type-array}+ Span links.
+
+Add span links to this span.
+
+A span can refer to zero or more other transactions or spans (separate
+from its parent). Span links will be shown in the Kibana APM app trace view. The
+`link` argument is an object with a single "context" field that is a
+`Transaction`, `Span`, OpenTelemetry `SpanContext` object, or W3C trace-context
+'traceparent' string.
+For example: `span.addLinks([{ context: anotherSpan }])`.
