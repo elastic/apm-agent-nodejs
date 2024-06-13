@@ -263,6 +263,38 @@ test('#addLabels', function (t) {
   t.end();
 });
 
+test('#addLink, #addLinks', function (t) {
+  var trans = new Transaction(agent);
+  var span = new Span(trans);
+
+  const theTraceId = '00000000000000000000000000000001';
+  span.addLink({
+    context: { traceId: theTraceId, spanId: '0000000000000002' },
+  });
+  t.deepEqual(span._links, [
+    {
+      trace_id: theTraceId,
+      span_id: '0000000000000002',
+    },
+  ]);
+
+  span.addLinks([
+    {
+      context: { traceId: theTraceId, spanId: '0000000000000003' },
+    },
+    {
+      context: { traceId: theTraceId, spanId: '0000000000000004' },
+    },
+  ]);
+  t.deepEqual(span._links, [
+    { trace_id: theTraceId, span_id: '0000000000000002' },
+    { trace_id: theTraceId, span_id: '0000000000000003' },
+    { trace_id: theTraceId, span_id: '0000000000000004' },
+  ]);
+
+  t.end();
+});
+
 test('span.sync', function (t) {
   var trans = agent.startTransaction();
 
@@ -528,6 +560,10 @@ test('Span API on ended span', function (t) {
   t.pass('span.addLabels(...) does not blow up');
   span.setOutcome('failure');
   t.pass('span.setOutcome(...) does not blow up');
+  span.addLink({ context: { traceId: '001', spanId: '002' } });
+  t.pass('span.addLink(...) does not blow up');
+  span.addLinks([{ context: { traceId: '001', spanId: '002' } }]);
+  t.pass('span.addLinks(...) does not blow up');
   span.end(42);
   t.pass('span.end(...) does not blow up');
 

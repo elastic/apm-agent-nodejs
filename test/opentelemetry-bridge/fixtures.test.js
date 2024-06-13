@@ -376,6 +376,7 @@ const cases = [
         'sSetStatusChildERROR.outcome',
       );
 
+      // Span#updateName
       t.strictEqual(
         findObjInArray(
           events,
@@ -384,6 +385,23 @@ const cases = [
         ).transaction.name,
         'three',
         'sUpdateName',
+      );
+
+      // Span#addLink, Span#addLinks
+      t.deepEqual(
+        findObjInArray(events, 'transaction.name', 'sAddLinks').transaction
+          .links,
+        [
+          {
+            trace_id: '8b46594050c89c3d87248476ed8e0c57',
+            span_id: 'ffe4cfa94865ee2a',
+          },
+          {
+            trace_id: '8b46594050c89c3d87248476ed8e0c57',
+            span_id: 'ffe4cfa94865ee2a',
+          },
+        ],
+        'sAddLinks links',
       );
 
       // Span#end
