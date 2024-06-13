@@ -33,6 +33,18 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+[[release-notes-4.7.0]]
+==== 4.7.0 - 2024/06/13
+
+[float]
+===== Features
+
+* Update <<opentelemetry-bridge>> support to `@opentelemetry/api` version 1.9.0.
+  ({issues}4078[#4078])
++
+Support for the new `addLink` and `addLinks` methods on Span have been added.
+However, support for the new synchronous gauge have not yet been added.
+
 
 [[release-notes-4.6.0]]
 ==== 4.6.0 - 2024/06/05
