@@ -8,7 +8,7 @@
 
 // Run without the APM agent this script will export metrics via a Prometheus
 // endpoint:
-//      curl -i http://localhost:9464/metrics
+//      curl -i http://127.0.0.1:9464/metrics
 //
 // With the APM agent running we also expect periodic metricsets sent to APM
 // server, because the agent will add its MetricReader to the created
@@ -21,7 +21,7 @@ const {
 } = require('@opentelemetry/sdk-metrics');
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus');
 
-const exporter = new PrometheusExporter({ host: 'localhost' });
+const exporter = new PrometheusExporter({ host: '127.0.0.1' });
 const meterProvider = new MeterProvider({
   views: [
     new View({
