@@ -65,8 +65,9 @@ git log --pretty=format:"%h" $LASTTAG...$TARGTAG \
         git cherry-pick $sha
     done
 
+RELEASE_PR=$(git log --pretty=format:"%s" -1 $TARGTAG | sed -E 's/^.* \(\#([0-9]+)\)$/\1/')
 echo
 echo "# You can create a PR now with:"
 echo "    cd $WRKDIR/apm-agent-nodejs"
-echo "    gh pr create --fill -w -B 4.x -t 'docs: update 4.x branch for $TARGTAG release'"
+echo "    gh pr create -w -B 4.x -t 'docs: update 4.x branch for $TARGTAG release' --body 'Refs: #$RELEASE_PR (release PR)'"
 
