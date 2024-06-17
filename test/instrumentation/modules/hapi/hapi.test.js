@@ -47,7 +47,7 @@ test('extract URL from request', function (t) {
     t.strictEqual(request.url.pathname, '/captureError');
     t.strictEqual(request.url.search, '?foo=bar');
     t.strictEqual(request.url.raw, '/captureError?foo=bar');
-    t.strictEqual(request.url.hostname, 'localhost');
+    t.strictEqual(request.url.hostname, '127.0.0.1');
     t.strictEqual(request.url.port, String(server.info.port));
     server.stop(noop);
     t.end();
@@ -57,7 +57,7 @@ test('extract URL from request', function (t) {
 
   var server = startServer(function (err, port) {
     t.error(err, 'no error from startServer');
-    http.get('http://localhost:' + port + '/captureError?foo=bar');
+    http.get('http://127.0.0.1:' + port + '/captureError?foo=bar');
   });
 });
 
@@ -71,7 +71,7 @@ test('route naming', function (t) {
 
   var server = startServer(function (err, port) {
     t.error(err);
-    http.get('http://localhost:' + port + '/hello', function (res) {
+    http.get('http://127.0.0.1:' + port + '/hello', function (res) {
       t.strictEqual(res.statusCode, 200);
       res.on('data', function (chunk) {
         t.strictEqual(chunk.toString(), 'hello world');
@@ -103,7 +103,7 @@ test('captureBody', function (t) {
     const cReq = http.request(
       {
         method: 'POST',
-        hostname: 'localhost',
+        hostname: '127.0.0.1',
         port,
         path: '/postSomeData',
         headers: {
@@ -383,7 +383,7 @@ test('request error logging with Error', function (t) {
   runServer(server, function (err) {
     t.error(err, 'start error');
 
-    http.get('http://localhost:' + server.info.port + '/error', function (res) {
+    http.get('http://127.0.0.1:' + server.info.port + '/error', function (res) {
       t.strictEqual(res.statusCode, 200);
 
       res.resume().on('end', function () {
@@ -439,7 +439,7 @@ test('request error logging with Error does not affect event tags', function (t)
       t.deepEqual(event.tags, ['elastic-apm', 'error']);
     });
 
-    http.get('http://localhost:' + server.info.port + '/error', function (res) {
+    http.get('http://127.0.0.1:' + server.info.port + '/error', function (res) {
       t.strictEqual(res.statusCode, 200);
 
       res.resume().on('end', function () {
@@ -484,7 +484,7 @@ test('request error logging with String', function (t) {
   runServer(server, function (err) {
     t.error(err, 'start error');
 
-    http.get('http://localhost:' + server.info.port + '/error', function (res) {
+    http.get('http://127.0.0.1:' + server.info.port + '/error', function (res) {
       t.strictEqual(res.statusCode, 200);
 
       res.resume().on('end', function () {
@@ -531,7 +531,7 @@ test('request error logging with Object', function (t) {
   runServer(server, function (err) {
     t.error(err, 'start error');
 
-    http.get('http://localhost:' + server.info.port + '/error', function (res) {
+    http.get('http://127.0.0.1:' + server.info.port + '/error', function (res) {
       t.strictEqual(res.statusCode, 200);
 
       res.resume().on('end', function () {
@@ -556,7 +556,7 @@ test('error handling', function (t) {
 
   var server = startServer(function (err, port) {
     t.error(err);
-    http.get('http://localhost:' + port + '/error', function (res) {
+    http.get('http://127.0.0.1:' + port + '/error', function (res) {
       t.strictEqual(res.statusCode, 500);
       res.on('data', function (chunk) {
         var data = JSON.parse(chunk.toString());
@@ -574,16 +574,14 @@ test('error handling', function (t) {
 });
 
 function makeServer(opts) {
-  // Specify 'localhost' to avoid Hapi default of '0.0.0.0' which ties to
-  // IPv4. We want a later HTTP client request using 'localhost' to work.
   var server;
   if (semver.satisfies(pkg.version, '<17')) {
     server = new Hapi.Server();
     opts = opts || {};
-    opts.host = opts.host || 'localhost';
+    opts.host = opts.host || '127.0.0.1';
     server.connection(opts);
   } else {
-    server = new Hapi.Server({ host: 'localhost' });
+    server = new Hapi.Server({ host: '127.0.0.1' });
   }
   return server;
 }
