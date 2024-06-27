@@ -12,10 +12,6 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      # TODO: use keyless
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,6 +33,10 @@ jobs:
       - run: make -C .ci dist
 
       - run: make -C .ci push-docker
+
+      - uses: elastic/oblt-actions/aws/auth@v1.10.0
+        with:
+          aws-account-id: "267093732750"
 
       - name: Publish AWS lambda
         run: make -C .ci publish-in-all-aws-regions create-arn-file
