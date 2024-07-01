@@ -7,5 +7,6 @@
 'use strict'
 
 module.exports = {
-  serviceName: 'from-file'
+  serviceName: 'from-file',
+  active: false
 }
