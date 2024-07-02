@@ -19,5 +19,7 @@ const tape = require('tape');
 
 tape('from-file serviceName test', function (t) {
   t.equals(agent._conf.serviceName, 'from-file');
+  t.equals(agent._conf.active, false);
+  t.equals(agent._conf.captureBody, 'off'); // Existing default
   t.end();
 });
