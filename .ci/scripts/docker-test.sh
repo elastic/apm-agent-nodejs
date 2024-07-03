@@ -48,8 +48,9 @@ if [[ -n ${TAV} ]]; then
   npm run test:tav
   # Currently the TAV tests do not support TAP or junit-formatted output.
 else
-  rm -rf ./test_output
-  mkdir ./test_output
-  nyc node test/test.js -o ./test_output
-  ls test_output/*.tap | while read f; do cat $f | ./node_modules/.bin/tap-junit > $f.junit.xml; done
+  # rm -rf ./test_output
+  # mkdir ./test_output
+  # nyc node test/test.js -o ./test_output
+  # ls test_output/*.tap | while read f; do cat $f | ./node_modules/.bin/tap-junit > $f.junit.xml; done
+  node test/test.js
 fi

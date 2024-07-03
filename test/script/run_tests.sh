@@ -54,11 +54,7 @@ run_test_suite () {
     testArgs="-o ./test_output"
   fi
 
-  if [[ -n "$COVERAGE" ]]; then
-    nyc node test/test.js $testArgs
-  else
-    node test/test.js $testArgs
-  fi
+  node test/test.js $testArgs
 
   if [[ -n "$CI" ]]; then
     ls test_output/*.tap | while read f; do cat $f | ./node_modules/.bin/tap-junit > $f.junit.xml; done
