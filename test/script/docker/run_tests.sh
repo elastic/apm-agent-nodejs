@@ -9,8 +9,6 @@ fi
 
 npm_cache="$HOME/.npm"
 docker_npm_cache="/home/node/.npm"
-test_output=`pwd`"/test_output"
-docker_test_output="/app/test_output"
 
 NODE_VERSION=$1
 if [[ ! -z $2  ]]; then
@@ -25,7 +23,6 @@ NODE_VERSION=${1} docker-compose --no-ansi --log-level ERROR -f ./test/docker-co
   -e TAV=${TAV_MODULES} \
   -e CI=true \
   -v ${npm_cache}:${docker_npm_cache} \
-  -v ${test_output}:${docker_test_output} \
   -v "$(pwd)":/app \
   -w /app \
   --rm node_tests \
