@@ -574,9 +574,6 @@ test('error handling', function (t) {
 });
 
 function makeServer(opts) {
-  // Specify '127.0.0.1' to (a) avoid Hapi default of '0.0.0.0', and (b) ensure
-  // IPv4 so there isn't a possible disconnect between client and server mixing
-  // IPv4 vs IPv6.
   var server;
   if (semver.satisfies(pkg.version, '<17')) {
     server = new Hapi.Server();
