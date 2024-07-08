@@ -585,6 +585,7 @@ function makeServer(opts) {
   } else {
     server = new Hapi.Server({ host: 'localhost' });
   }
+  console.log('XXX makeServer: ', server);
   return server;
 }
 
