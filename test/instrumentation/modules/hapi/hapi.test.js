@@ -38,7 +38,7 @@ var originalCaptureError = agent.captureError;
 
 function noop() {}
 
-test.only('extract URL from request', function (t) {
+test('extract URL from request', function (t) {
   resetAgent(2, function (data) {
     t.strictEqual(data.transactions.length, 1);
     t.strictEqual(data.errors.length, 1);
@@ -604,9 +604,7 @@ function runServer(server, cb) {
       cb(null, server.info.port);
     });
   } else {
-    server.start().then(() => {
-      cb(null, server.info.port);
-    }, cb);
+    server.start().then(() => cb(null, server.info.port), cb);
   }
 }
 
