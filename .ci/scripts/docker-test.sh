@@ -42,11 +42,8 @@ node --version
 npm --version
 npm_ci
 
-# Attempt to provide junit-formatted test results, for Jenkins' "Test Results"
-# and other features like flaky-test reporting.
 if [[ -n ${TAV} ]]; then
   npm run test:tav
-  # Currently the TAV tests do not support TAP or junit-formatted output.
 else
   node test/test.js
 fi
