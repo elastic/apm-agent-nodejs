@@ -15,7 +15,7 @@ fmt:
 	npm run lint:fix
 
 # Prerequisite: Docker server is running.
-# See TESTING.md for more details on tests, TAV tests, coverage, benchmarks.
+# See TESTING.md for more details on tests, TAV tests, benchmarks.
 .PHONY: test
 test:
 	npm run test
