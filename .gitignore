@@ -7,8 +7,6 @@
 /test-suite-output.tap
 
 # Folders to ignore
-/.nyc_output
-/test_output
 /build
 node_modules
 /test/benchmarks/.tmp
