@@ -198,7 +198,7 @@
     "redis": "^4.3.0",
     "request": "^2.88.2",
     "restify": "^11.0.0",
-    "rimraf": "^5.0.1",
+    "rimraf": "^6.0.1",
     "tape": "^5.0.0",
     "tedious": "^18.1.0",
     "test-all-versions": "^6.1.0",
