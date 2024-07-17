@@ -20,6 +20,13 @@ updates:
         update-types: ["version-update:semver-patch"]
       - dependency-name: "@types/*"
         update-types: ["version-update:semver-patch"]
+      # Packages whose major versions have dropped support for Node.js versions
+      # that this package needs.
+      - dependency-name: "glob" # glob@10 min is 14.20, we need >=14.17; glob@11 dropped 14, 16, 18
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "lru-cache" # later lru-cache@10.x toyed with dropping 14.x, we pin to a specific early 10.x; lru-cache@11 dropped 14, 16, 18
+      - dependency-name: "rimraf" # rimraf@5 min is 14.20, we need >=14.17; rimraf@6 dropped 14, 16, 18
+        update-types: ["version-update:semver-major"]
     groups:
       aws-sdk:
         dependency-type: "development"
