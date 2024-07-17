@@ -108,7 +108,7 @@
     "http-headers": "^3.0.2",
     "import-in-the-middle": "1.9.0",
     "json-bigint": "^1.0.0",
-    "lru-cache": "^10.0.1",
+    "lru-cache": "^11.0.0",
     "measured-reporting": "^1.51.1",
     "module-details-from-path": "^1.0.3",
     "monitor-event-loop-delay": "^1.0.0",
