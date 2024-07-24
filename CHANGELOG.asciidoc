@@ -33,6 +33,18 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+
+[[release-notes-4.7.1]]
+==== 4.7.1 - 2024/07/24
+
+[float]
+===== Bug fixes
+
+- Update import-in-the-middle internally-used library to v1.9.1. This can
+  fix usage with ESM code (see <<esm>>) in some cases, e.g. usage with
+  https://github.com/elastic/apm-agent-nodejs/issues/4143[Nuxt 3].
+
+
 [[release-notes-4.7.0]]
 ==== 4.7.0 - 2024/06/13
 
