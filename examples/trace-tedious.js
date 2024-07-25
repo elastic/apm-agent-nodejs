@@ -20,7 +20,7 @@ const apm = require('../').start({
 const tedious = require('tedious');
 
 const host = process.env.MSSQL_HOST || 'localhost';
-const passwd = process.env.SA_PASSWORD || 'Very(!)Secure';
+const passwd = process.env.MSSQL_SA_PASSWORD || 'Very(!)Secure';
 const connOpts = {
   server: host,
   authentication: {
