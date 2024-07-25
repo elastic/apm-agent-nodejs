@@ -21,7 +21,6 @@ module.exports = [
       '*.example.js', // a pattern for uncommited local dev files to avoid linting
       '*.example.mjs', // a pattern for uncommited local dev files to avoid linting
 
-      'test_output/**',
       'tmp/**',
       '.nyc_output/**',
       'build/**',

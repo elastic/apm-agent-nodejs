@@ -1,0 +1,7 @@
+scm:
+  enabled: true
+  owner: elastic
+  repository: apm-agent-nodejs
+  branch: main
+
+signedcommit: true

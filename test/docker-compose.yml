@@ -31,7 +31,9 @@ services:
       retries: 30
 
   mssql:
-    image: mcr.microsoft.com/mssql/server
+    # Cumulative update 14 (CU14), released 2024-07-23, breaks the healthcheck.
+    # See https://github.com/elastic/apm-agent-nodejs/issues/4147
+    image: mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04
     platform: linux/amd64
     environment:
       - ACCEPT_EULA=Y

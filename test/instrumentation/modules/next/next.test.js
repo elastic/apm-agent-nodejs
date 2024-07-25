@@ -557,7 +557,7 @@ function waitForServerReady(t, cb) {
 
   const pollForServerReady = () => {
     const req = http.get(
-      'http://localhost:3000/api/an-api-endpoint',
+      'http://127.0.0.1:3000/api/an-api-endpoint',
       {
         agent: false,
         timeout: 500,
@@ -611,7 +611,7 @@ async function makeTestRequest(t, testReq, buildId) {
     if (typeof reqOpts === 'function') {
       reqOpts = reqOpts(buildId);
     }
-    const url = `http://localhost:3000${reqOpts.path}`;
+    const url = `http://127.0.0.1:3000${reqOpts.path}`;
     t.comment(
       `makeTestRequest: ${testReq.testName} (${reqOpts.method} ${url})`,
     );
@@ -862,9 +862,9 @@ tape.test('-- prod server tests --', (suite) => {
     // the actual server because the `npm` process is gone.
     nextServerProc = spawn(
       path.normalize('./node_modules/.bin/next'),
-      // Be explicit about "localhost" here, otherwise with node v18 we can
+      // Be explicit about "127.0.0.1" here, otherwise with node v18 we can
       // get the server listening on IPv6 and the client connecting on IPv4.
-      ['start', '-H', 'localhost'],
+      ['start', '-H', '127.0.0.1'],
       {
         shell: os.platform() === 'win32',
         cwd: testAppDir,
@@ -962,7 +962,7 @@ tape.test('-- dev server tests --', (suite) => {
     // See the warning notes for `spawn()` above. The same apply here.
     nextServerProc = spawn(
       path.normalize('./node_modules/.bin/next'),
-      ['dev', '-H', 'localhost'],
+      ['dev', '-H', '127.0.0.1'],
       {
         shell: os.platform() === 'win32',
         cwd: testAppDir,
