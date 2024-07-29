@@ -31,21 +31,21 @@ services:
       retries: 30
 
   mssql:
-    # Cumulative update 14 (CU14), released 2024-07-23, breaks the healthcheck.
-    # See https://github.com/elastic/apm-agent-nodejs/issues/4147
-    image: mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04
+    # Tags listed at https://hub.docker.com/r/microsoft/mssql-server
+    # Docs: https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker
+    image: mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04
     platform: linux/amd64
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=Very(!)Secure
+      - MSSQL_SA_PASSWORD=Very(!)Secure
       - MSSQL_PID=Developer
     ports:
       - "1433:1433"
     volumes:
       - nodemssqldata:/var/opt/mssql
     healthcheck:
-      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "mssql", "-U", "sa", "-P", "Very(!)Secure", "-Q", "select 1"]
-      interval: 30s
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-C", "-S", "mssql", "-U", "sa", "-P", "Very(!)Secure", "-Q", "select 1"]
+      interval: 10s
       timeout: 10s
       retries: 5
 
