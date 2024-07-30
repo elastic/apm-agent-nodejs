@@ -235,6 +235,24 @@ const testFixtures = [
       t.equal(spans.length, 0, 'all spans accounted for');
     },
   },
+
+  {
+    name: 'use-client-sns.js without a created transaction to ensure does not crash',
+    script: 'fixtures/use-client-sns.js',
+    cwd: __dirname,
+    env: {
+      AWS_ACCESS_KEY_ID: 'fake',
+      AWS_SECRET_ACCESS_KEY: 'fake',
+      TEST_ENDPOINT: endpoint,
+      TEST_REGION: 'us-east-2',
+      TEST_NO_TRANSACTION: 'true',
+    },
+    versionRanges: {
+      node: '>=14',
+    },
+    verbose: true,
+  },
+
   {
     name: '@aws-sdk/client-sns ESM',
     script: 'fixtures/use-client-sns.mjs',

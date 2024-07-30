@@ -225,6 +225,9 @@ function main() {
   const endpoint = process.env.TEST_ENDPOINT || null;
   const topicName =
     process.env.TEST_TOPIC_NAME || TEST_TOPIC_NAME_PREFIX + getTimestamp();
+  // `TEST_NO_TRANSACTION=true` can be used to disable the creating of a
+  // current transaction for SNS calls; useful only for testing.
+  const noTransaction = process.env.TEST_NO_TRANSACTION === 'true';
 
   // Guard against any topic name being used because we will be publishing
   // messages in it, and potentially *deleting* the topic.
@@ -240,18 +243,25 @@ function main() {
   });
 
   // Ensure an APM transaction so spans can happen.
-  const tx = apm.startTransaction('manual');
+  let tx = null;
+  if (!noTransaction) {
+    tx = apm.startTransaction('manual');
+  }
 
   useClientSNS(snsClient, topicName).then(
     function () {
-      tx.end();
+      if (tx) {
+        tx.end();
+      }
       snsClient.destroy();
       process.exitCode = 0;
     },
     function (err) {
       apm.logger.error(err, 'useClientSNS rejected');
-      tx.setOutcome('failure');
-      tx.end();
+      if (tx) {
+        tx.setOutcome('failure');
+        tx.end();
+      }
       snsClient.destroy();
       process.exitCode = 1;
     },
