@@ -17,9 +17,17 @@ var agent = require('../../..').start({
 
 const tape = require('tape');
 
-tape('from-file serviceName test', function (t) {
-  t.equals(agent._conf.serviceName, 'from-file');
-  t.equals(agent._conf.active, false);
-  t.equals(agent._conf.captureBody, 'off'); // Existing default
+tape('from-file configuration test', function (t) {
+  t.equals(
+    agent._conf.serviceName,
+    'from-file',
+    'serviceName comes from config file',
+  );
+  t.equals(
+    agent._conf.active,
+    false,
+    'false values from config file override defaults',
+  );
+  t.equals(agent._conf.captureBody, 'off', 'existing defaults are preserved');
   t.end();
 });
