@@ -33,13 +33,14 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
-==== Unreleased
 
-[float]
-===== Breaking changes
+[[release-notes-4.7.2]]
+==== 4.7.2 - 2024/08/01
 
 [float]
 ===== Features
+
+* Support hooking built-in Node.js modules loaded via https://nodejs.org/api/all.html#all_process_processgetbuiltinmoduleid[`process.getBuiltinModule`], added in v22.3.0. ({pull}4160[#4160])
 
 [float]
 ===== Bug fixes
@@ -49,10 +50,9 @@ See the <<upgrade-to-v4>> guide.
 
 * Fix for config resolution process. Before this change falsy config options coming
   from the `elastic-apm-node.js` file were ignored. ({pull}4119[#4119])
-* Support hooking built-in Node.js modules loaded via https://nodejs.org/api/all.html#all_process_processgetbuiltinmoduleid[`process.getBuiltinModule`], added in v22.3.0. ({pull}4160[#4160])
 
-[float]
-===== Chores
+* Fix publishing of AWS Lambda layer to all AWS regions. This was broken in
+  the 4.7.1 release. ({issues}4171[#4171])
 
 
 [[release-notes-4.7.1]]
