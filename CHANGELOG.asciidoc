@@ -33,6 +33,27 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Fix for instrumentation for `@aws-sdk/sns-client` that will prevent a crash
+  if the client is used when there is no parent transaction present. ({pull}4168[#4168])
+
+* Fix for config resolution process. Before this change falsy config options coming
+  from the `elastic-apm-node.js` file were ignored. ({pull}4119[#4119])
+* Support hooking built-in Node.js modules loaded via https://nodejs.org/api/all.html#all_process_processgetbuiltinmoduleid[`process.getBuiltinModule`], added in v22.3.0. ({pull}4160[#4160])
+
+[float]
+===== Chores
+
 
 [[release-notes-4.7.1]]
 ==== 4.7.1 - 2024/07/24
