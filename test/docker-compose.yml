@@ -45,9 +45,9 @@ services:
       - nodemssqldata:/var/opt/mssql
     healthcheck:
       test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-C", "-S", "mssql", "-U", "sa", "-P", "Very(!)Secure", "-Q", "select 1"]
-      interval: 10s
+      interval: 1s
       timeout: 10s
-      retries: 5
+      retries: 30
 
   mysql:
     image: mysql:5.7
@@ -87,9 +87,9 @@ services:
       - nodeesdata:/usr/share/elasticsearch/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200"]
-      interval: 30s
+      interval: 1s
       timeout: 10s
-      retries: 5
+      retries: 30
 
   cassandra:
     # Avoid the latest cassandra:3 until
@@ -105,9 +105,9 @@ services:
       - nodecassandradata:/var/lib/cassandra
     healthcheck:
       test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
-      interval: 30s
+      interval: 1s
       timeout: 10s
-      retries: 5
+      retries: 30
 
   memcached:
     image: memcached:alpine
@@ -116,9 +116,9 @@ services:
       - "11211:11211"
     healthcheck:
       test: ["CMD", "nc", "127.0.0.1:11211", "-z"]
-      interval: 30s
+      interval: 1s
       timeout: 10s
-      retries: 5
+      retries: 30
 
   localstack:
     # https://hub.docker.com/r/localstack/localstack/tags
@@ -129,9 +129,9 @@ services:
       - "4566:4566"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
-      interval: 30s
+      interval: 1s
       timeout: 10s
-      retries: 5
+      retries: 30
     volumes:
       - nodelocalstackdata:/var/lib/localstack
 
@@ -148,9 +148,9 @@ services:
       # Using 'srvr' instead of the more common 'ruok' because this bitnami
       # image does not have 'ruok' on the '4lw.commands.whitelist' in zoo.cfg.
       test: ["CMD-SHELL", "echo srvr | nc -w 2 localhost 2181"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      interval: 1s
+      timeout: 10s
+      retries: 30
 
   kafka:
     # https://hub.docker.com/r/bitnami/kafka/tags
@@ -174,9 +174,9 @@ services:
     healthcheck:
       # Kafka healthcheck ideas from https://github.com/wurstmeister/kafka-docker/issues/167
       test: kafka-cluster.sh cluster-id --bootstrap-server localhost:9092 || exit 1
-      interval: 30s
+      interval: 1s
       timeout: 10s
-      retries: 5
+      retries: 30
 
 volumes:
   nodepgdata:
