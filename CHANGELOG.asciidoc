@@ -49,6 +49,7 @@ See the <<upgrade-to-v4>> guide.
 
 * Fix for config resolution process. Before this change falsy config options coming
   from the `elastic-apm-node.js` file were ignored. ({pull}4119[#4119])
+* Support hooking built-in Node.js modules loaded via https://nodejs.org/api/all.html#all_process_processgetbuiltinmoduleid[`process.getBuiltinModule`], added in v22.3.0. ({pull}4160[#4160])
 
 [float]
 ===== Chores
