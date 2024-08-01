@@ -55,21 +55,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - name: Read NPM vault secrets
-        uses: hashicorp/vault-action@v2.5.0
-        with:
-          url: ${{ secrets.VAULT_ADDR }}
-          method: approle
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-          secrets: |
-            secret/jenkins-ci/npmjs/elasticmachine token | NPMJS_TOKEN ;
-            totp/code/npmjs-elasticmachine code | TOTP_CODE
-
       - name: npm publish
         run: |-
-          echo "//registry.npmjs.org/:_authToken=${{ env.NPMJS_TOKEN }}" > .npmrc
-          npm publish --tag="latest-3" --otp=${{ env.TOTP_CODE }}
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+          npm publish --provenance
 
       - if: always()
         uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
