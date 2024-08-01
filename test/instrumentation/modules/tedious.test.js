@@ -51,7 +51,7 @@ if (semver.gte(version, '4.0.0')) {
       type: 'default',
       options: {
         userName: 'SA',
-        password: process.env.SA_PASSWORD || 'Very(!)Secure',
+        password: process.env.MSSQL_SA_PASSWORD || 'Very(!)Secure',
       },
     },
     options: {
@@ -65,7 +65,7 @@ if (semver.gte(version, '4.0.0')) {
   connOpts = {
     server: hostname,
     userName: 'SA',
-    password: process.env.SA_PASSWORD || 'Very(!)Secure',
+    password: process.env.MSSQL_SA_PASSWORD || 'Very(!)Secure',
   };
 }
 
