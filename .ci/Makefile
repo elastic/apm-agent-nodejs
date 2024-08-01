@@ -57,6 +57,7 @@ publish: validate-layer-name validate-aws-default-region
 	@aws lambda \
 		--output json \
 		publish-layer-version \
+		--region="$(AWS_DEFAULT_REGION)" \
 		--layer-name "$(ELASTIC_LAYER_NAME)" \
 		--description "AWS Lambda Extension Layer for the Elastic APM Node.js Agent" \
 		--license "Apache-2.0" \
@@ -69,6 +70,7 @@ grant-public-layer-access: validate-layer-name validate-aws-default-region
 	@aws lambda \
 		--output json \
 		add-layer-version-permission \
+		--region="$(AWS_DEFAULT_REGION)" \
 		--layer-name "$(ELASTIC_LAYER_NAME)" \
 		--action lambda:GetLayerVersion \
 		--principal '*' \
