@@ -44,7 +44,7 @@ jobs:
       - run: make -C .ci dist
 
       - name: Attest Lambda layer zip
-        uses: actions/attest-build-provenance@5e9cb68e95676991667494a6a4e59b8a2f13e1d0  # v1.3.3
+        uses: actions/attest-build-provenance@210c1913531870065f03ce1f9440dd87bc0938cd  # v1.4.0
         with:
           subject-path: "${{ github.workspace }}/build/aws/elastic-apm-node-lambda-layer-*.zip"
 
@@ -75,7 +75,7 @@ jobs:
             AGENT_DIR=/build/dist/nodejs
 
       - name: Attest Docker image
-        uses: actions/attest-build-provenance@5e9cb68e95676991667494a6a4e59b8a2f13e1d0  # v1.3.3
+        uses: actions/attest-build-provenance@210c1913531870065f03ce1f9440dd87bc0938cd  # v1.4.0
         with:
           subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
           subject-digest: ${{ steps.docker-push.outputs.digest }}
@@ -109,7 +109,7 @@ jobs:
             AGENT_DIR=/build/dist/nodejs
 
       - name: Attest Docker image (wolfi)
-        uses: actions/attest-build-provenance@5e9cb68e95676991667494a6a4e59b8a2f13e1d0  # v1.3.3
+        uses: actions/attest-build-provenance@210c1913531870065f03ce1f9440dd87bc0938cd  # v1.4.0
         with:
           subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
           subject-digest: ${{ steps.docker-push-wolfi.outputs.digest }}
