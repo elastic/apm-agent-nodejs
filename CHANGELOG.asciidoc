@@ -34,6 +34,16 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
+[[release-notes-4.7.3]]
+==== 4.7.3 - 2024/08/09
+
+[float]
+===== Bug fixes
+
+* Update import-in-the-middle to 1.11.0, which fixes https://github.com/nodejs/import-in-the-middle/issues/144[an issue]
+  that can crash users using Nuxt and ESM. ({pull}4175[#4175])
+
+
 [[release-notes-4.7.2]]
 ==== 4.7.2 - 2024/08/01
 
