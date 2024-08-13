@@ -388,6 +388,110 @@ tape.test('lambda transactions', function (suite) {
       },
     },
     {
+      name: 'trans data: EventBridge',
+      event: loadFixture('aws_eventbridge_test_data.json'),
+      handler: async () => {
+        return 'hi';
+      },
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests);
+        const trans = events[1].transaction;
+        t.equal(trans.type, 'messaging', 'transaction.type');
+        t.equal(trans.name, 'RECEIVE EC2 Instance State-change Notification', 'transaction.name');
+        t.ok(UUID_RE.test(trans.faas.execution), 'transaction.faas.execution');
+        t.deepEqual(
+          trans.faas,
+          {
+            id: 'arn:aws:lambda:us-east-1:123456789012:function:fixture-function-name',
+            name: 'fixture-function-name',
+            version: '1.0',
+            coldstart: trans.faas.coldstart,
+            execution: trans.faas.execution,
+            trigger: { type: 'pubsub' },
+          },
+          'transaction.faas',
+        );
+        t.deepEqual(
+          trans.context.service,
+          {
+            origin: {
+              name: 'aws.ec2',
+              id: 'arn:aws:ec2:us-west-1:123456789012:instance/i-1234567890abcdef0',
+              version: '0'
+            },
+          },
+          'transaction.context.service',
+        );
+        t.deepEqual(
+          trans.context.cloud,
+          {
+            origin: {
+              provider: 'aws',
+              region: 'us-east-1',
+              service: { name: 'eventbus' },
+              account: { id: '111122223333' },
+            },
+          },
+          'transaction.context.cloud',
+        );
+        t.deepEqual(
+          trans.links,
+          [
+            {
+            trace_id: '80e1afed08e019fc1110464cfa66635c', 
+            span_id: '7a085853722dc6d2'
+          }
+        ]
+        )
+      },
+    },
+    {
+      name: 'trans data: EventBridge Basic',
+      event: loadFixture('aws_eventbridge_test_data_basic.json'),
+      handler: async () => {
+        return 'hi';
+      },
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests);
+        const trans = events[1].transaction;
+        t.equal(trans.type, 'messaging', 'transaction.type');
+        t.equal(trans.name, 'RECEIVE EC2 Instance State-change Notification', 'transaction.name');
+        t.ok(UUID_RE.test(trans.faas.execution), 'transaction.faas.execution');
+        t.deepEqual(
+          trans.faas,
+          {
+            id: 'arn:aws:lambda:us-east-1:123456789012:function:fixture-function-name',
+            name: 'fixture-function-name',
+            version: '1.0',
+            coldstart: trans.faas.coldstart,
+            execution: trans.faas.execution,
+            trigger: { type: 'pubsub' },
+          },
+          'transaction.faas',
+        );
+        t.deepEqual(
+          trans.context.service,
+          {
+            origin: {
+              name: 'aws.ec2',
+            },
+          },
+          'transaction.context.service',
+        );
+        t.deepEqual(
+          trans.context.cloud,
+          {
+            origin: {
+              provider: 'aws',
+              service: { name: 'eventbus' },
+              account: { },
+            },
+          },
+          'transaction.context.cloud',
+        );
+      },
+    },
+    {
       name: 'trans data: SNS',
       event: loadFixture('aws_sns_test_data.json'),
       handler: async () => {
