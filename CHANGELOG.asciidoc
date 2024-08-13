@@ -34,6 +34,37 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
+[[release-notes-4.7.3]]
+==== 4.7.3 - 2024/08/09
+
+[float]
+===== Bug fixes
+
+* Update import-in-the-middle to 1.11.0, which fixes https://github.com/nodejs/import-in-the-middle/issues/144[an issue]
+  that can crash users using Nuxt and ESM. ({pull}4175[#4175])
+
+
+[[release-notes-4.7.2]]
+==== 4.7.2 - 2024/08/01
+
+[float]
+===== Features
+
+* Support hooking built-in Node.js modules loaded via https://nodejs.org/api/all.html#all_process_processgetbuiltinmoduleid[`process.getBuiltinModule`], added in v22.3.0. ({pull}4160[#4160])
+
+[float]
+===== Bug fixes
+
+* Fix for instrumentation for `@aws-sdk/sns-client` that will prevent a crash
+  if the client is used when there is no parent transaction present. ({pull}4168[#4168])
+
+* Fix for config resolution process. Before this change falsy config options coming
+  from the `elastic-apm-node.js` file were ignored. ({pull}4119[#4119])
+
+* Fix publishing of AWS Lambda layer to all AWS regions. This was broken in
+  the 4.7.1 release. ({issues}4171[#4171])
+
+
 [[release-notes-4.7.1]]
 ==== 4.7.1 - 2024/07/24
 
