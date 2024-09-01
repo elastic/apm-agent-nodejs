@@ -33,6 +33,12 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+  ==== Unreleased
+
+  [float]
+  ===== Features
+* Add support for `@aws-sdk/client-eventbridge`, one of the AWS SDK v3 clients.
+  ({issues}4166[#4166])
 
 [[release-notes-4.7.3]]
 ==== 4.7.3 - 2024/08/09
