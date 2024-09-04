@@ -33,6 +33,25 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+- Minor improvement to container ID parsing from /etc/cgroup v1 files in
+  AWS ECS Fargate, where the pattern has been observed to sometimes differ
+  from the documented pattern. (https://github.com/elastic/apm/issues/888[APM spec issue #888])
+
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
 
 [[release-notes-4.7.3]]
 ==== 4.7.3 - 2024/08/09
