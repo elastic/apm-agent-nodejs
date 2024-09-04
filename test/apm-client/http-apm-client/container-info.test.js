@@ -296,7 +296,7 @@ tape.test('basics', (t) => {
         {
           id: '1',
           groups: 'name=systemd',
-          path: '/ecs/46686c7c701cdfdf2549f88f7b9575e9/46686c7c701cdfdf2549f88f7b9575e9-123456789',
+          path: '/ecs/46686c7c701cdfdf2549f88f7b9575e9/46686c7c701cdfdf2549f88f7b9575e9-1',
           controllers: ['name=systemd'],
           taskId: '46686c7c701cdfdf2549f88f7b9575e9',
         },
