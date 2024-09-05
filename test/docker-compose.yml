@@ -1,5 +1,3 @@
-version: '2.1'
-
 services:
   postgres:
     user: postgres
@@ -51,6 +49,8 @@ services:
 
   mysql:
     image: mysql:5.7
+    # No ARM64 image layer. See https://stackoverflow.com/a/65592942
+    platform: linux/x86_64
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
     ports:
