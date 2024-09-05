@@ -18,7 +18,7 @@ else
   CMD='npm test'
 fi
 
-NODE_VERSION=${1} docker-compose --no-ansi --log-level ERROR -f ./test/docker-compose.yml -f ./test/docker-compose.ci.yml run \
+NODE_VERSION=${1} docker compose --no-ansi --log-level ERROR -f ./test/docker-compose.yml -f ./test/docker-compose.ci.yml run \
   -e NODE_VERSION=${NODE_VERSION} \
   -e TAV=${TAV_MODULES} \
   -e CI=true \
@@ -33,4 +33,4 @@ NODE_VERSION=${1} docker-compose --no-ansi --log-level ERROR -f ./test/docker-co
       npm --version
       ${CMD}"
 
-NODE_VERSION=${1} docker-compose --no-ansi --log-level ERROR -f ./test/docker-compose.yml -f ./test/docker-compose.ci.yml down -v
+NODE_VERSION=${1} docker compose --no-ansi --log-level ERROR -f ./test/docker-compose.yml -f ./test/docker-compose.ci.yml down -v
