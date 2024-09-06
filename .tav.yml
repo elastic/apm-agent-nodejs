@@ -346,6 +346,12 @@ tedious:
       mode: latest-majors
     node: '18.x || >=20'
     commands: node test/instrumentation/modules/tedious.test.js
+  # Tedious v19 advertise a min-supported Node.js version of 18.17.0.
+  - versions:
+      include: '>=19 <20'
+      mode: latest-majors
+    node: '>=18.17'
+    commands: node test/instrumentation/modules/tedious.test.js
 
 cassandra-driver:
   # 3.1.0 is broken
