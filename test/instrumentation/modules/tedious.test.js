@@ -28,7 +28,9 @@ if (
   // tedious@11 and later depend on @azure/identity v1 or v2. As of
   // @azure/core-rest-pipeline@1.15.0 (a dep of @azure/identity), support for
   // Node.js <16 has been broken.
-  (semver.gte(tediousVer, '11.0.0') && semver.lt(process.version, '16.0.0'))
+  (semver.gte(tediousVer, '11.0.0') && semver.lt(process.version, '16.0.0')) ||
+  // tedious@19 drops support for Node.js <v18.17
+  (semver.gte(tediousVer, '19.0.0') && semver.lt(process.version, '18.17.0'))
 ) {
   console.log(
     `# SKIP tedious@${tediousVer} does not support node ${process.version}`,
