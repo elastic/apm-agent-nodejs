@@ -234,14 +234,24 @@ express-queue:
   commands: node test/instrumentation/modules/express-queue.test.js
 
 koa-router:
-  versions: '>=5.2.0 <13'
-  peerDependencies: koa@2
-  commands: node test/instrumentation/modules/koa-router/old-name.test.js
+  - versions: '>=5.2.0 <13'
+    peerDependencies: koa@2
+    commands: node test/instrumentation/modules/koa-router/old-name.test.js
+  # koa-router@13 removed support for NodeJS <18
+  - versions: '>=13 <14'
+    node: '>=18'
+    peerDependencies: koa@2
+    commands: node test/instrumentation/modules/koa-router/old-name.test.js
 
 '@koa/router':
-  versions: '>=8 <13'
-  peerDependencies: koa@2
-  commands: node test/instrumentation/modules/koa-router/new-name.test.js
+  - versions: '>=8 <13'
+    peerDependencies: koa@2
+    commands: node test/instrumentation/modules/koa-router/new-name.test.js
+  # @koa/router@13 removed support for NodeJS <18
+  - versions: '>=13 <14'
+    node: '>=18'
+    peerDependencies: koa@2
+    commands: node test/instrumentation/modules/koa-router/new-name.test.js
 
 elasticsearch:
   versions: '>=8.0.0'
