@@ -47,6 +47,8 @@ See the <<upgrade-to-v4>> guide.
 
 - Add support for `tedious` v19. ({issues}4218[#4218])
 
+- Add support for `koa-router` v13. ({pull}4119[#4236])
+
 
 [float]
 ===== Bug fixes
