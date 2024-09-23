@@ -164,7 +164,7 @@
     "eslint-plugin-promise": "^7.0.0",
     "express": "^4.17.1",
     "express-queue": "^0.0.13",
-    "fastify": "^4.16.3",
+    "fastify": "^5.0.0",
     "finalhandler": "^1.1.2",
     "generic-pool": "^3.7.1",
     "get-port": "^5.1.1",
