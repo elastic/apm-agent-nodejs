@@ -137,7 +137,7 @@
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
     "@elastic/elasticsearch": "^8.6.0",
-    "@fastify/formbody": "^7.0.1",
+    "@fastify/formbody": "^8.0.1",
     "@hapi/hapi": "^21.0.0",
     "@koa/router": "^13.0.1",
     "@types/node": "^22.0.0",
