@@ -16,10 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: is_elastic_member
-      uses: elastic/apm-pipeline-library/.github/actions/is-member-elastic-org@current
+      uses: elastic/oblt-actions/github/is-member-of@v1
       with:
-        username: ${{ github.actor }}
-        token: ${{ secrets.APM_TECH_USER_TOKEN }}
+        github-org: "elastic"
+        github-user: ${{ github.actor }}
+        github-token: ${{ secrets.APM_TECH_USER_TOKEN }}
 
     - name: Add community and triage labels
       if: contains(steps.is_elastic_member.outputs.result, 'false') && github.actor != 'dependabot[bot]'
