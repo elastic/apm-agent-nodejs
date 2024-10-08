@@ -33,10 +33,8 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-4.8.0]]
+==== 4.8.0 - 2024/10/08
 
 [float]
 ===== Features
@@ -53,9 +51,7 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Bug fixes
 
-[float]
-===== Chores
-
+- Update `cookie` to version `v0.7.2` to fix security issue [CVE-2024-47764](https://github.com/advisories/GHSA-pxg6-pf52-xh8x)
 
 [[release-notes-4.7.3]]
 ==== 4.7.3 - 2024/08/09
