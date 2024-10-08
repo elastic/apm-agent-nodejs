@@ -28,7 +28,7 @@ npm run lint                  # or 'make check' if you are a Makefile kind of pe
 
 npm test                      # run test services and tests in Docker
 
-docker-compose -f test/docker-compose.yml config --services  # list test services
+docker compose -f test/docker-compose.yml config --services  # list test services
 npm run docker:start          # start all test services
 npm run docker:start redis    # start one or more test services
 npm run docker:stop           # stop all test services

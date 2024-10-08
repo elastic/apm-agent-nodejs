@@ -63,7 +63,7 @@ tape.test(
         t.ok(data.stacktrace, 'stacktrace set');
         t.end();
       });
-    }, 101);
+    }, 200);
   },
 );
 

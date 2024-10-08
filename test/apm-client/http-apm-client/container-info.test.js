@@ -265,6 +265,48 @@ tape.test('basics', (t) => {
     },
   );
 
+  // https://github.com/elastic/apm/issues/888 Fewer than ten digits observed
+  // for the suffix in ECS Fargate in the wild.
+  t.deepEqual(
+    parse(
+      '1:name=systemd:/ecs/46686c7c701cdfdf2549f88f7b9575e9/46686c7c701cdfdf2549f88f7b9575e9-123456789',
+      //                                                                                     ^^^^^^^^^
+    ),
+    {
+      entries: [
+        {
+          id: '1',
+          groups: 'name=systemd',
+          path: '/ecs/46686c7c701cdfdf2549f88f7b9575e9/46686c7c701cdfdf2549f88f7b9575e9-123456789',
+          controllers: ['name=systemd'],
+          taskId: '46686c7c701cdfdf2549f88f7b9575e9',
+        },
+      ],
+      containerId:
+        '34dc0b5e626f2c5c4c5170e34b10e7654ce36f0fcd532739f4445baabea03376',
+      taskId: '46686c7c701cdfdf2549f88f7b9575e9',
+    },
+  );
+  t.deepEqual(
+    parse(
+      '1:name=systemd:/ecs/46686c7c701cdfdf2549f88f7b9575e9/46686c7c701cdfdf2549f88f7b9575e9-1',
+    ),
+    {
+      entries: [
+        {
+          id: '1',
+          groups: 'name=systemd',
+          path: '/ecs/46686c7c701cdfdf2549f88f7b9575e9/46686c7c701cdfdf2549f88f7b9575e9-1',
+          controllers: ['name=systemd'],
+          taskId: '46686c7c701cdfdf2549f88f7b9575e9',
+        },
+      ],
+      containerId:
+        '34dc0b5e626f2c5c4c5170e34b10e7654ce36f0fcd532739f4445baabea03376',
+      taskId: '46686c7c701cdfdf2549f88f7b9575e9',
+    },
+  );
+
   t.deepEqual(
     parse(`
     12:devices:/user.slice

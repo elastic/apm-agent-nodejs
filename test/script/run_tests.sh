@@ -90,7 +90,7 @@ then
 else
   # No arguments was given. Let's just assume that the user wants to
   # spin up all dependencies inside Docker and run the tests locally
-  services=$(docker-compose  -f ./test/docker-compose.yml  config --services)
+  services=$(docker compose  -f ./test/docker-compose.yml  config --services)
 fi
 
 service_arr=( $services )
@@ -106,11 +106,11 @@ then
 elif [[ $healthy -lt $expected_healthy || $containers -lt $expected_containers ]]
 then
   finish () {
-    docker-compose -f ./test/docker-compose.yml down
+    docker compose -f ./test/docker-compose.yml down
   }
   trap finish EXIT
 
-  docker-compose -f ./test/docker-compose.yml up -d $services
+  docker compose -f ./test/docker-compose.yml up -d $services
   wait_for_healthy
 fi
 

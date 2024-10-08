@@ -33,6 +33,25 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+[[release-notes-4.8.0]]
+==== 4.8.0 - 2024/10/08
+
+[float]
+===== Features
+
+- Minor improvement to container ID parsing from /etc/cgroup v1 files in
+  AWS ECS Fargate, where the pattern has been observed to sometimes differ
+  from the documented pattern. (https://github.com/elastic/apm/issues/888[APM spec issue #888])
+
+- Add support for `tedious` v19. ({issues}4218[#4218])
+
+- Add support for `koa-router` v13. ({pull}4236[#4236])
+
+
+[float]
+===== Bug fixes
+
+- Update `cookie` to version `v0.7.2` to fix security issue [CVE-2024-47764](https://github.com/advisories/GHSA-pxg6-pf52-xh8x)
 
 [[release-notes-4.7.3]]
 ==== 4.7.3 - 2024/08/09

@@ -53,6 +53,13 @@ function isFastifyIncompat() {
   ) {
     return msg;
   }
+  // https://fastify.dev/docs/latest/Guides/Migration-Guide-V5/#long-term-support-cycle
+  if (
+    semver.satisfies(fastifyVer, '5.x') &&
+    !semver.satisfies(nodeVer, '>=20')
+  ) {
+    return msg;
+  }
 
   return false;
 }

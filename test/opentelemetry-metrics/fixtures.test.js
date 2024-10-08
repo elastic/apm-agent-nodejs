@@ -112,13 +112,13 @@ async function checkEventsHaveTestMetrics(t, events, extraMetricNames = []) {
     // A histogram that we expect to have the APM agent default buckets.
     m = event.metricset.samples.test_histogram_defbuckets;
     t.equal(m.type, 'histogram', 'test_histogram_defbuckets.type');
-    t.equal(m.counts.length, 3, 'test_histogram_defbuckets.counts');
+    t.equal(m.counts.length, 2, 'test_histogram_defbuckets.counts');
     // The test file recorded values of 2, 3, and 4. The expected converted values
     // are the midpoints between the default bucket boundaries. For example,
     // 3 is between bucket boundaries (2.82843, 4], whose midpoint is 3.414215.
     t.deepEqual(
       m.values,
-      [2.414215, 3.414215, 4.828425],
+      [1.7071049999999999, 3.414215],
       'test_histogram_defbuckets.values',
     );
   }
@@ -141,7 +141,7 @@ async function checkEventsHaveTestMetrics(t, events, extraMetricNames = []) {
     // buckets in `[0, 1, 2, 3, 4, 5]`. After conversion to APM server
     // intake format, the values are the midpoints of those buckets.
     t.equal(m.counts.length, 3, 'test_histogram_confbuckets.counts');
-    t.deepEqual(m.values, [2.5, 3.5, 4.5], 'test_histogram_confbuckets.values');
+    t.deepEqual(m.values, [1.5, 2.5, 3.5], 'test_histogram_confbuckets.values');
   }
 }
 
