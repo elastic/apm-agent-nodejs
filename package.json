@@ -97,7 +97,7 @@
     "async-value-promise": "^1.1.1",
     "basic-auth": "^2.0.1",
     "breadth-filter": "^2.0.0",
-    "cookie": "^0.7.1",
+    "cookie": "^1.0.1",
     "core-util-is": "^1.0.2",
     "end-of-stream": "^1.4.4",
     "error-callsites": "^2.0.4",
