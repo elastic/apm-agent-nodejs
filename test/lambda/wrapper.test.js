@@ -37,6 +37,24 @@ tape.test('getLambdaHandlerInfo', function (suite) {
     t.end();
   });
 
+  suite.test('extracts info with leading "./" on _HANDLER path', function (t) {
+    process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
+
+    const info = getLambdaHandlerInfo({
+      _HANDLER: './lambda.bar',
+      LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures'),
+    });
+
+    t.equals(
+      info.filePath,
+      path.resolve(__dirname, 'fixtures', 'lambda.js'),
+      'extracted handler file path',
+    );
+    t.equals(info.modName, 'lambda', 'extracted handler module');
+    t.equals(info.propPath, 'bar', 'extracted handler propPath');
+    t.end();
+  });
+
   suite.test('extracts info with extended path, cjs extension', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
 
@@ -93,7 +111,7 @@ tape.test('getLambdaHandlerInfo', function (suite) {
   suite.test('malformed handler: too few', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
     const handler = getLambdaHandlerInfo({
-      LAMBDA_TASK_ROOT: '/var/task',
+      LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures'),
       _HANDLER: 'foo',
     });
 
@@ -104,13 +122,13 @@ tape.test('getLambdaHandlerInfo', function (suite) {
   suite.test('longer handler', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo';
     const handler = getLambdaHandlerInfo({
-      LAMBDA_TASK_ROOT: '/var/task',
+      LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures'),
       _HANDLER: 'foo.baz.bar',
     });
 
     t.equals(
       handler.filePath,
-      path.resolve('/var', 'task', 'foo.cjs'),
+      path.resolve(__dirname, 'fixtures', 'foo.js'),
       'extracted handler file path',
     );
     t.equals(handler.modName, 'foo', 'extracted handler module name');
