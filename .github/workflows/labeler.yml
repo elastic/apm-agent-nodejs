@@ -15,12 +15,22 @@ jobs:
   triage:
     runs-on: ubuntu-latest
     steps:
+    - name: Get token
+      id: get_token
+      uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+      with:
+        app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+        private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+        permissions: >-
+          {
+            "members": "read"
+          }
     - id: is_elastic_member
       uses: elastic/oblt-actions/github/is-member-of@v1
       with:
         github-org: "elastic"
         github-user: ${{ github.actor }}
-        github-token: ${{ secrets.APM_TECH_USER_TOKEN }}
+        github-token: ${{ steps.get_token.outputs.token }}
 
     - name: Add community and triage labels
       if: contains(steps.is_elastic_member.outputs.result, 'false') && github.actor != 'dependabot[bot]'

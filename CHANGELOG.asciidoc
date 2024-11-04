@@ -33,6 +33,16 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+[[release-notes-4.8.1]]
+==== 4.8.1 - 2024/11/04
+
+[float]
+===== Bug fixes
+
+* Fix AWS Lambda instrumentation to work with a "handler" string that includes
+  a period (`.`) in the module path. E.g. the leading `.` in `Handler: ./src/functions/myfunc/handler.main`. ({issues}4293[#4293]).
+
+
 [[release-notes-4.8.0]]
 ==== 4.8.0 - 2024/10/08
 
