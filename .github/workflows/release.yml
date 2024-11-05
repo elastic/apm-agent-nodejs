@@ -51,7 +51,7 @@ jobs:
       - name: npm publish
         run: |-
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
-          npm publish --provenance
+          npm publish --tag="latest-3" --provenance
 
       - if: always()
         uses: elastic/oblt-actions/slack/notify-result@v1
