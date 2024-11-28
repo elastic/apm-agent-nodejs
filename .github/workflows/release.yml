@@ -115,7 +115,7 @@ jobs:
           subject-digest: ${{ steps.docker-push-wolfi.outputs.digest }}
           push-to-registry: true
 
-      - uses: elastic/oblt-actions/aws/auth@v1.10.0
+      - uses: elastic/oblt-actions/aws/auth@v1
         with:
           aws-account-id: "267093732750"
 
