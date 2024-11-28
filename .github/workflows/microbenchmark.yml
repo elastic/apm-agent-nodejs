@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Run microbenchmark
-        uses: elastic/oblt-actions/buildkite/run@v1.5.0
+        uses: elastic/oblt-actions/buildkite/run@v1
         with:
           pipeline: "apm-agent-microbenchmark"
           token: ${{ secrets.BUILDKITE_TOKEN }}
