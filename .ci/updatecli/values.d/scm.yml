@@ -3,5 +3,8 @@ scm:
   owner: elastic
   repository: apm-agent-nodejs
   branch: main
-
-signedcommit: true
+  commitusingapi: true
+  # begin update-compose policy values
+  user: obltmachine
+  email: obltmachine@users.noreply.github.com
+  # end update-compose policy values

@@ -38,12 +38,18 @@ jobs:
       - uses: elastic/oblt-actions/updatecli/run@v1
         with:
           command: --experimental compose diff
+          # TODO: update to the latest version so the policies can work as expected.
+          #       latest changes in the policies require to use the dependson feature.
+          version: "v0.88.0"
         env:
           GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
 
       - uses: elastic/oblt-actions/updatecli/run@v1
         with:
           command: --experimental compose apply
+          # TODO: update to the latest version so the policies can work as expected.
+          #       latest changes in the policies require to use the dependson feature.
+          version: "v0.88.0"
         env:
           GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
 
