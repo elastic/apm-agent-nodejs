@@ -33,6 +33,23 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* add support for `undici` v7. ({pull}4336[#4336])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
 [[release-notes-4.8.1]]
 ==== 4.8.1 - 2024/11/04
 
