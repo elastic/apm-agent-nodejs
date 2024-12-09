@@ -37,20 +37,14 @@ See the <<upgrade-to-v4>> guide.
 ==== 4.9.0 - 2024/12/09
 
 [float]
-===== Breaking changes
-
-[float]
 ===== Features
 
-* add support for `undici` v7. ({pull}4336[#4336])
+* Add support for `undici` v7. ({pull}4336[#4336])
 
 [float]
 ===== Bug fixes
 
-* fix to support a internal refactor in `mysql2` v3.11.5. ({pull}4334[#4334])
-
-[float]
-===== Chores
+* Fix to support a internal refactor in `mysql2` v3.11.5. ({pull}4334[#4334])
 
 
 [[release-notes-4.8.1]]
