@@ -47,6 +47,8 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Bug fixes
 
+* fix to support a internal refactor in `mysql2` v3.11.5. ({pull}4334[#4334])
+
 [float]
 ===== Chores
 
