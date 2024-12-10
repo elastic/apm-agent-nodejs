@@ -46,6 +46,11 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Bug fixes
 
+* Guard against a possible encoding error of tracing data in the APM client,
+  before it is sent. It is *possible* this could wedge the APM client,
+  resulting in the APM agent no longer sending tracing data.
+  ({pull}4359[#4359])
+
 [float]
 ===== Chores
 
