@@ -33,6 +33,16 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+[[release-notes-4.10.0]]
+==== 4.10.0 - 2024/12/24
+
+[float]
+===== Features
+
+* Improve trace-level logging to better support debugging central config
+  and transaction sampling issues. ({issues}4291[#4291])
+
+
 [[release-notes-4.9.0]]
 ==== 4.9.0 - 2024/12/09
 
@@ -50,8 +60,6 @@ See the <<upgrade-to-v4>> guide.
   resulting in the APM agent no longer sending tracing data.
   ({pull}4359[#4359])
 
-[float]
-===== Chores
 
 
 [[release-notes-4.8.1]]
