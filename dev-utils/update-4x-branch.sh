@@ -4,6 +4,8 @@
 # just-tagged release. The 4.x branch needs to be updated for the current docs
 # build.
 #
+# Usage:
+#   ./dev-utils/update-4x-branch.sh [TARGTAG [LASTTAG]]
 
 if [ "$TRACE" != "" ]; then
     export PS4='${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
@@ -27,26 +29,36 @@ cd $WRKDIR
 git clone git@github.com:elastic/apm-agent-nodejs.git
 cd apm-agent-nodejs
 
-TARGTAG=$(git tag --points-at HEAD)
+# Allow passing in target tag (first arg), in case the latest commit is no
+# longer the tagged release commit.
+TARGTAG="$1"
+if [[ -z "$TARGTAG" ]]; then
+    TARGTAG=$(git tag --points-at HEAD)
+fi
 if [[ ! ("$TARGTAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]$) ]]; then
-    fatal "the tag on HEAD, '${TARGTAG}', does not look like a release tag"
+    fatal "the target tag, '${TARGTAG}', does not look like a release tag"
 fi
-# echo "TARGTAG=$TARGTAG"
+echo "TARGTAG=$TARGTAG"
 
-readonly NUM_COMMITS_SANITY_GUARD=200
-LASTTAG=$(
-    git log --pretty=format:%h -$NUM_COMMITS_SANITY_GUARD | tail -n +2 | while read sha; do
-        possible=$(git tag --points-at $sha)
-        if [[ "$possible" =~ ^v[0-9]+\.[0-9]+\.[0-9]$ ]]; then
-            echo $possible
-            break
-        fi
-    done
-)
+# Allow passing in last tag (second arg), in case the 4.x branch wasn't updated
+# for some previous releases.
+LASTTAG="$2"
 if [[ -z "$LASTTAG" ]]; then
-    fatal "could not find previous release tag in last $NUM_COMMITS_SANITY_GUARD commits"
+    readonly NUM_COMMITS_SANITY_GUARD=200
+    LASTTAG=$(
+        git log --pretty=format:%h -$NUM_COMMITS_SANITY_GUARD | tail -n +2 | while read sha; do
+            possible=$(git tag --points-at $sha)
+            if [[ "$possible" =~ ^v[0-9]+\.[0-9]+\.[0-9]$ ]]; then
+                echo $possible
+                break
+            fi
+        done
+    )
+    if [[ -z "$LASTTAG" ]]; then
+        fatal "could not find previous release tag in last $NUM_COMMITS_SANITY_GUARD commits"
+    fi
 fi
-# echo "LASTTAG=$LASTTAG"
+echo "LASTTAG=$LASTTAG"
 
 
 # Merging generally fails, IME. Let's attempt to cherry-pick each commit.
