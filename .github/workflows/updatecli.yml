@@ -38,12 +38,14 @@ jobs:
       - uses: elastic/oblt-actions/updatecli/run@v1
         with:
           command: --experimental compose diff
+          version-file: .tool-versions
         env:
           GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
 
       - uses: elastic/oblt-actions/updatecli/run@v1
         with:
           command: --experimental compose apply
+          version-file: .tool-versions
         env:
           GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
 

@@ -33,6 +33,35 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
+[[release-notes-4.10.0]]
+==== 4.10.0 - 2024/12/24
+
+[float]
+===== Features
+
+* Improve trace-level logging to better support debugging central config
+  and transaction sampling issues. ({issues}4291[#4291])
+
+
+[[release-notes-4.9.0]]
+==== 4.9.0 - 2024/12/09
+
+[float]
+===== Features
+
+* Add support for `undici` v7. ({pull}4336[#4336])
+
+[float]
+===== Bug fixes
+
+* Fix to support a internal refactor in `mysql2` v3.11.5. ({pull}4334[#4334])
+* Guard against a possible encoding error of tracing data in the APM client,
+  before it is sent. It is *possible* this could wedge the APM client,
+  resulting in the APM agent no longer sending tracing data.
+  ({pull}4359[#4359])
+
+
+
 [[release-notes-4.8.1]]
 ==== 4.8.1 - 2024/11/04
 
