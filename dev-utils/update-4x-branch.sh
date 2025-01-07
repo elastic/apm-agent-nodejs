@@ -38,7 +38,7 @@ fi
 if [[ ! ("$TARGTAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]$) ]]; then
     fatal "the target tag, '${TARGTAG}', does not look like a release tag"
 fi
-echo "TARGTAG=$TARGTAG"
+# echo "TARGTAG=$TARGTAG"
 
 # Allow passing in last tag (second arg), in case the 4.x branch wasn't updated
 # for some previous releases.
@@ -58,7 +58,10 @@ if [[ -z "$LASTTAG" ]]; then
         fatal "could not find previous release tag in last $NUM_COMMITS_SANITY_GUARD commits"
     fi
 fi
-echo "LASTTAG=$LASTTAG"
+if [[ ! ("$LASTTAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]$) ]]; then
+    fatal "the last tag, '${LASTTAG}', does not look like a release tag"
+fi
+# echo "LASTTAG=$LASTTAG"
 
 
 # Merging generally fails, IME. Let's attempt to cherry-pick each commit.
