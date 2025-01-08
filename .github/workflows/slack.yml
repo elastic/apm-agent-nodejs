@@ -25,7 +25,7 @@ on:
 jobs:
   slack:
     # Skip notification if:
-    # - dependabot PRs, too noisy
+    # - dependabot or renovate PRs, too noisy
     # - draft PRs
     if: ${{ !(github.event.action == 'opened' && github.event.pull_request.draft) ||
       github.event.pull_request.user.login != 'dependabot[bot]' ||
@@ -86,19 +86,9 @@ jobs:
             pprint(ctx)
             raise ValueError('unexpected event: not an issue or PR event')
 
-          def gfm2slack(text):
-            """Limited conversion of the subset of GitHub Flavor Markdown (gfm)
-            supported in GitHub issue/PR titles to a safe string for a Slack
-            link. https://api.slack.com/reference/surfaces/formatting"""
-            # Escape angle brackets to allow usage in Slack link.
-            text = text.replace('<', '&lt;')
-            text = text.replace('>', '&gt;')
-            # TODO: How to escape asterisk bolding and underscore italicizing?
-            return text
-
-          # Use https://app.slack.com/block-kit-builder to play with styling.
           payload = {
             "channel": os.environ["SLACK_CHANNEL"],
+
             # Note: Omitting the "text" field is intentional, so that it is not
             # rendered by default. Guidelines on accessibility in:
             #   https://api.slack.com/methods/chat.postMessage#text-blocks-attachments
@@ -107,28 +97,18 @@ jobs:
             # guidelines to group all object data inside the attachment.
             # The downside is that the `chatMessage` below results in warnings
             # from the Slack API about not including the top-level "text".
-            #"text": f"<{url}|{gfm2slack(title)}>",
+            #"text": title,
+
+            # Intentionally *not* using Slack's newer blocks,
+            #   https://api.slack.com/messaging/attachments-to-blocks
+            # because styling with the older syntax is slightly nicer, IMHO.
             "attachments": [
               {
                 "color": color,
-                "blocks": [
-                  {
-                    "type": "section",
-                    "text": {
-                      "type": "mrkdwn",
-                      "text": f"<{url}|{gfm2slack(title)}>"
-                    }
-                  },
-                  {
-                    "type": "context",
-                    "elements": [
-                      {
-                        "type": "mrkdwn",
-                        "text": f"{ctx['repository']}#{num} · *{action_str}* by {event['sender']['login']}"
-                      }
-                    ]
-                  }
-                ]
+                "title": title,
+                "title_link": url,
+                "footer": f"{ctx['repository']}#{num} · *{action_str}* by {event['sender']['login']}",
+                "footer_icon": "https://github.githubassets.com/favicon.ico"
               }
             ]
           }
