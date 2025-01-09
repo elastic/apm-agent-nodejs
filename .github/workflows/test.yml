@@ -32,7 +32,7 @@ permissions:
 jobs:
 
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -164,7 +164,7 @@ jobs:
           - '16.0'
           - '14'
           - '14.17'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
@@ -197,7 +197,7 @@ jobs:
   # failure if at least one job listed "needs" is not successful.
   test:
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs:
       - lint
       - test-vers
