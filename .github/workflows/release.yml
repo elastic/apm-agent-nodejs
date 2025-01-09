@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       DOCKER_IMAGE_NAME: docker.elastic.co/observability/apm-agent-nodejs
     steps:
