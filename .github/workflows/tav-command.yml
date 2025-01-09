@@ -14,7 +14,7 @@ permissions:
 jobs:
   command-validation:
     if: startsWith(github.event.review.body, '/test tav')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
       pull-requests: write
@@ -132,7 +132,7 @@ jobs:
 
   test-tav:
     needs: command-validation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     strategy:
       max-parallel: 15

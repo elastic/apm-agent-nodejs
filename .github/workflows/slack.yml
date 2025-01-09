@@ -30,7 +30,7 @@ jobs:
     if: ${{ !(github.event.action == 'opened' && github.event.pull_request.draft) ||
       github.event.pull_request.user.login != 'dependabot[bot]' ||
       github.event.pull_request.user.login != 'elastic-renovate-prod[bot]' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Prepare Slack message
         id: prepare
