@@ -8,6 +8,7 @@
 const { createAgentConfig } = require('./_shared');
 const agent = require('../..').start(createAgentConfig());
 const {
+  requestPost,
   resetAgent,
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture,
@@ -15,7 +16,6 @@ const {
 } = require('./_shared');
 
 const test = require('tape');
-const request = require('request');
 const express = require('express');
 const bodyParser = require('body-parser');
 const fixtures = require('./_fixtures');
@@ -52,21 +52,13 @@ function runTest(
   });
 
   const server = app.listen(0, '0.0.0.0', () => {
-    const url = `http://${server.address().address}:${
-      server.address().port
-    }/test`;
-    request.post(
-      url,
-      {
-        form: formFields,
-        headers: requestHeaders,
-      },
-      function (error, response, body) {
-        t.error(error);
-        t.ok(body, 'received response');
-        t.end();
-      },
-    );
+    const addr = server.address();
+    const url = `http://${addr.address}:${addr.port}/test`;
+    requestPost(url, requestHeaders, formFields, (err, _res, body) => {
+      t.error(err);
+      t.ok(body, 'received response');
+      t.end();
+    });
   });
 
   const done = () => {
