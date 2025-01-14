@@ -27,9 +27,11 @@ jobs:
     # Skip notification if:
     # - dependabot or renovate PRs, too noisy
     # - draft PRs
-    if: ${{ !(github.event.action == 'opened' && github.event.pull_request.draft) ||
-      github.event.pull_request.user.login != 'dependabot[bot]' ||
-      github.event.pull_request.user.login != 'elastic-renovate-prod[bot]' }}
+    if: ${{ !(
+        (github.event.action == 'opened' && github.event.pull_request.draft) ||
+        github.event.pull_request.user.login == 'dependabot[bot]' ||
+        github.event.pull_request.user.login == 'elastic-renovate-prod[bot]'
+      ) }}
     runs-on: ubuntu-24.04
     steps:
       - name: Prepare Slack message
@@ -117,7 +119,6 @@ jobs:
             f.write("payload={}".format(json.dumps(payload)))
 
       - name: Post Slack message
-        if: ${{ steps.prepare.outputs.payload }}
         uses: slackapi/slack-github-action@v2.0.0
         with:
           method: chat.postMessage
