@@ -8,12 +8,12 @@
 const { createAgentConfig } = require('./_shared');
 const agent = require('../..').start(createAgentConfig());
 const {
+  requestPost,
   resetAgent,
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture,
 } = require('./_shared');
 const test = require('tape');
-const request = require('request');
 const Koa = require('koa');
 const koaBodyparser = require('koa-bodyparser');
 const fixtures = require('./_fixtures');
@@ -83,19 +83,12 @@ function runTest(
     const url = `http://${server.address().address}:${
       server.address().port
     }/test`;
-    request.post(
-      url,
-      {
-        form: formFields,
-        headers: requestHeaders,
-      },
-      function (error, response, body) {
-        if (error) {
-          t.fail(error);
-        }
-        t.ok(body, 'received response');
-        t.end();
-      },
-    );
+    requestPost(url, requestHeaders, formFields, (err, _res, body) => {
+      if (err) {
+        t.fail(err);
+      }
+      t.ok(body, 'received response');
+      t.end();
+    });
   });
 }

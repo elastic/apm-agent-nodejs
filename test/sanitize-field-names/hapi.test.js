@@ -7,6 +7,7 @@
 'use strict';
 
 const {
+  requestPost,
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture,
   assertFormsWithFixture,
@@ -22,7 +23,6 @@ if (isHapiIncompat()) {
 }
 
 const test = require('tape');
-const request = require('request');
 const Hapi = require('@hapi/hapi');
 const fixtures = require('./_fixtures');
 
@@ -96,18 +96,11 @@ async function runTest(
 
   await server.start();
   const url = server.info.uri + '/test';
-  request.post(
-    url,
-    {
-      form: formFields,
-      headers: requestHeaders,
-    },
-    function (error, response, body) {
-      if (error) {
-        t.fail(error);
-      }
-      t.ok(body, 'received response');
-      t.end();
-    },
-  );
+  requestPost(url, requestHeaders, formFields, (err, _res, body) => {
+    if (err) {
+      t.fail(err);
+    }
+    t.ok(body, 'received response');
+    t.end();
+  });
 }
