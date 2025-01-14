@@ -15,13 +15,13 @@ if (isRestifyIncompat) {
 const { createAgentConfig } = require('./_shared');
 const agent = require('../..').start(createAgentConfig());
 const {
+  requestPost,
   resetAgent,
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture,
   assertFormsWithFixture,
 } = require('./_shared');
 const test = require('tape');
-const request = require('request');
 const restify = require('restify');
 const fixtures = require('./_fixtures');
 
@@ -93,19 +93,12 @@ function runTest(
 
   server.listen(0, '0.0.0.0', () => {
     const url = `${server.url}/test`;
-    request.post(
-      url,
-      {
-        form: formFields,
-        headers: requestHeaders,
-      },
-      function (error, response, body) {
-        if (error) {
-          t.fail(error);
-        }
-        t.ok(body, 'received response');
-        t.end();
-      },
-    );
+    requestPost(url, requestHeaders, formFields, (err, _res, body) => {
+      if (err) {
+        t.fail(err);
+      }
+      t.ok(body, 'received response');
+      t.end();
+    });
   });
 }

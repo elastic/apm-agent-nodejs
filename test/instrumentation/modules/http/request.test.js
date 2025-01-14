@@ -20,7 +20,6 @@ var http = require('http');
 
 var test = require('tape');
 var express = require('express');
-var request = require('request');
 
 var mockClient = require('../../../_mock_http_client');
 var findObjInArray = require('../../../_utils').findObjInArray;
@@ -52,7 +51,9 @@ test('request', function (t) {
   });
 
   app.get('/', (req, res) => {
-    request(`http://localhost:${req.socket.localPort}/test`).pipe(res);
+    http.get(`http://localhost:${req.socket.localPort}/test`, (cres) => {
+      cres.pipe(res);
+    });
   });
 
   sendRequest(server);
@@ -83,7 +84,10 @@ test('Outcome', function (t) {
   });
 
   app.get('/', (req, res) => {
-    request(`http://localhost:${req.socket.localPort}/test`).pipe(res);
+    http.get(`http://localhost:${req.socket.localPort}/test`, (cres) => {
+      res.statusCode = cres.statusCode;
+      cres.pipe(res);
+    });
   });
 
   sendRequest(server);
