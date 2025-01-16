@@ -11,9 +11,8 @@
     "start": "func start",
     "dev:sync-local-apm-agent-changes": "rsync -av ../../lib/ ./node_modules/elastic-apm-node/lib/"
   },
-  "XXX elastic-apm-node": "^4.11.0",
   "dependencies": {
     "@azure/functions": "^4.0.0",
-    "elastic-apm-node": "^4.10.0"
+    "elastic-apm-node": "^4.11.0"
   }
 }
