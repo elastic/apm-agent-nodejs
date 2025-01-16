@@ -1,0 +1,13 @@
+{
+  "name": "",
+  "version": "1.0.0",
+  "description": "",
+  "main": "{initapm.js,src/functions/*.js}",
+  "scripts": {
+    "start": "func start"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.0.0",
+    "azure-functions-core-tools": "^4.0.6821"
+  }
+}

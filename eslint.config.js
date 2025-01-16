@@ -30,7 +30,7 @@ module.exports = [
 
       'examples/esbuild/dist/**',
       'examples/typescript/dist/**',
-      'examples/an-azure-function-app/**',
+      'examples/azure-function-app/**',
       'lib/opentelemetry-bridge/opentelemetry-core-mini/**',
       'test/babel/out.js',
       'test/lambda/fixtures/esbuild-bundled-handler/hello.js',
