@@ -9,7 +9,7 @@ endif::[]
 
 === Monitoring Node.js Azure Functions
 
-The Node.js APM Agent can trace function invocations in an https://learn.microsoft.com/en-us/azure/azure-functions/[Azure Functions] app.
+The Node.js APM Agent can trace function invocations in an https://learn.microsoft.com/en-us/azure/azure-functions/[Azure Functions] app, using either v3 or https://learn.microsoft.com/en-us/azure/azure-functions/functions-node-upgrade-v4[v4 of the Node.js programming model].
 
 
 [float]
@@ -36,7 +36,7 @@ will result in unreasonably large deployments that will be very slow to publish
 and will run your Azure Function app VM out of disk space.
 ====
 
-You can also take a look at and use this https://github.com/elastic/apm-agent-nodejs/tree/main/examples/an-azure-function-app/[Azure Functions example app with Elastic APM already integrated].
+You can also take a look at and use this https://github.com/elastic/apm-agent-nodejs/tree/main/examples/azure-function-app/[Azure Functions example app with Elastic APM already integrated].
 
 [float]
 [[azure-functions-setup]]
@@ -69,17 +69,14 @@ require('elastic-apm-node').start({
 ----
 <1> Optional <<configuration,configuration options>> can be added here.
 
-2. Add a "main" entry to your package.json pointing to the app init file.
+2. Change the "main" entry in your "package.json" to point to the initapm.js file.
 +
 [source,json]
 ----
 ...
-  "main": "initapm.js",
+  "main": "{initapm.js,src/functions/*.js}",
 ...
 ----
-+
-If your application already has a "main" init file, you can instead add the
-`require('elastic-apm-node').start()` to top of that file.
 
 
 [float]
@@ -103,7 +100,7 @@ For example:
 
 image::./images/azure-functions-configuration.png[Configuring the APM Agent in the Azure Portal]
 
-For local testing via `func start` you can set these environment variables in
+For local testing via `func start`, you can set these environment variables in
 your terminal, or in the "local.settings.json" file. See the
 <<configuration,agent configuration guide>> for full details on supported
 configuration variables.
@@ -127,13 +124,11 @@ of time, so allow a minute or so for data to appear.
 [[azure-functions-limitations]]
 ==== Limitations
 
-This instrumentation does not send an APM transaction or error to APM server when
-a handler has an `uncaughtException` or `unhandledRejection`.
-The Azure Functions Node.js reference https://learn.microsoft.com/en-ca/azure/azure-functions/functions-reference-node#use-async-and-await[has a section] with best practices for avoiding these cases.
+Distributed tracing for incoming HTTP requests to Azure Functions (using v4 of the programming model) does *not* work, because of a issue with Azure's handling of trace-context. See https://github.com/elastic/apm-agent-nodejs/pull/4426#issuecomment-2596922653[this] for details.
 
-Azure Functions instrumentation currently does _not_ collect system metrics in
-the background because of a concern with unintentionally increasing Azure
-Functions costs (for Consumption plans).
+Azure Functions instrumentation currently does _not_ collect system metrics in the background because of a concern with unintentionally increasing Azure Functions costs (for Consumption plans).
+
+Elastic APM's <<central-config,central configuration>> is not supported for Azure Functions.
 
 
 [float]
