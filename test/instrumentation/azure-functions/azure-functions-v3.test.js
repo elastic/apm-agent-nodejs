@@ -6,6 +6,8 @@
 
 'use strict';
 
+// Test Azure Functions programming model v3.
+
 const assert = require('assert');
 const { exec, spawn } = require('child_process');
 const fs = require('fs');
@@ -20,12 +22,14 @@ const treekill = require('tree-kill');
 const { MockAPMServer } = require('../../_mock_apm_server');
 const { formatForTComment } = require('../../_utils');
 
-if (!semver.satisfies(process.version, '>=14.1.0 <19')) {
-  // The "14.1.0" version is selected to skip testing on Node.js v14.0.0
-  // because of the issue described here:
-  // https://github.com/elastic/apm-agent-nodejs/issues/3279#issuecomment-1532084620
+// Azure Functions programming model v3 supports node 14.x-20.x:
+// https://learn.microsoft.com/en-ca/azure/azure-functions/functions-reference-node?tabs=javascript%2Cwindows%2Cazure-cli&pivots=nodejs-model-v4#supported-versions
+// However, let's only test with node 18.x for now. The testing involves
+// installing the ridiculously large "azure-functions-core-tools" dep, so it
+// isn't worth testing all versions.
+if (!semver.satisfies(process.version, '^18.0.1')) {
   console.log(
-    `# SKIP Azure Functions runtime ~4 does not support node ${process.version} (https://aka.ms/functions-node-versions)`,
+    '# SKIP Azure Functions v3 tests, only testing with Node.js v18.latest',
   );
   process.exit();
 } else if (os.platform() === 'win32') {
@@ -168,7 +172,7 @@ function checkExpectedApmEvents(t, apmEvents) {
   if (apmEvents.length > 0) {
     const metadata = apmEvents.shift().metadata;
     t.ok(metadata, 'metadata is first event');
-    t.equal(metadata.service.name, 'AJsAzureFnApp', 'metadata.service.name');
+    t.equal(metadata.service.name, 'azfunc3', 'metadata.service.name');
     t.equal(
       metadata.service.framework.name,
       'Azure Functions',
@@ -196,7 +200,7 @@ function checkExpectedApmEvents(t, apmEvents) {
     );
     t.equal(
       metadata.cloud.instance.name,
-      'AJsAzureFnApp',
+      'azfunc3',
       'metadata.cloud.instance.name',
     );
     t.equal(
@@ -256,7 +260,7 @@ function checkExpectedApmEvents(t, apmEvents) {
 const UUID_RE =
   /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
 
-const fnAppDir = path.join(__dirname, 'fixtures', 'AJsAzureFnApp');
+const fnAppDir = path.join(__dirname, 'fixtures', 'azfunc3');
 const funcExe =
   path.resolve(fnAppDir, 'node_modules/.bin/func') +
   (os.platform() === 'win32' ? '.cmd' : '');
@@ -277,14 +281,10 @@ var TEST_REQUESTS = [
       t.equal(trans.type, 'request', 'transaction.type');
       t.equal(trans.outcome, 'success', 'transaction.outcome');
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result');
-      t.equal(
-        trans.faas.name,
-        'AJsAzureFnApp/HttpFn1',
-        'transaction.faas.name',
-      );
+      t.equal(trans.faas.name, 'azfunc3/HttpFn1', 'transaction.faas.name');
       t.equal(
         trans.faas.id,
-        '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/AJsAzureFnApp/functions/HttpFn1',
+        '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/azfunc3/functions/HttpFn1',
         'transaction.faas.id',
       );
       t.equal(trans.faas.trigger.type, 'http', 'transaction.faas.trigger.type');
@@ -332,11 +332,7 @@ var TEST_REQUESTS = [
       t.equal(trans.name, 'GET /api/HttpFnError', 'transaction.name');
       t.equal(trans.outcome, 'failure', 'transaction.outcome');
       t.equal(trans.result, 'HTTP 5xx', 'transaction.result');
-      t.equal(
-        trans.faas.name,
-        'AJsAzureFnApp/HttpFnError',
-        'transaction.faas.name',
-      );
+      t.equal(trans.faas.name, 'azfunc3/HttpFnError', 'transaction.faas.name');
       t.equal(trans.faas.coldstart, false, 'transaction.faas.coldstart');
       t.equal(
         trans.context.request.method,
@@ -538,14 +534,10 @@ var TEST_REQUESTS = [
       const trans = apmEventsForReq[0].transaction;
       t.equal(trans.name, 'GET /api/HttpFn1', 'transaction.name');
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result');
-      t.equal(
-        trans.faas.name,
-        'AJsAzureFnApp/HttpFn1',
-        'transaction.faas.name',
-      );
+      t.equal(trans.faas.name, 'azfunc3/HttpFn1', 'transaction.faas.name');
       t.equal(
         trans.faas.id,
-        '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/AJsAzureFnApp/functions/HttpFn1',
+        '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/azfunc3/functions/HttpFn1',
         'transaction.faas.id',
       );
       t.equal(
@@ -574,12 +566,12 @@ var TEST_REQUESTS = [
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result');
       t.equal(
         trans.faas.name,
-        'AJsAzureFnApp/HttpFnRouteTemplate',
+        'azfunc3/HttpFnRouteTemplate',
         'transaction.faas.name',
       );
       t.equal(
         trans.faas.id,
-        '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/AJsAzureFnApp/functions/HttpFnRouteTemplate',
+        '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/azfunc3/functions/HttpFnRouteTemplate',
         'transaction.faas.id',
       );
       t.equal(
@@ -605,7 +597,7 @@ var TEST_REQUESTS = [
       t.equal(apmEventsForReq.length, 4);
       const t1 = apmEventsForReq[0].transaction;
       t.equal(t1.name, 'GET /api/HttpFnDistTraceA', 't1.name');
-      t.equal(t1.faas.name, 'AJsAzureFnApp/HttpFnDistTraceA', 't1.faas.name');
+      t.equal(t1.faas.name, 'azfunc3/HttpFnDistTraceA', 't1.faas.name');
       const s1 = apmEventsForReq[1].span;
       t.equal(s1.name, 'spanA', 's1.name');
       t.equal(s1.parent_id, t1.id, 's1 is a child of t1');
@@ -615,7 +607,7 @@ var TEST_REQUESTS = [
       t.equal(s2.parent_id, s1.id, 's2 is a child of s1');
       const t2 = apmEventsForReq[3].transaction;
       t.equal(t2.name, 'GET /api/HttpFnDistTraceB', 't2.name');
-      t.equal(t2.faas.name, 'AJsAzureFnApp/HttpFnDistTraceB', 't2.faas.name');
+      t.equal(t2.faas.name, 'azfunc3/HttpFnDistTraceB', 't2.faas.name');
       t.equal(t2.parent_id, s2.id, 't2 is a child of s2');
       t.equal(
         t2.context.request.headers.traceparent,
@@ -659,7 +651,7 @@ tape.test(
   },
 );
 
-tape.test('azure functions', function (suite) {
+tape.test('azure functions v3', function (suite) {
   let apmServer;
   let apmServerUrl;
 
@@ -673,7 +665,7 @@ tape.test('azure functions', function (suite) {
   });
 
   let fnAppProc;
-  suite.test('setup: "func start" for AJsAzureFnApp fixture', (t) => {
+  suite.test('setup: "func start" for azfunc3 fixture', (t) => {
     fnAppProc = spawn(funcExe, ['start'], {
       cwd: fnAppDir,
       env: Object.assign({}, process.env, {
@@ -698,11 +690,11 @@ tape.test('azure functions', function (suite) {
       // binaries to "$fnAppDir/node_modules/azure-functions-core-tools/...",
       // which means a local test run on macOS followed by an attempted test run
       // in Docker will result in a crash:
-      //    node_tests_1  | # ["func start" stderr] /app/test/instrumentation/azure-functions/fixtures/AJsAzureFnApp/node_modules/azure-functions-core-tools/bin/func: 1: Syntax error: "(" unexpected
+      //    node_tests_1  | # ["func start" stderr] /app/test/instrumentation/azure-functions/fixtures/azfunc3/node_modules/azure-functions-core-tools/bin/func: 1: Syntax error: "(" unexpected
       //    node_tests_1  | not ok 2 "func start" failed early: code=2
       // For now the workaround is to manually clean that tree before running
       // tests on a separate OS:
-      //    rm -rf test/instrumentation/azure-functions/fixtures/AJsAzureFnApp/node_modules
+      //    rm -rf test/instrumentation/azure-functions/fixtures/azfunc3/node_modules
       t.fail(`"func start" failed early: code=${code}`);
       fnAppProc = null;
       clearTimeout(earlyCloseTimer);
