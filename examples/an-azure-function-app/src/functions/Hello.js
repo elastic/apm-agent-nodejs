@@ -1,12 +1,12 @@
 const { app } = require('@azure/functions');
 
-app.http('Hi', {
+app.http('Hello', {
   methods: ['GET'],
   authLevel: 'anonymous',
-  handler: async (request, _context) => {
+  handler: async (_request, _context) => {
     const url = new URL('http://worldtimeapi.org/api/timezone/America/Vancouver');
-    const timeRes = await fetch(url);
-    const timeBody = await byeRes.json();
+    const timeRes = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    const timeBody = await timeRes.json();
 
     const body = JSON.stringify({
       hello: 'world',

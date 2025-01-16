@@ -45,7 +45,7 @@ APM agent. The App has a single function:
 4. Call your functions:
 
     ```
-    curl -i https://<APP_NAME>.azurewebsites.net/api/hi
+    curl -i https://<APP_NAME>.azurewebsites.net/api/hello
     ```
 
 The result (after a minute for data to propagate) should be a `<APP_NAME>` service
