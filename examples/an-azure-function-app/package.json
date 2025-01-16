@@ -1,13 +1,19 @@
 {
-  "name": "an-azure-function-app",
-  "version": "1.0.0",
+  "name": "example-azure-function-app",
+  "version": "2.0.0",
   "description": "An example Azure Function app showing Elastic APM integration for tracing/monitoring",
   "private": true,
-  "main": "initapm.js",
-  "scripts": {
-    "start": "func start"
+  "main": "{initapm.js,src/functions/*.js}",
+  "engines": {
+    "node": ">=20"
   },
+  "scripts": {
+    "start": "func start",
+    "dev:sync-local-apm-agent-changes": "rsync -av ../../lib/ ./node_modules/elastic-apm-node/lib/"
+  },
+  "XXX elastic-apm-node": "^4.11.0",
   "dependencies": {
-    "elastic-apm-node": "^3.42.0"
+    "@azure/functions": "^4.0.0",
+    "elastic-apm-node": "^4.10.0"
   }
 }

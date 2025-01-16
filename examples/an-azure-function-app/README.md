@@ -1,10 +1,10 @@
-This directory holds a very small Azure Function App implemented in Node.js
-and setup to be traced by the Elastic APM agent. The App has two "functions":
+This directory holds a simple Azure Function (using v4 of the Node.js
+programming model) implemented in Node.js and setup to be traced by the Elastic
+APM agent. The App has a single function:
 
-1. `Hi` - an HTTP-triggered function that will call the `Bye` function, then
-   respond with `{"hi":"there"}`.
-2. `Bye` - an HTTP-triggered function that will respond with `{"good":"bye"}`.
-
+- `Hello`: an HTTP-triggered function that will call worldtimeapi.org to get
+   the current time in Vancouver and respond with
+   `{"hello": "world", "current time in Vancouver": "..."}`
 
 # Testing locally
 
@@ -13,14 +13,7 @@ and setup to be traced by the Elastic APM agent. The App has two "functions":
 
 2. Install the [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools),
    which provide a `func` CLI tool for running Azure Functions locally for
-   development, and for publishing an Function App to Azure. One way to
-   install is via:
-
-        npm install -g azure-functions-core-tools@4
-
-    It is recommended that you **not** install it in the local `./node_modules`
-    folder, because its large install size will get in the way of publishing to
-    Azure.
+   development, and for publishing an Function App to Azure.
 
 3. Set environment variable to configure the APM agent, for example:
 
@@ -29,12 +22,12 @@ and setup to be traced by the Elastic APM agent. The App has two "functions":
     export ELASTIC_APM_SECRET_TOKEN=...
     ```
 
-4. `npm start`
+4. `npm start` (This calls `func start` to run the Azure Function app locally.)
 
 5. In a separate terminal, call the Azure Function via:
 
     ```
-    curl -i http://localhost:7071/api/Hi
+    curl -i http://localhost:7071/api/Hello
     ```
 
 
