@@ -5,7 +5,7 @@
     "AzureWebJobsStorage": "",
 
     "REGION_NAME": "test-region-name",
-    "WEBSITE_SITE_NAME": "an-azure-function-app",
+    "WEBSITE_SITE_NAME": "example-azure-function-app",
     "WEBSITE_INSTANCE_ID": "test-website-instance-id"
   }
 }

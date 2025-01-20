@@ -41,12 +41,15 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Features
 
+* Support instrumentation of Azure Functions using the https://learn.microsoft.com/en-ca/azure/azure-functions/functions-node-upgrade-v4[v4 Node.js programming model].
+  ({pull}4426[#4426])
+
 [float]
 ===== Bug fixes
 
 * Fix instrumentation of `@aws-sdk/client-s3`, `@aws-sdk/client-sqs`, and
-  `@aws-sdk/client-sns` for versions 3.723.0 and later. (Internally the AWS SDK
-  clients updated to `@smithy/smithy-client@4`.)
+  `@aws-sdk/client-sns` for versions 3.723.0 and later. Internally the AWS SDK
+  clients updated to `@smithy/smithy-client@4`. ({pull}4398[#4398])
 
 [float]
 ===== Chores
