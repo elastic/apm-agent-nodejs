@@ -36,7 +36,7 @@ when invoked as follows:
 export ELASTIC_APM_SERVER_URL='https://...apm...cloud.es.io:443'
 export ELASTIC_APM_SECRET_TOKEN='...'
 node -r elastic-apm-node/start.js \
-  --experimental-loader=elastic-apm-node/loader.mjs' \
+  --experimental-loader=elastic-apm-node/loader.mjs \
   node server.mjs
 ----
 
