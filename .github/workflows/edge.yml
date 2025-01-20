@@ -27,7 +27,7 @@ jobs:
   # made, these will stop and there will be no value in testing v17 nightlies.
   #
   test-nightly:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -44,7 +44,7 @@ jobs:
   # The node.js project *sometimes* produces "rc" builds leading up to a new
   # release. They get uploaded to: https://nodejs.org/download/rc/
   test-rc:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
       fail-fast: false

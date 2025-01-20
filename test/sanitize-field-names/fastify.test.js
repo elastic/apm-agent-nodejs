@@ -15,13 +15,13 @@ if (isFastifyIncompat) {
 }
 
 const {
+  requestPost,
   resetAgent,
   assertFormsWithFixture,
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture,
 } = require('./_shared');
 const test = require('tape');
-const request = require('request');
 const fastify = require('fastify');
 const fastifyFormbody = require('@fastify/formbody');
 const fixtures = require('./_fixtures');
@@ -64,20 +64,13 @@ function runTest(
       throw err;
     }
     const url = `${address}/test`;
-    request.post(
-      url,
-      {
-        form: formFields,
-        headers: requestHeaders,
-      },
-      function (error, response, body) {
-        if (error) {
-          t.fail(error);
-        }
-        t.ok(body, 'received response');
-        t.end();
-      },
-    );
+    requestPost(url, requestHeaders, formFields, (err, _res, body) => {
+      if (err) {
+        t.fail(err);
+      }
+      t.ok(body, 'received response');
+      t.end();
+    });
   });
 
   const done = () => {

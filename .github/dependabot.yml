@@ -48,7 +48,7 @@ updates:
         - "eslint*"
 
   - package-ecosystem: "npm"
-    directory: "/test/instrumentation/azure-functions/fixtures/AJsAzureFnApp"
+    directory: "/test/instrumentation/azure-functions/fixtures/azfunc3"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
@@ -56,7 +56,7 @@ updates:
       - "elastic/apm-agent-node-js"
 
   - package-ecosystem: "npm"
-    directory: "/test/instrumentation/modules/next/a-nextjs-app"
+    directory: "/test/instrumentation/azure-functions/fixtures/azfunc4"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5

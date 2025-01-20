@@ -1,0 +1,126 @@
+# Post a slack message something like the following for issue and PR actions:
+#     <$url|$title>
+#     | $repo#$num · issue opened by $user
+#
+# Configuration:
+# 1. Set `SLACK_CHANNEL`.
+# 2. Add a `SLACK_BOT_TOKEN` secret to your repo. This is the "Bot User OAuth
+#    Token" from the "OAuth & Permissions" section of your Slack App
+#    (https://api.slack.com/apps). The token must have the `chat:write`
+#    permission.
+# 3. Optionally tweak the `if:` and `on:` sections below to control which issue
+#    and PR events are skipped.
+
+name: slack
+
+env:
+  SLACK_CHANNEL: "#apm-agent-node"
+
+on:
+  issues:
+    types: [opened, reopened, closed]
+  pull_request:
+    types: [opened, ready_for_review, reopened, closed]
+
+jobs:
+  slack:
+    # Skip notification if:
+    # - dependabot or renovate PRs, too noisy
+    # - draft PRs
+    if: ${{ !(
+        (github.event.action == 'opened' && github.event.pull_request.draft) ||
+        github.event.pull_request.user.login == 'dependabot[bot]' ||
+        github.event.pull_request.user.login == 'elastic-renovate-prod[bot]'
+      ) }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Prepare Slack message
+        id: prepare
+        shell: python
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          import os
+          from pprint import pprint
+          import json
+
+          CLOSED_RED = '#cb2431'
+          GITHUB_BLACK = '#24292f'
+          MERGED_PURPLE = '#6f42c1'
+          OPEN_GREEN = '#36a64f'
+          DRAFT_GRAY = '#6a737d'
+
+          ctx = json.loads(os.environ["GITHUB_CONTEXT"])
+          # pprint(ctx) # for dev/debugging
+          event = ctx["event"]
+          action = event["action"]
+          if "issue" in event:
+            title = event["issue"]["title"]
+            url = event["issue"]["html_url"]
+            num = event["issue"]["number"]
+            action_str = f"issue {action}"
+            color = {
+              "opened": OPEN_GREEN,
+              "reopened": OPEN_GREEN,
+              "closed": CLOSED_RED,
+            }.get(action, "#ffffff")
+          elif "pull_request" in event:
+            title = event["pull_request"]["title"]
+            url = event["pull_request"]["html_url"]
+            num = event["pull_request"]["number"]
+            if action == "closed":
+              if event["pull_request"]["merged"]:
+                action_str = "PR merged"
+                color = MERGED_PURPLE
+              else:
+                action_str = "PR closed"
+                color = CLOSED_RED
+            elif event["pull_request"]["draft"]:
+              action_str = "PR in draft"
+              color = DRAFT_GRAY
+            elif action == "ready_for_review":
+              action_str = "PR ready for review"
+              color = OPEN_GREEN
+            else:
+              action_str = "PR opened"
+              color = OPEN_GREEN
+          else:
+            pprint(ctx)
+            raise ValueError('unexpected event: not an issue or PR event')
+
+          payload = {
+            "channel": os.environ["SLACK_CHANNEL"],
+
+            # Note: Omitting the "text" field is intentional, so that it is not
+            # rendered by default. Guidelines on accessibility in:
+            #   https://api.slack.com/methods/chat.postMessage#text-blocks-attachments
+            # are unclear for "attachments" usage. This competes with:
+            #   https://api.slack.com/reference/messaging/attachments#guidelines__message-attachments-as-objects
+            # guidelines to group all object data inside the attachment.
+            # The downside is that the `chatMessage` below results in warnings
+            # from the Slack API about not including the top-level "text".
+            #"text": title,
+
+            # Intentionally *not* using Slack's newer blocks,
+            #   https://api.slack.com/messaging/attachments-to-blocks
+            # because styling with the older syntax is slightly nicer, IMHO.
+            "attachments": [
+              {
+                "color": color,
+                "title": title,
+                "title_link": url,
+                "footer": f"{ctx['repository']}#{num} · *{action_str}* by {event['sender']['login']}",
+                "footer_icon": "https://github.githubassets.com/favicon.ico"
+              }
+            ]
+          }
+
+          with open(os.environ.get("GITHUB_OUTPUT"), "a") as f:
+            f.write("payload={}".format(json.dumps(payload)))
+
+      - name: Post Slack message
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: ${{ steps.prepare.outputs.payload }}
