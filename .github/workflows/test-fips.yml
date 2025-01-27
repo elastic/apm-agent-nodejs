@@ -1,0 +1,46 @@
+name: test-fips
+
+# Test FIPS 140 compliance by running tests inside a FIPS-140-configured
+# Docker container (the Chainguard base FIPS container).
+
+on:
+  workflow_dispatch:
+  #XXX
+  # schedule:
+  #   # Every Tuesday at 6:00 AM
+  #   - cron: '0 6 * * 2'
+  # XXX
+  push:
+    branches:
+    - main
+    paths-ignore:
+    - '**/*.md'
+    - '**/*.asciidoc'
+    - 'docs/**'
+    - 'examples/**'
+  pull_request:
+    branches:
+    - main
+    paths-ignore:
+    - '**/*.md'
+    - '**/*.asciidoc'
+    - 'docs/**'
+    - 'examples/**'
+
+# limit the access of the generated GITHUB_TOKEN
+permissions:
+  contents: read
+
+jobs:
+  # setup:
+  #   runs-on: ubuntu-24.04
+  #   - uses: actions/checkout@v4
+  test:
+    runs-on: ubuntu-24.04
+    container:
+      image: docker.elastic.co/wolfi/chainguard-base-fips:latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: pwd
+      - run: ls
