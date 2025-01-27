@@ -3,14 +3,17 @@
 # https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks
 name: test # The name must be the same as in test.yml
 
+#XXX
 on:
-  pull_request:
-    paths-ignore: # This expression needs to match the paths ignored on test.yml.
-      - '**'
-      - '!**/*.md'
-      - '!**/*.asciidoc'
-      - '!docs/**'
-      - '!examples/**'
+  workflow_dispatch:
+# on:
+#   pull_request:
+#     paths-ignore: # This expression needs to match the paths ignored on test.yml.
+#       - '**'
+#       - '!**/*.md'
+#       - '!**/*.asciidoc'
+#       - '!docs/**'
+#       - '!examples/**'
 
 permissions:
   contents: read

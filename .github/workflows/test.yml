@@ -3,22 +3,23 @@ name: test
 # https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/2
 on:
   workflow_dispatch:
-  push:
-    branches:
-    - main
-    paths-ignore:
-    - '**/*.md'
-    - '**/*.asciidoc'
-    - 'docs/**'
-    - 'examples/**'
-  pull_request:
-    branches:
-    - main
-    paths-ignore:
-    - '**/*.md'
-    - '**/*.asciidoc'
-    - 'docs/**'
-    - 'examples/**'
+#XXX
+#   push:
+#     branches:
+#     - main
+#     paths-ignore:
+#     - '**/*.md'
+#     - '**/*.asciidoc'
+#     - 'docs/**'
+#     - 'examples/**'
+#   pull_request:
+#     branches:
+#     - main
+#     paths-ignore:
+#     - '**/*.md'
+#     - '**/*.asciidoc'
+#     - 'docs/**'
+#     - 'examples/**'
 
 ## Concurrency only allowed in the main branch.
 ## So old builds running for old commits within the same Pull Request are cancelled
