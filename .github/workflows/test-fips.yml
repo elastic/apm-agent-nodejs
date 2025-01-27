@@ -32,9 +32,19 @@ permissions:
   contents: read
 
 jobs:
-  # setup:
-  #   runs-on: ubuntu-24.04
-  #   - uses: actions/checkout@v4
+  setup:
+    runs-on: ubuntu-24.04
+    steps:
+      #XXX
+      #   - uses: actions/checkout@v4
+
+      - name: Log in to the Elastic Container registry
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ${{ secrets.ELASTIC_DOCKER_REGISTRY }}
+          username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
+          password: ${{ secrets.ELASTIC_DOCKER_PASSWORD }}
+
   test:
     runs-on: ubuntu-24.04
     container:
