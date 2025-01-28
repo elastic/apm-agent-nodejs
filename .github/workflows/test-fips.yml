@@ -58,10 +58,14 @@ jobs:
       - run: |
           apk update
           apk add mount
+          apk add nodejs npm
       - run: mount
       - run: pwd
-      - run: ls
-      - run: ls /home/runner || true
+      - run: ls -al
+      - run: find /home/runner
+      - run: find /github/workflow
+      - run: find /__w
+      - uses: actions/checkout@v4
 
   notify-on-failure:
     # XXX can we just run on "failure()"? Does that translate to "needs"? Guessing no.
