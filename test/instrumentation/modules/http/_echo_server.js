@@ -6,16 +6,27 @@
 
 'use strict';
 
+const fs = require('fs');
 var http = require('http');
 var https = require('https');
+const path = require('path');
 var zlib = require('zlib');
 
-var pem = require('https-pem');
+const tlsOpts = {
+  cert: fs.readFileSync(
+    path.resolve(__dirname, '../../../fixtures/certs/cert.pem'),
+  ),
+  key: fs.readFileSync(
+    path.resolve(__dirname, '../../../fixtures/certs/key.pem'),
+  ),
+};
 
 process.title = 'echo-server';
 
 var server =
-  process.argv[2] === 'https' ? https.createServer(pem) : http.createServer();
+  process.argv[2] === 'https'
+    ? https.createServer(tlsOpts)
+    : http.createServer();
 
 server.on('request', function (req, res) {
   var acceptEncoding = req.headers['accept-encoding'] || '';

@@ -6,9 +6,11 @@
 
 'use strict';
 
+const fs = require('fs');
 const http = require('http');
 const https = require('https');
 const os = require('os');
+const path = require('path');
 const { URL } = require('url');
 const zlib = require('zlib');
 const semver = require('semver');
@@ -22,6 +24,13 @@ exports.assertConfigReq = assertConfigReq;
 exports.assertMetadata = assertMetadata;
 exports.assertEvent = assertEvent;
 exports.validOpts = validOpts;
+
+const tlsCert = fs.readFileSync(
+  path.resolve(__dirname, '../../../fixtures/certs/cert.pem'),
+);
+const tlsKey = fs.readFileSync(
+  path.resolve(__dirname, '../../../fixtures/certs/key.pem'),
+);
 
 function APMServer(opts, onreq) {
   if (typeof opts === 'function') return APMServer(null, opts);
@@ -235,63 +244,3 @@ function validOpts(opts) {
     opts,
   );
 }
-
-// tlsCert and tlsKey were generated via the same method as Go's builtin
-// test certificate/key pair, using
-// https://github.com/golang/go/blob/master/src/crypto/tls/generate_cert.go:
-//
-//     go run generate_cert.go --rsa-bits 1024 --host 127.0.0.1,::1,localhost \
-//                             --ca --start-date "Jan 1 00:00:00 1970" \
-//                             --duration=1000000h
-//
-// The certificate is valid for 127.0.0.1, ::1, and localhost; and expires in the year 2084.
-
-const tlsCert = `-----BEGIN CERTIFICATE-----
-MIIDODCCAiCgAwIBAgIRAKcvPDc2YJPyfyN8tudKJMgwDQYJKoZIhvcNAQELBQAw
-EjEQMA4GA1UEChMHQWNtZSBDbzAgFw03MDAxMDEwMDAwMDBaGA8yMDg0MDEyOTE2
-MDAwMFowEjEQMA4GA1UEChMHQWNtZSBDbzCCASIwDQYJKoZIhvcNAQEBBQADggEP
-ADCCAQoCggEBAKPpGG4wOBAuLLarmMAtljTEdleZFZ5sng6PU0svSO0Eo9brK3J7
-M7wK9YHYO9L0WKOxp8NszyDbQCBKr11PxeOiSnzSjz74JevfzbYVlqyp3crHtZL6
-D6lkefoMZ9wRYwBf2zbV7XQwrXtU7fTurkcrE9x5kFz3NTF0m2ekBD8hW94MVvuA
-okVraGfiGxC3cS/UwrsRZKroplu32mZqs+Ne7q3P/RKHXVcjeu7NvpTbHSQZZ4Lr
-mhyJ+2rfhnpnpcvXYzMIKiSCWJX4SIsMGOG1ftyrCknjSRuZzTOsTjWgj50AD2s7
-HopZWqZKroJ+dsGwR3iDI+uQ+7elvtrNqvkCAwEAAaOBhjCBgzAOBgNVHQ8BAf8E
-BAMCAqQwEwYDVR0lBAwwCgYIKwYBBQUHAwEwDwYDVR0TAQH/BAUwAwEB/zAdBgNV
-HQ4EFgQUIZATCNVqewTl99rj6+vqACfkD4kwLAYDVR0RBCUwI4IJbG9jYWxob3N0
-hwR/AAABhxAAAAAAAAAAAAAAAAAAAAABMA0GCSqGSIb3DQEBCwUAA4IBAQBv/MYW
-bzxNRKtCXgmd7L3ufU1H5U/gisLQh2wzFh6n7D0w63/NSMQzI12h8MzuV6ceTP7m
-cndGtY+x3nwP5CtpXPqf0T/9660zD60quRMLVzlPd6X6iR1FvASL74739mlGOStX
-9JkkTShHWTzi9uN2ff84kgpH+lJ3pjy/S6mCKt0op2ciWFFXPij3mT28wQLYDhKl
-ZWLLSwL+aO4faf041zQMPj6Er615UUQ/Rfp1hLUx708ZCdRpxWcIf3dq07Ej7Zje
-eVbY/+WG436R0DEsyx1Gdp+j0qWD9mT3teV4Ix9WGViZ0Mi3ugdGQ/qwDeabI/wZ
-jtWJ/jvDSDkM6Pjp
------END CERTIFICATE-----`;
-
-const tlsKey = `-----BEGIN PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCj6RhuMDgQLiy2
-q5jALZY0xHZXmRWebJ4Oj1NLL0jtBKPW6ytyezO8CvWB2DvS9FijsafDbM8g20Ag
-Sq9dT8Xjokp80o8++CXr3822FZasqd3Kx7WS+g+pZHn6DGfcEWMAX9s21e10MK17
-VO307q5HKxPceZBc9zUxdJtnpAQ/IVveDFb7gKJFa2hn4hsQt3Ev1MK7EWSq6KZb
-t9pmarPjXu6tz/0Sh11XI3ruzb6U2x0kGWeC65ociftq34Z6Z6XL12MzCCokgliV
-+EiLDBjhtX7cqwpJ40kbmc0zrE41oI+dAA9rOx6KWVqmSq6CfnbBsEd4gyPrkPu3
-pb7azar5AgMBAAECggEAbLhZ+gyFw0W9ZtTfFuml7g46KNRjoJePJz0uFHqitoQT
-YKTQRrktkZb7TUruM3jbqohWLKvpn3OOT1z6gLw/GEQ3gB/x3+Sc0p26RwJ+1Lw/
-Xxeken7fEI6S0aaU5UWrEz6Bmxe+zwjSqTGmPIZslswd+mmvtdpLMCiWQ+Jo5q3b
-hiH9DjeXKH01pocsiR94sbZhPiyqVKT1ROVRL/ZqzrTN7bfOLyV/+Q8ap9HZeve0
-IIIjRM0aXf2B1ihsEEcI2x5WcUgBC/j87C48G82k8UkM1TBkTqvKMG4xLHF2+ozT
-Go8H8P2bTq0cdzOVWdP/V6tCUlgWpZk2cxFwxHl54QKBgQDaL9VZTQ2kTOzQsHM/
-dx3M04L0M0q0c4U4Had3H7AG5G6oAJCVerLJ6//s4ebcSZAl25vcTfhLwOQ7MP5O
-yUt3sG0l8WxHg2dmBvJNPNMXbcb6s0mh5uMVKSOJb4LGTh66Yi/dZaPUM1TEPYU/
-N/YwLtnpDdqyUVFlPMID8ZhPpQKBgQDAUTd6h5C/YXK+L5DzFYTaweCBmnsCm/SG
-+kPYr53inZT6rjQKC3KJ+xkS7VJLOLwyCyXVIiBo7FsK4+uv5Xs/U3LmHIE9r9/9
-/QyBTmyjF4gOgeYFm7Baad4UlzZ0e19QHaBBSUuB6HD82sK+/HVOSlCymRjfe8pq
-6SJwPMkNxQKBgQCGtcfE1gUZLwF7q6XMRnAYuXJ98XkrRrO2vOBbdS4KY1lK0uZx
-1Aq1Dse5apRN6AFezmNBtsYZh2OihBJPdIrqv/vz1EYlNSVO4fUR6P7v1TBoMu/A
-TTxhIUA2p6mXZD4ml160E//9kR/B9bXiHVwbzaFu+cXQGNLnbYbgRnbinQKBgCap
-bSTF0hSXS5DuUQ59OfscVLzZSHdq0Mq9zxvlmjDviv6mPLH0QS95+j1y1kNnAXZy
-BUYGmUtekKLs1PnEgXVmmkemXVkAXWBbGcN496AF4AVCmfJwrRBQDiRHjdv23V9m
-xUu6p2JTTzuV4uawLAj0Kart2jE7WqMJgTHdFnIdAoGBAMRIPlX+DmEAcYT+myW5
-ObMJmwpdEhT/m0cngmbL72JcBoEVgx4Sz2HOph3cE9xFWKhNW3P0y3VK4ChIU7H0
-P70Ozwd20sayRGSdCnoBHHs8tCq4dKngAtKbtfUlckMeZ2yYNZ7q4sKaM3kxeUL8
-I3ecah+z8imp0AGSmqddCPD+
------END PRIVATE KEY-----`;

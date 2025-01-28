@@ -6,11 +6,6 @@
 
 'use strict';
 
-if (process.env.TEST_SKIP_HTTPS_PEM === 'true') {
-  console.log('# SKIP: env.TEST_SKIP_HTTPS_PEM=true');
-  process.exit(0);
-}
-
 var agent = require('../../..').start({
   serviceName: 'test',
   captureExceptions: false,
@@ -23,9 +18,9 @@ var ins = agent._instrumentation;
 var fs = require('fs');
 var https = require('https');
 var http2 = require('http2');
+const path = require('path');
 
 var semver = require('semver');
-var pem = require('https-pem');
 var test = require('tape');
 
 var mockClient = require('../../_mock_http_client');
@@ -35,6 +30,13 @@ if (semver.satisfies(process.version, '8.x')) {
   console.log('# SKIP http2 testing on node v8.x is crashy in CI');
   process.exit();
 }
+
+const tlsOpts = {
+  cert: fs.readFileSync(
+    path.resolve(__dirname, '../../fixtures/certs/cert.pem'),
+  ),
+  key: fs.readFileSync(path.resolve(__dirname, '../../fixtures/certs/key.pem')),
+};
 
 var isSecure = [false, true];
 isSecure.forEach((secure) => {
@@ -65,7 +67,7 @@ isSecure.forEach((secure) => {
 
     var port;
     var server = secure
-      ? http2.createSecureServer(pem, onRequest)
+      ? http2.createSecureServer(tlsOpts, onRequest)
       : http2.createServer(onRequest);
 
     var onError = (err) => t.error(err);
@@ -95,7 +97,9 @@ isSecure.forEach((secure) => {
     });
 
     var port;
-    var server = secure ? http2.createSecureServer(pem) : http2.createServer();
+    var server = secure
+      ? http2.createSecureServer(tlsOpts)
+      : http2.createServer();
 
     var onError = (err) => t.error(err);
     server.on('error', onError);
@@ -136,7 +140,9 @@ isSecure.forEach((secure) => {
     });
 
     var port;
-    var server = secure ? http2.createSecureServer(pem) : http2.createServer();
+    var server = secure
+      ? http2.createSecureServer(tlsOpts)
+      : http2.createServer();
 
     var onError = (err) => t.error(err);
     server.on('error', onError);
@@ -184,7 +190,9 @@ isSecure.forEach((secure) => {
     });
 
     var port;
-    var server = secure ? http2.createSecureServer(pem) : http2.createServer();
+    var server = secure
+      ? http2.createSecureServer(tlsOpts)
+      : http2.createServer();
 
     var onError = (err) => t.error(err);
     server.on('error', onError);
@@ -232,7 +240,9 @@ isSecure.forEach((secure) => {
     });
 
     var port;
-    var server = secure ? http2.createSecureServer(pem) : http2.createServer();
+    var server = secure
+      ? http2.createSecureServer(tlsOpts)
+      : http2.createServer();
 
     var onError = (err) => t.error(err);
     server.on('error', onError);
@@ -279,7 +289,9 @@ isSecure.forEach((secure) => {
 
     var port;
     var client;
-    var server = secure ? http2.createSecureServer(pem) : http2.createServer();
+    var server = secure
+      ? http2.createSecureServer(tlsOpts)
+      : http2.createServer();
 
     var onError = (err) => t.error(err);
     server.on('error', onError);
@@ -422,7 +434,9 @@ isSecure.forEach((secure) => {
     });
 
     var port;
-    var server = secure ? http2.createSecureServer(pem) : http2.createServer();
+    var server = secure
+      ? http2.createSecureServer(tlsOpts)
+      : http2.createServer();
 
     var onError = (err) => t.error(err);
     server.on('error', onError);
@@ -496,7 +510,7 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
   });
 
   var port;
-  var serverOpts = Object.assign({ allowHTTP1: true }, pem);
+  var serverOpts = Object.assign({ allowHTTP1: true }, tlsOpts);
   var server = http2.createSecureServer(serverOpts);
   server.on('request', function onRequest(req, res) {
     var trans = ins.currTransaction();

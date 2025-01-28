@@ -6,11 +6,6 @@
 
 'use strict';
 
-if (process.env.TEST_SKIP_HTTPS_PEM === 'true') {
-  console.log('# SKIP: env.TEST_SKIP_HTTPS_PEM=true');
-  process.exit(0);
-}
-
 var agent = require('../../../..').start({
   serviceName: 'test',
   captureExceptions: false,
