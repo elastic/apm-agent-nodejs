@@ -44,6 +44,7 @@ jobs:
 
     timeout-minutes: 30
     steps:
+      - run: false #XXX force failure for now
       - run: |
           apk update
           apk add nodejs npm
@@ -52,9 +53,7 @@ jobs:
         run: |
           node -e 'const isFips = require("node:crypto").getFips(); console.log("isFips:", isFips); assert(isFips)'
       - run: npm ci
-      # XXX
-      # - run: node test/test.js
-      - run: node test/sanitize-field-names/hapi.test.js
+      - run: node test/test.js
         env:
           # TEST_WITHOUT_SERVICES skips instrumentation tests that rely on a
           # running service, like a database.  This var was added because I
