@@ -27,7 +27,7 @@ on:
     - 'docs/**'
     - 'examples/**'
 
-# limit the access of the generated GITHUB_TOKEN
+# Limit the access of the generated GITHUB_TOKEN.
 permissions:
   contents: read
 
@@ -40,25 +40,29 @@ jobs:
       - run: ls
       - run: mount
 
-  #     - name: Log in to the Elastic Container registry
-  #       uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
-  #       with:
-  #         registry: ${{ secrets.ELASTIC_DOCKER_REGISTRY }}
-  #         username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
-  #         password: ${{ secrets.ELASTIC_DOCKER_PASSWORD }}
-
   test:
     runs-on: ubuntu-24.04
+    needs: setup
     # https://docs.github.com/en/actions/writing-workflows/choosing-where-your-workflow-runs/running-jobs-in-a-container
     container:
       image: docker.elastic.co/wolfi/chainguard-base-fips:latest
       credentials:
         username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
         password: ${{ secrets.ELASTIC_DOCKER_PASSWORD }}
+      volumes:
+        - /home/runner
 
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - run: mount
       - run: pwd
       - run: ls
-      - run: mount
+      - run: ls /home/runner || true
+
+      - name: Notify in Slack
+        if: ${{ failure() }}
+        uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-node"
+          message: 'test-fips failed XXX'
