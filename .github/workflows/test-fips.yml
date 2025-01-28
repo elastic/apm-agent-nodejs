@@ -1,31 +1,15 @@
 name: test-fips
 
 # Test FIPS 140 compliance by running tests inside a FIPS-140-configured
-# Docker container (the Chainguard base FIPS container).
+# Docker container (the Chainguard base FIPS container). This is run weekly
+# (no need to run for every commit or PR). Slack is notified if the weekly run
+# fails.
 
 on:
   workflow_dispatch:
-  #XXX
-  # schedule:
-  #   # Every Tuesday at 6:00 AM
-  #   - cron: '0 6 * * 2'
-  # XXX
-  push:
-    branches:
-    - main
-    paths-ignore:
-    - '**/*.md'
-    - '**/*.asciidoc'
-    - 'docs/**'
-    - 'examples/**'
-  pull_request:
-    branches:
-    - main
-    paths-ignore:
-    - '**/*.md'
-    - '**/*.asciidoc'
-    - 'docs/**'
-    - 'examples/**'
+  schedule:
+    # Every Tuesday at 6:00 AM
+    - cron: '0 6 * * 2'
 
 # Limit the access of the generated GITHUB_TOKEN.
 permissions:
