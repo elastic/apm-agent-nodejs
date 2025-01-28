@@ -32,11 +32,13 @@ permissions:
   contents: read
 
 jobs:
-  # setup:
-  #   runs-on: ubuntu-24.04
-  #   steps:
-  #     #XXX
-  #     #   - uses: actions/checkout@v4
+  setup:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: pwd
+      - run: ls
+      - run: mount
 
   #     - name: Log in to the Elastic Container registry
   #       uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
@@ -59,3 +61,4 @@ jobs:
       - uses: actions/checkout@v4
       - run: pwd
       - run: ls
+      - run: mount
