@@ -73,7 +73,8 @@ jobs:
       #     #   https://github.com/elastic/apm-agent-nodejs/actions/runs/${{ github.run_id }}
       #     message: ':warning: test-fips workflow run ${{ github.run_id }} failed XXX'
 
-      - name: Post Slack message
+      - name: Post Slack message if failed
+        if: ${{ failure() }}
         uses: slackapi/slack-github-action@v2.0.0
         with:
           method: chat.postMessage
