@@ -100,7 +100,7 @@ jobs:
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           # channel-id: "#apm-agent-node"
-          channel-id: "@trentm"
+          channel-id: "trentm"
           # message: |
           #   :warning: `test-fips` workflow run ${{ github.run_id }} failed'
           #   https://github.com/elastic/apm-agent-nodejs/actions/runs/${{ github.run_id }}
