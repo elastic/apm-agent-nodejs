@@ -32,17 +32,18 @@ permissions:
   contents: read
 
 jobs:
-  setup:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - run: pwd
-      - run: ls
-      - run: mount
+  # setup:
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - run: pwd
+  #     - run: ls
+  #     - run: mount
 
   test-fips:
     runs-on: ubuntu-24.04
-    needs: setup
+    # XXX
+    # needs: setup
     # https://docs.github.com/en/actions/writing-workflows/choosing-where-your-workflow-runs/running-jobs-in-a-container
     # docker run -it --rm --name fipsy docker.elastic.co/wolfi/chainguard-base-fips:latest
     container:
@@ -57,15 +58,15 @@ jobs:
     steps:
       - run: |
           apk update
-          apk add mount
           apk add nodejs npm
-      - run: mount
+      - uses: actions/checkout@v4
       - run: pwd
       - run: ls -al
-      - run: find /home/runner
-      - run: find /github/workflow
-      - run: find /__w
-      - uses: actions/checkout@v4
+      - run: cat /__w/_PipelineMapping/elastic/apm-agent-nodejs/PipelineFolder.json || true #XXX
+      - run: |
+          node -e 'const isFips = require("node:crypto").getFips(); console.log("isFips:", isFips); assert(isFips)'
+      - run: npm ci
+      - run: node test/instrumentation/modules/express/basic.test.js
 
   notify-on-failure:
     # XXX can we just run on "failure()"? Does that translate to "needs"? Guessing no.
