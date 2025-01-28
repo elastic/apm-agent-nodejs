@@ -65,26 +65,37 @@ jobs:
       - run: cat /__w/_PipelineMapping/elastic/apm-agent-nodejs/PipelineFolder.json || true #XXX
       - run: |
           node -e 'const isFips = require("node:crypto").getFips(); console.log("isFips:", isFips); assert(isFips)'
-      - run: npm ci
+      # XXX https://github.com/elastic/apm-agent-nodejs/actions/runs/13001086210/job/36259730139?pr=4441
+      #  node_modules/https-pem
+      - run: npm ci --ignore-scripts
       - run: node test/instrumentation/modules/express/basic.test.js
 
-  notify-on-failure:
-    # XXX can we just run on "failure()"? Does that translate to "needs"? Guessing no.
-    if: always()
-    runs-on: ubuntu-24.04
-    needs: test-fips
-    steps:
-      # - name: Notify in Slack
-      #   #XXX
-      #   if: ${{ failure() }}
-      #   uses: elastic/oblt-actions/slack/notify-result@v1.16.0
-      #   with:
-      #     bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
-      #     channel-id: "#apm-agent-node"
-      #     message: 'test-fips failed XXX'
-      - id: check
-        uses: elastic/oblt-actions/check-dependent-jobs@v1
+      - name: Notify in Slack
+        #XXX
+        if: ${{ failure() }}
+        uses: elastic/oblt-actions/slack/notify-result@v1.16.0
         with:
-          jobs: ${{ toJSON(needs) }}
-      - run: ${{ steps.check.outputs.is-success }}
-      #XXX
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-node"
+          message: 'test-fips failed XXX'
+
+  # notify-on-failure:
+  #   # XXX can we just run on "failure()"? Does that translate to "needs"? Guessing no.
+  #   if: always()
+  #   runs-on: ubuntu-24.04
+  #   needs: test-fips
+  #   steps:
+  #     # - name: Notify in Slack
+  #     #   #XXX
+  #     #   if: ${{ failure() }}
+  #     #   uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+  #     #   with:
+  #     #     bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+  #     #     channel-id: "#apm-agent-node"
+  #     #     message: 'test-fips failed XXX'
+  #     - id: check
+  #       uses: elastic/oblt-actions/check-dependent-jobs@v1
+  #       with:
+  #         jobs: ${{ toJSON(needs) }}
+  #     - run: ${{ steps.check.outputs.is-success }}
+  #     #XXX
