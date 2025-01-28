@@ -73,14 +73,47 @@ jobs:
       #     #   https://github.com/elastic/apm-agent-nodejs/actions/runs/${{ github.run_id }}
       #     message: ':warning: test-fips workflow run ${{ github.run_id }} failed XXX'
 
-      - name: Post Slack message if failed
-        if: ${{ failure() }}
-        uses: slackapi/slack-github-action@v2.0.0
+      # - name: Post Slack message if failed
+      #   if: ${{ failure() }}
+      #   uses: slackapi/slack-github-action@v2.0.0
+      #   with:
+      #     method: chat.postMessage
+      #     token: ${{ secrets.SLACK_BOT_TOKEN }}
+      #     payload: |
+      #       {
+      #         "channel": "#apm-agent-nodejs",
+      #         "text": ":warning: test-fips workflow run ${{ github.run_id }} failed XXX"
+      #       }
+
+  notify-on-failure:
+    if: always()
+    runs-on: ubuntu-24.04
+    needs: test-fips
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
         with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: |
-            {
-              "channel": "#apm-agent-nodejs",
-              "text": ":warning: test-fips workflow run ${{ github.run_id }} failed XXX"
-            }
+          jobs: ${{ toJSON(needs) }}
+      # - run: ${{ steps.check.outputs.is-success }}
+      - name: Notify in Slack
+        if: ${{ ! steps.check.outputs.is-success }}
+        uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-node"
+          # message: |
+          #   :warning: `test-fips` workflow run ${{ github.run_id }} failed'
+          #   https://github.com/elastic/apm-agent-nodejs/actions/runs/${{ github.run_id }}
+          message: ':warning: test-fips workflow run ${{ github.run_id }} failed XXX'
+
+      # - name: Post Slack message if failed
+      #   if: ${{ failure() }}
+      #   uses: slackapi/slack-github-action@v2.0.0
+      #   with:
+      #     method: chat.postMessage
+      #     token: ${{ secrets.SLACK_BOT_TOKEN }}
+      #     payload: |
+      #       {
+      #         "channel": "#apm-agent-nodejs",
+      #         "text": ":warning: test-fips workflow run ${{ github.run_id }} failed XXX"
+      #       }
