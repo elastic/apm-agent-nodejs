@@ -40,10 +40,11 @@ jobs:
       - run: ls
       - run: mount
 
-  test:
+  test-fips:
     runs-on: ubuntu-24.04
     needs: setup
     # https://docs.github.com/en/actions/writing-workflows/choosing-where-your-workflow-runs/running-jobs-in-a-container
+    # docker run -it --rm --name fipsy docker.elastic.co/wolfi/chainguard-base-fips:latest
     container:
       image: docker.elastic.co/wolfi/chainguard-base-fips:latest
       credentials:
@@ -54,15 +55,31 @@ jobs:
 
     timeout-minutes: 30
     steps:
+      - run: |
+          apk update
+          apk add mount
       - run: mount
       - run: pwd
       - run: ls
       - run: ls /home/runner || true
 
-      - name: Notify in Slack
-        if: ${{ failure() }}
-        uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+  notify-on-failure:
+    # XXX can we just run on "failure()"? Does that translate to "needs"? Guessing no.
+    if: always()
+    runs-on: ubuntu-24.04
+    needs: test-fips
+    steps:
+      # - name: Notify in Slack
+      #   #XXX
+      #   if: ${{ failure() }}
+      #   uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+      #   with:
+      #     bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+      #     channel-id: "#apm-agent-node"
+      #     message: 'test-fips failed XXX'
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
         with:
-          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
-          channel-id: "#apm-agent-node"
-          message: 'test-fips failed XXX'
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+      #XXX
