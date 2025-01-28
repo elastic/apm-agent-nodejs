@@ -60,15 +60,15 @@ jobs:
           apk update
           apk add nodejs npm
       - uses: actions/checkout@v4
-      - run: pwd
-      - run: ls -al
-      - run: cat /__w/_PipelineMapping/elastic/apm-agent-nodejs/PipelineFolder.json || true #XXX
-      - run: |
+      - name: Is Node.js running in FIPS mode?
+        run: |
           node -e 'const isFips = require("node:crypto").getFips(); console.log("isFips:", isFips); assert(isFips)'
       # XXX https://github.com/elastic/apm-agent-nodejs/actions/runs/13001086210/job/36259730139?pr=4441
       #  node_modules/https-pem
       - run: npm ci --ignore-scripts
-      - run: node test/instrumentation/modules/express/basic.test.js
+      # - run: node test/instrumentation/modules/express/basic.test.js
+      # - run: node test/test.js
+      - run: npm test
 
       - name: Notify in Slack
         #XXX
