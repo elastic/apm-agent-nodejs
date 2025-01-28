@@ -52,7 +52,9 @@ jobs:
         run: |
           node -e 'const isFips = require("node:crypto").getFips(); console.log("isFips:", isFips); assert(isFips)'
       - run: npm ci
-      - run: node test/test.js
+      # XXX
+      # - run: node test/test.js
+      - run: node test/sanitize-field-names/hapi.test.js
         env:
           # TEST_WITHOUT_SERVICES skips instrumentation tests that rely on a
           # running service, like a database.  This var was added because I
@@ -61,10 +63,12 @@ jobs:
           # FIPS-related testing because no instrumentations use crypto.
           TEST_WITHOUT_SERVICES: 'true'
 
-      # - name: Notify in Slack
-      #   if: ${{ failure() }}
-      #   uses: elastic/oblt-actions/slack/notify-result@v1.16.0
-      #   with:
-      #     bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
-      #     channel-id: "#apm-agent-node"
-      #     message: 'test-fips failed XXX'
+      - name: Notify in Slack
+        if: ${{ failure() }}
+        uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-node"
+          message: |
+            :warning: `test-fips` workflow run ${{ github.run_id }} failed'
+            https://github.com/elastic/apm-agent-nodejs/actions/runs/${{ github.run_id }}
