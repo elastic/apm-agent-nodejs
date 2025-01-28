@@ -61,7 +61,18 @@ jobs:
       # - run: npm test
       - run: node test/test.js
         env:
+          # TEST_WITHOUT_SERVICES skips instrumentation tests that rely on a
+          # running service, like a database.  This var was added because I
+          # don't know how to get GH Action `services:` to be available to this
+          # test suite running in the `container:`. This shouldn't matter for
+          # FIPS-related testing because no instrumentations use crypto.
           TEST_WITHOUT_SERVICES: 'true'
+          # This TEST_ var was added for this test suite run. Some of the tests
+          # rely on an old `https-pem` module that creates a client certificate
+          # using old crypto usage that isn't allowed for FIPS. It isn't
+          # currently worth the effort to update these tests to use an
+          # alternative. None of this old crypto is used at runtime.
+          TEST_SKIP_HTTPS_PEM: 'true'
 
       # - name: Notify in Slack
       #   if: ${{ failure() }}
