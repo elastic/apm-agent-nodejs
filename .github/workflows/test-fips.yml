@@ -94,11 +94,8 @@ jobs:
         uses: elastic/oblt-actions/check-dependent-jobs@v1
         with:
           jobs: ${{ toJSON(needs) }}
-      - run: echo ${{ steps.check.outputs.is-success }}
-      - run: echo ${{ steps.check.outputs.status }}
-      - run: ${{ steps.check.outputs.is-success }}
       - name: Notify in Slack
-        if: ${{ ! steps.check.outputs.is-success }}
+        if: steps.check.outputs.status == 'failure'
         uses: elastic/oblt-actions/slack/notify-result@v1.16.0
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
