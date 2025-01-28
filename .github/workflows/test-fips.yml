@@ -85,6 +85,8 @@ jobs:
       #         "text": ":warning: test-fips workflow run ${{ github.run_id }} failed XXX"
       #       }
 
+  # Pull Slack notification handling out to a separate job, because I cannot
+  # get it working inside the container.
   notify-on-failure:
     if: always()
     runs-on: ubuntu-24.04
@@ -99,8 +101,7 @@ jobs:
         uses: elastic/oblt-actions/slack/notify-result@v1.16.0
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
-          # channel-id: "#apm-agent-node"
-          channel-id: "trentm"
+          channel-id: "#apm-agent-node"
           # message: |
           #   :warning: `test-fips` workflow run ${{ github.run_id }} failed'
           #   https://github.com/elastic/apm-agent-nodejs/actions/runs/${{ github.run_id }}
