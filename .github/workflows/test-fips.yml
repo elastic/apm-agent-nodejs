@@ -94,13 +94,16 @@ jobs:
         uses: elastic/oblt-actions/check-dependent-jobs@v1
         with:
           jobs: ${{ toJSON(needs) }}
-      # - run: ${{ steps.check.outputs.is-success }}
+      - run: echo ${{ steps.check.outputs.is-success }}
+      - run: echo ${{ steps.check.outputs.status }}
+      - run: ${{ steps.check.outputs.is-success }}
       - name: Notify in Slack
         if: ${{ ! steps.check.outputs.is-success }}
         uses: elastic/oblt-actions/slack/notify-result@v1.16.0
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
-          channel-id: "#apm-agent-node"
+          # channel-id: "#apm-agent-node"
+          channel-id: "@trentm"
           # message: |
           #   :warning: `test-fips` workflow run ${{ github.run_id }} failed'
           #   https://github.com/elastic/apm-agent-nodejs/actions/runs/${{ github.run_id }}
