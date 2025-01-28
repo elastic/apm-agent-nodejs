@@ -33,113 +33,6 @@ permissions:
 
 jobs:
   test-fips:
-    # These services and their configuration should match test/docker-compose.yml.
-    services:
-      redis:
-        image: redis
-        ports:
-          - 6379:6379
-
-      memcached:
-        image: memcached:alpine
-        ports:
-          - 11211:11211
-
-      cassandra:
-        image: cassandra
-        ports:
-          - 9042:9042
-        env:
-          MAX_HEAP_SIZE: '1G'
-          HEAP_NEWSIZE: '400m'
-        volumes:
-          - nodecassandradata:/var/lib/cassandra
-
-      postgres:
-        image: postgres:9.6
-        ports:
-          - 5432:5432
-        volumes:
-          - nodepgdata:/var/lib/postgresql/data
-        env:
-          POSTGRES_USER: 'postgres'
-          POSTGRES_DB: 'test_elastic_apm'
-          POSTGRES_HOST_AUTH_METHOD: 'trust'
-
-      mongodb:
-        image: mongo:5
-        ports:
-          - 27017:27017
-        volumes:
-          - nodemongodata:/data/db
-
-      mysql:
-        image: mysql:5.7
-        ports:
-          - 3306:3306
-        volumes:
-          - nodemysqldata:/var/lib/mysql
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: 1
-
-      mssql:
-        image: mcr.microsoft.com/mssql/server
-        env:
-          ACCEPT_EULA: 'Y'
-          MSSQL_SA_PASSWORD: 'Very(!)Secure'
-          MSSQL_PID: 'Developer'
-        ports:
-          - 1433:1433
-        volumes:
-          - nodemssqldata:/var/opt/mssql
-
-      elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.7.1
-        env:
-          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
-          network.host: '_site_'
-          transport.host: '127.0.0.1'
-          http.host: '0.0.0.0'
-          xpack.security.enabled: 'false'
-        ports:
-          - 9200:9200
-        volumes:
-          - nodeesdata:/usr/share/elasticsearch/data
-
-      localstack:
-        image: localstack/localstack:3.0.0
-        env:
-          DATA_DIR: '/var/lib/localstack'
-        ports:
-          - "4566:4566"
-        volumes:
-          - nodelocalstackdata:/var/lib/localstack
-
-      zookeeper:
-        image: bitnami/zookeeper:3.9.1
-        env:
-          ALLOW_ANONYMOUS_LOGIN: 'yes'
-        ports:
-          - "2181:2181"
-        volumes:
-          - nodezookeeperdata:/var/lib/zookeeper/data
-
-      kafka:
-        image: bitnami/kafka:3.3.2
-        ports:
-          - "9093:9093"
-        volumes:
-          - nodekafkadata:/var/lib/kafka/data
-        env:
-          KAFKA_BROKER_ID: '1'
-          KAFKA_CFG_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-          ALLOW_PLAINTEXT_LISTENER: 'yes'
-          KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: 'CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT'
-          KAFKA_CFG_LISTENERS: 'CLIENT://:9092,EXTERNAL://:9093'
-          KAFKA_CFG_ADVERTISED_LISTENERS: 'CLIENT://kafka:9092,EXTERNAL://localhost:9093'
-          KAFKA_CFG_INTER_BROKER_LISTENER_NAME: 'CLIENT'
-          KAFKA_CFG_DELETE_TOPIC_ENABLE: 'true'
-
     runs-on: ubuntu-24.04
     # https://docs.github.com/en/actions/writing-workflows/choosing-where-your-workflow-runs/running-jobs-in-a-container
     # docker run -it --rm --name fipsy docker.elastic.co/wolfi/chainguard-base-fips:latest
@@ -167,6 +60,8 @@ jobs:
       # - run: node test/instrumentation/modules/express/basic.test.js
       # - run: npm test
       - run: node test/test.js
+        env:
+          TEST_WITHOUT_SERVICES: 'true'
 
       # - name: Notify in Slack
       #   if: ${{ failure() }}
