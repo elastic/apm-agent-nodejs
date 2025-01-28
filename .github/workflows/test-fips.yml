@@ -62,13 +62,24 @@ jobs:
           # FIPS-related testing because no instrumentations use crypto.
           TEST_WITHOUT_SERVICES: 'true'
 
-      - name: Notify in Slack
-        if: ${{ failure() }}
-        uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+      # - name: Notify in Slack
+      #   if: ${{ failure() }}
+      #   uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+      #   with:
+      #     bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+      #     channel-id: "#apm-agent-node"
+      #     # message: |
+      #     #   :warning: `test-fips` workflow run ${{ github.run_id }} failed'
+      #     #   https://github.com/elastic/apm-agent-nodejs/actions/runs/${{ github.run_id }}
+      #     message: ':warning: test-fips workflow run ${{ github.run_id }} failed XXX'
+
+      - name: Post Slack message
+        uses: slackapi/slack-github-action@v2.0.0
         with:
-          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
-          channel-id: "#apm-agent-node"
-          # message: |
-          #   :warning: `test-fips` workflow run ${{ github.run_id }} failed'
-          #   https://github.com/elastic/apm-agent-nodejs/actions/runs/${{ github.run_id }}
-          message: ':warning: test-fips workflow run ${{ github.run_id }} failed XXX'
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            {
+              "channel": "#apm-agent-nodejs",
+              "text": ":warning: test-fips workflow run ${{ github.run_id }} failed XXX"
+            }
