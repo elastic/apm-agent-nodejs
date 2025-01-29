@@ -6,9 +6,11 @@
 
 'use strict';
 
+const fs = require('fs');
 const http = require('http');
 const https = require('https');
 const os = require('os');
+const path = require('path');
 const { URL } = require('url');
 const zlib = require('zlib');
 const semver = require('semver');
@@ -22,6 +24,13 @@ exports.assertConfigReq = assertConfigReq;
 exports.assertMetadata = assertMetadata;
 exports.assertEvent = assertEvent;
 exports.validOpts = validOpts;
+
+const tlsCert = fs.readFileSync(
+  path.resolve(__dirname, '../../../fixtures/certs/cert.pem'),
+);
+const tlsKey = fs.readFileSync(
+  path.resolve(__dirname, '../../../fixtures/certs/key.pem'),
+);
 
 function APMServer(opts, onreq) {
   if (typeof opts === 'function') return APMServer(null, opts);
@@ -235,45 +244,3 @@ function validOpts(opts) {
     opts,
   );
 }
-
-// tlsCert and tlsKey were generated via the same method as Go's builtin
-// test certificate/key pair, using
-// https://github.com/golang/go/blob/master/src/crypto/tls/generate_cert.go:
-//
-//     go run generate_cert.go --rsa-bits 1024 --host 127.0.0.1,::1,localhost \
-//                             --ca --start-date "Jan 1 00:00:00 1970" \
-//                             --duration=1000000h
-//
-// The certificate is valid for 127.0.0.1, ::1, and localhost; and expires in the year 2084.
-
-const tlsCert = `-----BEGIN CERTIFICATE-----
-MIICETCCAXqgAwIBAgIQQalo5z3llnTiwERMPZQxujANBgkqhkiG9w0BAQsFADAS
-MRAwDgYDVQQKEwdBY21lIENvMCAXDTcwMDEwMTAwMDAwMFoYDzIwODQwMTI5MTYw
-MDAwWjASMRAwDgYDVQQKEwdBY21lIENvMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCB
-iQKBgQDrW9Z8jSgTMeN9Dt36HBj/kbU/aeFp10GshKm8IKWBpyyWKrTSjiYJIpTK
-l/6sdC77UCDokYAk66T+IXIvvRvqOtD1HUt+KLlqZ7acunTp1Qq4PnASHBm9fdKs
-F1c8gWlEXOMzCsC5BmokcijW7z8JTKszAVi2vpq5MHbtYxZXKQIDAQABo2YwZDAO
-BgNVHQ8BAf8EBAMCAqQwEwYDVR0lBAwwCgYIKwYBBQUHAwEwDwYDVR0TAQH/BAUw
-AwEB/zAsBgNVHREEJTAjgglsb2NhbGhvc3SHBH8AAAGHEAAAAAAAAAAAAAAAAAAA
-AAEwDQYJKoZIhvcNAQELBQADgYEA4yzI/6gjkACdvrnlFm/MJlDQztPYYEAtQ6Sp
-0q0PMQcynLfhH94KMjxJb31HNPJYXr7UrE6gwL2sUnfioXUTQTk35okpphR8MGu2
-hZ704px4wdeK/9B5Vh96oMZLYhm9SXizRVAZz7bPFYNMrhyk9lrWZXOaX526w4wI
-Y5LTiUQ=
------END CERTIFICATE-----`;
-
-const tlsKey = `-----BEGIN PRIVATE KEY-----
-MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAOtb1nyNKBMx430O
-3focGP+RtT9p4WnXQayEqbwgpYGnLJYqtNKOJgkilMqX/qx0LvtQIOiRgCTrpP4h
-ci+9G+o60PUdS34ouWpntpy6dOnVCrg+cBIcGb190qwXVzyBaURc4zMKwLkGaiRy
-KNbvPwlMqzMBWLa+mrkwdu1jFlcpAgMBAAECgYEAtZc9LQooIm86izHeWOw26XD9
-u/iwf94igL42y70QlbFreE1pCI++jwvMa2fMijh2S1bunSIuEc5yldUuaeDp2FtJ
-k7U9orbJspnWy6ixk1KgpjffdHP73r4S3a5G81G8sq9Uvwl0vxF90eTvg9C7kUfk
-J1YMy4zcpLtwkCHEkNUCQQDx79t6Dqswi8vDoS0+MCIJNCO4J49ZchL8aXE8n9GT
-mF+eOsKy6e5qYH0oYPpeXchwf1tWhX1gBCb3fXrtOoPTAkEA+QoX9S1XofY8YS1M
-iNVVSkLjpKgVoTQVe4j+vj16NHouVQ+oOvEUca2LTrHRx+utdar1NSexl51NO0Lj
-3sqnkwJAPNWCC3Pqyb8tEljRxoRV2piYrrKL0gLkEUH2LjdFfGZhDKlb0Z8OywLO
-Fbwk2FuejeMINX5FY0JIBg0wPrxq7wJAMoot2n/dLO0/y6jZw1sn9+4jLKM/4Hsl
-cPCYYhsv1b6F8JVA2tVaBMfnYY0MubnGdf6/zI3FqLMvnTsx62DNKQJBAMYUaw/D
-plXTexeEU/c0BRxQdOkGmDqOQtnuRQUCQq6gu+occTeilgFoKHWT3QcZHIpHxawJ
-N2K67EWPRgr3suE=
------END PRIVATE KEY-----`;

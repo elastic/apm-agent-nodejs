@@ -17,6 +17,9 @@ const isUndiciIncompat = require('../../../_is_undici_incompat')();
 if (isUndiciIncompat) {
   console.log(`# SKIP dependency issue: ${isUndiciIncompat}`);
   process.exit();
+} else if (process.env.TEST_WITHOUT_SERVICES === 'true') {
+  console.log('# SKIP: env.TEST_WITHOUT_SERVICES=true');
+  process.exit(0);
 }
 
 process.env.ELASTIC_APM_TEST = true;

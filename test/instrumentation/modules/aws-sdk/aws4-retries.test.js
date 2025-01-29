@@ -9,6 +9,9 @@
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   console.log('# SKIP: GH Actions do not support docker services on Windows');
   process.exit(0);
+} else if (process.env.TEST_WITHOUT_SERVICES === 'true') {
+  console.log('# SKIP: env.TEST_WITHOUT_SERVICES=true');
+  process.exit(0);
 }
 
 // Test the fix for bug #2134, that AWS4 signature auth with the aws-sdk
