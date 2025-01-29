@@ -6,7 +6,15 @@
 
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
+
 var getPort = require('get-port');
+
+const tlsOpts = {
+  cert: fs.readFileSync(path.resolve(__dirname, '../fixtures/certs/cert.pem')),
+  key: fs.readFileSync(path.resolve(__dirname, '../fixtures/certs/key.pem')),
+};
 
 getPort().then(
   function (port) {
@@ -22,13 +30,12 @@ getPort().then(
     });
 
     var https = require('https');
-    var pem = require('https-pem');
     var test = require('tape');
 
     test('should allow self signed certificate', function (t) {
       t.plan(3);
 
-      var server = https.createServer(pem, function (req, res) {
+      var server = https.createServer(tlsOpts, function (req, res) {
         t.pass('server received client request');
         res.end();
       });

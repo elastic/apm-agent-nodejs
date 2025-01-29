@@ -96,6 +96,7 @@ function createAgentConfig(values = {}) {
     metricsInterval: 0,
     centralConfig: false,
     captureBody: 'all',
+    apmServerVersion: '8.17.0',
   };
 
   const agentConfig = Object.assign(values, defaultAgentConfig);
