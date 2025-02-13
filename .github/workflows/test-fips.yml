@@ -21,7 +21,7 @@ jobs:
     # https://docs.github.com/en/actions/writing-workflows/choosing-where-your-workflow-runs/running-jobs-in-a-container
     # docker run -it --rm --name fipsy docker.elastic.co/wolfi/chainguard-base-fips:latest
     container:
-      image: docker.elastic.co/wolfi/chainguard-base-fips:latest
+      image: docker.elastic.co/wolfi/chainguard-base-fips:latest@sha256:0570bec1936a461ab26c2e5b917e2485965d75e4b46bf550b3e34f69fe1f626e
       credentials:
         username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
         password: ${{ secrets.ELASTIC_DOCKER_PASSWORD }}
