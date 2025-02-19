@@ -1,9 +1,6 @@
-# Pin to Alpine 3.21.3
-# platform: linux; amd64
-# ref: https://github.com/docker-library/repo-info/blob/1d18c8623bddaa866457a10b9eefa3a5be06242e/repos/alpine/remote/3.21.3.md?plain=1#L26
-#
-# For a complete list of hashes, see:
-# https://github.com/docker-library/repo-info/tree/master/repos/alpine/remote
-FROM alpine@sha256:1c4eef651f65e2f7daee7ee785882ac164b02b78fb74503052a26dc061c90474
+# Pin the latest Alpine 3
+# https://github.com/docker-library/repo-info/blob/master/repos/alpine/remote/3.md
+
+FROM alpine@sha256:a8560b36e8b8210634f77d9f7f9efd7ffa463e380b75e2e74aff4511df3ef88c
 ARG AGENT_DIR
 COPY ${AGENT_DIR} /opt/nodejs

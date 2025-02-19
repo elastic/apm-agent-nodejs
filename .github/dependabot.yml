@@ -109,3 +109,9 @@ updates:
       github-actions:
         patterns:
           - "*"
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
