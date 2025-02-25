@@ -362,12 +362,12 @@ tedious:
 
 cassandra-driver:
   # 3.1.0 is broken
-  versions: '>=3 <3.1.0 || >3.1.0 <4.8.0'
-  commands: node test/instrumentation/modules/cassandra-driver/cassandra-driver.test.js
+  - versions: '>=3 <3.1.0 || >3.1.0 <4.8.0'
+    commands: node test/instrumentation/modules/cassandra-driver/cassandra-driver.test.js
   # v4.8.0 advertise a min-supported Node.js version of 18.
-  versions: '>=4.8.0 <5'
-  node: '>=18'
-  commands: node test/instrumentation/modules/cassandra-driver/cassandra-driver.test.js
+  - versions: '>=4.8.0 <5'
+    node: '>=18'
+    commands: node test/instrumentation/modules/cassandra-driver/cassandra-driver.test.js
 
 # Restify
 # - restify <v10 doesn't work with node v18+ (https://github.com/restify/node-restify/issues/1888)
