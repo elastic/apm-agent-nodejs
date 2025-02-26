@@ -1,0 +1,43 @@
+project: 'APM Node.js agent reference'
+toc:
+  - file: index.md
+  - file: set-up.md
+    children:
+      - file: lambda.md
+      - file: azure-functions.md
+      - file: express.md
+      - file: fastify.md
+      - file: hapi.md
+      - file: koa.md
+      - file: nextjs.md
+      - file: restify.md
+      - file: typescript.md
+      - file: custom-stack.md
+      - file: starting-agent.md
+  - file: supported-technologies.md
+  - file: advanced-setup.md
+    children:
+      - file: configuring-agent.md
+      - file: configuration.md
+      - file: custom-transactions.md
+      - file: custom-spans.md
+  - file: api.md
+    children:
+      - file: agent-api.md
+      - file: transaction-api.md
+      - file: span-api.md
+  - file: metrics.md
+  - file: logs.md
+  - file: opentelemetry-bridge.md
+  - file: opentracing.md
+  - file: source-maps.md
+  - file: esm.md
+  - file: distributed-tracing.md
+  - file: message-queues.md
+  - file: performance-tuning.md
+  - file: upgrading.md
+    children:
+      - file: upgrade-to-v4.md
+      - file: upgrade-to-v3.md
+      - file: upgrade-to-v2.md
+      - file: upgrade-to-v1.md
