@@ -216,7 +216,7 @@ window.addEventListener("DOMContentLoaded", async () => {
                                 'COPY --from=nodejs-agent /opt/nodejs/ /opt/nodejs/');
 });
 </script>
-Both the [{{apm-lambda-ext}}](apm-aws-lambda://docs/reference/index.md) and the Node.js APM Agent are added to your Lambda function as [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/invocation-layers.md). Therefore, you need to add the corresponding Layer ARNs (identifiers) to your Lambda function.
+Both the [{{apm-lambda-ext}}](apm-aws-lambda://reference/index.md) and the Node.js APM Agent are added to your Lambda function as [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/invocation-layers.md). Therefore, you need to add the corresponding Layer ARNs (identifiers) to your Lambda function.
 
 :::::::{tab-set}
 
@@ -309,7 +309,7 @@ The {{apm-lambda-ext}} and the APM Node.js agent are configured through environm
 
 For the minimal configuration, you will need the *APM Server URL* to set the destination for APM data and an *{{apm-guide-ref}}/secret-token.html[APM Secret Token]*. If you prefer to use an [APM API key](docs-content://solutions/observability/apps/api-keys.md) instead of the APM secret token, use the `ELASTIC_APM_API_KEY` environment variable instead of `ELASTIC_APM_SECRET_TOKEN` in the following configuration.
 
-For production environments, we recommend [using the AWS Secrets Manager to store your APM authentication key](apm-aws-lambda://docs/reference/aws-lambda-secrets-manager.md) instead of providing the secret value as plaintext in the environment variables.
+For production environments, we recommend [using the AWS Secrets Manager to store your APM authentication key](apm-aws-lambda://reference/aws-lambda-secrets-manager.md) instead of providing the secret value as plaintext in the environment variables.
 
 :::::::{tab-set}
 
@@ -331,7 +331,7 @@ ELASTIC_APM_SEND_STRATEGY     = background                <4>
 1. Use this exact fixed value.
 2. This is your APM Server URL.
 3. This is your APM secret token.
-4. The [ELASTIC_APM_SEND_STRATEGY](apm-aws-lambda://docs/reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the background strategy in production environments with steady load scenarios.
+4. The [ELASTIC_APM_SEND_STRATEGY](apm-aws-lambda://reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the background strategy in production environments with steady load scenarios.
 
 ![Node.js environment variables configuration section in AWS Console](../images/nodejs-lambda-env-vars.png "")
 ::::::
@@ -344,7 +344,7 @@ aws lambda update-function-configuration --function-name yourLambdaFunctionName 
     --environment "Variables={NODE_OPTIONS=-r elastic-apm-node/start,ELASTIC_APM_LAMBDA_APM_SERVER=<YOUR-APM-SERVER-URL>,ELASTIC_APM_SECRET_TOKEN=<YOUR-APM-SECRET-TOKEN>,ELASTIC_APM_SEND_STRATEGY=background}" <1>
 ```
 
-1. The [ELASTIC_APM_SEND_STRATEGY](apm-aws-lambda://docs/reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the background strategy in production environments with steady load scenarios.
+1. The [ELASTIC_APM_SEND_STRATEGY](apm-aws-lambda://reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the background strategy in production environments with steady load scenarios.
 
 ::::::
 
@@ -367,7 +367,7 @@ Resources:
 ...
 ```
 
-1. The [ELASTIC_APM_SEND_STRATEGY](apm-aws-lambda://docs/reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the background strategy in production environments with steady load scenarios.
+1. The [ELASTIC_APM_SEND_STRATEGY](apm-aws-lambda://reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the background strategy in production environments with steady load scenarios.
 
 ::::::
 
@@ -387,7 +387,7 @@ functions:
 ...
 ```
 
-1. The [ELASTIC_APM_SEND_STRATEGY](apm-aws-lambda://docs/reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the background strategy in production environments with steady load scenarios.
+1. The [ELASTIC_APM_SEND_STRATEGY](apm-aws-lambda://reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the background strategy in production environments with steady load scenarios.
 
 ::::::
 
@@ -410,7 +410,7 @@ resource "aws_lambda_function" "your_lambda_function" {
 ...
 ```
 
-1. The [ELASTIC_APM_SEND_STRATEGY](apm-aws-lambda://docs/reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the background strategy in production environments with steady load scenarios.
+1. The [ELASTIC_APM_SEND_STRATEGY](apm-aws-lambda://reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the background strategy in production environments with steady load scenarios.
 
 ::::::
 
@@ -427,15 +427,15 @@ ELASTIC_APM_SEND_STRATEGY     = background                <4>
 1. Use this exact fixed value.
 2. This is your APM Server URL.
 3. This is your APM secret token.
-4. The [ELASTIC_APM_SEND_STRATEGY](apm-aws-lambda://docs/reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the background strategy in production environments with steady load scenarios.
+4. The [ELASTIC_APM_SEND_STRATEGY](apm-aws-lambda://reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the background strategy in production environments with steady load scenarios.
 
 ::::::
 
 :::::::
-1. The [`ELASTIC_APM_SEND_STRATEGY`](apm-aws-lambda://docs/reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the `background` strategy in production environments with steady load scenarios.
+1. The [`ELASTIC_APM_SEND_STRATEGY`](apm-aws-lambda://reference/aws-lambda-config-options.md#_elastic_apm_send_strategy) defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the `background` strategy in production environments with steady load scenarios.
 
 
-You can optionally [fine-tune the Node.js agent](/reference/configuration.md) or the [configuration of the {{apm-lambda-ext}}](apm-aws-lambda://docs/reference/aws-lambda-config-options.md).
+You can optionally [fine-tune the Node.js agent](/reference/configuration.md) or the [configuration of the {{apm-lambda-ext}}](apm-aws-lambda://reference/aws-lambda-config-options.md).
 
 That’s it. After following the steps above, you’re ready to go! Your Lambda function invocations should be traced from now on.
 
@@ -444,7 +444,7 @@ That’s it. After following the steps above, you’re ready to go! Your Lambda 
 
 The AWS Lambda instrumentation will report a transaction for all function invocations and trace any [supported modules](/reference/supported-technologies.md#compatibility-frameworks). In addition, the created transactions will capture additional data for a number of Lambda trigger types — API Gateway, SNS, SQS, S3 (when the trigger is a single event), and ELB.
 
-A transaction will be reported for Lambda invocations that fail due to a timeout, crash, `uncaughtException`, or `unhandledRejection`. (This requires APM agent v3.45.0 or later and [Elastic’s APM Lambda extension](apm-aws-lambda://docs/reference/index.md) version 1.4.0 or later.)
+A transaction will be reported for Lambda invocations that fail due to a timeout, crash, `uncaughtException`, or `unhandledRejection`. (This requires APM agent v3.45.0 or later and [Elastic’s APM Lambda extension](apm-aws-lambda://reference/index.md) version 1.4.0 or later.)
 
 
 ## Caveats and Troubleshooting [aws-lambda-caveats]

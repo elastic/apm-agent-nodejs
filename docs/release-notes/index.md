@@ -189,7 +189,7 @@ To check for security updates, go to [Security announcements for the Elastic sta
 **Release date:** November 23, 2023
 
 ### Features and enhancements [elastic-apm-nodejs-agent-420-features-enhancements]
-* Add [`apm.getServiceVersion()`](/reference/agent-api.md#apm-get-service-version), [`apm.getServiceEnvironment()`](/reference/agent-api.md#apm-get-service-environment), and [`apm.getServiceNodeName()`](/reference/agent-api.md#apm-get-service-node-name). These are intended for use by [ecs-logging-nodejs formatting packages](ecs-logging-nodejs://docs/reference/index.md). See [https://github.com/elastic/ecs-logging-nodejs/pull/152](https://github.com/elastic/ecs-logging-nodejs/pull/152). ([#3195](https://github.com/elastic/apm-agent-nodejs/issues/3195))
+* Add [`apm.getServiceVersion()`](/reference/agent-api.md#apm-get-service-version), [`apm.getServiceEnvironment()`](/reference/agent-api.md#apm-get-service-environment), and [`apm.getServiceNodeName()`](/reference/agent-api.md#apm-get-service-node-name). These are intended for use by [ecs-logging-nodejs formatting packages](ecs-logging-nodejs://reference/index.md). See [https://github.com/elastic/ecs-logging-nodejs/pull/152](https://github.com/elastic/ecs-logging-nodejs/pull/152). ([#3195](https://github.com/elastic/apm-agent-nodejs/issues/3195))
 * Add knex@3 instrumentation. ([#3659](https://github.com/elastic/apm-agent-nodejs/pull/3659))
 * Update [*OpenTelemetry bridge*](/reference/opentelemetry-bridge.md) support to `@opentelemetry/api` version 1.7.0.
 

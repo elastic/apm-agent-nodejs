@@ -402,7 +402,7 @@ This config only applies when using the built-in logger. Log levels will not be 
 * **Type:** object
 * **Env:** `ELASTIC_APM_LOGGER=false` to *ignore* a custom logger
 
-By default, the APM agent logs to stdout in [ecs-logging](ecs-logging://docs/reference/intro.md) format. Use the `logger` config to pass in a custom logger object. The custom logger must provide `trace`, `debug`, `info`, `warn`, `error`, and `fatal` methods that take a string message argument.
+By default, the APM agent logs to stdout in [ecs-logging](ecs-logging://reference/intro.md) format. Use the `logger` config to pass in a custom logger object. The custom logger must provide `trace`, `debug`, `info`, `warn`, `error`, and `fatal` methods that take a string message argument.
 
 A custom logger may result in *structured log data being lost*. As of version 3.13, the agent uses structured logging using the [pino API](https://getpino.io/#/docs/api?id=logger). To avoid issues with incompatible logger APIs, a given custom logger is wrapped in such a way that only the log message is passed through. As a special case, if the provided logger is a *pino logger instance*, then it will be used directly without loss of structured fields. Setting the environment variable `ELASTIC_APM_LOGGER=false` will **ignore** a custom logger. This is provided to assist with [Debug mode](docs-content://troubleshoot/observability/apm-agent-nodejs/apm-nodejs-agent.md#debug-mode) troubleshooting.
 
@@ -1119,7 +1119,7 @@ require('elastic-apm-node').start({
 * **Default:** `['*/_search', '*/_search/template', '*/_msearch', '*/_msearch/template', '*/_async_search', '*/_count', '*/_sql', '*/_eql/search' ]`
 * **Env:** `ELASTIC_APM_ELASTICSEARCH_CAPTURE_BODY_URLS`
 
-The URL path patterns for which the APM agent will capture the request body of outgoing requests to Elasticsearch made with the `@elastic/elasticsearch` module (or the legacy `elasticsearch` module). The default setting captures the body for [Elasticsearch REST APIs](elasticsearch://docs/reference/elasticsearch/rest-apis/index.md) making a search.
+The URL path patterns for which the APM agent will capture the request body of outgoing requests to Elasticsearch made with the `@elastic/elasticsearch` module (or the legacy `elasticsearch` module). The default setting captures the body for [Elasticsearch REST APIs](elasticsearch://reference/elasticsearch/rest-apis/index.md) making a search.
 
 The captured request body (if any) is stored on the `span.db.statement` field. Captured request bodies are truncated to a maximum length defined by [`longFieldMaxLength`](#long-field-max-length).
 

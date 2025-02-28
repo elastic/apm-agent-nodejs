@@ -7,7 +7,7 @@ mapped_pages:
 
 The Elastic APM Node.js agent can be used to trace the Next.js server (`next start` or `next dev`) that runs your application without the need for code changes to your app. The APM transactions for incoming HTTP requests to the server will be named for the [pages](https://nextjs.org/docs/routing/introduction) and [API endpoints](https://nextjs.org/docs/api-routes/introduction) in your application, as well as for internal routes used by Next.js. Errors in code run on the server will be reported for viewing in the Kibana APM app.
 
-Note that the Node.js APM agent can only instrument *server-side* code. To monitor the client-side parts of a Next.js application, see the [Elastic RUM agent](apm-agent-rum-js://docs/reference/index.md).
+Note that the Node.js APM agent can only instrument *server-side* code. To monitor the client-side parts of a Next.js application, see the [Elastic RUM agent](apm-agent-rum-js://reference/index.md).
 
 ::::{note}
 [preview] This Next.js instrumentation is a *technical preview* while we solicit feedback from Next.js users. Currently `next` versions `>=12.0.0 <13.3.0` are supported. If you are a Next.js user, please help us provide a better Next.js observability experience with your feedback on our [Discuss forum](https://discuss.elastic.co/tags/c/apm/nodejs).

@@ -17,7 +17,7 @@ To get you off the ground, we’ve prepared guides for setting up the Agent with
 * [Get started with Restify](/reference/restify.md)
 * [Get started with TypeScript](/reference/typescript.md)
 
-Alternatively, you can [Get started with a custom Node.js stack](/reference/custom-stack.md). For Kubernetes, we support auto-attachment using the [APM attacher](apm-k8s-attacher://docs/reference/index.md).
+Alternatively, you can [Get started with a custom Node.js stack](/reference/custom-stack.md). For Kubernetes, we support auto-attachment using the [APM attacher](apm-k8s-attacher://reference/index.md).
 
 To see an overview of which components of your application we instrument automatically, use the [*Supported technologies*](/reference/supported-technologies.md) page.
 
