@@ -3,6 +3,7 @@ cross_links:
   - apm-agent-rum-js
   - apm-aws-lambda
   - apm-k8s-attacher
+  - docs-content
   - ecs
   - ecs-logging
   - ecs-logging-nodejs
