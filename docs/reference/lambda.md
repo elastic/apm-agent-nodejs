@@ -22,7 +22,7 @@ You need an APM Server to send APM data to. Follow the [APM Quick start](docs-co
 
 ### Step 1: Add the APM Layers to your Lambda function [add_the_apm_layers_to_your_lambda_function]
 
-Both the [{{apm-lambda-ext}}](apm-aws-lambda://reference/index.md) and the Node.js APM Agent are added to your Lambda function as [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/invocation-layers.md). Therefore, you need to add the corresponding Layer ARNs (identifiers) to your Lambda function.
+Both the [{{apm-lambda-ext}}](apm-aws-lambda://reference/index.md) and the Node.js APM Agent are added to your Lambda function as [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/invocation-layers.html). Therefore, you need to add the corresponding Layer ARNs (identifiers) to your Lambda function.
 
 :::::::{tab-set}
 

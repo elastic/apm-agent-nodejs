@@ -47,7 +47,7 @@ The ESM limitations only affects the agent’s automatic instrumentation. Other 
 
 ## Enabling ESM auto-instrumentation [esm-enabling]
 
-Enabling ESM auto-instrumentation requires starting Node.js with the `--experimental-loader=elastic-apm-node/loader.mjs` option. This can be done by passing the argument on the command line or by setting the [`NODE_OPTIONS`](https://nodejs.org/api/all.md#all_cli_node_optionsoptions) environment variable.
+Enabling ESM auto-instrumentation requires starting Node.js with the `--experimental-loader=elastic-apm-node/loader.mjs` option. This can be done by passing the argument on the command line or by setting the [`NODE_OPTIONS`](https://nodejs.org/api/all.html#all_cli_node_optionsoptions) environment variable.
 
 ```bash
 node --experimental-loader=elastic-apm-node/loader.mjs server.mjs

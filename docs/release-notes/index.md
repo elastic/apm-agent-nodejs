@@ -72,7 +72,7 @@ To check for security updates, go to [Security announcements for the Elastic sta
 **Release date:** August 1, 2024
 
 ### Features and enhancements [elastic-apm-nodejs-agent-472-features-enhancements]
-* Support hooking built-in Node.js modules loaded via [`process.getBuiltinModule`](https://nodejs.org/api/all.md#all_process_processgetbuiltinmoduleid), added in v22.3.0. ([#4160](https://github.com/elastic/apm-agent-nodejs/pull/4160))
+* Support hooking built-in Node.js modules loaded via [`process.getBuiltinModule`](https://nodejs.org/api/all.html#all_process_processgetbuiltinmoduleid), added in v22.3.0. ([#4160](https://github.com/elastic/apm-agent-nodejs/pull/4160))
 
 ### Fixes [elastic-apm-nodejs-agent-472-fixes]
 * Fix for instrumentation for `@aws-sdk/sns-client` that will prevent a crash if the client is used when there is no parent transaction present. ([#4168](https://github.com/elastic/apm-agent-nodejs/pull/4168))
