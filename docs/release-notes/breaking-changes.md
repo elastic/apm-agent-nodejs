@@ -1,9 +1,9 @@
 ---
-navigation_title: "Elastic APM Node.Js Agent"
+navigation_title: "Elastic APM Node.js Agent"
 ---
 
-# Elastic APM Node.Js Agent breaking changes [elastic-apm-nodejs-agent-breaking-changes]
-Before you upgrade, carefully review the Elastic APM Node.Js Agent breaking changes and take the necessary steps to mitigate any issues.
+# Elastic APM Node.js Agent breaking changes [elastic-apm-nodejs-agent-breaking-changes]
+Before you upgrade, carefully review the Elastic APM Node.js Agent breaking changes and take the necessary steps to mitigate any issues.
 
 To learn how to upgrade, check out [Upgrading](/reference/upgrading.md).
 
