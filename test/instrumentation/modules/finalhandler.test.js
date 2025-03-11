@@ -14,6 +14,19 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0);
 }
 
+// finalhandler@2.1.0 broke <=14 support (https://github.com/pillarjs/finalhandler/issues/87)
+var finalhandlerVer = require('finalhandler/package.json').version;
+var semver = require('semver');
+if (
+  semver.gte(finalhandlerVer, '2.1.0') &&
+  semver.lt(process.version, '16.0.0')
+) {
+  console.log(
+    `# SKIP finalhandler@${finalhandlerVer} does not support node ${process.version}`,
+  );
+  process.exit();
+}
+
 var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',

@@ -447,8 +447,16 @@ fastify:
       - node test/instrumentation/modules/fastify/set-framework.test.js
 
 finalhandler:
-  versions: '*'
-  commands: node test/instrumentation/modules/finalhandler.test.js
+  - versions:
+      mode: max-3
+      include: '>=1 <2'
+    node: '>=0.8'
+    commands: node test/instrumentation/modules/finalhandler.test.js
+  - versions:
+      mode: max-3
+      include: '>=2 <3'
+    node: '>=16'
+    commands: node test/instrumentation/modules/finalhandler.test.js
 
 memcached:
   versions: '>=2.2.0'
