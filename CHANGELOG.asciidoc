@@ -44,6 +44,32 @@ See the <<upgrade-to-v4>> guide.
 [float]
 ===== Bug fixes
 
+* Change how `@hapi/hapi` instrumentation includes additional data when
+  capturing an error for Hapi `log` and `request` Server events to avoid
+  possible capture of large amounts of data, that could lead to latency issues
+  and high memory usage. ({issues}4503[#4503])
++
+The `@hapi/hapi` instrumentation will capture an APM error whenever a
+Hapi `log` or `request` server event (https://hapi.dev/api/#server.events) with
+the "error" tag is emitted, e.g. when a Hapi server responds with an HTTP 500
+error. Before this change, any and all properties on the logged Error or data
+would be included in the APM error data sent to APM server (in the
+`error.custom` field). This could cause a surprise for applications that attach
+(sometimes large) data to the internal server Error for other purposes (e.g.
+application error handling).
++
+The expected surprise case is when a deeply-nested object is added as a
+property to the event data.  To protect against serializing these, the Hapi
+instrumentation will only serialize event data properties that are "simple"
+types (boolean, string, number, Date). This is similar behavior as is used for
+the `captureAttributes` option to <<apm-capture-error,`apm.captureError()`>>
+for the same purpose.
++
+In addition, the updated Hapi instrumentation will no longer capture to
+`error.custom` when the emitted data is an `Error` instance, because this was a
+duplication of the `Error` properties already being captured to the
+`error.exception.attributes` field.
+
 [float]
 ===== Chores
 
