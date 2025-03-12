@@ -47,7 +47,8 @@ See the <<upgrade-to-v4>> guide.
 * Change how `@hapi/hapi` instrumentation includes additional data when
   capturing an error for Hapi `log` and `request` Server events to avoid
   possible capture of large amounts of data, that could lead to latency issues
-  and high memory usage. ({issues}4503[#4503])
+  and high memory usage. Some data that may have been captured before will
+  *no longer* be captured. ({issues}4503[#4503])
 +
 The `@hapi/hapi` instrumentation will capture an APM error whenever a
 Hapi `log` or `request` server event (https://hapi.dev/api/#server.events) with
@@ -61,8 +62,9 @@ application error handling).
 The expected surprise case is when a deeply-nested object is added as a
 property to the event data.  To protect against serializing these, the Hapi
 instrumentation will only serialize event data properties that are "simple"
-types (boolean, string, number, Date). This is similar behavior as is used for
-the `captureAttributes` option to <<apm-capture-error,`apm.captureError()`>>
+types (boolean, string, number, Date), other types (Array, object, Buffer, etc.)
+will *not* be captured. This is similar behavior as is used for the
+`captureAttributes` option to <<apm-capture-error,`apm.captureError()`>>
 for the same purpose.
 +
 In addition, the updated Hapi instrumentation will no longer capture to
