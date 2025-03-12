@@ -151,7 +151,7 @@ test('connectionless server error logging with Error', function (t) {
     return;
   }
 
-  t.plan(6);
+  t.plan(5);
 
   var customError = new Error('custom error');
 
@@ -181,7 +181,7 @@ test('connectionless server error logging with String', function (t) {
     return;
   }
 
-  t.plan(6);
+  t.plan(5);
 
   var customError = 'custom error';
 
@@ -211,7 +211,7 @@ test('connectionless server error logging with Object', function (t) {
     return;
   }
 
-  t.plan(6);
+  t.plan(5);
 
   var customError = {
     error: 'I forgot to turn this into an actual Error',
@@ -237,7 +237,7 @@ test('connectionless server error logging with Object', function (t) {
 });
 
 test('server error logging with Error', function (t) {
-  t.plan(6);
+  t.plan(5);
 
   var customError = new Error('custom error');
 
@@ -260,7 +260,7 @@ test('server error logging with Error', function (t) {
 });
 
 test('server error logging with Error does not affect event tags', function (t) {
-  t.plan(8);
+  t.plan(7);
 
   var customError = new Error('custom error');
 
@@ -294,7 +294,7 @@ test('server error logging with Error does not affect event tags', function (t) 
 });
 
 test('server error logging with String', function (t) {
-  t.plan(6);
+  t.plan(5);
 
   var customError = 'custom error';
 
@@ -317,7 +317,7 @@ test('server error logging with String', function (t) {
 });
 
 test('server error logging with Object', function (t) {
-  t.plan(6);
+  t.plan(5);
 
   var customError = {
     error: 'I forgot to turn this into an actual Error',
@@ -342,7 +342,7 @@ test('server error logging with Object', function (t) {
 });
 
 test('request error logging with Error', function (t) {
-  t.plan(13);
+  t.plan(12);
 
   var customError = new Error('custom error');
 
@@ -386,7 +386,7 @@ test('request error logging with Error', function (t) {
 });
 
 test('request error logging with Error does not affect event tags', function (t) {
-  t.plan(15);
+  t.plan(14);
 
   var customError = new Error('custom error');
 
@@ -441,7 +441,7 @@ test('request error logging with Error does not affect event tags', function (t)
 });
 
 test('request error logging with String', function (t) {
-  t.plan(13);
+  t.plan(12);
 
   var customError = 'custom error';
 
@@ -485,7 +485,7 @@ test('request error logging with String', function (t) {
 });
 
 test('request error logging with Object', function (t) {
-  t.plan(13);
+  t.plan(12);
 
   var customError = {
     error: 'I forgot to turn this into an actual Error',
