@@ -20,19 +20,57 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 % ### Fixes [elastic-apm-nodejs-agent-versionext-fixes]
 
-## 4.11.0 [elastic-apm-nodejs-agent-4110-release-notes]
+## 4.11.1 [elastic-apm-nodejs-agent-4-11-1-release-notes]
+**Release date:** March 3, 2025
+
+### Features and enhancements [elastic-apm-nodejs-agent-4-11-1-features-enhancements]
+
+* Update base image of alpine in `Dockerfile` to version `3.21.3`. ([#4465](https://github.com/elastic/apm-agent-nodejs/pulls/4465))
+* Test FIPS 140 compliance. ([#4441](https://github.com/elastic/apm-agent-nodejs/pulls/4441))
+
+### Fixes [elastic-apm-nodejs-agent-4-11-1-fixes]
+
+* Change how `@hapi/hapi` instrumentation includes additional data when
+  capturing an error for Hapi `log` and `request` Server events to avoid
+  possible capture of large amounts of data, that could lead to latency issues
+  and high memory usage. Some data that may have been captured before will
+  *no longer* be captured. ([#4503](https://github.com/elastic/apm-agent-nodejs/issues/4503))
+
+  The `@hapi/hapi` instrumentation will capture an APM error whenever a
+  Hapi `log` or `request` server event ([https://hapi.dev/api/#server.events](https://hapi.dev/api/#server.events)) with
+  the "error" tag is emitted, e.g. when a Hapi server responds with an HTTP 500
+  error. Before this change, any and all properties on the logged Error or data
+  would be included in the APM error data sent to APM server (in the
+  `error.custom` field). This could cause a surprise for applications that attach
+  (sometimes large) data to the internal server Error for other purposes (e.g.
+  application error handling).
+
+  The expected surprise case is when a deeply-nested object is added as a
+  property to the event data.  To protect against serializing these, the Hapi
+  instrumentation will only serialize event data properties that are "simple"
+  types (boolean, string, number, Date), other types (Array, object, Buffer, etc.)
+  will *not* be captured. This is similar behavior as is used for the
+  `captureAttributes` option to [`apm.captureError()`](/reference/agent-api.md#apm-capture-error)
+  for the same purpose.
+
+  In addition, the updated Hapi instrumentation will no longer capture to
+  `error.custom` when the emitted data is an `Error` instance, because this was a
+  duplication of the `Error` properties already being captured to the
+  `error.exception.attributes` field.
+
+## 4.11.0 [elastic-apm-nodejs-agent-4-11-0-release-notes]
 **Release date:** January 20, 2025
 
-### Features and enhancements [elastic-apm-nodejs-agent-4110-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-11-0-features-enhancements]
 * Support instrumentation of Azure Functions using the [v4 Node.js programming model](https://learn.microsoft.com/en-ca/azure/azure-functions/functions-node-upgrade-v4). ([#4426](https://github.com/elastic/apm-agent-nodejs/pull/4426))
 
-### Fixes [elastic-apm-nodejs-agent-4110-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-11-0-fixes]
 * Fix instrumentation of `@aws-sdk/client-s3`, `@aws-sdk/client-sqs`, and `@aws-sdk/client-sns` for versions 3.723.0 and later. Internally the AWS SDK clients updated to `@smithy/smithy-client@4`. ([#4398](https://github.com/elastic/apm-agent-nodejs/pull/4398))
 
-## 4.10.0 [elastic-apm-nodejs-agent-4100-release-notes]
+## 4.10.0 [elastic-apm-nodejs-agent-4-10-0-release-notes]
 **Release date:** December 24, 2024
 
-### Features and enhancements [elastic-apm-nodejs-agent-4100-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-10-0-features-enhancements]
 * Improve trace-level logging to better support debugging central config and transaction sampling issues. ([#4291](https://github.com/elastic/apm-agent-nodejs/issues/4291))
 
 ## 4.9.0 [elastic-apm-nodejs-agent-490-release-notes]
@@ -93,22 +131,22 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
     Support for the new `addLink` and `addLinks` methods on Span have been added. However, support for the new synchronous gauge have not yet been added.
 
-## 4.6.0 [elastic-apm-nodejs-agent-460-release-notes]
+## 4.6.0 [elastic-apm-nodejs-agent-4-6-0-release-notes]
 **Release date:** June 5, 2024
 
-### Features and enhancements [elastic-apm-nodejs-agent-460-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-6-0-features-enhancements]
 * Make published `docker.elastic.co/observability/apm-agent-nodejs` Docker images multi-platform, with support for `linux/amd64,linux/arm64` for now. This is necessary for users of the Elastic APM Attacher for Kubernetes, when deploying to k8s nodes that are ARM64 (e.g. Gravitron on AWS). ([#4038](https://github.com/elastic/apm-agent-nodejs/issues/4038))
 
-### Fixes [elastic-apm-nodejs-agent-460-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-6-0-fixes]
 * Fix instrumentation for recent `@aws-sdk/client-*` releases that use `@smithy/smithy-client` v3. (For example `@aws-sdk/client-s3@3.575.0` released 2024-05-13 updated to smithy-client v3.) Before this change the APM agent had been limiting patching of `@smithy/smithy-client` to `>=1 <3`. ([#4036](https://github.com/elastic/apm-agent-nodejs/pull/4036))
 * Mark the published AWS Lambda layers as supporting the "nodejs20.x" Lambda Runtime (`--compatible-runtimes`). The "nodejs20.x" runtime was released by AWS on 2023-11-15. ([#4033](https://github.com/elastic/apm-agent-nodejs/issues/4033))
 
     Note that this Node.js APM agent supports Node.js 20.x, so the new AWS Lambda runtime was supported when it was released. However, the metadata stating compatible runtimes (which is advisory) was not updated until now.
 
-## 4.5.4 [elastic-apm-nodejs-agent-454-release-notes]
+## 4.5.4 [elastic-apm-nodejs-agent-4-5-4-release-notes]
 **Release date:** May 13, 2024
 
-### Fixes [elastic-apm-nodejs-agent-454-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-5-4-fixes]
 * Change how the "cookie" HTTP request header is represented in APM transaction data to avoid a rare, but possible, intake bug where the transaction could be rejected due to a mapping conflict.
 
     Before this change a `Cookie: foo=bar; sessionid=42` HTTP request header would be represented in the transaction document in Elasticsearch with these document fields (the example assumes [`sanitizeFieldNames`](/reference/configuration.md#sanitize-field-names) matches "sessionid", as it does by default):
@@ -129,99 +167,99 @@ To check for security updates, go to [Security announcements for the Elastic sta
     In other words, `http.request.cookies` are no longer separated out. ([#4006](https://github.com/elastic/apm-agent-nodejs/issues/4006))
 
 
-## 4.5.3 [elastic-apm-nodejs-agent-453-release-notes]
+## 4.5.3 [elastic-apm-nodejs-agent-4-5-3-release-notes]
 **Release date:** April 23, 2024
 
-### Fixes [elastic-apm-nodejs-agent-453-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-5-3-fixes]
 * Fix message handling for tombstone messages in `kafkajs` instrumentation. ([#3985](https://github.com/elastic/apm-agent-nodejs/pull/3985))
 
-## 4.5.2 [elastic-apm-nodejs-agent-452-release-notes]
+## 4.5.2 [elastic-apm-nodejs-agent-4-5-2-release-notes]
 **Release date:** April 12, 2024
 
-### Fixes [elastic-apm-nodejs-agent-452-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-5-2-fixes]
 * Fix path resolution for requests that contain invalid characters in its host header. ([#3923](https://github.com/elastic/apm-agent-nodejs/pull/3923))
 * Fix span names for `getMore` command of mongodb. ([#3919](https://github.com/elastic/apm-agent-nodejs/pull/3919))
 * Fix undici instrumentation to cope with a bug in undici@6.11.0 where `request.addHeader()` was accidentally removed. (It was re-added in undici@6.11.1.) ([#3963](https://github.com/elastic/apm-agent-nodejs/pull/3963))
 * Update undici instrumentation to avoid possibly adding a **second** *traceparent* header to outgoing HTTP requests, because this can break Elasticsearch requests. ([#3964](https://github.com/elastic/apm-agent-nodejs/issues/3964))
 
-## 4.5.0 [elastic-apm-nodejs-agent-450-release-notes]
+## 4.5.0 [elastic-apm-nodejs-agent-4-5-0-release-notes]
 **Release date:** March 13, 2024
 
-### Features and enhancements [elastic-apm-nodejs-agent-450-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-5-0-features-enhancements]
 * Update [*OpenTelemetry bridge*](/reference/opentelemetry-bridge.md) support to `@opentelemetry/api` version 1.8.0.
 * Update `tedious` instrumentation to support versions 17 and 18. ([#3901](https://github.com/elastic/apm-agent-nodejs/pull/3901), [#3911](https://github.com/elastic/apm-agent-nodejs/pull/3911))
 * Add new `kafkajs` instrumentation. ([#2905](https://github.com/elastic/apm-agent-nodejs/issues/2905))
 
-### Fixes [elastic-apm-nodejs-agent-450-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-5-0-fixes]
 * Fix instrumentation of mongodb to not break mongodb@6.4.0. Mongodb v6.4.0 included changes that resulted in the APM agent’s instrumentation breaking it. ([#3897](https://github.com/elastic/apm-agent-nodejs/pull/3897))
 * Fix hostname detection on Windows in some cases (where a powershell profile could break collection). ([#3899](https://github.com/elastic/apm-agent-nodejs/pull/3899))
 * Fix a path normalization issue that broke (or partially broke) instrumentation of some modules on Windows: Next.js, redis v4+, mongodb. ([#3905](https://github.com/elastic/apm-agent-nodejs/pull/3905))
 
-## 4.4.1 [elastic-apm-nodejs-agent-441-release-notes]
+## 4.4.1 [elastic-apm-nodejs-agent-4-4-1-release-notes]
 **Release date:** February 6, 2024
 
-### Fixes [elastic-apm-nodejs-agent-441-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-4-1-fixes]
 * Add support for [instrumentation of ES module-using (ESM) code](/reference/esm.md) with Node.js versions matching `^18.19.0 || >=20.2.0`. Before this version of the APM agent, ESM instrumentation was only supported for some **earlier** Node.js versions. Changes in Node.js’s ESM loader in v18.19.0 and v20 broke earlier ESM support. ([#3784](https://github.com/elastic/apm-agent-nodejs/issues/3784), [#3844](https://github.com/elastic/apm-agent-nodejs/pull/3844))
 
-## 4.4.0 [elastic-apm-nodejs-agent-440-release-notes]
+## 4.4.0 [elastic-apm-nodejs-agent-4-4-0-release-notes]
 **Release date:** January 12, 2024
 
-### Features and enhancements [elastic-apm-nodejs-agent-440-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-4-0-features-enhancements]
 * Support `ELASTIC_APM_ACTIVATION_METHOD=K8S_ATTACH` (in addition to the current `K8S` value) to indicate the agent is being started by apm-k8s-attacher.  Newer releases of apm-k8s-attacher will be using this value (to have a common value used between APM agents).
 
-### Fixes [elastic-apm-nodejs-agent-440-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-4-0-fixes]
 * Fix bug where `NODE_ENV` environment value was not used as a default for the [`environment`](/reference/configuration.md#environment) config setting. The bug was introduced in v4.2.0. ([#3807](https://github.com/elastic/apm-agent-nodejs/issues/3807))
 * Improve Fastify instrumentation to no longer cause the [`FSTDEP017`](https://fastify.dev/docs/latest/Reference/Warnings/#FSTDEP017) and [`FSTDEP018`](https://fastify.dev/docs/latest/Reference/Warnings/#FSTDEP018) deprecation warnings. ([#3814](https://github.com/elastic/apm-agent-nodejs/pull/3814))
 
-## 4.3.0 [elastic-apm-nodejs-agent-430-release-notes]
+## 4.3.0 [elastic-apm-nodejs-agent-4-3-0-release-notes]
 **Release date:** December 5, 2023
 
-### Features and enhancements [elastic-apm-nodejs-agent-430-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-3-0-features-enhancements]
 * Add the [`apmClientHeaders`](/reference/configuration.md#apm-client-headers) config option, to allow adding custom headers to HTTP requests made to APM server by the APM agent. ([#3759](https://github.com/elastic/apm-agent-nodejs/issues/3759))
 * Skip undici tests for `undici` `>=5.28.0` and NodeJS `<14.18.0`. ([#3755](https://github.com/elastic/apm-agent-nodejs/pull/3755))
 * Change the log level of `Sending error to Elastic APM: ...` from `info` to `debug`. There is no need to clutter the log output with this message. ([#3748](https://github.com/elastic/apm-agent-nodejs/issues/3748))
 * Explicitly mark this package as being of type="commonjs". The experimental `node --experimental-default-type=module ...` option [added in Node.js v20.10.0](https://nodejs.org/en/blog/release/v20.10.0#--experimental-default-type-flag-to-flip-module-defaults) means that a default to "commonjs" isn’t guaranteed.
 
-### Fixes [elastic-apm-nodejs-agent-430-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-3-0-fixes]
 * Fix the dependency version range for `@elastic/ecs-pino-format`. ([#3774](https://github.com/elastic/apm-agent-nodejs/issues/3774))
 
-## 4.2.0 [elastic-apm-nodejs-agent-420-release-notes]
+## 4.2.0 [elastic-apm-nodejs-agent-4-2-0-release-notes]
 **Release date:** November 23, 2023
 
-### Features and enhancements [elastic-apm-nodejs-agent-420-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-2-0-features-enhancements]
 * Add [`apm.getServiceVersion()`](/reference/agent-api.md#apm-get-service-version), [`apm.getServiceEnvironment()`](/reference/agent-api.md#apm-get-service-environment), and [`apm.getServiceNodeName()`](/reference/agent-api.md#apm-get-service-node-name). These are intended for use by [ecs-logging-nodejs formatting packages](ecs-logging-nodejs://reference/index.md). See [https://github.com/elastic/ecs-logging-nodejs/pull/152](https://github.com/elastic/ecs-logging-nodejs/pull/152). ([#3195](https://github.com/elastic/apm-agent-nodejs/issues/3195))
 * Add knex@3 instrumentation. ([#3659](https://github.com/elastic/apm-agent-nodejs/pull/3659))
 * Update [*OpenTelemetry bridge*](/reference/opentelemetry-bridge.md) support to `@opentelemetry/api` version 1.7.0.
 
-### Fixes [elastic-apm-nodejs-agent-420-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-2-0-fixes]
 * Fix `mongodb` instrumentation to avoid loosing context when multiple cursors are running concurrently. ([#3161](https://github.com/elastic/apm-agent-nodejs/issues/3161))
 * Set `mongodb` span’s outcome according to the result of the command being traced. ([#3695](https://github.com/elastic/apm-agent-nodejs/pull/3695))
 * Fix `@aws-sdk/client-sqs` instrumentation which was failing for `SendMessageBatch` command when any of the entities does not contain `MessageAttributes`. ([#3746](https://github.com/elastic/apm-agent-nodejs/issues/3746))
 
-## 4.1.0 [elastic-apm-nodejs-agent-410-release-notes]
+## 4.1.0 [elastic-apm-nodejs-agent-4-1-0-release-notes]
 **Release date:** October 9, 2023
 
-### Features and enhancements [elastic-apm-nodejs-agent-410-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-1-0-features-enhancements]
 * Update [*OpenTelemetry bridge*](/reference/opentelemetry-bridge.md) support to `@opentelemetry/api` version 1.6.0. [#3622](https://github.com/elastic/apm-agent-nodejs/pull/3622)
 * Add support for `@aws-sdk/client-dynamodb`, one of the AWS SDK v3 clients. ([#2958](https://github.com/elastic/apm-agent-nodejs/issues/2958))
 * Add support for `@aws-sdk/client-sns`, one of the AWS SDK v3 clients. ([#2956](https://github.com/elastic/apm-agent-nodejs/issues/2956))
 * Add support for `@aws-sdk/client-sqs`, one of the AWS SDK v3 clients. ([#2957](https://github.com/elastic/apm-agent-nodejs/issues/2957))
 * Fixes for some values of the [`disableInstrumentations`](/reference/configuration.md#disable-instrumentations) config setting. "redis" will now properly disable instrumentation for redis@4. "next" will propertly disable all Next.js instrumentation. ([#3658](https://github.com/elastic/apm-agent-nodejs/pull/3658))
 
-### Fixes [elastic-apm-nodejs-agent-410-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-1-0-fixes]
 * Changes to cloud metadata collection for Google Cloud (GCP). Most notably the `cloud.project.id` field is now the `project-id` from [https://cloud.google.com/compute/docs/metadata/default-metadata-values#project_metadata](https://cloud.google.com/compute/docs/metadata/default-metadata-values#project_metadata) rather than the `numeric-project-id`. This matches the value produced by Elastic Beats (like filebeat). [#3614](https://github.com/elastic/apm-agent-nodejs/issues/3614)
 
-## 4.0.0 [elastic-apm-nodejs-agent-400-release-notes]
+## 4.0.0 [elastic-apm-nodejs-agent-4-0-0-release-notes]
 **Release date:** September 7, 2023
 
-### Features and enhancements [elastic-apm-nodejs-agent-400-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-0-0-features-enhancements]
 * The `apm.destroy()` method is now async. Almost no users should need to use this method. However, if used, to be sure to wait for APM agent shutdown to be complete, one can now `await apm.destroy()`. ([#3222](https://github.com/elastic/apm-agent-nodejs/issues/3222))
 * Support instrumenting `mongodb` v6. ([#3596](https://github.com/elastic/apm-agent-nodejs/pull/3596))
 * Add a warning message when a duration or size config option is provided without units. ([#2121](https://github.com/elastic/apm-agent-nodejs/issues/2121))
 * Change default value of `useElasticTraceparentHeader` config option to `false`. This means that for outgoing HTTP requests, the APM agent will no longer add the `elastic-apm-traceparent` header. This vendor-specific header was used in the past while the [W3C trace-context](https://w3c.github.io/trace-context/) spec was still in development. Now that it is in wide use, the `elastic-apm-traceparent` header is only useful for interaction with very old Elastic APM agents.
 * Add default ports into `context.service.target.name` for HTTP spans conforming to the spec update done in [https://github.com/elastic/apm/pull/700](https://github.com/elastic/apm/pull/700) ([#3590](https://github.com/elastic/apm-agent-nodejs/pull/3590))
 
-### Fixes [elastic-apm-nodejs-agent-400-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-0-0-fixes]
 * Fix instrumentation of `mongodb` to avoid multiple command handler registrations when client is created via `MongoClient.connect` static method. ([#3586](https://github.com/elastic/apm-agent-nodejs/pull/3586))
 
 
