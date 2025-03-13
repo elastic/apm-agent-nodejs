@@ -1,11 +1,16 @@
 #!/bin/bash
 #
-# Create a PR to update the 4.x branch to match the state of "main" for the
-# just-tagged release. The 4.x branch needs to be updated for the current docs
-# build.
+# Create a PR to update the `do-not-delete_legacy-docs` branch to match the
+# state of "main" for the just-tagged release. The `do-not-delete_legacy-docs`
+# branch needs to be updated for the current docs build.
+#
+# (Here "legacy docs" means the old Elastic (v1?) docs system based on
+# AsciiDoc sources and the elastic/docs.git tooling. Around Mar/Apr 2025
+# this docs system is being phased out in favour of a "docs v3" system based
+# on Markdown sources and new tooling.)
 #
 # Usage:
-#   ./dev-utils/update-4x-branch.sh [TARGTAG [LASTTAG]]
+#   ./dev-utils/update-legacy-docs-branch.sh [TARGTAG [LASTTAG]]
 
 if [ "$TRACE" != "" ]; then
     export PS4='${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
@@ -20,7 +25,7 @@ function fatal {
 }
 
 TOP=$(cd $(dirname $0)/../ >/dev/null; pwd)
-WRKDIR=${TOP}/build/update-4x-branch
+WRKDIR=${TOP}/build/update-legacy-docs-branch
 
 echo "# Creating working git clone in: ${WRKDIR}/apm-agent-nodejs"
 rm -rf $WRKDIR
@@ -40,8 +45,8 @@ if [[ ! ("$TARGTAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]$) ]]; then
 fi
 # echo "TARGTAG=$TARGTAG"
 
-# Allow passing in last tag (second arg), in case the 4.x branch wasn't updated
-# for some previous releases.
+# Allow passing in last tag (second arg), in case the
+# 'do-not-delete_legacy-docs' branch wasn't updated for some previous releases.
 LASTTAG="$2"
 if [[ -z "$LASTTAG" ]]; then
     readonly NUM_COMMITS_SANITY_GUARD=200
@@ -69,9 +74,9 @@ fi
 #   `tac` works on Linux, `tail -r` works on BSD/macOS.
 #   https://stackoverflow.com/a/744093/14444044
 echo
-echo "# Creating PR to update 4.x branch with commits from $LASTTAG to $TARGTAG."
-FEATBRANCH=update-4x-branch-$(date +%Y%m%d)
-git checkout 4.x
+echo "# Creating PR to update 'do-not-delete_legacy-docs' branch with commits from $LASTTAG to $TARGTAG."
+FEATBRANCH=update-legacy-docs-branch-$(date +%Y%m%d)
+git checkout do-not-delete_legacy-docs
 git checkout -b "$FEATBRANCH"
 git log --pretty=format:"%h" $LASTTAG...$TARGTAG \
     | awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' \
@@ -84,5 +89,5 @@ RELEASE_PR=$(git log --pretty=format:"%s" -1 $TARGTAG | sed -E 's/^.* \(\#([0-9]
 echo
 echo "# You can create a PR now with:"
 echo "    cd $WRKDIR/apm-agent-nodejs"
-echo "    gh pr create -w -B 4.x -t 'docs: update 4.x branch for $TARGTAG release' --body 'Refs: #$RELEASE_PR (release PR)'"
+echo "    gh pr create -w -B "do-not-delete_legacy-docs" -t 'docs: update "do-not-delete_legacy-docs" branch for $TARGTAG release' --body 'Refs: #$RELEASE_PR (release PR)'"
 
