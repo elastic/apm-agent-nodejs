@@ -11,7 +11,7 @@
 # 3. Optionally tweak the `if:` and `on:` sections below to control which issue
 #    and PR events are skipped.
 
-name: slack
+name: slack-lite
 
 env:
   SLACK_CHANNEL: "#apm-agent-node"
@@ -19,11 +19,11 @@ env:
 on:
   issues:
     types: [opened, reopened, closed]
-  pull_request:
+  pull_request_target:
     types: [opened, ready_for_review, reopened, closed]
 
 jobs:
-  slack:
+  slack-lite:
     # Skip notification if:
     # - dependabot or renovate PRs, too noisy
     # - draft PRs
