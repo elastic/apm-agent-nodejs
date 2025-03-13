@@ -33,13 +33,9 @@ Notes:
 
 See the <<upgrade-to-v4>> guide.
 
-==== Unreleased
 
-[float]
-===== Breaking changes
-
-[float]
-===== Features
+[[release-notes-4.11.1]]
+==== 4.11.1 - 2025/03/14
 
 [float]
 ===== Bug fixes
@@ -76,6 +72,7 @@ duplication of the `Error` properties already being captured to the
 ===== Chores
 
 * Update base image of alpine in `Dockerfile` to version `3.21.3`. ({pull}4465[#4465])
+* Test FIPS 140 compliance. ({pull}4441[#4441])
 
 [[release-notes-4.11.0]]
 ==== 4.11.0 - 2025/01/20
