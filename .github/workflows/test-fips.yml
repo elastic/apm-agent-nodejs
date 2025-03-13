@@ -1,0 +1,64 @@
+name: test-fips
+
+# Test FIPS 140 compliance by running tests inside a FIPS-140-configured
+# Docker container (the Chainguard base FIPS container). This is run weekly
+# (no need to run for every commit or PR). Slack is notified if the weekly run
+# fails.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every Tuesday at 6:00 AM
+    - cron: '0 6 * * 2'
+
+# Limit the access of the generated GITHUB_TOKEN.
+permissions:
+  contents: read
+
+jobs:
+  test-fips:
+    runs-on: ubuntu-24.04
+    # https://docs.github.com/en/actions/writing-workflows/choosing-where-your-workflow-runs/running-jobs-in-a-container
+    # docker run -it --rm --name fipsy docker.elastic.co/wolfi/chainguard-base-fips:latest
+    container:
+      image: docker.elastic.co/wolfi/chainguard-base-fips:latest@sha256:3430300927bf52ea22f3180bd857ec6684212fc46d23df3bc795309761242875
+      credentials:
+        username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
+        password: ${{ secrets.ELASTIC_DOCKER_PASSWORD }}
+    timeout-minutes: 30
+    steps:
+      - run: |
+          apk update
+          apk add nodejs npm
+      - uses: actions/checkout@v4
+      - name: Is Node.js running in FIPS mode?
+        run: |
+          node -e 'const isFips = require("node:crypto").getFips(); console.log("isFips:", isFips); assert(isFips)'
+      - run: npm ci
+      - run: node test/test.js
+        env:
+          # TEST_WITHOUT_SERVICES skips instrumentation tests that rely on a
+          # running service, like a database.  This var was added because I
+          # don't know how to get GH Action `services:` to be available to this
+          # test suite running in the `container:`. This shouldn't matter for
+          # FIPS-related testing because no instrumentations use crypto.
+          TEST_WITHOUT_SERVICES: 'true'
+
+  # Pull Slack notification handling out to a separate job, because I cannot
+  # get it working inside the container.
+  notify-on-failure:
+    if: always()
+    runs-on: ubuntu-24.04
+    needs: test-fips
+    steps:
+      - id: check
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+      - name: Notify in Slack
+        if: steps.check.outputs.status == 'failure'
+        uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-node"
+          message: ':warning: test-fips workflow run ${{ github.run_id }} failed'

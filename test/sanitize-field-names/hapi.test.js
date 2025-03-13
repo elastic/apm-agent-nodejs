@@ -64,7 +64,7 @@ async function runTest(
   agent._config(agentConfig);
   const server = Hapi.server({
     port: 0,
-    host: 'localhost',
+    host: '127.0.0.1',
   });
 
   // resets agent values for tests.  Callback fires

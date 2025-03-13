@@ -212,11 +212,13 @@ A release involves the following published artifacts:
    steps -- including the `npm publish`. See the appropriate run at:
    https://github.com/elastic/apm-agent-nodejs/actions/workflows/release.yml)
 
-4. If this is for the latest major (currently `4.x`), then the "4.x" branch
-   needs to be updated to the same state as the release tag on "main". Use
-   the [update-4x-branch.sh](./dev-utils/update-4x-branch.sh) script for this.
+4. Updating published docs: If this is for the latest major (currently `4.x`),
+   then the "do-not-delete_legacy-docs" branch needs to be updated to the same
+   state as the release tag on "main". Use the
+   [update-legacy-docs-branch.sh](./dev-utils/update-legacy-docs-branch.sh)
+   script for this.
 
-    - Run `./dev-utils/update-4x-branch.sh` to create a working dir with the
+    - Run `./dev-utils/update-legacy-docs-branch.sh` to create a working dir with the
       needed changes.
     - Follow its instructions to create a PR from this working dir.
     - Ensure the "buildkite/docs-build-pr" workflow passes for this branch.

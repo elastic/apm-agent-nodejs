@@ -44,13 +44,13 @@ jobs:
       - run: make -C .ci dist
 
       - name: Attest Lambda layer zip
-        uses: actions/attest-build-provenance@7668571508540a607bdfd90a87a560489fe372eb  # v2.1.0
+        uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2  # v2.2.3
         with:
           subject-path: "${{ github.workspace }}/build/aws/elastic-apm-node-lambda-layer-*.zip"
 
       - name: Extract metadata (tags, labels)
         id: docker-meta
-        uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96  # v5.6.1
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804  # v5.7.0
         with:
           images: ${{ env.DOCKER_IMAGE_NAME }}
           flavor: |
@@ -63,7 +63,7 @@ jobs:
 
       - name: Build and Push Docker Image
         id: docker-push
-        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d  # v6.12.0
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4  # v6.15.0
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -75,7 +75,7 @@ jobs:
             AGENT_DIR=/build/dist/nodejs
 
       - name: Attest Docker image
-        uses: actions/attest-build-provenance@7668571508540a607bdfd90a87a560489fe372eb  # v2.1.0
+        uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2  # v2.2.3
         with:
           subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
           subject-digest: ${{ steps.docker-push.outputs.digest }}
@@ -83,7 +83,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) (wolfi)
         id: docker-meta-wolfi
-        uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96  # v5.6.1
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804  # v5.7.0
         with:
           images: ${{ env.DOCKER_IMAGE_NAME }}
           flavor: |
@@ -97,7 +97,7 @@ jobs:
 
       - name: Build and Push Docker Image (wolfi)
         id: docker-push-wolfi
-        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d  # v6.12.0
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4  # v6.15.0
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -109,7 +109,7 @@ jobs:
             AGENT_DIR=/build/dist/nodejs
 
       - name: Attest Docker image (wolfi)
-        uses: actions/attest-build-provenance@7668571508540a607bdfd90a87a560489fe372eb  # v2.1.0
+        uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2  # v2.2.3
         with:
           subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
           subject-digest: ${{ steps.docker-push-wolfi.outputs.digest }}

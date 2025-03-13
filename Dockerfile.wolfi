@@ -1,3 +1,3 @@
-FROM docker.elastic.co/wolfi/chainguard-base:latest@sha256:ea157dd3d70787c6b6dc9e14dda1ff103c781d4c3f9a544393ff4583dd80c9d0
+FROM docker.elastic.co/wolfi/chainguard-base:latest@sha256:69a0542e9182917b4d749b735790575940a282d12b90c1325e7ca5a052ece33a
 ARG AGENT_DIR
 COPY ${AGENT_DIR} /opt/nodejs

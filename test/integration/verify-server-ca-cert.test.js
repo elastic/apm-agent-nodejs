@@ -21,7 +21,7 @@ getPort().then(
       centralConfig: false,
       apmServerVersion: '8.0.0',
       disableInstrumentations: ['https'], // avoid the agent instrumenting the mock APM Server
-      serverCaCertFile: path.join(__dirname, 'cert.pem'), // self-signed certificate
+      serverCaCertFile: path.join(__dirname, '../fixtures/certs/cert.pem'), // self-signed certificate
     });
 
     var https = require('https');
@@ -30,8 +30,12 @@ getPort().then(
     test('should allow self signed certificate', function (t) {
       t.plan(3);
 
-      var cert = fs.readFileSync(path.join(__dirname, 'cert.pem'));
-      var key = fs.readFileSync(path.join(__dirname, 'key.pem'));
+      var cert = fs.readFileSync(
+        path.join(__dirname, '../fixtures/certs/cert.pem'),
+      );
+      var key = fs.readFileSync(
+        path.join(__dirname, '../fixtures/certs/key.pem'),
+      );
 
       var server = https.createServer({ cert, key }, function (req, res) {
         t.pass('server received client request');

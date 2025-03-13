@@ -10,6 +10,9 @@
 if (process.platform === 'win32') {
   console.log('# SKIP memcached does not support Windows');
   process.exit();
+} else if (process.env.TEST_WITHOUT_SERVICES === 'true') {
+  console.log('# SKIP: env.TEST_WITHOUT_SERVICES=true');
+  process.exit(0);
 }
 
 var agent = require('../../..').start({
