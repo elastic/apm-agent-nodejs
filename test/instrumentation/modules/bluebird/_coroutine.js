@@ -105,19 +105,20 @@ module.exports = function (test, Promise, ins) {
 };
 
 function assertPingPong(t, ins, p) {
-  // Since setTimeout has a weird behavior[1] the function might be called 1ms
-  // before it's scheduled, which is why we allow for only 9ms to have passed
-  // instead of 10ms in the two asserts below
+  // Since setTimeout has a weird behavior[1] the function might be called
+  // slightly before it's scheduled. For pingDelay=10ms we have observed an
+  // actual delay of as low as 8ms.
   //
   // [1] https://twitter.com/wa7son/status/1009048999972818944
+  const tolerance = 3;
   t.ok(
-    p.start + 9 <= p.pingDelay,
+    p.start + (10 - tolerance) <= p.pingDelay,
     'ping should be delayed min 9ms (delayed ' +
       (p.pingDelay - p.start) +
       'ms)',
   );
   t.ok(
-    p.pingDelay + 9 <= p.pongDelay,
+    p.pingDelay + (10 - tolerance) <= p.pongDelay,
     'pong should be delayed min 9ms (delayed ' +
       (p.pongDelay - p.pingDelay) +
       'ms)',
