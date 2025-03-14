@@ -222,6 +222,7 @@ A release involves the following published artifacts:
       needed changes.
     - Follow its instructions to create a PR from this working dir.
     - Ensure the "buildkite/docs-build-pr" workflow passes for this branch.
+      (Re-run via `run docs-build` comment.)
     - "Squash and merge" the PR.
     - The periodic docs CI will update the
       [published docs](https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-4.x.html).
