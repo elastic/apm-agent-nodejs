@@ -5,7 +5,7 @@ mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-4.x.html
 ---
 
-# Elastic APM Node.js Agent release notes [elastic-apm-nodejs-agent-release-notes]
+# Elastic APM Node.js Agent release notes
 
 Review the changes, fixes, and more in each version of Elastic Node.js Java Agent.
 
@@ -13,12 +13,12 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 % Release notes includes only features, enhancements, and fixes. Add breaking changes, deprecations, and known issues to the applicable release notes sections.
 
-% ## version.next [elastic-apm-nodejs-agent-versionext-release-notes]
+% ## Next [next-release-notes]
 % **Release date:** Month day, year
 
-% ### Features and enhancements [elastic-apm-nodejs-agent-versionext-features-enhancements]
+% ### Features and enhancements [next-features-enhancements]
 
-% ### Fixes [elastic-apm-nodejs-agent-versionext-fixes]
+% ### Fixes [next-fixes]
 
 ## 4.11.1 [elastic-apm-nodejs-agent-4-11-1-release-notes]
 **Release date:** March 3, 2025
@@ -73,60 +73,60 @@ To check for security updates, go to [Security announcements for the Elastic sta
 ### Features and enhancements [elastic-apm-nodejs-agent-4-10-0-features-enhancements]
 * Improve trace-level logging to better support debugging central config and transaction sampling issues. ([#4291](https://github.com/elastic/apm-agent-nodejs/issues/4291))
 
-## 4.9.0 [elastic-apm-nodejs-agent-490-release-notes]
+## 4.9.0 [elastic-apm-nodejs-agent-4-9-0-release-notes]
 **Release date:** December 9, 2024
 
-### Features and enhancements [elastic-apm-nodejs-agent-490-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-9-0-features-enhancements]
 * Add support for `undici` v7. ([#4336](https://github.com/elastic/apm-agent-nodejs/pull/4336))
 
-### Fixes [elastic-apm-nodejs-agent-490-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-9-0-fixes]
 * Fix to support a internal refactor in `mysql2` v3.11.5. ([#4334](https://github.com/elastic/apm-agent-nodejs/pull/4334))
 * Guard against a possible encoding error of tracing data in the APM client, before it is sent. It is **possible** this could wedge the APM client, resulting in the APM agent no longer sending tracing data. ([#4359](https://github.com/elastic/apm-agent-nodejs/pull/4359))
 
-## 4.8.1 [elastic-apm-nodejs-agent-481-release-notes]
+## 4.8.1 [elastic-apm-nodejs-agent-4-8-1-release-notes]
 **Release date:** November 4, 2024
 
-### Fixes [elastic-apm-nodejs-agent-481-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-8-1-fixes]
 * Fix AWS Lambda instrumentation to work with a "handler" string that includes a period (`.`) in the module path. E.g. the leading `.` in `Handler: ./src/functions/myfunc/handler.main`. ([#4293](https://github.com/elastic/apm-agent-nodejs/issues/4293)).
 
-## 4.8.0 [elastic-apm-nodejs-agent-480-release-notes]
+## 4.8.0 [elastic-apm-nodejs-agent-4-8-0-release-notes]
 **Release date:** October 8, 2024
 
-### Features and enhancements [elastic-apm-nodejs-agent-480-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-8-0-features-enhancements]
 * Minor improvement to container ID parsing from /etc/cgroup v1 files in AWS ECS Fargate, where the pattern has been observed to sometimes differ from the documented pattern. ([APM spec issue #888](https://github.com/elastic/apm/issues/888))
 * Add support for `tedious` v19. ([#4218](https://github.com/elastic/apm-agent-nodejs/issues/4218))
 * Add support for `koa-router` v13. ([#4236](https://github.com/elastic/apm-agent-nodejs/pull/4236))
 
-### Fixes [elastic-apm-nodejs-agent-480-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-8-0-fixes]
 * Update `cookie` to version `v0.7.2` to fix security issue [CVE-2024-47764](https://github.com/advisories/GHSA-pxg6-pf52-xh8x)
 
-## 4.7.3 [elastic-apm-nodejs-agent-473-release-notes]
+## 4.7.3 [elastic-apm-nodejs-agent-4-7-3-release-notes]
 **Release date:** August 9, 2024
 
-### Fixes [elastic-apm-nodejs-agent-473-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-7-3-fixes]
 * Update import-in-the-middle to 1.11.0, which fixes [an issue](https://github.com/nodejs/import-in-the-middle/issues/144) that can crash users using Nuxt and ESM. ([#4175](https://github.com/elastic/apm-agent-nodejs/pull/4175))
 
-## 4.7.2 [elastic-apm-nodejs-agent-472-release-notes]
+## 4.7.2 [elastic-apm-nodejs-agent-4-7-2-release-notes]
 **Release date:** August 1, 2024
 
-### Features and enhancements [elastic-apm-nodejs-agent-472-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-7-2-features-enhancements]
 * Support hooking built-in Node.js modules loaded via [`process.getBuiltinModule`](https://nodejs.org/api/all.html#all_process_processgetbuiltinmoduleid), added in v22.3.0. ([#4160](https://github.com/elastic/apm-agent-nodejs/pull/4160))
 
-### Fixes [elastic-apm-nodejs-agent-472-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-7-2-fixes]
 * Fix for instrumentation for `@aws-sdk/sns-client` that will prevent a crash if the client is used when there is no parent transaction present. ([#4168](https://github.com/elastic/apm-agent-nodejs/pull/4168))
 * Fix for config resolution process. Before this change falsy config options coming from the `elastic-apm-node.js` file were ignored. ([#4119](https://github.com/elastic/apm-agent-nodejs/pull/4119))
 * Fix publishing of AWS Lambda layer to all AWS regions. This was broken in the 4.7.1 release. ([#4171](https://github.com/elastic/apm-agent-nodejs/issues/4171))
 
-## 4.7.1 [elastic-apm-nodejs-agent-471-release-notes]
+## 4.7.1 [elastic-apm-nodejs-agent-4-7-1-release-notes]
 **Release date:** July 24, 2024
 
-### Fixes [elastic-apm-nodejs-agent-471-fixes]
+### Fixes [elastic-apm-nodejs-agent-4-7-1-fixes]
 * Update import-in-the-middle internally-used library to v1.9.1. This can fix usage with ESM code (see [*ECMAScript module support*](/reference/esm.md)) in some cases, e.g. usage with [Nuxt 3](https://github.com/elastic/apm-agent-nodejs/issues/4143).
 
-## 4.7.0 [elastic-apm-nodejs-agent-470-release-notes]
+## 4.7.0 [elastic-apm-nodejs-agent-4-7-0-release-notes]
 **Release date:** June 13, 2024
 
-### Features and enhancements [elastic-apm-nodejs-agent-470-features-enhancements]
+### Features and enhancements [elastic-apm-nodejs-agent-4-7-0-features-enhancements]
 * Update [*OpenTelemetry bridge*](/reference/opentelemetry-bridge.md) support to `@opentelemetry/api` version 1.9.0. ([#4078](https://github.com/elastic/apm-agent-nodejs/issues/4078))
 
     Support for the new `addLink` and `addLinks` methods on Span have been added. However, support for the new synchronous gauge have not yet been added.
