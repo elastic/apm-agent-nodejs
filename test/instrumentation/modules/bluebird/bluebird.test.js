@@ -1232,14 +1232,15 @@ test('new Promise -> delay', function (t) {
     var trans = ins.startTransaction();
     var start = Date.now();
 
+    const tolerance = 5; // We've observed scheduling slop up to 2ms.
     Promise.resolve('foo')
       .delay(50)
       .then(function () {
-        var expected = start + 49; // timings are hard
+        var expected = start + (50 - tolerance);
         var now = Date.now();
         t.ok(
           expected <= now,
-          'start + 49 should be <= ' + now + ' - was ' + expected,
+          '(start + 50 - tolerance) should be <= ' + now + ' - was ' + expected,
         );
         t.strictEqual(ins.currTransaction().id, trans.id);
       });
