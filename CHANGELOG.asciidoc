@@ -34,6 +34,17 @@ Notes:
 See the <<upgrade-to-v4>> guide.
 
 
+[[release-notes-4.11.2]]
+==== 4.11.2 - 2025/03/17
+
+[float]
+===== Bug fixes
+
+* Fix bug in instrumentation of Azure Functions that could result in crashing
+  the application.  The known case was with a ServiceBus function (using
+  `app.serviceBusTopic(...)` from `@azure/functions`).  ({issues}4508[#4508])
+
+
 [[release-notes-4.11.1]]
 ==== 4.11.1 - 2025/03/14
 
