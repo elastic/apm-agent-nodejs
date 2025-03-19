@@ -40,12 +40,13 @@ Or, alternatively, you can configure and start the APM agent at the top of your 
 ```js
 require('elastic-apm-node').start({
     serverUrl: '<url of your APM server>',
-    secretToken: '<secret token for your APM server>', // or, apiKey: '<your API key>'
+    secretToken: '<secret token for your APM server>', <1>
     opentelemetryBridgeEnabled: true
 });
 
 // Application code ...
 ```
+1. Alternatively, you can use `apiKey: '<your API key>'`.
 
 See [the full APM agent configuration reference](/reference/configuration.md) for other configuration options.
 

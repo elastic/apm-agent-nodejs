@@ -41,11 +41,11 @@ For the APM agent to instrument Azure Functions, it needs to be started when the
     ```javascript
     // initapm.js
     require('elastic-apm-node').start({
-      <1>
+      // Add configuration options here
     })
     ```
 
-    1. Optional [configuration options](/reference/configuration.md) can be added here.
+    Optional [configuration options](/reference/configuration.md) can be added on start.
 
 2. Change the "main" entry in your "package.json" to point to the initapm.js file.
 

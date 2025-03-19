@@ -18,15 +18,13 @@ navigation_title: "Elastic APM Node.js Agent"
 
 :::
 
-## 4.4.0 [elastic-apm-nodejs-agent-440-release-notes]
+## 4.4.0 [4-4-0]
 
 **Release date:** January 12, 2024
 
-## 4.4.0 - 2024/01/12 [release-notes-4.4.0]
+**Known issue**: Using the APM agent’s [*ECMAScript module support*](/reference/esm.md) with Node.js **v18.19.0** is not supported in this version. Upgrade to APM agent version v4.5.0 or later, or use Node.js v18.18.1 or earlier. See [https://github.com/elastic/apm-agent-nodejs/issues/3784](https://github.com/elastic/apm-agent-nodejs/issues/3784) for details.
 
-**Known issue**: Using the APM agent’s [*ECMAScript module support*](/reference/esm.md) with Node.js **v18.19.0** is not supported in this version. Upgrade to APM agent version v4.5.0 or later, or use Node.js v18.18.1 or earlier. See https://github.com/elastic/apm-agent-nodejs/issues/3784 for details.
-
-## 4.3.0 [elastic-apm-nodejs-agent-430-release-notes]
+## 4.3.0 [4-3-0]
 
 **Release date:** December 5, 2023
 

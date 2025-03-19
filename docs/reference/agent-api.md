@@ -65,11 +65,11 @@ Get the configured [`serviceNodeName`](/reference/configuration.md#service-node-
 
 Added in: v2.8.0
 
-* `options` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` The following options are supported:
+* `options` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) The following options are supported:
 
-    * `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Framework name.
-    * `version` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Framework version.
-    * `overwrite` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` If set to `false`, the [`frameworkName`](/reference/configuration.md#framework-name) and [`frameworkVersion`](/reference/configuration.md#framework-version) provided as [config options](/reference/configuration.md) will not be overwritten. **Default:** `true`.
+    * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Framework name.
+    * `version` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Framework version.
+    * `overwrite` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) If set to `false`, the [`frameworkName`](/reference/configuration.md#framework-name) and [`frameworkVersion`](/reference/configuration.md#framework-version) provided as [config options](/reference/configuration.md) will not be overwritten. **Default:** `true`.
 
 
 Set or change the [`frameworkName`](/reference/configuration.md#framework-name) or [`frameworkVersion`](/reference/configuration.md#framework-version) after the agent has started. These config options can also be provided as part of the [regular agent configuration](/reference/configuration.md).
@@ -161,11 +161,11 @@ Error: validation error: 'metadata' required
 
 Added in: v0.1.0
 
-* `context` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` Accepts the following optional properties:
+* `context` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Accepts the following optional properties:
 
-    * `id` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` The user’s ID.
-    * `username` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` The user’s username.
-    * `email` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` The user’s e-mail.
+    * `id` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The user’s ID.
+    * `username` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The user’s username.
+    * `email` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The user’s e-mail.
 
 
 Call this to enrich collected performance data and errors with information about the user/client. This function can be called at any point during the request/response life cycle (i.e. while a transaction is active).
@@ -183,7 +183,7 @@ The provided user context is stored under `context.user` in Elasticsearch on bot
 
 Added in: v0.1.0
 
-* `context` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` Can contain any property that can be JSON encoded.
+* `context` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Can contain any property that can be JSON encoded.
 
 Call this to enrich collected errors and transactions with any information that you think will help you debug performance issues or errors. This function can be called at any point while a transaction is active (e.g. during the request/response life cycle of an incoming HTTP request).
 
@@ -205,9 +205,9 @@ Before using custom context, ensure you understand the different types of [metad
 
 Added in: v0.1.0<br> Renamed from `apm.setTag()` to `apm.setLabel()`: v2.10.0<br> Added `stringify` argument in: v3.11.0
 
-* `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
-* `value` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
-* `stringify` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
+* `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
+* `value` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) | [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
+* `stringify` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
 
 ```js
 apm.setLabel('productId', 42, false);
@@ -230,12 +230,12 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 Added in: v1.5.0<br> Renamed from `apm.addTags()` to `apm.addLabels()`: v2.10.0<br> Added `stringify` argument in: v3.11.0
 
-* `labels` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` Contains key/value pairs:
+* `labels` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Contains key/value pairs:
 
-    * `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
-    * `value` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
+    * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
+    * `value` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) | [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
 
-* `stringify` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
+* `stringify` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
 
 ```js
 apm.addLabels({productId: 42, productName: 'butter'}, false);
@@ -258,8 +258,8 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 Added in: v3.47.0
 
-* `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]`
-* `value` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]`
+* `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
+* `value` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) | [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
 
 Extends the [`globalLabels`](/reference/configuration.md#global-labels) configuration. It allows setting labels that are applied to all transactions. A potential use case is to specify a label with the state of your application: `'initializing' | 'available' | 'unhealthy'`.
 
@@ -278,19 +278,19 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 Added in: v0.1.0
 
-* `error` - Can be either an `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error[<Error>]` object, a [message string](#message-strings), or a [special parameterized message object](#parameterized-message-object)
-* `options` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` The following options are supported:
+* `error` - Can be either an [`<Error>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) object, a [message string](#message-strings), or a [special parameterized message object](#parameterized-message-object)
+* `options` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) The following options are supported:
 
-    * `timestamp` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` The time when the error happened. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
-    * `message` - If the `error` argument is an `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error[<Error>]` object, it’s possible to use this option to supply an additional message string that will be stored along with the error message under `log.message`
+    * `timestamp` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The time when the error happened. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
+    * `message` - If the `error` argument is an [`<Error>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) object, it’s possible to use this option to supply an additional message string that will be stored along with the error message under `log.message`
     * `user` - See [metadata section](#metadata) for details about this option
     * `custom` - See [metadata section](#metadata) for details about this option
-    * `request` `https://nodejs.org/api/http.html#http_class_http_incomingmessage[<http.IncomingMessage>]` You can associate an error with information about the incoming request to gain additional context such as the request url, headers, and cookies. However, in most cases, the agent will detect if an error was in response to an http request and automatically add the request details for you. See [http requests section](#http-requests) for more details.
-    * `response` `https://nodejs.org/api/http.html#http_class_http_serverresponse[<http.ServerResponse>]` You can associate an error with information about the http response to get additional details such as status code and headers. However, in most cases, the agent will detect if an error occured during an http request and automatically add response details for you. See [http responses section](#http-responses) for more details.
-    * `handled` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` Adds additional context to the exception to show whether the error is handled or uncaught. Unhandled errors are immediately flushed to APM server, in case the application is about the crash. **Default:** `true`.
-    * `labels` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` Add additional context with labels, these labels will be added to the error along with the labels from the current transaction. See the [`apm.addLabels()`](#apm-add-labels) method for details about the format.
-    * `captureAttributes` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` Whether to include properties on the given `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error[<Error>]` object in the data sent to the APM Server (as `error.exception.attributes`). **Default:** `true`.
-    * `skipOutcome` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` Whether to skip setting the outcome value for the current span to `failure`.  See [Span outcome](/reference/span-api.md#span-outcome) for more information. **Default:** `false`.
+    * `request` [`<http.IncomingMessage>`](https://nodejs.org/api/http.html#http_class_http_incomingmessage) You can associate an error with information about the incoming request to gain additional context such as the request url, headers, and cookies. However, in most cases, the agent will detect if an error was in response to an http request and automatically add the request details for you. See [http requests section](#http-requests) for more details.
+    * `response` [`<http.ServerResponse>`](https://nodejs.org/api/http.html#http_class_http_serverresponse) You can associate an error with information about the http response to get additional details such as status code and headers. However, in most cases, the agent will detect if an error occured during an http request and automatically add response details for you. See [http responses section](#http-responses) for more details.
+    * `handled` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) Adds additional context to the exception to show whether the error is handled or uncaught. Unhandled errors are immediately flushed to APM server, in case the application is about the crash. **Default:** `true`.
+    * `labels` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Add additional context with labels, these labels will be added to the error along with the labels from the current transaction. See the [`apm.addLabels()`](#apm-add-labels) method for details about the format.
+    * `captureAttributes` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) Whether to include properties on the given [`<Error>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) object in the data sent to the APM Server (as `error.exception.attributes`). **Default:** `true`.
+    * `skipOutcome` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) Whether to skip setting the outcome value for the current span to `failure`.  See [Span outcome](/reference/span-api.md#span-outcome) for more information. **Default:** `false`.
     * `parent` [Transaction](/reference/transaction-api.md) | [Span](/reference/span-api.md) | `null` - A Transaction or Span instance to make the parent of this error. If not given (or `undefined`), then the current span or transaction will be used. If `null` is given, then no span or transaction will be used. (Added in v3.33.0.)
 
 * `callback` - Will be called after the error has been sent to the APM Server. It will receive an `Error` instance if the agent failed to send the error, and the id of the captured error.
@@ -423,14 +423,14 @@ app.listen(3000)
 
 Added in: v0.1.0<br> Transaction `subtype` and `action` deprecated in: v3.25.0<br> Transaction `subtype` and `action` removed in: v4.0.0
 
-* `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` The name of the transaction. You can always set this later via [`transaction.name`](/reference/transaction-api.md#transaction-name) or [`apm.setTransactionName()`](#apm-set-transaction-name). **Default:** `unnamed`
-* `type` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` The type of the transaction. You can always set this later via [`transaction.type`](/reference/transaction-api.md#transaction-type).
-* `options` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` The following options are supported:
+* `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The name of the transaction. You can always set this later via [`transaction.name`](/reference/transaction-api.md#transaction-name) or [`apm.setTransactionName()`](#apm-set-transaction-name). **Default:** `unnamed`
+* `type` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The type of the transaction. You can always set this later via [`transaction.type`](/reference/transaction-api.md#transaction-type).
+* `options` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) The following options are supported:
 
-    * `startTime` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` The time when the transaction started. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
-    * `childOf` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` A W3C trace-context "traceparent" string, typically received from a remote service call.
-    * `tracestate` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` A W3C trace-context "tracestate" string.
-    * `links` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array[<Array>]` Span links. A transaction can refer to zero or more other transactions or spans (separate from its parent). Span links will be shown in the Kibana APM app trace view. The `links` argument is an array of objects with a single "context" field that is a `Transaction`, `Span`, or W3C trace-context *traceparent* string. For example: `apm.startTransaction('aName', { links: [{ context: anotherSpan }] })`.
+    * `startTime` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The time when the transaction started. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
+    * `childOf` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) A W3C trace-context "traceparent" string, typically received from a remote service call.
+    * `tracestate` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) A W3C trace-context "tracestate" string.
+    * `links` [`<Array>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) Span links. A transaction can refer to zero or more other transactions or spans (separate from its parent). Span links will be shown in the Kibana APM app trace view. The `links` argument is an array of objects with a single "context" field that is a `Transaction`, `Span`, or W3C trace-context *traceparent* string. For example: `apm.startTransaction('aName', { links: [{ context: anotherSpan }] })`.
 
 
 Start a new custom/manual transaction. See the [Transaction API](/reference/transaction-api.md) docs for details on how to use custom transactions.
@@ -444,8 +444,8 @@ If the APM agent has not yet been started, then a do-nothing "no-op" transaction
 
 Added in: v0.1.0
 
-* `result` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Describes the result of the transaction. This is typically the HTTP status code, or e.g. "success" or "failure" for a background task
-* `endTime` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` The time when the transaction ended. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
+* `result` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Describes the result of the transaction. This is typically the HTTP status code, or e.g. "success" or "failure" for a background task
+* `endTime` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The time when the transaction ended. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
 
 Ends the active transaction. If no transaction is currently active, nothing happens.
 
@@ -494,7 +494,7 @@ If there’s no active transaction or span available, `null` will be returned.
 
 Added in: v0.1.0
 
-* `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Set or overwrite the name of the current transaction.
+* `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Set or overwrite the name of the current transaction.
 
 If you use a supported router/framework the agent will automatically set the transaction name for you.
 
@@ -507,15 +507,15 @@ Read more about naming routes manually in the [Get started with a custom Node.js
 
 Added in: v1.1.0
 
-* `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` The name of the span. You can alternatively set this via [`span.name`](/reference/span-api.md#span-name). **Default:** `unnamed`
-* `type` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` The type of the span. You can alternatively set this via [`span.type`](/reference/span-api.md#span-type).
-* `subtype` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` The subtype of the span. You can alternatively set this via [`span.subtype`](/reference/span-api.md#span-subtype).
-* `action` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` The action of the span. You can alternatively set this via [`span.action`](/reference/span-api.md#span-action).
-* `options` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` The following options are supported:
+* `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The name of the span. You can alternatively set this via [`span.name`](/reference/span-api.md#span-name). **Default:** `unnamed`
+* `type` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The type of the span. You can alternatively set this via [`span.type`](/reference/span-api.md#span-type).
+* `subtype` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The subtype of the span. You can alternatively set this via [`span.subtype`](/reference/span-api.md#span-subtype).
+* `action` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The action of the span. You can alternatively set this via [`span.action`](/reference/span-api.md#span-action).
+* `options` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) The following options are supported:
 
-    * `startTime` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` The time when the span started. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
-    * `exitSpan` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` Make an "exit span". Exit spans represent outgoing communication. They are used to create a node in the [Service Map](docs-content://solutions/observability/apps/service-map.md) and a downstream service in the [Dependencies Table](docs-content://solutions/observability/apps/dependencies.md). The provided subtype will be used as the downstream service name.
-    * `links` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array[<Array>]` Span links. A span can refer to zero or more other transactions or spans (separate from its parent). Span links will be shown in the Kibana APM app trace view. The `links` argument is an array of objects with a single "context" field that is a `Transaction`, `Span`, or W3C trace-context *traceparent* string.  For example: `apm.startSpan('aName', { links: [{ context: anotherSpan }] })`.
+    * `startTime` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The time when the span started. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
+    * `exitSpan` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) Make an "exit span". Exit spans represent outgoing communication. They are used to create a node in the [Service Map](docs-content://solutions/observability/apps/service-map.md) and a downstream service in the [Dependencies Table](docs-content://solutions/observability/apps/dependencies.md). The provided subtype will be used as the downstream service name.
+    * `links` [`<Array>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) Span links. A span can refer to zero or more other transactions or spans (separate from its parent). Span links will be shown in the Kibana APM app trace view. The `links` argument is an array of objects with a single "context" field that is a `Transaction`, `Span`, or W3C trace-context *traceparent* string.  For example: `apm.startSpan('aName', { links: [{ context: anotherSpan }] })`.
 
 
 Start and return a new custom span associated with the current active transaction. This is the same as getting the current transaction with `apm.currentTransaction` and, if a transaction was found, calling `transaction.startSpan(name, type, options)` on it.
@@ -545,7 +545,7 @@ apm.handleUncaughtExceptions(function (err) {
 
 The callback is called **after** the event has been sent to the APM Server with the following arguments:
 
-* `err` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error[<Error>]` the captured exception
+* `err` [`<Error>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) the captured exception
 
 This function will also enable the uncaught exception handler if it was disabled using the [`captureExceptions`](/reference/configuration.md#capture-exceptions) configuration option.
 
@@ -606,15 +606,15 @@ Read more lambda support in the [Lambda](/reference/lambda.md) article.
 
 Added in: v2.7.0
 
-* `modules` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string[\]>]` Name of module(s) to apply the patch to, when required.
-* `handler` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function[<Function>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Must be a patch function or a path to a module exporting a patch function
+* `modules` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string[\]>]` Name of module(s) to apply the patch to, when required.
+* `handler` [`<Function>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function) | [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Must be a patch function or a path to a module exporting a patch function
 
-    * `exports` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` The original export object of the module
+    * `exports` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) The original export object of the module
     * `agent` - The agent instance to use in the patch function
-    * `options` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` The following options are supported:
+    * `options` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) The following options are supported:
 
-        * `version` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` | `https://developer.mozilla.org/en-US/docs/Glossary/Undefined[<undefined>]` The module version, if applicable.
-        * `enabled` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` A flag indicating if the instrumentation is enabled. Any module patch can be disabled, by module name, with [`disableInstrumentations`](/reference/configuration.md#disable-instrumentations).
+        * `version` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<undefined>`](https://developer.mozilla.org/en-US/docs/Glossary/Undefined) The module version, if applicable.
+        * `enabled` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) A flag indicating if the instrumentation is enabled. Any module patch can be disabled, by module name, with [`disableInstrumentations`](/reference/configuration.md#disable-instrumentations).
 
 
 Register a module patch to apply on intercepted `require` calls.
@@ -703,9 +703,9 @@ This functionality is in technical preview and may be changed or removed in a fu
 ::::
 
 
-* `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Name of the metrics.
-* `labels` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` Contains key/value pairs. Optional labels. Omittable.
-* `callback` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function[<Function>]` Must be a function that returns the current metric value.
+* `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Name of the metrics.
+* `labels` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Contains key/value pairs. Optional labels. Omittable.
+* `callback` [`<Function>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function) Must be a function that returns the current metric value.
 
 Register a metric callback.
 
@@ -728,7 +728,7 @@ apm.registerMetric( 'ws.connections' , {module : 'ws'}, () => {
 
 Added in: v3.12.0
 
-* `outcome` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]`
+* `outcome` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 
 Will set the outcome property on the *current* transaction.
 
@@ -739,7 +739,7 @@ See the [Transaction Outcome docs](/reference/transaction-api.md#transaction-out
 
 Added in: v3.12.0
 
-* `outcome` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]`
+* `outcome` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 
 Will set the outcome property on the *current* span.
 

@@ -2,12 +2,12 @@
 navigation_title: "Elastic APM Node.js Agent"
 ---
 
-# Elastic APM Node.js Agent breaking changes [elastic-apm-nodejs-agent-breaking-changes]
+# Elastic APM Node.js Agent breaking changes
 Before you upgrade, carefully review the Elastic APM Node.js Agent breaking changes and take the necessary steps to mitigate any issues.
 
 To learn how to upgrade, check out [Upgrading](/reference/upgrading.md).
 
-% ## Next version [elastic-apm-nodejs-agent-nextversion-breaking-changes]
+% ## Next version [next-version]
 % **Release date:** Month day, year
 
 % ::::{dropdown} Title of breaking change
@@ -17,12 +17,12 @@ To learn how to upgrade, check out [Upgrading](/reference/upgrading.md).
 % **Action**<br> Steps for mitigating deprecation impact.
 % ::::
 
-## 4.2.0 [elastic-apm-nodejs-agent-420-breaking-changes]
+## 4.2.0 [4-2-0]
 **Release date:** November 23, 2023
 
 * Drop support for next@11. Next.js instrumentation support is currently in technical preview, so it is not considered a semver-major change to drop support for this old version of next. For more information, check ([#3664](https://github.com/elastic/apm-agent-nodejs/pull/3664)).
 
-## 4.0.0 [elastic-apm-nodejs-agent-400-breaking-changes]
+## 4.0.0 [4-0-0]
 * Set the new minimum supported Node.js to version 14.17.0. Users of earlier Node.js versions can use elastic-apm-node v3.x, which supports back to Node.js v8.6.
 * Ignore a `timer` option passed to `startTransaction()` and `startSpan()` APIs. This option was never documented. It would be surprising if any user is impacted by this.
 * Remove long deprecated support for the `ELASTIC_APM_`-prefixed environment variables for the [Kubernetes config options](/reference/configuration.md#kubernetes-node-name). For example, one must use `KUBERNETES_POD_NAME` and not `ELASTIC_APM_KUBERNETES_POD_NAME`. ([#2661](https://github.com/elastic/apm-agent-nodejs/issues/2661))

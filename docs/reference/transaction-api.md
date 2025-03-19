@@ -15,7 +15,7 @@ To see an example of using custom transactions, see the [Custom Transactions in 
 
 Added in: v0.1.0
 
-* `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` **Default:** `unnamed`
+* [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `unnamed`
 
 The name of the transaction.
 
@@ -30,7 +30,7 @@ Added in: v0.1.0
 
 Split components into `type`, `subtype` and `action` in: v3.0.0
 
-* `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` **Default:** `custom`
+* [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `custom`
 
 The type of the transaction.
 
@@ -41,7 +41,7 @@ There’s a special type called `request` which is used by the agent for the tra
 
 Added in: v3.0.0<br> Deprecated in: v3.25.0
 
-* `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` **Default:** `custom`
+* [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `custom`
 
 The subtype of the transaction. The transaction `subtype` field is deprecated: it is not used and will be removed in the next major version.
 
@@ -50,7 +50,7 @@ The subtype of the transaction. The transaction `subtype` field is deprecated: i
 
 Added in: v3.0.0<br> Deprecated in: v3.25.0
 
-* `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` **Default:** `custom`
+* [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `custom`
 
 The action of the transaction. The transaction `action` field is deprecated: it is not used and will be removed in the next major version.
 
@@ -66,7 +66,7 @@ Get the serialized traceparent string of the transaction.
 
 Added in: v0.1.0
 
-* `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` **Default:** `success`
+* [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `success`
 
 A string describing the result of the transaction. This is typically the HTTP status code, or e.g. "success" or "failure" for a background task.
 
@@ -77,15 +77,15 @@ Added in: v2.0.0
 
 Split `type` into `type`, `subtype` and `action` in: v3.0.0
 
-* `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` The name of the span. You can alternatively set this via [`span.name`](/reference/span-api.md#span-name). **Default:** `unnamed`
-* `type` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` The type of the span. You can alternatively set this via [`span.type`](/reference/span-api.md#span-type).
-* `subtype` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` The subtype of the span. You can alternatively set this via [`span.subtype`](/reference/span-api.md#span-subtype).
-* `action` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` The action of the span. You can alternatively set this via [`span.action`](/reference/span-api.md#span-action).
+* `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The name of the span. You can alternatively set this via [`span.name`](/reference/span-api.md#span-name). **Default:** `unnamed`
+* `type` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The type of the span. You can alternatively set this via [`span.type`](/reference/span-api.md#span-type).
+* `subtype` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The subtype of the span. You can alternatively set this via [`span.subtype`](/reference/span-api.md#span-subtype).
+* `action` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The action of the span. You can alternatively set this via [`span.action`](/reference/span-api.md#span-action).
 * `options` - The following options are supported:
 
-    * `startTime` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` The time when the span started. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
-    * `exitSpan` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` Make an "exit span". Exit spans represent outgoing communication. They are used to create a node in the [Service Map](docs-content://solutions/observability/apps/service-map.md) and a downstream service in the [Dependencies Table](docs-content://solutions/observability/apps/dependencies.md). The provided subtype will be used as the downstream service name.
-    * `links` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array[<Array>]` Span links. A span can refer to zero or more other transactions or spans (separate from its parent). Span links will be shown in the Kibana APM app trace view. The `links` argument is an array of objects with a single "context" field that is a `Transaction`, `Span`, or W3C trace-context *traceparent* string.  For example: `transaction.startSpan('aName', { links: [{ context: anotherSpan }] })`.
+    * `startTime` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The time when the span started. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
+    * `exitSpan` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) Make an "exit span". Exit spans represent outgoing communication. They are used to create a node in the [Service Map](docs-content://solutions/observability/apps/service-map.md) and a downstream service in the [Dependencies Table](docs-content://solutions/observability/apps/dependencies.md). The provided subtype will be used as the downstream service name.
+    * `links` [`<Array>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) Span links. A span can refer to zero or more other transactions or spans (separate from its parent). Span links will be shown in the Kibana APM app trace view. The `links` argument is an array of objects with a single "context" field that is a `Transaction`, `Span`, or W3C trace-context *traceparent* string.  For example: `transaction.startSpan('aName', { links: [{ context: anotherSpan }] })`.
 
 
 Start and return a new custom span associated with this transaction. When a span is started it will measure the time until [`span.end()`](/reference/span-api.md#span-end) is called.
@@ -97,9 +97,9 @@ See [Span API](/reference/span-api.md) docs for details on how to use custom spa
 
 Added in: v0.1.0<br> Renamed from `transaction.setTag()` to `transaction.setLabel()`: v2.10.0<br> Added `stringify` argument in: v3.11.0
 
-* `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
-* `value` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
-* `stringify` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
+* `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
+* `value` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) | [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
+* `stringify` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
 
 ```js
 transaction.setLabel('productId', 42, false);
@@ -122,12 +122,12 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 Added in: v1.5.0<br> Renamed from `transaction.addTags()` to `transaction.addLabels()`: v2.10.0<br> Added `stringify` argument in: v3.11.0
 
-* `labels` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` Contains key/value pairs:
+* `labels` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Contains key/value pairs:
 
-    * `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
-    * `value` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
+    * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
+    * `value` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) | [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
 
-* `stringify` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
+* `stringify` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
 
 ```js
 transaction.addLabels({productId: 42, productName: 'butter'}, false);
@@ -150,9 +150,9 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 Added in: v2.0.0
 
-* `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]`
+* [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 
-If the transaction does not already have a parent id, calling this method generates a new parent id, sets it as the parent id of this transaction, and returns it as a `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]`.
+If the transaction does not already have a parent id, calling this method generates a new parent id, sets it as the parent id of this transaction, and returns it as a [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type).
 
 This enables the correlation of the spans the JavaScript Real User Monitoring (RUM) agent creates for the initial page load with the transaction of the backend service. If your backend service generates the HTML page dynamically, initializing the JavaScript RUM agent with the value of this method allows analyzing the time spent in the browser vs in the backend services.
 
@@ -189,8 +189,8 @@ Produces an object containing `transaction.id` and `trace.id`. This enables log 
 
 Added in: v0.1.0
 
-* `result` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Describes the result of the transaction. This is typically the HTTP status code, or e.g. "success" or "failure" for a background task
-* `endTime` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` The time when the transaction ended. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
+* `result` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Describes the result of the transaction. This is typically the HTTP status code, or e.g. "success" or "failure" for a background task
+* `endTime` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The time when the transaction ended. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
 
 Ends the transaction. If the transaction has already ended, nothing happens.
 
@@ -216,7 +216,7 @@ Non-HTTP transactions will begin with an outcome of `unknown`.
 
 Added in: v3.12.0
 
-* `outcome` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]`
+* `outcome` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 
 The `setOutcome` method allows an end user to override the Node.js agent’s default setting of a transaction’s `outcome` property.  The `setOutcome` method accepts a string of either `success`, `failure`, or `unknown`, and will force the agent to report this value for a specific span.
 
@@ -234,7 +234,7 @@ A transaction can refer to zero or more other transactions or spans (separate fr
 
 Added in: v4.7.0
 
-* `links` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array[<Array>]` Span links.
+* `links` [`<Array>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) Span links.
 
 Add span links to this transaction.
 

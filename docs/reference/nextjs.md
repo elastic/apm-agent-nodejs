@@ -10,7 +10,7 @@ The Elastic APM Node.js agent can be used to trace the Next.js server (`next sta
 Note that the Node.js APM agent can only instrument *server-side* code. To monitor the client-side parts of a Next.js application, see the [Elastic RUM agent](apm-agent-rum-js://reference/index.md).
 
 ::::{note}
-[preview] This Next.js instrumentation is a *technical preview* while we solicit feedback from Next.js users. Currently `next` versions `>=12.0.0 <13.3.0` are supported. If you are a Next.js user, please help us provide a better Next.js observability experience with your feedback on our [Discuss forum](https://discuss.elastic.co/tags/c/apm/nodejs).
+This Next.js instrumentation is a *technical preview* while we solicit feedback from Next.js users. Currently `next` versions `>=12.0.0 <13.3.0` are supported. If you are a Next.js user, please help us provide a better Next.js observability experience with your feedback on our [Discuss forum](https://discuss.elastic.co/tags/c/apm/nodejs).
 ::::
 
 

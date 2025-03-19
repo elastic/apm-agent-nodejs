@@ -197,7 +197,7 @@ A release involves the following published artifacts:
     - "docs/release-notes/index.md": Add missing release notes, if any. Then change
       the "Next" section title to:
         ```
-        ## x.y.z [x-y-z-release-notes]
+        ## x.y.z [x-y-z]
         ```
    If there are particular highlights for the release, then it can be helpful
    to point those out in the PR description.

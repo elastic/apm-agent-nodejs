@@ -26,7 +26,7 @@ All spans belong to a transaction.
 
 Added in: v0.1.0
 
-* `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` **Default:** `unnamed`
+* [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `unnamed`
 
 The name of the span. This can also be set via [`apm.startSpan()`](/reference/agent-api.md#apm-start-span).
 
@@ -37,7 +37,7 @@ Added in: v0.1.0
 
 Split components into `type`, `subtype` and `action` in: v3.0.0
 
-* `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` **Default:** `custom`
+* [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `custom`
 
 The type of span. This can also be set via [`apm.startSpan()`](/reference/agent-api.md#apm-start-span).
 
@@ -50,7 +50,7 @@ In the above example, `db` is considered the type. Though there are no naming re
 
 Added in: v0.1.0
 
-* `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` **Default:** `custom`
+* [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `custom`
 
 The subtype of the span. This can also be set via [`apm.startSpan()`](/reference/agent-api.md#apm-start-span).
 
@@ -61,7 +61,7 @@ The subtype is typically the name of a module or library. For example, MySQL que
 
 Added in: v0.1.0
 
-* `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` **Default:** `custom`
+* [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `custom`
 
 The action of the span. This can also be set via [`apm.startSpan()`](/reference/agent-api.md#apm-start-span).
 
@@ -79,9 +79,9 @@ Get the serialized traceparent string of the span.
 
 Added in: v2.1.0<br> Renamed from `span.setTag()` to `span.setLabel()`: v2.10.0<br> Added `stringify` argument in: v3.11.0
 
-* `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
-* `value` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
-* `stringify` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
+* `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
+* `value` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) | [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
+* `stringify` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
 
 ```js
 span.setLabel('productId', 42, false);
@@ -104,12 +104,12 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 Added in: v2.1.0<br> Renamed from `span.addTags()` to `span.addLabels()`: v2.10.0<br> Added `stringify` argument in: v3.11.0
 
-* `labels` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]` Contains key/value pairs:
+* `labels` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Contains key/value pairs:
 
-    * `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
-    * `value` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
+    * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
+    * `value` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) | [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
 
-* `stringify` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]` This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
+* `stringify` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
 
 ```js
 span.addLabels({productId: 42, productName: 'butter'}, false);
@@ -146,7 +146,7 @@ Produces an object containing `span.id` and `trace.id`. This enables log correla
 
 Added in: v0.1.0
 
-* `endTime` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]` The time when the span ended. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
+* `endTime` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The time when the span ended. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
 
 End the span. If the span has already ended, nothing happens.
 
@@ -172,7 +172,7 @@ However, for exit spans that represent an HTTP request, the `outcome` is based o
 
 Added in: v3.12.0
 
-* `outcome` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]`
+* `outcome` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 
 The `setOutcome` method allows an end user to override the Node.js agent’s default setting of a span’s `outcome` property.  The `setOutcome` method accepts a string of either `success`, `failure`, or `unknown`, and will force the agent to report this value for a specific span.
 
@@ -181,8 +181,8 @@ The `setOutcome` method allows an end user to override the Node.js agent’s def
 
 Added in: v3.39.0
 
-* `type` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` | null The target service type, usually the same value as `span.subtype`, e.g. "mysql".
-* `name` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]` | null The target service name, an optional scoping of the service. For databases it is typically the database name.
+* `type` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | null The target service type, usually the same value as `span.subtype`, e.g. "mysql".
+* `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | null The target service name, an optional scoping of the service. For databases it is typically the database name.
 
 Manually set the `service.target.type` and `service.target.name` fields that identify a downstream service. They are used for [Service Maps](docs-content://solutions/observability/apps/service-map.md) and [Dependencies](docs-content://solutions/observability/apps/dependencies.md) in the Kibana APM app.  The values are only used for "exit" spans — spans representing outgoing communication, marked with `exitSpan: true` at span creation.
 
@@ -206,7 +206,7 @@ A span can refer to zero or more other transactions or spans (separate from its 
 
 Added in: v4.7.0
 
-* `links` `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array[<Array>]` Span links.
+* `links` [`<Array>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) Span links.
 
 Add span links to this span.
 
