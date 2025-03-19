@@ -7,7 +7,7 @@ mapped_pages:
 
 There are multiple ways to configure the Node.js agent. In order of precedence:
 
-1. APM Agent Central Configuration via Kibana. (supported options are marked with [![dynamic config](../images/dynamic-config.svg "") ](#dynamic-configuration))
+1. APM Agent Central Configuration via Kibana. (supported options are marked with [![dynamic config](images/dynamic-config.svg "") ](#dynamic-configuration))
 2. Environment variables.
 3. If calling the `apm.start()` function, supply a [configurations object](#agent-configuration-object) as the first argument.
 4. Via the [agent configuration file](#agent-configuration-file).
@@ -17,7 +17,7 @@ For information on the available configuration properties and the expected names
 
 ## Dynamic configuration [dynamic-configuration]
 
-Configuration options marked with the ![dynamic config](../images/dynamic-config.svg "") badge can be changed at runtime when set from a supported source.
+Configuration options marked with the ![dynamic config](images/dynamic-config.svg "") badge can be changed at runtime when set from a supported source.
 
 The Node.js Agent supports [Central configuration](docs-content://solutions/observability/apps/apm-agent-central-configuration.md), which allows you to fine-tune certain configurations via the APM app in Kibana. This feature is enabled in the Agent by default, with [`centralConfig`](/reference/configuration.md#central-config).
 

@@ -209,7 +209,7 @@ Supported values for `contextManager` are:
 * **Type:** Array
 * **Default:** `[]`
 * **Env:** `ELASTIC_APM_TRANSACTION_IGNORE_URLS`
-* [![dynamic config](../images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `transaction_ignore_urls`
+* [![dynamic config](images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `transaction_ignore_urls`
 
 Array or comma-separated string used to restrict requests for certain URLs from being instrumented.
 
@@ -285,7 +285,7 @@ require('elastic-apm-node').start({
 * **Type:** String
 * **Default:** `off`
 * **Env:** `ELASTIC_APM_CAPTURE_BODY`
-* [![dynamic config](../images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `capture_body`
+* [![dynamic config](images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `capture_body`
 
 The HTTP body of incoming HTTP requests is not recorded and sent to the APM Server by default.
 
@@ -337,7 +337,7 @@ If the `errorOnAbortedRequests` property is `false`, this property is ignored.
 * **Type:** Number
 * **Default:** `1.0`
 * **Env:** `ELASTIC_APM_TRANSACTION_SAMPLE_RATE`
-* [![dynamic config](../images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `transaction_sample_rate`
+* [![dynamic config](images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `transaction_sample_rate`
 
 Specify the sampling rate to use when deciding whether to trace a request.
 
@@ -390,7 +390,7 @@ require('elastic-apm-node').start({
 * **Type:** String
 * **Default:** `'info'`
 * **Env:** `ELASTIC_APM_LOG_LEVEL`
-* [![dynamic config](../images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `log_level`
+* [![dynamic config](images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `log_level`
 
 Set the verbosity level for the agent’s logging. Note that this does not have any influence on the types of errors that are sent to the APM Server. This only controls how chatty the agent is in your logs. Possible levels are: `trace` (the most verbose logging, avoid in production), `debug`, `info`, `warning`, `error`, `critical`, and `off` (disable all logging).
 
@@ -479,7 +479,7 @@ Added in: v3.30.0, replaces [`captureSpanStackTraces`](#capture-span-stack-trace
 * **Type:** Duration
 * **Default:** `'-1s'` (never capture span stack traces)
 * **Env:** `ELASTIC_APM_SPAN_STACK_TRACE_MIN_DURATION`
-* [![dynamic config](../images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `span_stack_trace_min_duration`
+* [![dynamic config](images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `span_stack_trace_min_duration`
 
 Use this option to control if stack traces are never captured for spans (the default), always captured for spans, or only captured for spans that are longer than a given duration. If you choose to enable span stack traces, even if only for slower spans, please read the [possible performance implications](/reference/performance-tuning.md#performance-stack-traces).
 
@@ -646,7 +646,7 @@ Setting it to `0` will disable stack trace collection. Any finite integer value 
 * **Type:** Number
 * **Default:** `500`
 * **Env:** `ELASTIC_APM_TRANSACTION_MAX_SPANS`
-* [![dynamic config](../images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `transaction_max_spans`
+* [![dynamic config](images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `transaction_max_spans`
 
 Specify the maximum number of spans to capture within a request transaction before dropping further spans. Setting to `-1` means that spans will never be dropped.
 
@@ -737,7 +737,7 @@ require('elastic-apm-node').start({
 * **Type:** Array
 * **Default:** `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', '*auth*', 'set-cookie', '*principal*', 'pw', 'pass', 'connect.sid']`
 * **Env:** `ELASTIC_APM_SANITIZE_FIELD_NAMES`
-* [![dynamic config](../images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `sanitize_field_names`
+* [![dynamic config](images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `sanitize_field_names`
 
 Remove sensitive data sent to Elastic APM.
 
@@ -975,7 +975,7 @@ If the value is not one of the five listed above, the agent will use the value o
 * **Type:** Array
 * **Default:** `[]`
 * **Env:** `ELASTIC_APM_IGNORE_MESSAGE_QUEUES`
-* [![dynamic config](../images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `ignore_message_queues`
+* [![dynamic config](images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `ignore_message_queues`
 
 Array or comma-separated string of wildcard patterns that tell the agent to ignore certain queues/topics when instrumenting messaging systems.
 
@@ -1003,7 +1003,7 @@ Added in: v3.34.0
 * **Type:** String
 * **Default:** `'continue'`
 * **Env:** `ELASTIC_APM_TRACE_CONTINUATION_STRATEGY`
-* [![dynamic config](../images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `trace_continuation_strategy`
+* [![dynamic config](images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `trace_continuation_strategy`
 
 This option allows some control on how the APM agent handles W3C trace-context headers on incoming requests. By default, the `traceparent` and `tracestate` headers are used per W3C spec for distributed tracing. However, in certain cases it can be helpful to **not** use the incoming `traceparent` header. Some example use cases:
 
@@ -1096,7 +1096,7 @@ require('elastic-apm-node').start({
 * **Type:** String
 * **Default:** `0ms`
 * **Env:** `ELASTIC_APM_EXIT_SPAN_MIN_DURATION`
-* [![dynamic config](../images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `exit_span_min_duration`
+* [![dynamic config](images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `exit_span_min_duration`
 
 Sets the minimum duration of exit spans. If an exit span’s duration is less than this threshold the agent will attempt to drop the span and not send it.
 
