@@ -2,8 +2,8 @@
 navigation_title: "Known issues"
 ---
 
-# {{apm-node-agent}} known issues [elastic-apm-nodejs-agent-known-issues]
-Known issues are significant defects or limitations that may impact your implementation. These issues are actively being worked on and will be addressed in a future release. Review the {{apm-node-agent}} known issues to help you make informed decisions, such as upgrading to a new version.
+# Elastic APM Node.js agent known issues [elastic-apm-nodejs-agent-known-issues]
+Known issues are significant defects or limitations that may impact your implementation. These issues are actively being worked on and will be addressed in a future release. Review the Elastic APM Node.js agent known issues to help you make informed decisions, such as upgrading to a new version.
 
 % Use the following template to add entries to this page.
 

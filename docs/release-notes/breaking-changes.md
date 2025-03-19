@@ -2,8 +2,8 @@
 navigation_title: "Breaking changes"
 ---
 
-# {{apm-node-agent}} breaking changes [elastic-apm-nodejs-agent-breaking-changes]
-Breaking changes can impact your Elastic applications, potentially disrupting normal operations. Before you upgrade, carefully review the {{apm-node-agent}} breaking changes and take the necessary steps to mitigate any issues. To learn how to upgrade, check out [Upgrading](/reference/upgrading.md).
+# Elastic APM Node.js agent breaking changes [elastic-apm-nodejs-agent-breaking-changes]
+Breaking changes can impact your Elastic applications, potentially disrupting normal operations. Before you upgrade, carefully review the Elastic APM Node.js agent breaking changes and take the necessary steps to mitigate any issues. To learn how to upgrade, check out [Upgrading](/reference/upgrading.md).
 
 % ## Next version [elastic-apm-nodejs-agent-nextversion-breaking-changes]
 % **Release date:** Month day, year

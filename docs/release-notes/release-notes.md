@@ -5,12 +5,12 @@ mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-4.x.html
 ---
 
-# {{apm-node-agent}} release notes [elastic-apm-nodejs-agent-release-notes]
-Review the changes, fixes, and more in each version of {{apm-node-agent}}.
+# Elastic APM Node.js agent release notes [elastic-apm-nodejs-agent-release-notes]
+Review the changes, fixes, and more in each version of Elastic APM Node.js agent.
 
 To check for security updates, go to [Security announcements for the Elastic stack](https://discuss.elastic.co/c/announcements/security-announcements/31).
 
-To learn how to upgrade to {{apm-node-agent}} 4.x, check out [Upgrade to v4.x](/reference/upgrade-to-v4.md).
+To learn how to upgrade to Elastic APM Node.js agent 4.x, check out [Upgrade to v4.x](/reference/upgrade-to-v4.md).
 
 % Release notes includes only features, enhancements, and fixes. Add breaking changes, deprecations, and known issues to the applicable release notes sections.
 
