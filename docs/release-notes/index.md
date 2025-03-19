@@ -20,8 +20,15 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 % ### Fixes [next-fixes]
 
+## 4.11.2 [4-11-2]
+**Release date:** March 17, 2025
+
+### Fixes [4-11-2-fixes]
+
+* Fix bug in instrumentation of Azure Functions that could result in crashing the application.  The known case was with a ServiceBus function (using `app.serviceBusTopic(...)` from `@azure/functions`). ([#4508](https://github.com/elastic/apm-agent-nodejs/issues/4508))
+
 ## 4.11.1 [elastic-apm-nodejs-agent-4-11-1-release-notes]
-**Release date:** March 3, 2025
+**Release date:** March 14, 2025
 
 ### Features and enhancements [elastic-apm-nodejs-agent-4-11-1-features-enhancements]
 
