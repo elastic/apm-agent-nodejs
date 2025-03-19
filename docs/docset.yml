@@ -1,0 +1,16 @@
+project: 'APM Node.js agent docs'
+cross_links:
+  - apm-agent-rum-js
+  - apm-aws-lambda
+  - apm-k8s-attacher
+  - docs-content
+  - ecs
+  - ecs-logging
+  - ecs-logging-nodejs
+  - elasticsearch
+toc:
+  - toc: reference
+  - toc: release-notes
+subs:
+  ecloud:   "Elastic Cloud"
+  apm-lambda-ext:   "Elastic APM AWS Lambda extension"

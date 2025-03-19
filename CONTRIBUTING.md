@@ -43,7 +43,7 @@ Once your changes are ready to submit for review:
 
     * See the [Commit message guidelines](#commit-message-guidelines) below.
     * If your changes will be visible to users of this package, then add an item
-      to the "Unreleased" section of [the changelog](./CHANGELOG.asciidoc).
+      to the "Next" section of [release notes](docs/release-notes/index.md).
     * If you are changing usage of this package, are there updates under
       "docs/" that should be made?
 
@@ -194,11 +194,10 @@ A release involves the following published artifacts:
     - the version in `package.json`,
     - the version in `package-lock.json` (by running `npm install`),
     - all cases of "REPLACEME" in docs and comments,
-    - "CHANGELOG.asciidoc": Add missing changelog entries, if any. Then change
-      the "Unreleased" section title to:
+    - "docs/release-notes/index.md": Add missing release notes, if any. Then change
+      the "Next" section title to:
         ```
-        [[release-notes-x.y.z]]
-        ==== x.y.z - YYYY/MM/DD
+        ## x.y.z [x-y-z]
         ```
    If there are particular highlights for the release, then it can be helpful
    to point those out in the PR description.
