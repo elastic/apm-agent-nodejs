@@ -70,7 +70,7 @@ ELASTIC_APM_SECRET_TOKEN: <your APM secret token from the prerequisites step>
 
 For example:
 
-:::{image} ../images/azure-functions-configuration.png
+:::{image} images/azure-functions-configuration.png
 :alt: Configuring the APM Agent in the Azure Portal
 :::
 

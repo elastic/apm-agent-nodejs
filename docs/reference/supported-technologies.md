@@ -12,7 +12,7 @@ The Elastic APM Node.js Agent automatically instruments various APIs in Node.js 
 
 Support for the Elastic APM Node.js agent follows the [support schedule of Node.js itself](https://nodejs.org/en/about/releases/) to the end-of-life period of each version after its maintenance term. Versions of Node.js past their end-of-life date are not supported.
 
-:::{image} ../images/node_release_schedule.svg
+:::{image} images/node_release_schedule.svg
 :alt: Node.js release schedule
 :::
 
