@@ -9,7 +9,7 @@ The Elastic APM Node.js Agent uses [semantic versioning](https://semver.org/), a
 
 Before upgrading the agent, be sure to review the:
 
-* [Node.js APM Agent release notes](/release-notes/index.md)
+* [Node.js APM Agent release notes](/release-notes/release-notes.md)
 * [APM Agent and Server compatibility chart](docs-content://solutions/observability/apps/apm-agent-compatibility.md)
 
 The following upgrade guides are available:
