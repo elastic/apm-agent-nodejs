@@ -1,5 +1,5 @@
 ---
-navigation_title: "Elastic APM Node.js Agent"
+navigation_title: "Known issues"
 ---
 
 # Elastic APM Node.js Agent known issues [elastic-apm-nodejs-agent-known-issues]
