@@ -1,4 +1,11 @@
 version: 2
+registries:
+  docker-elastic:
+    type: docker-registry
+    url: https://docker.elastic.co
+    username: ${{secrets.ELASTIC_DOCKER_USERNAME}}
+    password: ${{secrets.ELASTIC_DOCKER_PASSWORD}}
+
 updates:
   - package-ecosystem: "npm"
     directory: "/"
@@ -113,5 +120,6 @@ updates:
   # Docker
   - package-ecosystem: "docker"
     directory: "/"
+    registries: "*"
     schedule:
       interval: "weekly"
