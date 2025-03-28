@@ -1,5 +1,5 @@
 ---
-navigation_title: "Elastic APM Node.js Agent"
+navigation_title: "Breaking changes"
 ---
 
 # Elastic APM Node.js Agent breaking changes

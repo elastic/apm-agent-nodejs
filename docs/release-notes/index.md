@@ -7,7 +7,7 @@ mapped_pages:
 
 # Elastic APM Node.js Agent release notes
 
-Review the changes, fixes, and more in each version of Elastic Node.js Java Agent.
+Review the changes, fixes, and more in each version of Elastic Node.js Agent.
 
 To check for security updates, go to [Security announcements for the Elastic stack](https://discuss.elastic.co/c/announcements/security-announcements/31).
 
