@@ -235,7 +235,10 @@ test('reject unauthorized TLS by default', function (t) {
     client.on('request-error', function (err) {
       t.ok(err instanceof Error);
       let expectedErrorMessage = 'self signed certificate';
-      if (semver.gte(process.version, 'v17.0.0')) {
+      if (semver.gte(process.version, 'v23.11.0')) {
+        expectedErrorMessage =
+          'self-signed certificate; if the root CA is installed locally, try running Node.js with --use-system-ca';
+      } else if (semver.gte(process.version, 'v17.0.0')) {
         expectedErrorMessage = 'self-signed certificate';
       }
       t.equal(err.message, expectedErrorMessage);
