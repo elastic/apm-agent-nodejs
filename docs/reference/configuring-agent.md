@@ -19,7 +19,7 @@ For information on the available configuration properties and the expected names
 
 Configuration options marked with the ![dynamic config](images/dynamic-config.svg "") badge can be changed at runtime when set from a supported source.
 
-The Node.js Agent supports [Central configuration](docs-content://solutions/observability/apps/apm-agent-central-configuration.md), which allows you to fine-tune certain configurations via the APM app in Kibana. This feature is enabled in the Agent by default, with [`centralConfig`](/reference/configuration.md#central-config).
+The Node.js Agent supports [Central configuration](docs-content://solutions/observability/apm/apm-agent-central-configuration.md), which allows you to fine-tune certain configurations via the APM app in Kibana. This feature is enabled in the Agent by default, with [`centralConfig`](/reference/configuration.md#central-config).
 
 
 ## Agent configuration object [agent-configuration-object]

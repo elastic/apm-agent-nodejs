@@ -84,7 +84,7 @@ Split `type` into `type`, `subtype` and `action` in: v3.0.0
 * `options` - The following options are supported:
 
     * `startTime` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The time when the span started. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
-    * `exitSpan` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) Make an "exit span". Exit spans represent outgoing communication. They are used to create a node in the [Service Map](docs-content://solutions/observability/apps/service-map.md) and a downstream service in the [Dependencies Table](docs-content://solutions/observability/apps/dependencies.md). The provided subtype will be used as the downstream service name.
+    * `exitSpan` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) Make an "exit span". Exit spans represent outgoing communication. They are used to create a node in the [Service Map](docs-content://solutions/observability/apm/service-map.md) and a downstream service in the [Dependencies Table](docs-content://solutions/observability/apm/dependencies.md). The provided subtype will be used as the downstream service name.
     * `links` [`<Array>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) Span links. A span can refer to zero or more other transactions or spans (separate from its parent). Span links will be shown in the Kibana APM app trace view. The `links` argument is an array of objects with a single "context" field that is a `Transaction`, `Span`, or W3C trace-context *traceparent* string.  For example: `transaction.startSpan('aName', { links: [{ context: anotherSpan }] })`.
 
 
@@ -108,7 +108,7 @@ transaction.setLabel('productId', 42, false);
 Set a label on the transaction. You can set multiple labels on the same transaction. If an error happens during the transaction, it will also get tagged with the same labels.
 
 ::::{tip}
-Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](/reference/agent-api.md#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apps/metadata.md) that are available.
+Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](/reference/agent-api.md#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apm/metadata.md) that are available.
 ::::
 
 
@@ -136,7 +136,7 @@ transaction.addLabels({productId: 42, productName: 'butter'}, false);
 Add several labels on the transaction. You can add labels multiple times. If an error happens during the transaction, it will also get tagged with the same labels.
 
 ::::{tip}
-Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](/reference/agent-api.md#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apps/metadata.md) that are available.
+Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](/reference/agent-api.md#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apm/metadata.md) that are available.
 ::::
 
 

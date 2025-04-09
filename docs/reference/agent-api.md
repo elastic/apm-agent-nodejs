@@ -85,7 +85,7 @@ Each filter function will be called just before data is being sent to the APM Se
 
 Each filter function will be called in the order they were added, and will receive a `payload` object as the only argument, containing the data about to be sent to the APM Server.
 
-The format of the payload depends on the event type being sent. For details about the different formats, see the [events intake API docs](docs-content://solutions/observability/apps/elastic-apm-events-intake-api.md).
+The format of the payload depends on the event type being sent. For details about the different formats, see the [events intake API docs](docs-content://solutions/observability/apm/elastic-apm-events-intake-api.md).
 
 The filter function is synchronous and should return the manipulated payload object. If a filter function doesn’t return any value or returns a falsy value, the remaining filter functions will not be called and the payload **will not** be sent to the APM Server.
 
@@ -134,7 +134,7 @@ Similar to [`apm.addFilter()`](#apm-add-filter), but the `fn` will only be calle
 
 Added in: v3.14.0
 
-Use `addMetadataFilter(fn)` to supply a filter function for the [metadata object](docs-content://solutions/observability/apps/elastic-apm-events-intake-api.md#apm-api-events-schema-definition) sent to the APM Server. This will allow you to manipulate the data being sent, for instance to remove possibly sensitive information.
+Use `addMetadataFilter(fn)` to supply a filter function for the [metadata object](docs-content://solutions/observability/apm/elastic-apm-events-intake-api.md#apm-api-events-schema-definition) sent to the APM Server. This will allow you to manipulate the data being sent, for instance to remove possibly sensitive information.
 
 Each filter function will be called in the order they were added, and will receive a `metadata` object as the only argument. The filter function is synchronous and must return the manipulated object. Example usage:
 
@@ -147,7 +147,7 @@ apm.addMetadataFilter(function dropArgv(metadata) {
 })
 ```
 
-Warning: It is the responsibility of the author to ensure the returned object conforms to the [metadata schema](docs-content://solutions/observability/apps/elastic-apm-events-intake-api.md#apm-api-events-schema-definition) otherwise all APM data injest will fail. A metadata filter that breaks the metadata will result in error logging from the agent, something like:
+Warning: It is the responsibility of the author to ensure the returned object conforms to the [metadata schema](docs-content://solutions/observability/apm/elastic-apm-events-intake-api.md#apm-api-events-schema-definition) otherwise all APM data injest will fail. A metadata filter that breaks the metadata will result in error logging from the agent, something like:
 
 ```text
 ERROR (elastic-apm-node): APM Server transport error (400): Unexpected APM Server response
@@ -196,7 +196,7 @@ It’s possible to call this function multiple times within the scope of the sam
 If an error is captured, the context from the active transaction is used as context for the captured error, and any custom context given as the 2nd argument to [`apm.captureError`](#apm-capture-error) takes precedence and is shallow merged on top.
 
 ::::{tip}
-Before using custom context, ensure you understand the different types of [metadata](docs-content://solutions/observability/apps/metadata.md) that are available.
+Before using custom context, ensure you understand the different types of [metadata](docs-content://solutions/observability/apm/metadata.md) that are available.
 ::::
 
 
@@ -216,7 +216,7 @@ apm.setLabel('productId', 42, false);
 Set a label on the current transaction. You can set multiple labels on the same transaction. If an error happens during the current transaction, it will also get tagged with the same label.
 
 ::::{tip}
-Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apps/metadata.md) that are available.
+Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apm/metadata.md) that are available.
 ::::
 
 
@@ -244,7 +244,7 @@ apm.addLabels({productId: 42, productName: 'butter'}, false);
 Add several labels on the current transaction. You can add labels multiple times. If an error happens during the current transaction, it will also get tagged with the same labels.
 
 ::::{tip}
-Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apps/metadata.md) that are available.
+Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apm/metadata.md) that are available.
 ::::
 
 
@@ -264,7 +264,7 @@ Added in: v3.47.0
 Extends the [`globalLabels`](/reference/configuration.md#global-labels) configuration. It allows setting labels that are applied to all transactions. A potential use case is to specify a label with the state of your application: `'initializing' | 'available' | 'unhealthy'`.
 
 ::::{tip}
-Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apps/metadata.md) that are available.
+Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apm/metadata.md) that are available.
 ::::
 
 
@@ -328,7 +328,7 @@ This makes it possible to better group error messages that contain variable data
 
 ### Metadata [metadata]
 
-To ease debugging it’s possible to send some extra data with each error you send to the APM Server. The APM Server intake API supports a lot of different metadata fields, most of which are automatically managed by the Elastic APM Node.js Agent. But if you wish you can supply some extra details using `user` or `custom`. For more details on the properties accepted by the events intake API see the [events intake API docs](docs-content://solutions/observability/apps/elastic-apm-events-intake-api.md).
+To ease debugging it’s possible to send some extra data with each error you send to the APM Server. The APM Server intake API supports a lot of different metadata fields, most of which are automatically managed by the Elastic APM Node.js Agent. But if you wish you can supply some extra details using `user` or `custom`. For more details on the properties accepted by the events intake API see the [events intake API docs](docs-content://solutions/observability/apm/elastic-apm-events-intake-api.md).
 
 To supply any of these extra fields, use the optional options argument when calling `apm.captureError()`.
 
@@ -514,7 +514,7 @@ Added in: v1.1.0
 * `options` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) The following options are supported:
 
     * `startTime` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The time when the span started. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
-    * `exitSpan` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) Make an "exit span". Exit spans represent outgoing communication. They are used to create a node in the [Service Map](docs-content://solutions/observability/apps/service-map.md) and a downstream service in the [Dependencies Table](docs-content://solutions/observability/apps/dependencies.md). The provided subtype will be used as the downstream service name.
+    * `exitSpan` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) Make an "exit span". Exit spans represent outgoing communication. They are used to create a node in the [Service Map](docs-content://solutions/observability/apm/service-map.md) and a downstream service in the [Dependencies Table](docs-content://solutions/observability/apm/dependencies.md). The provided subtype will be used as the downstream service name.
     * `links` [`<Array>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) Span links. A span can refer to zero or more other transactions or spans (separate from its parent). Span links will be shown in the Kibana APM app trace view. The `links` argument is an array of objects with a single "context" field that is a `Transaction`, `Span`, or W3C trace-context *traceparent* string.  For example: `apm.startSpan('aName', { links: [{ context: anotherSpan }] })`.
 
 

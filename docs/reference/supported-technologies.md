@@ -33,7 +33,7 @@ Note: If you are using TypeScript or JavaScript that is *compiled/translated/tra
 
 ## Elastic Stack Compatibility [elastic-stack-compatibility]
 
-This agent is compatible with [APM Server](docs-content://solutions/observability/apps/application-performance-monitoring-apm.md) v6.6 and above.
+This agent is compatible with [APM Server](docs-content://solutions/observability/apm/index.md) v6.6 and above.
 
 
 ## Frameworks [compatibility-frameworks]

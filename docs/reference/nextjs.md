@@ -17,7 +17,7 @@ This Next.js instrumentation is a *technical preview* while we solicit feedback 
 
 ## Prerequisites [nextjs-prerequisites]
 
-You need an APM Server to send APM data to. Follow the [APM Quick start](docs-content://solutions/observability/apps/get-started-with-apm.md) if you have not set one up yet. You will need your **APM server URL** and an APM server **secret token** (or **API key**) for configuring the APM agent below.
+You need an APM Server to send APM data to. Follow the [APM Quick start](docs-content://solutions/observability/apm/get-started.md) if you have not set one up yet. You will need your **APM server URL** and an APM server **secret token** (or **API key**) for configuring the APM agent below.
 
 You will also need a Next.js application to monitor. If you do not have an existing one to use, you can use the following to create a starter app (see [Next.js Getting Started docs](https://nextjs.org/docs/getting-started) for more):
 
