@@ -28,7 +28,7 @@ npm install elastic-apm-node elastic-apm-node-opentracing --save
 
 ## OpenTracing vs Elastic APM terminologies [ot-terminologies]
 
-Elastic APM differentiates between [transactions](docs-content://solutions/observability/apps/transactions.md) and [spans](docs-content://solutions/observability/apps/spans.md). In the context of OpenTracing, a transaction can be thought of as a special kind of span.
+Elastic APM differentiates between [transactions](docs-content://solutions/observability/apm/transactions.md) and [spans](docs-content://solutions/observability/apm/spans.md). In the context of OpenTracing, a transaction can be thought of as a special kind of span.
 
 Because OpenTracing natively only has the concept of spans, the Elastic APM OpenTracing bridge will automatically create either Elastic transactions or Elastic spans behind the scenes. There are a set of rules that determine which is created:
 
@@ -126,7 +126,7 @@ The `span.setBaggageItem()` method is not supported. Baggage items are silently 
 
 ### Logs [ot-logs]
 
-Only error logging is supported. Logging an Error object on the OpenTracing span will create an Elastic APM [error](docs-content://solutions/observability/apps/errors.md). Example:
+Only error logging is supported. Logging an Error object on the OpenTracing span will create an Elastic APM [error](docs-content://solutions/observability/apm/errors.md). Example:
 
 ```js
 const err = new Error('boom!')

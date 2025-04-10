@@ -90,7 +90,7 @@ span.setLabel('productId', 42, false);
 Set a label on the span. You can set multiple labels on the same span.
 
 ::::{tip}
-Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](/reference/agent-api.md#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apps/metadata.md) that are available.
+Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](/reference/agent-api.md#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apm/metadata.md) that are available.
 ::::
 
 
@@ -118,7 +118,7 @@ span.addLabels({productId: 42, productName: 'butter'}, false);
 Add several labels on the span. You can add labels multiple times.
 
 ::::{tip}
-Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](/reference/agent-api.md#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apps/metadata.md) that are available.
+Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via [`apm.setCustomContext()`](/reference/agent-api.md#apm-set-custom-context)). Before using custom labels, ensure you understand the different types of [metadata](docs-content://solutions/observability/apm/metadata.md) that are available.
 ::::
 
 
@@ -184,7 +184,7 @@ Added in: v3.39.0
 * `type` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | null The target service type, usually the same value as `span.subtype`, e.g. "mysql".
 * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | null The target service name, an optional scoping of the service. For databases it is typically the database name.
 
-Manually set the `service.target.type` and `service.target.name` fields that identify a downstream service. They are used for [Service Maps](docs-content://solutions/observability/apps/service-map.md) and [Dependencies](docs-content://solutions/observability/apps/dependencies.md) in the Kibana APM app.  The values are only used for "exit" spans — spans representing outgoing communication, marked with `exitSpan: true` at span creation.
+Manually set the `service.target.type` and `service.target.name` fields that identify a downstream service. They are used for [Service Maps](docs-content://solutions/observability/apm/service-map.md) and [Dependencies](docs-content://solutions/observability/apm/dependencies.md) in the Kibana APM app.  The values are only used for "exit" spans — spans representing outgoing communication, marked with `exitSpan: true` at span creation.
 
 If false-y values (e.g. `null`) are given for both `type` and `name`, then `service.target` will explicitly be excluded from this span. This may impact Service Maps and other Kibana APM app reporting for this service.
 

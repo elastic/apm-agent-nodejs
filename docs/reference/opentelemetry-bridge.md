@@ -155,7 +155,7 @@ A few configuration options can be used to control OpenTelemetry Metrics support
 
 The OpenTelemetry Tracing bridge works similarly to the [OpenTelemetry Node.js Trace SDK](https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-trace-node/). It registers Tracer and ContextManager providers with the OpenTelemetry API. Subsequent `@opentelemetry/api` calls in user code will use those providers. The APM agent translates from OpenTelemetry to Elastic APM semantics and sends tracing data to your APM server for full support in [Elastic Observability’s APM app](https://www.elastic.co/apm).
 
-Some examples of semantic translations: The first entry span of a service (e.g. an incoming HTTP request) will be converted to an [Elasic APM `Transaction`](docs-content://solutions/observability/apps/transactions.md), subsequent spans are mapped to [Elastic APM `Span`s](docs-content://solutions/observability/apps/spans.md). OpenTelemetry Span attributes are translated into the appropriate fields in Elastic APM’s data model.
+Some examples of semantic translations: The first entry span of a service (e.g. an incoming HTTP request) will be converted to an [Elasic APM `Transaction`](docs-content://solutions/observability/apm/transactions.md), subsequent spans are mapped to [Elastic APM `Span`s](docs-content://solutions/observability/apm/spans.md). OpenTelemetry Span attributes are translated into the appropriate fields in Elastic APM’s data model.
 
 The only difference, from the user’s point of view, is in the setup of tracing. Instead of setting up the OpenTelemetry JS SDK, one sets up the APM agent as [described above](#otel-tracing-api).
 

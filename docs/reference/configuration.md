@@ -50,7 +50,7 @@ The secret token optionally expected by the APM Server.
 
 The API key optionally expected by the APM Server. This is an alternative to `secretToken`.
 
-This base64-encoded string is used to ensure that only your agents can send data to your APM server. You must have created the API key using the APM server command line tool. Please see the [APM server documentation](docs-content://solutions/observability/apps/api-keys.md) for details on how to do that.
+This base64-encoded string is used to ensure that only your agents can send data to your APM server. You must have created the API key using the APM server command line tool. Please see the [APM server documentation](docs-content://solutions/observability/apm/api-keys.md) for details on how to do that.
 
 ::::{note}
 This feature is fully supported in the APM Server versions >= 7.6.
@@ -123,7 +123,7 @@ var options = {
 
 The environment name is automatically logged along with all errors and transactions. If you want to overwrite this, use this option.
 
-Environments allow you to easily filter data on a global level in the APM app. It’s important to be consistent when naming environments across agents. See [environment selector](docs-content://solutions/observability/apps/filter-application-data.md#apm-filter-your-data-service-environment-filter) in the APM app for more information.
+Environments allow you to easily filter data on a global level in the APM app. It’s important to be consistent when naming environments across agents. See [environment selector](docs-content://solutions/observability/apm/filter-data.md#apm-filter-your-data-service-environment-filter) in the APM app for more information.
 
 ::::{note}
 This feature is fully supported in the APM app in Kibana versions >= 7.2. You must use the query bar to filter for a specific environment in versions prior to 7.2.
@@ -182,7 +182,7 @@ To configure if outgoing http requests should be instrumented, see [`disableInst
 Activate APM Agent Configuration via Kibana. If set to `true`, the client will poll the APM Server regularly for new agent configuration.
 
 ::::{note}
-This feature requires APM Server v7.3 or later. More information is available in [APM Agent configuration](docs-content://solutions/observability/apps/apm-agent-central-configuration.md).
+This feature requires APM Server v7.3 or later. More information is available in [APM Agent configuration](docs-content://solutions/observability/apm/apm-agent-central-configuration.md).
 ::::
 
 
@@ -629,7 +629,7 @@ The following transaction, span, and error fields will be truncated at this numb
 * `span.context.db.statement`
 * `error.exception.message`, `error.log.message` - If [`errorMessageMaxLength`](#error-message-max-length) is specified, then that value takes precedence for these error message fields.
 
-Note that tracing data is limited at the upstream APM server to [`max_event_size`](docs-content://solutions/observability/apps/general-configuration-options.md#apm-max_event_size), which defaults to 300kB. If you configure `longFieldMaxLength` too large, it could result in transactions, spans, or errors that are rejected by APM server.
+Note that tracing data is limited at the upstream APM server to [`max_event_size`](docs-content://solutions/observability/apm/general-configuration-options.md#apm-max_event_size), which defaults to 300kB. If you configure `longFieldMaxLength` too large, it could result in transactions, spans, or errors that are rejected by APM server.
 
 
 ## `stackTraceLimit` [stack-trace-limit]
@@ -888,7 +888,7 @@ module.exports = {
 
 Set `breakdownMetrics: false` to disable reporting of breakdown metrics. Note that if `metricsInterval: 0`, then breakdown metrics will not be reported.
 
-Breakdown metrics ([`span.self_time.*`](/reference/metrics.md#metrics-span.self_time.sum)) record the self-time spent in each unique type of span. This data drives the [Time spent by span type](docs-content://solutions/observability/apps/service-overview.md#service-span-duration) chart in the APM app.
+Breakdown metrics ([`span.self_time.*`](/reference/metrics.md#metrics-span.self_time.sum)) record the self-time spent in each unique type of span. This data drives the [Time spent by span type](docs-content://solutions/observability/apm/service-overview.md#service-span-duration) chart in the APM app.
 
 
 ## `disableMetrics` [disable-metrics]
@@ -1025,7 +1025,7 @@ Starting with Elastic Observability 8.2, span links will be visible in trace vie
 * **Default:** `true`
 * **Env:** `ELASTIC_APM_SPAN_COMPRESSION_ENABLED`
 
-Setting this option to false will disable the [Span compression](docs-content://solutions/observability/apps/spans.md) feature. Span compression reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that some information, such as DB statements of all the compressed spans, will not be collected.
+Setting this option to false will disable the [Span compression](docs-content://solutions/observability/apm/spans.md) feature. Span compression reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that some information, such as DB statements of all the compressed spans, will not be collected.
 
 Example usage:
 
@@ -1132,6 +1132,6 @@ Change default in v4.0.0, in v3.x the default was `true`
 * **Default:** `false`
 * **Env:** `ELASTIC_APM_USE_ELASTIC_TRACEPARENT_HEADER`
 
-To enable [distributed tracing](docs-content://solutions/observability/apps/traces.md), the agent adds trace context headers to outgoing requests (like HTTP requests, etc.). These headers (`traceparent` and `tracestate`) are defined in the [W3C Trace Context](https://www.w3.org/TR/trace-context-1/) specification.
+To enable [distributed tracing](docs-content://solutions/observability/apm/traces.md), the agent adds trace context headers to outgoing requests (like HTTP requests, etc.). These headers (`traceparent` and `tracestate`) are defined in the [W3C Trace Context](https://www.w3.org/TR/trace-context-1/) specification.
 
 When this setting is `true`, the agent will also add the header `elastic-apm-traceparent` for backwards compatibility with older versions of Elastic APM agents. (In the next major version of this APM agent, this setting will default to false.)

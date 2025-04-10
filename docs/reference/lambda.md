@@ -18,7 +18,7 @@ To get started with APM for your Node.js AWS Lambda functions follow the steps b
 
 ### Prerequisites [aws-lambda-nodejs-prerequisites]
 
-You need an APM Server to send APM data to. Follow the [APM Quick start](docs-content://solutions/observability/apps/get-started-with-apm.md) if you have not set one up yet. For the best-possible performance, we recommend setting up APM on {{ecloud}} in the same AWS region as your AWS Lambda functions.
+You need an APM Server to send APM data to. Follow the [APM Quick start](docs-content://solutions/observability/apm/get-started.md) if you have not set one up yet. For the best-possible performance, we recommend setting up APM on {{ecloud}} in the same AWS region as your AWS Lambda functions.
 
 ### Step 1: Add the APM Layers to your Lambda function [add_the_apm_layers_to_your_lambda_function]
 
@@ -134,7 +134,7 @@ COPY --from=nodejs-agent /opt/nodejs/ /opt/nodejs/
 
 The {{apm-lambda-ext}} and the APM Node.js agent are configured through environment variables on the AWS Lambda function.
 
-For the minimal configuration, you will need the *APM Server URL* to set the destination for APM data and an [APM Secret Token](docs-content://solutions/observability/apps/secret-token.md). If you prefer to use an [APM API key](docs-content://solutions/observability/apps/api-keys.md) instead of the APM secret token, use the `ELASTIC_APM_API_KEY` environment variable instead of `ELASTIC_APM_SECRET_TOKEN` in the following configuration.
+For the minimal configuration, you will need the *APM Server URL* to set the destination for APM data and an [APM Secret Token](docs-content://solutions/observability/apm/secret-token.md). If you prefer to use an [APM API key](docs-content://solutions/observability/apm/api-keys.md) instead of the APM secret token, use the `ELASTIC_APM_API_KEY` environment variable instead of `ELASTIC_APM_SECRET_TOKEN` in the following configuration.
 
 For production environments, we recommend [using the AWS Secrets Manager to store your APM authentication key](apm-aws-lambda://reference/aws-lambda-secrets-manager.md) instead of providing the secret value as plaintext in the environment variables.
 
