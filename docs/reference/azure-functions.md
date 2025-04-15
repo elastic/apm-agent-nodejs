@@ -70,9 +70,7 @@ ELASTIC_APM_SECRET_TOKEN: <your APM secret token from the prerequisites step>
 
 For example:
 
-:::{image} images/azure-functions-configuration.png
-:alt: Configuring the APM Agent in the Azure Portal
-:::
+![Configuring the APM Agent in the Azure Portal](images/azure-functions-configuration.png)
 
 For local testing via `func start`, you can set these environment variables in your terminal, or in the "local.settings.json" file. See the [agent configuration guide](/reference/configuration.md) for full details on supported configuration variables.
 

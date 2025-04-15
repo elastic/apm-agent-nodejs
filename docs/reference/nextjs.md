@@ -96,10 +96,7 @@ while true; do sleep 1; curl -i http://localhost:3000/api/hello; done
 
 Visit your Kibana APM app and, after a few seconds, you should see a service entry for your Next.js app. The service name will be pulled from the "name" field in "package.json". It can be overriden with [`serviceName`](/reference/configuration.md#service-name). Here is an example:
 
-:::{image} images/nextjs-my-app-screenshot.png
-:alt: Kibana APM app showing Next.js my-app
-:::
-
+![Kibana APM app showing Next.js my-app](images/nextjs-my-app-screenshot.png)
 
 ## Limitations and future work [nextjs-limitations]
 
