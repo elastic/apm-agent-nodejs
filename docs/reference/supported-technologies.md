@@ -12,9 +12,7 @@ The Elastic APM Node.js Agent automatically instruments various APIs in Node.js 
 
 Support for the Elastic APM Node.js agent follows the [support schedule of Node.js itself](https://nodejs.org/en/about/releases/) to the end-of-life period of each version after its maintenance term. Versions of Node.js past their end-of-life date are not supported.
 
-:::{image} images/node_release_schedule.svg
-:alt: Node.js release schedule
-:::
+![Node.js release schedule](images/node_release_schedule.svg)
 
 APM agent 4.x releases work with Node.js versions 14.17.0 and later. APM agent 3.x maintenance releases work with Node.js versions 8.6 and later. We will only break support for older Node.js versions with a major version release of the APM agent.
 
