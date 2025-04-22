@@ -20,6 +20,15 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 % ### Fixes [next-fixes]
 
+## Unreleased
+
+### Features and enhancements [next-features-enhancements]
+
+* Change the `elasticsearchCaptureBodyUrls` configuration option default to include [ES|QL](https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#_esql) queries. This means that the query text for ES|QL queries will now be captured.
+
+### Fixes [next-fixes]
+
+
 ## 4.11.2 [4-11-2]
 **Release date:** March 17, 2025
 
