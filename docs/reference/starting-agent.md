@@ -80,12 +80,12 @@ apm.start({
   serverUrl: 'https://...',
   secretToken: '...',
   // ...
-})
+});
 ```
 
 ```ts
 // main.ts
-import 'initapm'
+import './initapm.js';
 
 // Application code starts here.
 ```

@@ -1,16 +1,17 @@
 {
   "name": "elastic-apm-node-typescript-example",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "main": "index.ts",
+  "type": "module",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node --enable-source-maps --experimental-loader=elastic-apm-node/loader.mjs dist/index.js"
   },
   "dependencies": {
-    "elastic-apm-node": "^3.37.0"
+    "elastic-apm-node": "^4.11.2"
   },
   "devDependencies": {
-    "@tsconfig/node14": "^1.0.3",
-    "typescript": "^4.7.4"
+    "@tsconfig/node20": "^20.1.5",
+    "typescript": "^5.0.4"
   }
 }

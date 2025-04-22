@@ -20,6 +20,17 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 % ### Fixes [next-fixes]
 
+## Next [next]
+
+### Features and enhancements [next-features-enhancements]
+
+* Get sourcemap handling for captured exceptions to work with stack frames in
+  ES Modules (ESM). Before this, sourcemap handling would only work for stack
+  frames in CommonJS modules.
+
+### Fixes [next-fixes]
+
+
 ## 4.11.2 [4-11-2]
 **Release date:** March 17, 2025
 
