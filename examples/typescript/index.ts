@@ -4,10 +4,10 @@
  * compliance with the BSD 2-Clause License.
  */
 
-// Be sure to import and *start* the agent before other imports.
-import 'elastic-apm-node/start'
+// Be sure to import and *start* the APM agent before other imports.
+import 'elastic-apm-node/start.js'
 
-import http from 'http'
+import * as http from 'http'
 
 // Create an HTTP server listening at port 3000.
 const server = http.createServer((req, res) => {
