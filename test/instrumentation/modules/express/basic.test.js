@@ -512,7 +512,7 @@ test('expose app.use handle properties', function (t) {
   });
 
   const handle = function (req, res) {
-    const stack = req.app._router.stack;
+    const stack = req.app.router.stack;
     const handle = stack[stack.length - 1].handle;
 
     t.ok(Array.isArray(handle.stack), 'expose stack array on handle');
