@@ -20,15 +20,14 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 % ### Fixes [next-fixes]
 
-## Next [next]
+## 4.12.0 [4-12-0]
+**Release date:** April 24, 2025
 
-### Features and enhancements [next-features-enhancements]
+### Features and enhancements [4-12-0-next-features-enhancements]
 
 * Get sourcemap handling for captured exceptions to work with stack frames in
   ES Modules (ESM). Before this, sourcemap handling would only work for stack
-  frames in CommonJS modules.
-
-### Fixes [next-fixes]
+  frames in CommonJS modules. ([#4578](https://github.com/elastic/apm-agent-nodejs/issues/4578))
 
 
 ## 4.11.2 [4-11-2]
