@@ -365,7 +365,7 @@ test('sub-routers throw exception', function (t) {
 
   var error = new Error('hello');
   var captureError = agent.captureError;
-  agent.captureError = function () { };
+  agent.captureError = function () {};
   t.on('end', function () {
     agent.captureError = captureError;
   });
@@ -404,7 +404,7 @@ test('sub-router handler calls next(exception)', function (t) {
 
   // Ignore captureError handling for this test.
   var captureError = agent.captureError;
-  agent.captureError = function () { };
+  agent.captureError = function () {};
   t.on('end', function () {
     agent.captureError = captureError;
   });
@@ -444,7 +444,7 @@ test('sub-router handler calls next(non-exception)', function (t) {
 
   // Ignore captureError handling for this test.
   var captureError = agent.captureError;
-  agent.captureError = function () { };
+  agent.captureError = function () {};
   t.on('end', function () {
     agent.captureError = captureError;
   });
@@ -482,7 +482,7 @@ test('sub-router handler calls next("route")', function (t) {
 
   // Ignore captureError handling for this test.
   var captureError = agent.captureError;
-  agent.captureError = function () { };
+  agent.captureError = function () {};
   t.on('end', function () {
     agent.captureError = captureError;
   });
