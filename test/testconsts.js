@@ -22,6 +22,7 @@ const os = require('os');
 const NODE_VER_RANGE_IITM =
   '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 || >=20.2.0';
 const NODE_VER_RANGE_IITM_GE14 = '^14.13.1 || ^16.0.0 || ^18.1.0 || >=20.2.0'; // NODE_VER_RANGE_IITM minus node v12
+const NODE_VER_RANGE_IITM_GE18 = '^18.1.0 || >=20.2.0'; // NODE_VER_RANGE_IITM minus node v12, v14 & v16
 
 // This can be passed as tape test options for tests that are timing sensitive,
 // to *skip* those tests on Windows CI.
@@ -35,5 +36,6 @@ const TIMING_SENSITIVE_TEST_OPTS = {
 module.exports = {
   NODE_VER_RANGE_IITM,
   NODE_VER_RANGE_IITM_GE14,
+  NODE_VER_RANGE_IITM_GE18,
   TIMING_SENSITIVE_TEST_OPTS,
 };
