@@ -267,6 +267,7 @@ elasticsearch:
 #     semver (and TAV) consider "-patch.N" to be a *prereleases*. This
 #     leads to some tortured "versions:" ranges below.
 # - Version 8.11.0 dropped node v14 and v16 support.
+# - Version 9 dropped v18 support (effectively by using undici@7).
 '@elastic/elasticsearch':
   - versions: '>=7.0.0 <7.7.0 || >7.7.0 <7.12.0'
     commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
@@ -276,8 +277,11 @@ elasticsearch:
   - versions: '>=8.2.0-patch.1 <8.2.0 || >8.2.0 <8.11.0'
     node: '>=14.0.0'
     commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
-  - versions: '>=8.11.0'
+  - versions: '>=8.11.0 <9.0.0'
     node: '>=18.0.0'
+    commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
+  - versions: '>=9.0.0 <10'
+    node: '>=20.0.0'
     commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 
 handlebars:
