@@ -5,7 +5,7 @@
  */
 
 'use strict';
-const express = require('express');
+const http = require('http');
 const fixtures = require('./_fixtures');
 
 // how many seconds to wait for a "slow" server
@@ -211,7 +211,7 @@ function createTestServer(provider, fixtureName) {
   if (!fixture) {
     throw new Error(`Unknown ${provider} fixture named ${fixtureName}`);
   }
-  const app = express();
+  const app = createApp();
   return addRoutesToExpressApp(app, provider, fixture);
 }
 
@@ -229,7 +229,7 @@ function createSlowTestServer(provider, fixtureName) {
   if (!fixture) {
     throw new Error(`Unknown ${provider} fixture named ${fixtureName}`);
   }
-  const app = express();
+  const app = createApp();
   return addSlowRoutesToExpressApp(app, provider, fixture);
 }
 
@@ -241,6 +241,60 @@ function loadFixtureData(provider, fixtureName) {
     })
     .pop();
   return fixture;
+}
+
+/**
+ * this function returns a HTTP server which replaces the previous usage of `express`
+ * for mocking cloud metadata responses.
+ */
+function createApp() {
+  const routes = new Map();
+  const server = http.createServer((req, res) => {
+    const url = new URL(req.url, 'http://localhost');
+    const path = url.pathname.replace(/\/$/, '');
+    const route = `${req.method.toUpperCase()} ${path}`;
+    const handler = routes.get(route);
+
+    if (typeof handler === 'function') {
+      // make express like req & res
+      const expReq = {
+        headers: req.headers,
+        header: (name) => req.headers[name.toLowerCase()],
+        query: {},
+      };
+      url.searchParams.forEach((val, key) => {
+        expReq.query[key] = val;
+      });
+
+      const expRes = {
+        status: (num) => (res.statusCode = num),
+        set: (key, val) => res.setHeader(key, val),
+        send: (data) => {
+          const payload =
+            typeof data === 'string' ? data : JSON.stringify(data);
+          res.writeHead(200, {
+            'content-type': 'application/json',
+            'content-length': payload.length,
+          });
+          res.write(payload);
+          res.end();
+        },
+      };
+
+      return handler(expReq, expRes);
+    }
+
+    res.writeHead(404, 'Not found');
+    res.end();
+  });
+
+  // return express like app object
+  return {
+    get: (path, handler) => routes.set(`GET ${path}`, handler),
+    post: (path, handler) => routes.set(`POST ${path}`, handler),
+    put: (path, handler) => routes.set(`PUT ${path}`, handler),
+    listen: (port, cb) => server.listen(port, cb),
+  };
 }
 
 module.exports = {
