@@ -2129,9 +2129,9 @@ test('#active: false', function (t) {
 test('patches', function (t) {
   t.test('#clearPatches(name)', function (t) {
     const agent = new Agent().start();
-    t.ok(agent._instrumentation._patcherReg.has('express'));
-    t.doesNotThrow(() => agent.clearPatches('express'));
-    t.notOk(agent._instrumentation._patcherReg.has('express'));
+    t.ok(agent._instrumentation._patcherReg.has('generic-pool'));
+    t.doesNotThrow(() => agent.clearPatches('generic-pool'));
+    t.notOk(agent._instrumentation._patcherReg.has('generic-pool'));
     t.doesNotThrow(() => agent.clearPatches('does-not-exists'));
     agent.destroy();
     t.end();
@@ -2139,16 +2139,16 @@ test('patches', function (t) {
 
   t.test('#addPatch(name, moduleName)', function (t) {
     const agent = new Agent();
-    agent.clearPatches('express');
+    agent.clearPatches('generic-pool');
     agent.start(agentOptsNoopTransport);
 
-    agent.addPatch('express', './test/_patch.js');
+    agent.addPatch('generic-pool', './test/_patch.js');
 
-    const before = require('express');
+    const before = require('generic-pool');
     const patch = require('./_patch');
 
-    delete require.cache[require.resolve('express')];
-    t.deepEqual(require('express'), patch(before));
+    delete require.cache[require.resolve('generic-pool')];
+    t.deepEqual(require('generic-pool'), patch(before));
 
     agent.destroy();
     t.end();
@@ -2156,14 +2156,14 @@ test('patches', function (t) {
 
   t.test('#addPatch(name, function) - does not exist', function (t) {
     const agent = new Agent();
-    agent.clearPatches('express');
+    agent.clearPatches('generic-pool');
     agent.start(agentOptsNoopTransport);
 
     var replacement = {
       foo: 'bar',
     };
 
-    agent.addPatch('express', (exports, agent, { version, enabled }) => {
+    agent.addPatch('generic-pool', (exports, agent, { version, enabled }) => {
       t.ok(exports);
       t.ok(agent);
       t.ok(version);
@@ -2171,8 +2171,8 @@ test('patches', function (t) {
       return replacement;
     });
 
-    delete require.cache[require.resolve('express')];
-    t.deepEqual(require('express'), replacement);
+    delete require.cache[require.resolve('generic-pool')];
+    t.deepEqual(require('generic-pool'), replacement);
 
     agent.destroy();
     t.end();
