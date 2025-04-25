@@ -42,7 +42,7 @@ Though you can use Elastic APM [with any Node.js framework](/reference/custom-st
 | --- | --- | --- |
 | [AWS Lambda](/reference/lambda.md) | N/A |  |
 | [Azure Functions](/reference/azure-functions.md) | v3, v4 | [Node.js programming model v3 and v4](https://learn.microsoft.com/en-us/azure/azure-functions/functions-node-upgrade-v4) |
-| [Express](/reference/express.md) | ^4.0.0 |  |
+| [Express](/reference/express.md) | =>4.0.0 <6.0.0 |  |
 | [Fastify](/reference/fastify.md) | >=1.0.0 | See also [Fastify’s own LTS documentation](https://www.fastify.io/docs/latest/Reference/LTS/) |
 | [@hapi/hapi](/reference/hapi.md) | >=17.9.0 <22.0.0 |  |
 | [Koa](/reference/koa.md) via koa-router or @koa/router | >=5.2.0 <14.0.0 | Koa doesn’t have a built in router, so we can’t support Koa directly since we rely on router information for full support. We currently support the most popular Koa router called [koa-router](https://github.com/koajs/koa-router). |
