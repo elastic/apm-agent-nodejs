@@ -5,6 +5,13 @@
  */
 
 'use strict';
+
+const isExpressIncompat = require('../_is_express_incompat')();
+if (isExpressIncompat) {
+  console.log(`# SKIP: ${isExpressIncompat}`);
+  process.exit(0);
+}
+
 const { createAgentConfig } = require('./_shared');
 const agent = require('../..').start(createAgentConfig());
 const {

@@ -27,6 +27,12 @@ if (
   process.exit();
 }
 
+const isExpressIncompat = require('../../_is_express_incompat')();
+if (isExpressIncompat) {
+  console.log(`# SKIP dependency issue: ${isExpressIncompat}`);
+  process.exit(0);
+}
+
 var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
