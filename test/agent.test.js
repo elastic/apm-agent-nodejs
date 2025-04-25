@@ -2127,6 +2127,7 @@ test('#active: false', function (t) {
 });
 
 test('patches', function (t) {
+  // NOTE: we're using `generic-pool packages since it still supports Node.js v14
   t.test('#clearPatches(name)', function (t) {
     const agent = new Agent().start();
     t.ok(agent._instrumentation._patcherReg.has('generic-pool'));
