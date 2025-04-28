@@ -26,7 +26,6 @@ const agent = require('../../../..').start({
 });
 
 const tape = require('tape');
-const express = require('express');
 const bodyParser = require('body-parser');
 
 process.env.AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE = 1;
@@ -40,6 +39,7 @@ const {
 } = require('../../../../lib/instrumentation/modules/aws-sdk/sns');
 const fixtures = require('./fixtures/sns');
 const mockClient = require('../../../_mock_http_client');
+const mockExpressApp = require('../../../_mock_express_app');
 
 initializeAwsSdk();
 
@@ -54,19 +54,21 @@ function initializeAwsSdk() {
 }
 
 function createMockServer(fixture) {
-  const app = express();
+  const app = mockExpressApp();
   app._receivedReqs = [];
-  app.use(bodyParser.urlencoded({ extended: false }));
+  const encodeMiddleware = bodyParser.urlencoded({ extended: false });
   app.post('/', (req, res) => {
-    app._receivedReqs.push({
-      method: req.method,
-      url: req.url,
-      headers: req.headers,
-      body: req.body,
+    encodeMiddleware(req, res, () => {
+      app._receivedReqs.push({
+        method: req.method,
+        url: req.url,
+        headers: req.headers,
+        body: req.body,
+      });
+      res.status(fixture.httpStatusCode);
+      res.setHeader('Content-Type', 'text/xml');
+      res.send(fixture.response);
     });
-    res.status(fixture.httpStatusCode);
-    res.setHeader('Content-Type', 'text/xml');
-    res.send(fixture.response);
   });
   return app;
 }

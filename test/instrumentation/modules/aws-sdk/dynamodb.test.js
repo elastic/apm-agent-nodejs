@@ -24,11 +24,10 @@ const agent = require('../../../..').start({
 const tape = require('tape');
 process.env.AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE = 1;
 const AWS = require('aws-sdk');
-const express = require('express');
-const bodyParser = require('body-parser');
 const fixtures = require('./fixtures/dynamodb');
 
 const mockClient = require('../../../_mock_http_client');
+const mockExpressApp = require('../../../_mock_express_app');
 
 const {
   getRegionFromRequest,
@@ -53,8 +52,8 @@ function initializeAwsSdk() {
 }
 
 function createMockServer(fixture) {
-  const app = express();
-  app.use(bodyParser.urlencoded({ extended: false }));
+  const app = mockExpressApp();
+  // app.use(bodyParser.urlencoded({ extended: false }));
   app.post('/', (req, res) => {
     res.status(fixture.httpStatusCode);
     res.setHeader('Content-Type', 'application/javascript');

@@ -157,9 +157,8 @@ if (cluster.isMaster) {
       ),
     );
 
-    const express = require('express');
-
-    const app = express();
+    const mockExpressApp = require('../../../_mock_express_app');
+    const app = mockExpressApp();
 
     app.get('/', (req, res) => {
       res.end('hello');
@@ -185,6 +184,7 @@ if (cluster.isMaster) {
     }
 
     function sendRequest(app) {
+      console.log('send request');
       return new Promise((resolve, reject) => {
         const server = app.listen(function () {
           const port = server.address().port;
