@@ -208,7 +208,7 @@ express:
 # a new entry to the test matrix. Also use the new versions mode to select `latest-minors`
 apollo-server-express:
   - versions:
-      include: '>=2.9.16 <2.2 || >= 2.3.2 <3'
+      include: '>=2.9.16 <3'
       mode: latest-minors
     peerDependencies:
       - graphql@^14.0.0
