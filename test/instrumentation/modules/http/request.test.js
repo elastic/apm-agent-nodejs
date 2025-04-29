@@ -19,7 +19,6 @@ const agent = require('../../../..').start({
 var http = require('http');
 
 var test = require('tape');
-var express = require('express');
 
 var mockClient = require('../../../_mock_http_client');
 var mockExpressApp = require('../../../_mock_express_app');
