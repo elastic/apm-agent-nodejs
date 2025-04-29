@@ -6,6 +6,12 @@
 
 'use strict';
 
+const isExpressIncompat = require('../_is_express_incompat')();
+if (isExpressIncompat) {
+  console.log(`# SKIP dependency issue: ${isExpressIncompat}`);
+  process.exit(0);
+}
+
 // Test the automatic wrapping of a Lambda handler module created by
 //    esbuild foo.ts --platform=node --bundle
 // as is done by a Serverless Framework project using TypeScript.
