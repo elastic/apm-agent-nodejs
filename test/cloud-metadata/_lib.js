@@ -244,8 +244,8 @@ function loadFixtureData(provider, fixtureName) {
 }
 
 /**
- * this function returns a HTTP server which replaces the previous usage of `express`
- * for mocking cloud metadata responses.
+ * This function returns a HTTP server similar enough to Express for these tests,
+ * but avoids using Express because v5 only works with node >=18.
  */
 function createApp() {
   const routes = new Map();

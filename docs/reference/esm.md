@@ -79,7 +79,7 @@ Automatic instrumentation of ES modules is currently limited as described here. 
 | `@aws-sdk/client-sns` | >=3.15.0 <4 |  |  |
 | `@aws-sdk/client-sqs` | >=3.15.0 <4 |  |  |
 | `cassandra-driver` | >=3.0.0 <5 |  |  |
-| `express` | >=4.0.0 <6> |  |  |
+| `express` | >=4.0.0 <6 |  |  |
 | `fastify` | >=3.5.0 |  |  |
 | `http` |  | See [Supported Node.js versions](#esm-compat-node) above. |  |
 | `https` |  | See [Supported Node.js versions](#esm-compat-node) above. |  |
