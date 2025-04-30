@@ -1,12 +1,13 @@
-This directory includes an example TypeScript project using the Elastic
-Node.js APM agent. It uses a tsconfig as recommended at
-https://github.com/tsconfig/bases#node-14-tsconfigjson
+This directory includes an example TypeScript project using the Elastic Node.js
+APM agent. It uses a tsconfig as recommended at https://github.com/tsconfig/bases#node-20-tsconfigjson
+and because `"type": "module"` is set in package.json, the built JavaScript will
+use ES Modules (i.e.  `import`).
 
 Install dependencies:
 
     npm install
 
-Compile the TypeScript ("index.ts") to JavaScript ("dist/index.js"):
+Compile the TypeScript to JavaScript ("dist/..."):
 
     npm run build
 
@@ -15,7 +16,7 @@ the top of "index.ts". (See [the docs](https://www.elastic.co/guide/en/apm/agent
 for other ways of starting the APM agent.)
 
 ```ts
-import 'elastic-apm-node/start'
+import 'elastic-apm-node/start.js'
 ```
 
 This start methods means that we need to use environment variables (or an
@@ -26,7 +27,7 @@ Configure the APM agent with values from [your Elastic Stack](https://www.elasti
     export ELASTIC_APM_SERVER_URL='https://...apm...cloud.es.io:443'
     export ELASTIC_APM_SECRET_TOKEN='...'
     export ELASTIC_APM_USE_PATH_AS_TRANSACTION_NAME=true
-    node dist/index.js
+    node --experimental-loader=elastic-apm-node/loader.mjs dist/index.js
 
 This simple script creates an HTTP server and makes a single request to it.
 If things work properly, you should see a trace with a single HTTP transaction

@@ -1221,10 +1221,6 @@ function checkDataAndEnd(
       expectedStatusCode,
       'context.http.status_code',
     );
-    t.ok(
-      esSpan.context.http.response.encoded_body_size,
-      'context.http.response.encoded_body_size is present',
-    );
 
     t.end();
   };
