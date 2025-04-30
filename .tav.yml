@@ -204,8 +204,6 @@ express:
       - node test/instrumentation/modules/express/capture-exceptions-on.test.js
       - node test/instrumentation/modules/express/set-framework.test.js
 
-# XXX: check if there is a new version that supports express@5 and add it as
-# a new entry to the test matrix. Also use the new versions mode to select `latest-minors`
 apollo-server-express:
   - versions:
       include: '>=2.9.16 <3'
