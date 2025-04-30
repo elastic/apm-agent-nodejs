@@ -290,7 +290,7 @@ elasticsearch:
     commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
   - versions:
       mode: max-5
-      include: '9.0.0'
+      include: '>=9.0.0 <10'
     node: '>=20.0.0'
     commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 
