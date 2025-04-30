@@ -212,19 +212,9 @@ A release involves the following published artifacts:
    steps -- including the `npm publish`. See the appropriate run at:
    https://github.com/elastic/apm-agent-nodejs/actions/workflows/release.yml)
 
-4. Updating published docs: If this is for the latest major (currently `4.x`),
-   then the "do-not-delete_legacy-docs" branch needs to be updated to the same
-   state as the release tag on "main". Use the
-   [update-legacy-docs-branch.sh](./dev-utils/update-legacy-docs-branch.sh)
-   script for this.
-
-    - Run `./dev-utils/update-legacy-docs-branch.sh` to create a working dir with the
-      needed changes.
-    - Follow its instructions to create a PR from this working dir.
-    - Ensure the "buildkite/docs-build-pr" workflow passes for this branch.
-    - "Squash and merge" the PR.
-    - The periodic docs CI will update the
-      [published docs](https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-4.x.html).
+4. The published docs should update automatically with CI that runs
+   (at time of writing) every 30 minutes + a CDN cache time.
+        https://www.elastic.co/docs/release-notes/apm/agents/nodejs
 
 If this is a new major release, then:
 
