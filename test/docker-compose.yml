@@ -74,7 +74,7 @@ services:
       retries: 30
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.0.0
     environment:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - "network.host=_site_"
@@ -83,8 +83,6 @@ services:
       - "xpack.security.enabled=false"
     ports:
       - "9200:9200"
-    volumes:
-      - nodeesdata:/usr/share/elasticsearch/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200"]
       interval: 1s
@@ -186,8 +184,6 @@ volumes:
   nodemssqldata:
     driver: local
   nodemysqldata:
-    driver: local
-  nodeesdata:
     driver: local
   nodecassandradata:
     driver: local
