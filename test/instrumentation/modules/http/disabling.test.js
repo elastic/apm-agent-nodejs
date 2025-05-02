@@ -184,7 +184,6 @@ if (cluster.isMaster) {
     }
 
     function sendRequest(app) {
-      console.log('send request');
       return new Promise((resolve, reject) => {
         const server = app.listen(function () {
           const port = server.address().port;
