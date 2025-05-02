@@ -147,7 +147,7 @@
     "aws-sdk": "^2.1400.0",
     "benchmark": "^2.1.4",
     "bluebird": "^3.7.2",
-    "body-parser": "^1.19.0",
+    "body-parser": "^2.2.0",
     "cassandra-driver": "^4.4.0",
     "columnify": "^1.5.4",
     "connect": "^3.7.0",
