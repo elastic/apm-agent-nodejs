@@ -23,9 +23,10 @@ var agent = require('../../../..').start({
   spanCompressionEnabled: false,
 });
 
+const { safeGetPackageVersion } = require('../../../_utils');
 var semver = require('semver');
 var once = require('once');
-var pgVersion = require('pg/package.json').version;
+var pgVersion = safeGetPackageVersion('pg');
 
 var test = require('tape');
 var pg = require('pg');

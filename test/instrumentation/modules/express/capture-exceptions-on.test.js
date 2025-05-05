@@ -14,6 +14,12 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0);
 }
 
+const isExpressIncompat = require('../../../_is_express_incompat')();
+if (isExpressIncompat) {
+  console.log(`# SKIP ${isExpressIncompat}`);
+  process.exit(0);
+}
+
 const agent = require('../../../..').start({
   captureExceptions: true,
   metricsInterval: 0,

@@ -186,44 +186,51 @@ graphql:
     commands: node test/instrumentation/modules/graphql.test.js
 
 express:
-  versions:
-    mode: latest-minors
-    include: '>=4 <5'
-  commands:
-    - node test/instrumentation/modules/express/basic.test.js
-    - node test/instrumentation/modules/express/capture-exceptions-off.test.js
-    - node test/instrumentation/modules/express/capture-exceptions-on.test.js
-    - node test/instrumentation/modules/express/set-framework.test.js
+  - versions:
+      mode: latest-minors
+      include: '>=5 <6'
+    node: '>=18'
+    commands:
+      - node test/instrumentation/modules/express/basic.test.js
+      - node test/instrumentation/modules/express/capture-exceptions-off.test.js
+      - node test/instrumentation/modules/express/capture-exceptions-on.test.js
+      - node test/instrumentation/modules/express/set-framework.test.js
+  - versions:
+      mode: latest-minors
+      include: '>=4 <5'
+    commands:
+      - node test/instrumentation/modules/express/basic.test.js
+      - node test/instrumentation/modules/express/capture-exceptions-off.test.js
+      - node test/instrumentation/modules/express/capture-exceptions-on.test.js
+      - node test/instrumentation/modules/express/set-framework.test.js
 
 apollo-server-express:
-  # We want this version range:
-  #   versions: '>=2.9.16 <2.2 || >= 2.3.2 <3'
-  # but only the latest MAJOR.MINOR.x to reduce the test matrix.
-  #
-  # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  - versions: '2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
-    peerDependencies: graphql@^14.0.0
+  - versions:
+      include: '>=2.9.16 <3'
+      mode: latest-minors
+    peerDependencies:
+      - graphql@^14.0.0
+      - express@^4.17.1
     node: '>=6'
     commands: node test/instrumentation/modules/apollo-server-express.test.js
   # We want this version range (2.12.0 was the first release of
-  # apollo-server-express after graphql@15 was released):
-  #   versions: '>=2.12.0 <3'
-  # but only the latest MAJOR.MINOR.x to reduce the test matrix.
-  #
-  # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  - versions: '2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
-    peerDependencies: graphql@^15.0.0
+  # apollo-server-express after graphql@15 was released)
+  - versions:
+      include: '>=2.12.0 <3'
+      mode: latest-minors
+    peerDependencies:
+      - graphql@^15.0.0
+      - express@^4.17.1
     # Per https://github.com/graphql/graphql-js/releases/tag/v15.0.0
     # graphql v15 supports node v8 as a minimum.
     node: '>=8'
     commands: node test/instrumentation/modules/apollo-server-express.test.js
-  # We want this version range:
-  #   versions: '^3.0.0'
-  # but only test the latest MAJOR.MINOR.x to reduce the test matrix.
-  #
-  # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  - versions: '3.0.2 || 3.1.2 || 3.2.0 || 3.3.0 || 3.4.1 || 3.5.0 || 3.6.8 || 3.7.0 || 3.8.2 || 3.9.0 || ^3.10.2'
-    peerDependencies: graphql@^15.0.0
+  - versions:
+      include: '>=3.0.0 <4'
+      mode: latest-minors
+    peerDependencies:
+      - graphql@^15.0.0
+      - express@^4.17.1
     commands: node test/instrumentation/modules/apollo-server-express.test.js
 
 express-queue:
@@ -464,6 +471,7 @@ finalhandler:
   - versions:
       mode: max-3
       include: '>=1 <2'
+    peerDependencies: 'express@^4.17.1'
     node: '>=0.8'
     commands: node test/instrumentation/modules/finalhandler.test.js
   - versions:

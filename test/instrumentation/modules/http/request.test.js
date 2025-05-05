@@ -19,9 +19,9 @@ const agent = require('../../../..').start({
 var http = require('http');
 
 var test = require('tape');
-var express = require('express');
 
 var mockClient = require('../../../_mock_http_client');
+var mockExpressApp = require('../../../_mock_express_app');
 var findObjInArray = require('../../../_utils').findObjInArray;
 
 test('request', function (t) {
@@ -37,14 +37,13 @@ test('request', function (t) {
     t.strictEqual(root.outcome, 'success');
     const span = findObjInArray(data.spans, 'transaction_id', root.id);
     t.strictEqual(span.outcome, 'success');
-    t.strictEqual(span.name, 'GET localhost:' + server.address().port);
+    t.strictEqual(span.name, 'GET localhost:' + app._server.address().port);
 
-    server.close();
+    app._server.close();
     t.end();
   });
 
-  var app = express();
-  var server = http.createServer(app);
+  var app = mockExpressApp();
 
   app.get('/test', (req, res) => {
     res.end('hello');
@@ -56,7 +55,7 @@ test('request', function (t) {
     });
   });
 
-  sendRequest(server);
+  sendRequest(app._server);
 });
 
 test('Outcome', function (t) {
@@ -69,14 +68,13 @@ test('Outcome', function (t) {
     t.strictEqual(root.outcome, 'failure');
     const span = findObjInArray(data.spans, 'transaction_id', root.id);
     t.strictEqual(span.outcome, 'failure');
-    t.strictEqual(span.name, 'GET localhost:' + server.address().port);
+    t.strictEqual(span.name, 'GET localhost:' + app._server.address().port);
 
-    server.close();
+    app._server.close();
     t.end();
   });
 
-  var app = express();
-  var server = http.createServer(app);
+  var app = mockExpressApp();
 
   app.get('/test', (req, res) => {
     res.statusCode = 500;
@@ -90,7 +88,7 @@ test('Outcome', function (t) {
     });
   });
 
-  sendRequest(server);
+  sendRequest(app._server);
 });
 
 function resetAgent(cb) {

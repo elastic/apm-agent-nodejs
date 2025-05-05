@@ -10,7 +10,10 @@ const os = require('os');
 const test = require('tape');
 
 const { runTestFixtures, sortApmEvents } = require('../../../_utils');
-const { NODE_VER_RANGE_IITM } = require('../../../testconsts');
+const {
+  NODE_VER_RANGE_IITM,
+  NODE_VER_RANGE_IITM_GE18,
+} = require('../../../testconsts');
 
 const testFixtures = [
   {
@@ -25,45 +28,65 @@ const testFixtures = [
     },
     versionRanges: {
       node: NODE_VER_RANGE_IITM,
+      express: '^4.0.0',
     },
     testOpts: {
       // The `express.static()` path config doesn't work on windows. Meh windows.
       skip: os.platform() === 'win32',
     },
     verbose: true,
-    checkApmServer: (t, apmServer) => {
-      t.equal(
-        apmServer.events.length,
-        3,
-        'expected number of APM server events',
-      );
-      const metadata = apmServer.events[0].metadata;
-      t.ok(metadata, 'metadata');
-      t.equal(
-        metadata.service.framework.name,
-        'express',
-        'metadata.service.framework.name',
-      );
-
-      const events = sortApmEvents(apmServer.events);
-      let trans = events[0].transaction;
-      t.equal(trans.name, 'GET static file', 'transaction.name');
-
-      trans = events[1].transaction;
-      t.equal(trans.name, 'POST /hello/:name', 'transaction.name');
-      t.equal(
-        trans.context.request.method,
-        'POST',
-        'transaction.context.request.method',
-      );
-      t.equal(
-        trans.context.request.body,
-        JSON.stringify({ foo: 'bar' }),
-        'transaction.context.request.body',
-      );
+    checkApmServer,
+  },
+  {
+    name: 'express@5 ESM',
+    script: '../fixtures/use-express.mjs',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS:
+        '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      NODE_NO_WARNINGS: '1', // skip warnings about --experimental-loader
+      ELASTIC_APM_CAPTURE_BODY: 'all',
     },
+    versionRanges: {
+      node: NODE_VER_RANGE_IITM_GE18,
+      express: '>=5',
+    },
+    testOpts: {
+      // The `express.static()` path config doesn't work on windows. Meh windows.
+      skip: os.platform() === 'win32',
+    },
+    verbose: true,
+    checkApmServer,
   },
 ];
+
+function checkApmServer(t, apmServer) {
+  t.equal(apmServer.events.length, 3, 'expected number of APM server events');
+  const metadata = apmServer.events[0].metadata;
+  t.ok(metadata, 'metadata');
+  t.equal(
+    metadata.service.framework.name,
+    'express',
+    'metadata.service.framework.name',
+  );
+
+  const events = sortApmEvents(apmServer.events);
+  let trans = events[0].transaction;
+  t.equal(trans.name, 'GET static file', 'transaction.name');
+
+  trans = events[1].transaction;
+  t.equal(trans.name, 'POST /hello/:name', 'transaction.name');
+  t.equal(
+    trans.context.request.method,
+    'POST',
+    'transaction.context.request.method',
+  );
+  t.equal(
+    trans.context.request.body,
+    JSON.stringify({ foo: 'bar' }),
+    'transaction.context.request.body',
+  );
+}
 
 test('express fixtures', (suite) => {
   runTestFixtures(suite, testFixtures);

@@ -157,9 +157,8 @@ if (cluster.isMaster) {
       ),
     );
 
-    const express = require('express');
-
-    const app = express();
+    const mockExpressApp = require('../../../_mock_express_app');
+    const app = mockExpressApp();
 
     app.get('/', (req, res) => {
       res.end('hello');

@@ -14,6 +14,12 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0);
 }
 
+const isExpressIncompat = require('../../../_is_express_incompat')();
+if (isExpressIncompat) {
+  console.log(`# SKIP ${isExpressIncompat}`);
+  process.exit(0);
+}
+
 var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
@@ -512,7 +518,8 @@ test('expose app.use handle properties', function (t) {
   });
 
   const handle = function (req, res) {
-    const stack = req.app._router.stack;
+    const router = req.app._router || req.app.router; // https://expressjs.com/en/guide/migrating-5.html#app.router
+    const stack = router.stack;
     const handle = stack[stack.length - 1].handle;
 
     t.ok(Array.isArray(handle.stack), 'expose stack array on handle');

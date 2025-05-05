@@ -6,6 +6,12 @@
 
 'use strict';
 
+const isExpressIncompat = require('../_is_express_incompat')();
+if (isExpressIncompat) {
+  console.log(`# SKIP dependency issue: ${isExpressIncompat}`);
+  process.exit(0);
+}
+
 const path = require('path');
 
 const tape = require('tape');

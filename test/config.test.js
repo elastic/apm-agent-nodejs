@@ -297,19 +297,19 @@ test('custom transport', function (t) {
 });
 
 test('addPatch', function (t) {
-  const before = require('express');
+  const before = require('generic-pool');
   const patch = require('./_patch');
 
-  delete require.cache[require.resolve('express')];
+  delete require.cache[require.resolve('generic-pool')];
 
   const agent = new Agent();
   agent.start(
     Object.assign({}, agentOptsNoopTransport, {
-      addPatch: 'express=./test/_patch.js',
+      addPatch: 'generic-pool=./test/_patch.js',
     }),
   );
 
-  t.deepEqual(require('express'), patch(before));
+  t.deepEqual(require('generic-pool'), patch(before));
 
   agent.destroy();
   t.end();
