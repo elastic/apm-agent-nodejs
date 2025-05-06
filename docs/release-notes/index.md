@@ -20,14 +20,12 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 % ### Fixes [next-fixes]
 
-## Next [next]
-**Release date:** Month day, year
+## 4.13.0 [4-13-0]
+**Release date:** May 6, 2025
 
-### Features and enhancements [next-features-enhancements]
+### Features and enhancements [4-13-0-features-enhancements]
 
 * Add support for `express` v5. ([#4581](https://github.com/elastic/apm-agent-nodejs/pull/4581))
-
-### Fixes [next-fixes]
 
 ## 4.12.0 [4-12-0]
 **Release date:** April 24, 2025
