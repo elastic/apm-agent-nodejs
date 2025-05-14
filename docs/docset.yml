@@ -1,4 +1,6 @@
 project: 'APM Node.js agent docs'
+products:
+  - id: apm-agent
 cross_links:
   - apm-agent-rum-js
   - apm-aws-lambda
