@@ -12,8 +12,6 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    reviewers:
-      - "elastic/apm-agent-node-js"
     ignore:
       # For mimic-response, ignore all versions https://github.com/elastic/apm-agent-nodejs/pull/3349#issuecomment-1549517238
       - dependency-name: "mimic-response"
@@ -59,55 +57,40 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
-    reviewers:
-      - "elastic/apm-agent-node-js"
 
   - package-ecosystem: "npm"
     directory: "/test/instrumentation/azure-functions/fixtures/azfunc4"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
-    reviewers:
-      - "elastic/apm-agent-node-js"
 
   - package-ecosystem: "npm"
     directory: "/test/opentelemetry-bridge"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
-    reviewers:
-      - "elastic/apm-agent-node-js"
 
   - package-ecosystem: "npm"
     directory: "/test/opentelemetry-metrics/fixtures"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
-    reviewers:
-      - "elastic/apm-agent-node-js"
 
   - package-ecosystem: "npm"
     directory: "/examples/opentelemetry-bridge"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
-    reviewers:
-      - "elastic/apm-agent-node-js"
 
   - package-ecosystem: "npm"
     directory: "/examples/opentelemetry-metrics"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
-    reviewers:
-      - "elastic/apm-agent-node-js"
 
   # GitHub actions
   - package-ecosystem: "github-actions"
     directory: "/"
-    reviewers:
-      - "elastic/observablt-ci"
-      - "elastic/apm-agent-node-js"
     schedule:
       interval: "weekly"
       day: "sunday"
