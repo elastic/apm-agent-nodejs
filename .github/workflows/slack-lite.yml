@@ -119,7 +119,7 @@ jobs:
             f.write("payload={}".format(json.dumps(payload)))
 
       - name: Post Slack message
-        uses: slackapi/slack-github-action@v2.1.0
+        uses: slackapi/slack-github-action@v2.1.1
         with:
           method: chat.postMessage
           token: ${{ secrets.SLACK_BOT_TOKEN }}
