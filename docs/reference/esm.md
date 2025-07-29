@@ -78,6 +78,7 @@ Automatic instrumentation of ES modules is currently limited as described here. 
 | `@aws-sdk/client-s3` | >=3.15.0 <4 |  |  |
 | `@aws-sdk/client-sns` | >=3.15.0 <4 |  |  |
 | `@aws-sdk/client-sqs` | >=3.15.0 <4 |  |  |
+| `@hapi/hapi` | >=20 |  |  |
 | `cassandra-driver` | >=3.0.0 <5 |  |  |
 | `express` | >=4.0.0 <6 |  |  |
 | `fastify` | >=3.5.0 |  |  |
