@@ -179,7 +179,7 @@
     "knex": "^3.0.1",
     "koa": "^3.0.0",
     "koa-bodyparser": "^4.3.0",
-    "koa-router": "^13.0.1",
+    "koa-router": "^14.0.0",
     "lambda-local": "^2.0.2",
     "memcached": "^2.2.2",
     "mimic-response": "1.0.0",
