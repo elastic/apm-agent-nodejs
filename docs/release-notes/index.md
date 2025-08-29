@@ -3,6 +3,16 @@ navigation_title: "Elastic APM Node.js Agent"
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes.html
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-4.x.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Elastic APM Node.js Agent release notes

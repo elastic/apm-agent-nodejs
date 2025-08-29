@@ -1,6 +1,16 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/transaction-api.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Transaction API [transaction-api]
@@ -13,7 +23,9 @@ To see an example of using custom transactions, see the [Custom Transactions in 
 
 ## `transaction.name` [transaction-name]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `unnamed`
 
@@ -26,7 +38,9 @@ Transactions with the same name and [type](#transaction-type) are grouped togeth
 
 ## `transaction.type` [transaction-type]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 Split components into `type`, `subtype` and `action` in: v3.0.0
 
@@ -39,7 +53,11 @@ There’s a special type called `request` which is used by the agent for the tra
 
 ## `transaction.subtype` [v3.25.0] [transaction-subtype]
 
-Added in: v3.0.0<br> Deprecated in: v3.25.0
+```{applies_to}
+apm_agent_node: ga 3.0.0
+```
+
+Deprecated in: v3.25.0
 
 * [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `custom`
 
@@ -48,7 +66,11 @@ The subtype of the transaction. The transaction `subtype` field is deprecated: i
 
 ## `transaction.action` [v3.25.0] [transaction-action]
 
-Added in: v3.0.0<br> Deprecated in: v3.25.0
+```{applies_to}
+apm_agent_node: ga 3.0.0
+```
+
+Deprecated in: v3.25.0
 
 * [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `custom`
 
@@ -57,14 +79,18 @@ The action of the transaction. The transaction `action` field is deprecated: it 
 
 ## `transaction.traceparent` [transaction-traceparent]
 
-Added in: v2.9.0
+```{applies_to}
+apm_agent_node: ga 2.9.0
+```
 
 Get the serialized traceparent string of the transaction.
 
 
 ## `transaction.result` [transaction-result]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `success`
 
@@ -73,7 +99,9 @@ A string describing the result of the transaction. This is typically the HTTP st
 
 ## `transaction.startSpan([name][, type][, subtype][, action][, options])` [transaction-start-span]
 
-Added in: v2.0.0
+```{applies_to}
+apm_agent_node: ga 2.0.0
+```
 
 Split `type` into `type`, `subtype` and `action` in: v3.0.0
 
@@ -95,7 +123,12 @@ See [Span API](/reference/span-api.md) docs for details on how to use custom spa
 
 ## `transaction.setLabel(name, value[, stringify = true])` [transaction-set-label]
 
-Added in: v0.1.0<br> Renamed from `transaction.setTag()` to `transaction.setLabel()`: v2.10.0<br> Added `stringify` argument in: v3.11.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
+
+Renamed from `transaction.setTag()` to `transaction.setLabel()`: v2.10.0
+Added `stringify` argument in: v3.11.0
 
 * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
 * `value` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) | [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
@@ -120,7 +153,12 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 ## `transaction.addLabels({ [name]: value }[, stringify = true])` [transaction-add-labels]
 
-Added in: v1.5.0<br> Renamed from `transaction.addTags()` to `transaction.addLabels()`: v2.10.0<br> Added `stringify` argument in: v3.11.0
+```{applies_to}
+apm_agent_node: ga 1.5.0
+```
+
+Renamed from `transaction.addTags()` to `transaction.addLabels()`: v2.10.0
+Added `stringify` argument in: v3.11.0
 
 * `labels` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Contains key/value pairs:
 
@@ -148,7 +186,9 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 ## `transaction.ensureParentId()` [transaction-ensure-parent-id]
 
-Added in: v2.0.0
+```{applies_to}
+apm_agent_node: ga 2.0.0
+```
 
 * [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 
@@ -173,7 +213,9 @@ See the [JavaScript RUM agent documentation](apm-agent-rum-js://reference/index.
 
 ## `transaction.ids` [transaction-ids]
 
-Added in: v2.17.0
+```{applies_to}
+apm_agent_node: ga 2.17.0
+```
 
 Produces an object containing `transaction.id` and `trace.id`. This enables log correlation to APM traces with structured loggers.
 
@@ -187,7 +229,9 @@ Produces an object containing `transaction.id` and `trace.id`. This enables log 
 
 ## `transaction.end([result][, endTime])` [transaction-end]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * `result` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Describes the result of the transaction. This is typically the HTTP status code, or e.g. "success" or "failure" for a background task
 * `endTime` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The time when the transaction ended. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
@@ -199,7 +243,9 @@ Alternatively you can call [`apm.endTransaction()`](/reference/agent-api.md#apm-
 
 ## `transaction.outcome` [transaction-outcome]
 
-Added in: v3.12.0
+```{applies_to}
+apm_agent_node: ga 3.12.0
+```
 
 The Node.js agent automatically sets an `outcome` property on transactions.  This property will be one of three values:
 
@@ -214,7 +260,9 @@ Non-HTTP transactions will begin with an outcome of `unknown`.
 
 ## `transaction.setOutcome(outcome)` [transaction-setoutcome]
 
-Added in: v3.12.0
+```{applies_to}
+apm_agent_node: ga 3.12.0
+```
 
 * `outcome` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 
@@ -223,7 +271,9 @@ The `setOutcome` method allows an end user to override the Node.js agent’s def
 
 ## `transaction.addLink(link)` [transaction-addlink]
 
-Added in: v4.7.0
+```{applies_to}
+apm_agent_node: ga 4.7.0
+```
 
 * `link` `{{type-link}}`
 
@@ -232,7 +282,9 @@ A transaction can refer to zero or more other transactions or spans (separate fr
 
 ## `transaction.addLinks([links])` [transaction-addlinks]
 
-Added in: v4.7.0
+```{applies_to}
+apm_agent_node: ga 4.7.0
+```
 
 * `links` [`<Array>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) Span links.
 

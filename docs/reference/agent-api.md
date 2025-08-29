@@ -1,6 +1,16 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/agent-api.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Agent API [agent-api]
@@ -28,42 +38,54 @@ See the [Configuration documentation](/reference/configuration.md) for available
 
 ## `apm.isStarted()` [apm-is-started]
 
-Added in: v1.5.0
+```{applies_to}
+apm_agent_node: ga 1.5.0
+```
 
 Use `isStarted()` to check if the agent has already started. Returns `true` if the agent has started, otherwise returns `false`.
 
 
 ## `apm.getServiceName()` [apm-get-service-name]
 
-Added in: v3.11.0
+```{applies_to}
+apm_agent_node: ga 3.11.0
+```
 
 Get the configured [`serviceName`](/reference/configuration.md#service-name). If a service name was not explicitly configured, this value may have been automatically determined. The service name is not determined until `agent.start()`, so will be `undefined` until then. A misconfigured agent can have a `null` service name.
 
 
 ## `apm.getServiceVersion()` [apm-get-service-version]
 
-Added in: v4.2.0
+```{applies_to}
+apm_agent_node: ga 4.2.0
+```
 
 Get the configured [`serviceVersion`](/reference/configuration.md#service-version). If a service version was not explicitly configured, this value may have been automatically determined.  The service version is not determined until `agent.start()`, so will be `undefined` until then.
 
 
 ## `apm.getServiceEnvironment()` [apm-get-service-environment]
 
-Added in: v4.2.0
+```{applies_to}
+apm_agent_node: ga 4.2.0
+```
 
 Get the configured [`environment`](/reference/configuration.md#environment).
 
 
 ## `apm.getServiceNodeName()` [apm-get-service-node-name]
 
-Added in: v4.2.0
+```{applies_to}
+apm_agent_node: ga 4.2.0
+```
 
 Get the configured [`serviceNodeName`](/reference/configuration.md#service-node-name). If the APM agent is not configured with an explicit value, this will return `undefined`.
 
 
 ## `apm.setFramework(options)` [apm-set-framework]
 
-Added in: v2.8.0
+```{applies_to}
+apm_agent_node: ga 2.8.0
+```
 
 * `options` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) The following options are supported:
 
@@ -77,11 +99,13 @@ Set or change the [`frameworkName`](/reference/configuration.md#framework-name) 
 
 ## `apm.addFilter(fn)` [apm-add-filter]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 Use `addFilter()` to supply a filter function.
 
-Each filter function will be called just before data is being sent to the APM Server. This will allow you to manipulate the data being sent, for instance to remove sensitive information like passwords etc. (Note: Filters added via `addFilter` are **not** applied to the "metadata" object sent to the APM Server — use `addMetadataFilter` instead.)
+Each filter function will be called just before data is being sent to the APM Server. This will allow you to manipulate the data being sent, for instance to remove sensitive information like passwords etc. (Note: Filters added via `addFilter` are **not** applied to the "metadata" object sent to the APM Server — use `addMetadataFilter` instead.)
 
 Each filter function will be called in the order they were added, and will receive a `payload` object as the only argument, containing the data about to be sent to the APM Server.
 
@@ -111,28 +135,36 @@ Though you can also use filter functions to add new contextual information to th
 
 ## `apm.addErrorFilter(fn)` [apm-add-error-filter]
 
-Added in: v2.0.0
+```{applies_to}
+apm_agent_node: ga 2.0.0
+```
 
 Similar to [`apm.addFilter()`](#apm-add-filter), but the `fn` will only be called with error payloads.
 
 
 ## `apm.addTransactionFilter(fn)` [apm-add-transaction-filter]
 
-Added in: v2.0.0
+```{applies_to}
+apm_agent_node: ga 2.0.0
+```
 
 Similar to [`apm.addFilter()`](#apm-add-filter), but the `fn` will only be called with transaction payloads.
 
 
 ## `apm.addSpanFilter(fn)` [apm-add-span-filter]
 
-Added in: v2.0.0
+```{applies_to}
+apm_agent_node: ga 2.0.0
+```
 
 Similar to [`apm.addFilter()`](#apm-add-filter), but the `fn` will only be called with span payloads.
 
 
 ## `apm.addMetadataFilter(fn)` [apm-add-metadata-filter]
 
-Added in: v3.14.0
+```{applies_to}
+apm_agent_node: ga 3.14.0
+```
 
 Use `addMetadataFilter(fn)` to supply a filter function for the [metadata object](docs-content://solutions/observability/apm/elastic-apm-events-intake-api.md#apm-api-events-schema-definition) sent to the APM Server. This will allow you to manipulate the data being sent, for instance to remove possibly sensitive information.
 
@@ -159,7 +191,9 @@ Error: validation error: 'metadata' required
 
 ## `apm.setUserContext(context)` [apm-set-user-context]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * `context` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Accepts the following optional properties:
 
@@ -181,7 +215,9 @@ The provided user context is stored under `context.user` in Elasticsearch on bot
 
 ## `apm.setCustomContext(context)` [apm-set-custom-context]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * `context` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Can contain any property that can be JSON encoded.
 
@@ -203,7 +239,9 @@ Before using custom context, ensure you understand the different types of [metad
 
 ## `apm.setLabel(name, value[, stringify = true])` [apm-set-label]
 
-Added in: v0.1.0<br> Renamed from `apm.setTag()` to `apm.setLabel()`: v2.10.0<br> Added `stringify` argument in: v3.11.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
 * `value` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) | [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
@@ -228,7 +266,9 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 ## `apm.addLabels({ [name]: value }[, stringify = true])` [apm-add-labels]
 
-Added in: v1.5.0<br> Renamed from `apm.addTags()` to `apm.addLabels()`: v2.10.0<br> Added `stringify` argument in: v3.11.0
+```{applies_to}
+apm_agent_node: ga 1.5.0
+```
 
 * `labels` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Contains key/value pairs:
 
@@ -256,7 +296,9 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 ## `apm.setGlobalLabel(name, value)` [apm-set-global-label]
 
-Added in: v3.47.0
+```{applies_to}
+apm_agent_node: ga 3.47.0
+```
 
 * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 * `value` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) | [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
@@ -276,7 +318,9 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 ## `apm.captureError(error[, options][, callback])` [apm-capture-error]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * `error` - Can be either an [`<Error>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) object, a [message string](#message-strings), or a [special parameterized message object](#parameterized-message-object)
 * `options` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) The following options are supported:
@@ -388,7 +432,9 @@ In most cases, this isn’t needed, as the agent is pretty smart at figuring out
 
 ## `apm.middleware.connect()` [apm-middleware-connect]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 Returns a middleware function used to collect and send errors to the APM Server.
 
@@ -421,7 +467,9 @@ app.listen(3000)
 
 ## `apm.startTransaction([name][, type][, options])` [apm-start-transaction]
 
-Added in: v0.1.0<br> Transaction `subtype` and `action` deprecated in: v3.25.0<br> Transaction `subtype` and `action` removed in: v4.0.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The name of the transaction. You can always set this later via [`transaction.name`](/reference/transaction-api.md#transaction-name) or [`apm.setTransactionName()`](#apm-set-transaction-name). **Default:** `unnamed`
 * `type` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The type of the transaction. You can always set this later via [`transaction.type`](/reference/transaction-api.md#transaction-type).
@@ -442,7 +490,9 @@ If the APM agent has not yet been started, then a do-nothing "no-op" transaction
 
 ## `apm.endTransaction([result][, endTime])` [apm-end-transaction]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * `result` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Describes the result of the transaction. This is typically the HTTP status code, or e.g. "success" or "failure" for a background task
 * `endTime` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The time when the transaction ended. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
@@ -456,7 +506,9 @@ Alternatively you can call [`end()`](/reference/transaction-api.md#transaction-e
 
 ## `apm.currentTransaction` [apm-current-transaction]
 
-Added in: v1.9.0
+```{applies_to}
+apm_agent_node: ga 1.9.0
+```
 
 Get the currently active transaction, if used within the context of a transaction.
 
@@ -468,7 +520,9 @@ If there’s no active transaction available, `null` will be returned.
 
 ## `apm.currentSpan` [apm-current-span]
 
-Added in: v2.0.0
+```{applies_to}
+apm_agent_node: ga 2.0.0
+```
 
 Get the currently active span, if used within the context of a span.
 
@@ -480,7 +534,9 @@ If there’s no active span available, `null` will be returned.
 
 ## `apm.currentTraceparent` [apm-current-traceparent]
 
-Added in: v2.9.0
+```{applies_to}
+apm_agent_node: ga 2.9.0
+```
 
 Get the serialized traceparent string of the current transaction or span.
 
@@ -492,7 +548,9 @@ If there’s no active transaction or span available, `null` will be returned.
 
 ## `apm.setTransactionName(name)` [apm-set-transaction-name]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Set or overwrite the name of the current transaction.
 
@@ -505,7 +563,9 @@ Read more about naming routes manually in the [Get started with a custom Node.js
 
 ## `apm.startSpan([name][, type][, subtype][, action][, options])` [apm-start-span]
 
-Added in: v1.1.0
+```{applies_to}
+apm_agent_node: ga 1.1.0
+```
 
 * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The name of the span. You can alternatively set this via [`span.name`](/reference/span-api.md#span-name). **Default:** `unnamed`
 * `type` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The type of the span. You can alternatively set this via [`span.type`](/reference/span-api.md#span-type).
@@ -532,7 +592,9 @@ If there’s no active transaction available, `null` will be returned.
 
 ## `apm.handleUncaughtExceptions([callback])` [apm-handle-uncaught-exceptions]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 By default, the agent will terminate the Node.js process when an uncaught exception is detected. Use this function if you need to run any custom code before the process is terminated.
 
@@ -556,7 +618,9 @@ If you don’t specify a callback, the node process is terminated automatically 
 
 ## `apm.flush([callback])` [apm-flush]
 
-Added in: v0.12.0
+```{applies_to}
+apm_agent_node: ga 0.12.0
+```
 
 ```js
 // with node-style callback
@@ -589,7 +653,9 @@ The callback is called (or the `Promise` resolves if no `callback` argument is p
 
 ## `apm.lambda([type, ]handler)` [apm-lambda]
 
-Added in: v1.4.0
+```{applies_to}
+apm_agent_node: ga 1.4.0
+```
 
 ```js
 exports.hello = apm.lambda(function (event, context, callback) {
@@ -604,7 +670,9 @@ Read more lambda support in the [Lambda](/reference/lambda.md) article.
 
 ## `apm.addPatch(modules, handler)` [apm-add-patch]
 
-Added in: v2.7.0
+```{applies_to}
+apm_agent_node: ga 2.7.0
+```
 
 * `modules` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string[\]>]` Name of module(s) to apply the patch to, when required.
 * `handler` [`<Function>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function) | [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Must be a patch function or a path to a module exporting a patch function
@@ -645,7 +713,9 @@ This and the other "Patch"-related API methods should be called **before** start
 
 ## `apm.removePatch(modules, handler)` [apm-remove-patch]
 
-Added in: v2.7.0
+```{applies_to}
+apm_agent_node: ga 2.7.0
+```
 
 Removes a module patch. This will generally only be needed when replacing an existing patch. To *disable* instrumentation while keeping context propagation support, see [`disableInstrumentations`](/reference/configuration.md#disable-instrumentations).
 
@@ -664,7 +734,9 @@ apm.removePatch('timers', timerPatchFunction)
 
 ## `apm.clearPatches(modules)` [apm-clear-patches]
 
-Added in: v2.7.0
+```{applies_to}
+apm_agent_node: ga 2.7.0
+```
 
 Clear all patches for the given module. This will generally only be needed when replacing an existing patch. To *disable* instrumentation while keeping context propagation support, see [`disableInstrumentations`](/reference/configuration.md#disable-instrumentations).
 
@@ -679,7 +751,9 @@ apm.clearPatches(['timers'])
 
 ## `apm.currentTraceIds` [apm-current-trace-ids]
 
-Added in: v2.17.0
+```{applies_to}
+apm_agent_node: ga 2.17.0
+```
 
 `apm.currentTraceIds` produces an object containing `trace.id` and either `transaction.id` or `span.id` when a current transaction or span is available. When no transaction or span is available it will return an empty object. This enables [log correlation](/reference/logs.md#log-correlation-ids) to APM traces with structured loggers.
 
@@ -697,6 +771,10 @@ Added in: v2.17.0
 
 
 ## `apm.registerMetric(name[, labels], callback)` [apm-register-custom-metrics]
+
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 ::::{warning}
 This functionality is in technical preview and may be changed or removed in a future release. Elastic will work to fix any issues, but features in technical preview are not subject to the support SLA of official GA features.
@@ -726,7 +804,9 @@ apm.registerMetric( 'ws.connections' , {module : 'ws'}, () => {
 
 ## `apm.setTransactionOutcome(outcome)` [apm-transaction-outcome]
 
-Added in: v3.12.0
+```{applies_to}
+apm_agent_node: ga 3.12.0
+```
 
 * `outcome` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 
@@ -737,7 +817,9 @@ See the [Transaction Outcome docs](/reference/transaction-api.md#transaction-out
 
 ## `apm.setSpanOutcome(outcome)` [apm-span-outcome]
 
-Added in: v3.12.0
+```{applies_to}
+apm_agent_node: ga 3.12.0
+```
 
 * `outcome` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 

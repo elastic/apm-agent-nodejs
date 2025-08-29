@@ -1,6 +1,16 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/opentelemetry-bridge.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # OpenTelemetry bridge [opentelemetry-bridge]
@@ -81,7 +91,7 @@ The APM agent source code repository includes [some examples using the OpenTelem
 npm install --save elastic-apm-node @opentelemetry/api
 ```
 
-② Configure and start the APM agent. This can be done completely with environment variables — as shown below — or in code. (See [Starting the agent](/reference/starting-agent.md) and [the full APM agent configuration reference](/reference/configuration.md) for other configuration options.)
+② Configure and start the APM agent. This can be done completely with environment variables — as shown below — or in code. (See [Starting the agent](/reference/starting-agent.md) and [the full APM agent configuration reference](/reference/configuration.md) for other configuration options.)
 
 ```bash
 export ELASTIC_APM_SERVER_URL='<url of your APM server>'
@@ -183,12 +193,12 @@ Not all features of the OpenTelemetry API are supported. This section describes 
 * The `sum`, `count`, `min` and `max` within the OpenTelemetry histogram data are discarded.
 * The default histogram bucket boundaries are different from the OpenTelemetry default. They provide better resolution. They can be configured with the [`customMetricsHistogramBoundaries`](/reference/configuration.md#custom-metrics-histogram-boundaries) configuration option.
 * Metrics label names are dedotted (`s/\./_/g`) in APM server to avoid possible mapping collisions in Elasticsearch.
-* The default [Aggregation Temporality](https://github.com/elastic/apm/blob/main/specs/agents/metrics-otel.md#aggregation-temporality) used differs from the OpenTelemetry default — preferring **delta**-temporality (nicer for visualizing in Kibana) to cumulative-temporality.
+* The default [Aggregation Temporality](https://github.com/elastic/apm/blob/main/specs/agents/metrics-otel.md#aggregation-temporality) used differs from the OpenTelemetry default — preferring **delta**-temporality (nicer for visualizing in Kibana) to cumulative-temporality.
 
-Metrics support requires an APM server >=7.11 — for earlier APM server versions, metrics with label names including `.`, `*`, or `"` will get dropped.
+Metrics support requires an APM server >=7.11 — for earlier APM server versions, metrics with label names including `.`, `*`, or `"` will get dropped.
 
 
 #### Logs [otel-caveats-logs]
 
-The OpenTelemetry Logs API is currently not support — only the Tracing and Metrics APIs.
+The OpenTelemetry Logs API is currently not support — only the Tracing and Metrics APIs.
 

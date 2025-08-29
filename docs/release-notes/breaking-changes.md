@@ -1,5 +1,15 @@
 ---
 navigation_title: "Breaking changes"
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Elastic APM Node.js Agent breaking changes
@@ -28,7 +38,7 @@ To learn how to upgrade, check out [Upgrading](/reference/upgrading.md).
 * Remove long deprecated support for the `ELASTIC_APM_`-prefixed environment variables for the [Kubernetes config options](/reference/configuration.md#kubernetes-node-name). For example, one must use `KUBERNETES_POD_NAME` and not `ELASTIC_APM_KUBERNETES_POD_NAME`. ([#2661](https://github.com/elastic/apm-agent-nodejs/issues/2661))
 * The config option `filterHttpHeaders` is now *removed*. ([#3539](https://github.com/elastic/apm-agent-nodejs/pull/3539))
 * Remove the deprecated `span.toString()` and `transaction.toString()` APIs. ([#2348](https://github.com/elastic/apm-agent-nodejs/issues/2348))
-* Remove instrumentation support for the old *hapi* package — the current *@hapi/hapi* package is still instrumented. ([#2691](https://github.com/elastic/apm-agent-nodejs/issues/2691))
+* Remove instrumentation support for the old *hapi* package — the current *@hapi/hapi* package is still instrumented. ([#2691](https://github.com/elastic/apm-agent-nodejs/issues/2691))
 * Change `apm.startTransaction()` api to return a noop transaction instead of null, if the agent is not yet started. ([#2429](https://github.com/elastic/apm-agent-nodejs/issues/2429))
 * Drop support for the obsolete "patch" context manager, i.e. the `contextManager: "patch"` config option. This was a limited async context management that predated the preferred `AsyncLocalStorage` core Node.js mechanism for context tracking. It was deprecated in v3.37.0.  As well, the related and deprecated `asyncHooks` config option has been removed. ([#3529](https://github.com/elastic/apm-agent-nodejs/issues/3529))
 * Remove the `logUncaughtExceptions` config option. ([#2412](https://github.com/elastic/apm-agent-nodejs/issues/2412))

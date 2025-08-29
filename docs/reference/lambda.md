@@ -4,6 +4,17 @@ mapped_pages:
 sub:
   apm-lambda-ext-v: ver-1-5-7
   apm-node-v: ver-4-11-0
+
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Monitoring AWS Lambda Node.js Functions [lambda]
@@ -269,7 +280,7 @@ That’s it. After following the steps above, you’re ready to go! Your Lambda 
 
 ## Features [aws-lambda-features]
 
-The AWS Lambda instrumentation will report a transaction for all function invocations and trace any [supported modules](/reference/supported-technologies.md#compatibility-frameworks). In addition, the created transactions will capture additional data for a number of Lambda trigger types — API Gateway, SNS, SQS, S3 (when the trigger is a single event), and ELB.
+The AWS Lambda instrumentation will report a transaction for all function invocations and trace any [supported modules](/reference/supported-technologies.md#compatibility-frameworks). In addition, the created transactions will capture additional data for a number of Lambda trigger types — API Gateway, SNS, SQS, S3 (when the trigger is a single event), and ELB.
 
 A transaction will be reported for Lambda invocations that fail due to a timeout, crash, `uncaughtException`, or `unhandledRejection`. (This requires APM agent v3.45.0 or later and [Elastic’s APM Lambda extension](apm-aws-lambda://reference/index.md) version 1.4.0 or later.)
 

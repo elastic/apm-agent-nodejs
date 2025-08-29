@@ -1,6 +1,16 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/span-api.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Span API [span-api]
@@ -13,7 +23,9 @@ To see an example of using custom spans, see the [Custom Spans in Node.js](/refe
 
 ## `span.transaction` [span-transaction]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * **Type:** Transaction
 
@@ -24,7 +36,9 @@ All spans belong to a transaction.
 
 ## `span.name` [span-name]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `unnamed`
 
@@ -33,7 +47,9 @@ The name of the span. This can also be set via [`apm.startSpan()`](/reference/ag
 
 ## `span.type` [span-type]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 Split components into `type`, `subtype` and `action` in: v3.0.0
 
@@ -48,7 +64,9 @@ In the above example, `db` is considered the type. Though there are no naming re
 
 ## `span.subtype` [span-subtype]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `custom`
 
@@ -59,7 +77,9 @@ The subtype is typically the name of a module or library. For example, MySQL que
 
 ## `span.action` [span-action]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `custom`
 
@@ -70,14 +90,21 @@ The action is typically a specific function name or a general description of spe
 
 ## `span.traceparent` [span-traceparent]
 
-Added in: v2.9.0
+```{applies_to}
+apm_agent_node: ga 2.9.0
+```
 
 Get the serialized traceparent string of the span.
 
 
 ## `span.setLabel(name, value[, stringify = true])` [span-set-label]
 
-Added in: v2.1.0<br> Renamed from `span.setTag()` to `span.setLabel()`: v2.10.0<br> Added `stringify` argument in: v3.11.0
+```{applies_to}
+apm_agent_node: ga 2.1.0
+```
+
+Renamed from `span.setTag()` to `span.setLabel()`: v2.10.0
+Added `stringify` argument in: v3.11.0
 
 * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
 * `value` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) | [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
@@ -102,7 +129,12 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 ## `span.addLabels({ [name]: value }[, stringify = true])` [span-add-labels]
 
-Added in: v2.1.0<br> Renamed from `span.addTags()` to `span.addLabels()`: v2.10.0<br> Added `stringify` argument in: v3.11.0
+```{applies_to}
+apm_agent_node: ga 2.1.0
+```
+
+Renamed from `span.addTags()` to `span.addLabels()`: v2.10.0
+Added `stringify` argument in: v3.11.0
 
 * `labels` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Contains key/value pairs:
 
@@ -130,7 +162,9 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 
 ## `span.ids` [span-ids]
 
-Added in: v2.17.0
+```{applies_to}
+apm_agent_node: ga 2.17.0
+```
 
 Produces an object containing `span.id` and `trace.id`. This enables log correlation to APM traces with structured loggers.
 
@@ -144,7 +178,9 @@ Produces an object containing `span.id` and `trace.id`. This enables log correla
 
 ## `span.end([endTime])` [span-end]
 
-Added in: v0.1.0
+```{applies_to}
+apm_agent_node: ga 0.1.0
+```
 
 * `endTime` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The time when the span ended. Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC. Sub-millisecond precision can be achieved using decimals. If not provided, the current time will be used
 
@@ -153,7 +189,9 @@ End the span. If the span has already ended, nothing happens.
 
 ## `span.outcome` [span-outcome]
 
-Added in: v3.12.0
+```{applies_to}
+apm_agent_node: ga 3.12.0
+```
 
 The Node.js agent automatically sets an `outcome` property on spans.  This property will be one of three values:
 
@@ -170,7 +208,9 @@ However, for exit spans that represent an HTTP request, the `outcome` is based o
 
 ## `span.setOutcome(outcome)` [span-setoutcome]
 
-Added in: v3.12.0
+```{applies_to}
+apm_agent_node: ga 3.12.0
+```
 
 * `outcome` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 
@@ -179,12 +219,14 @@ The `setOutcome` method allows an end user to override the Node.js agent’s def
 
 ## `span.setServiceTarget(type, name)` [span-setservicetarget]
 
-Added in: v3.39.0
+```{applies_to}
+apm_agent_node: ga 3.39.0
+```
 
 * `type` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | null The target service type, usually the same value as `span.subtype`, e.g. "mysql".
 * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | null The target service name, an optional scoping of the service. For databases it is typically the database name.
 
-Manually set the `service.target.type` and `service.target.name` fields that identify a downstream service. They are used for [Service Maps](docs-content://solutions/observability/apm/service-map.md) and [Dependencies](docs-content://solutions/observability/apm/dependencies.md) in the Kibana APM app.  The values are only used for "exit" spans — spans representing outgoing communication, marked with `exitSpan: true` at span creation.
+Manually set the `service.target.type` and `service.target.name` fields that identify a downstream service. They are used for [Service Maps](docs-content://solutions/observability/apm/service-map.md) and [Dependencies](docs-content://solutions/observability/apm/dependencies.md) in the Kibana APM app.  The values are only used for "exit" spans — spans representing outgoing communication, marked with `exitSpan: true` at span creation.
 
 If false-y values (e.g. `null`) are given for both `type` and `name`, then `service.target` will explicitly be excluded from this span. This may impact Service Maps and other Kibana APM app reporting for this service.
 
@@ -195,7 +237,9 @@ If this method is not called, the service target values are inferred from other 
 
 ## `span.addLink(link)` [span-addlink]
 
-Added in: v4.7.0
+```{applies_to}
+apm_agent_node: ga 4.7.0
+```
 
 * `link` `{{type-link}}`
 
@@ -204,7 +248,9 @@ A span can refer to zero or more other transactions or spans (separate from its 
 
 ## `span.addLinks([links])` [span-addlinks]
 
-Added in: v4.7.0
+```{applies_to}
+apm_agent_node: ga 4.7.0
+```
 
 * `links` [`<Array>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) Span links.
 

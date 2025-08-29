@@ -1,6 +1,16 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/nextjs.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Get started with Next.js [nextjs]
@@ -40,7 +50,7 @@ npm install elastic-apm-node --save  # or 'yarn add elastic-apm-node'
 
 ## Step 2: Start the APM agent [_step_2_start_the_apm_agent_2]
 
-For the APM agent to instrument the Next.js server, it needs to be started before the Next.js server code is loaded. The best way to do so is by using Node’s [`--require`](https://nodejs.org/api/cli.md#-r---require-module) option to load the "elastic-apm-node/start-next.js" module — this will start the agent (plus a little more for Next.js integration).
+For the APM agent to instrument the Next.js server, it needs to be started before the Next.js server code is loaded. The best way to do so is by using Node’s [`--require`](https://nodejs.org/api/cli.md#-r---require-module) option to load the "elastic-apm-node/start-next.js" module — this will start the agent (plus a little more for Next.js integration).
 
 Edit the "dev" and "start" scripts in your "package.json" as follows:
 
@@ -111,7 +121,7 @@ If you notice other limitations or have any suggestions, please give us feedback
 
 ## Performance monitoring [nextjs-performance-monitoring]
 
-Elastic APM automatically measures the performance of your Next.js application. It records spans for database queries, external HTTP requests, and other slow operations that happen during requests to your Next.js app. Spans are grouped in transactions — by default one for each incoming HTTP request.
+Elastic APM automatically measures the performance of your Next.js application. It records spans for database queries, external HTTP requests, and other slow operations that happen during requests to your Next.js app. Spans are grouped in transactions — by default one for each incoming HTTP request.
 
 
 ## Unknown routes [nextjs-unknown-routes]

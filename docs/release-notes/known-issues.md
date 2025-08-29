@@ -1,5 +1,15 @@
 ---
 navigation_title: "Known issues"
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Elastic APM Node.js Agent known issues [elastic-apm-nodejs-agent-known-issues]
