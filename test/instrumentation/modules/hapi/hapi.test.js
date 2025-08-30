@@ -6,17 +6,7 @@
 
 'use strict';
 
-var agent = require('../../../..').start({
-  serviceName: 'test-hapi',
-  captureExceptions: false,
-  logLevel: 'off',
-  metricsInterval: 0,
-  centralConfig: false,
-  cloudProvider: 'none',
-  captureBody: 'all',
-});
-
-var isHapiIncompat = require('../../../_is_hapi_incompat');
+const isHapiIncompat = require('../../../_is_hapi_incompat');
 if (isHapiIncompat()) {
   // Skip out of this test.
   console.log(
@@ -25,646 +15,364 @@ if (isHapiIncompat()) {
   process.exit();
 }
 
-var http = require('http');
+const os = require('os');
+const test = require('tape');
 
-var Hapi = require('@hapi/hapi');
-var pkg = require('@hapi/hapi/package.json');
-var semver = require('semver');
-var test = require('tape');
+const { runTestFixtures } = require('../../../_utils');
+const { NODE_VER_RANGE_IITM_GE14 } = require('../../../testconsts');
 
-var mockClient = require('../../../_mock_http_client');
+// Events order changes between node.js versions, but not inside each category of events,
+// so sorting them per category allows for a more stable testing.
+const sortEvents = (events) => {
+  const getPriority = (obj) => {
+    if ('metadata' in obj) return 0;
+    if ('transaction' in obj) return 1;
+    if ('error' in obj) return 2;
+    return 3; // fallback for objects with none of these properties
+  };
 
-var originalCaptureError = agent.captureError;
+  return events.sort((a, b) => getPriority(a) - getPriority(b));
+};
 
-function noop() {}
+const testFixtures = [
+  {
+    name: 'hapi.js',
+    script: '../fixtures/use-hapi.js',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--require ../../../../start.js',
+      ELASTIC_APM_CAPTURE_BODY: 'all',
+    },
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      sortEvents(apmServer.events);
+      t.equal(
+        apmServer.events.length,
+        12,
+        'expected number of APM server events',
+      );
+      t.ok(apmServer.events[0].metadata, 'metadata');
 
-test('extract URL from request', function (t) {
-  resetAgent(2, function (data) {
-    t.strictEqual(data.transactions.length, 1);
-    t.strictEqual(data.errors.length, 1);
-    var request = data.errors[0].context.request;
-    t.strictEqual(request.method, 'GET');
-    t.strictEqual(request.url.pathname, '/captureError');
-    t.strictEqual(request.url.search, '?foo=bar');
-    t.strictEqual(request.url.raw, '/captureError?foo=bar');
-    t.strictEqual(request.url.hostname, '127.0.0.1');
-    t.strictEqual(request.url.port, String(server.info.port));
-    server.stop(noop);
-    t.end();
-  });
+      const trans = apmServer.events[1].transaction;
+      t.equal(trans.name, 'POST /hello/?', 'transaction.name');
+      t.equal(trans.type, 'request', 'transaction.type');
+      t.equal(trans.outcome, 'success', 'transaction.outcome');
+      t.equal(
+        trans.context.request.method,
+        'POST',
+        'transaction.context.request.method',
+      );
+      t.equal(
+        trans.context.request.body,
+        JSON.stringify({ foo: 'bar' }),
+        'transaction.context.request.body',
+      );
 
-  agent.captureError = originalCaptureError;
+      const transError = apmServer.events[2].transaction;
+      t.equal(transError.name, 'GET /error', 'transaction.name');
+      t.equal(transError.type, 'request', 'transaction.type');
+      t.equal(transError.outcome, 'failure', 'transaction.outcome');
+      t.equal(
+        transError.context.request.method,
+        'GET',
+        'transaction.context.request.method',
+      );
 
-  var server = startServer(function (err, port) {
-    t.error(err, 'no error from startServer');
-    http.get('http://127.0.0.1:' + port + '/captureError?foo=bar');
-  });
-});
+      const transCaptureError = apmServer.events[3].transaction;
+      t.equal(transCaptureError.name, 'GET /captureError', 'transaction.name');
+      t.equal(transCaptureError.type, 'request', 'transaction.type');
+      t.equal(transCaptureError.outcome, 'success', 'transaction.outcome');
+      t.equal(
+        transCaptureError.context.request.method,
+        'GET',
+        'transaction.context.request.method',
+      );
 
-test('route naming', function (t) {
-  t.plan(8);
+      const customError = apmServer.events[4].error;
+      t.ok(customError.exception);
+      t.strictEqual(customError.exception.message, 'custom error');
+      t.strictEqual(customError.exception.type, 'Error');
+      t.ok(customError.context.custom);
+      t.deepEqual(customError.context.custom.tags, ['error']);
+      t.deepEqual(customError.context.custom.data, undefined);
 
-  resetAgent(1, function (data) {
-    assert(t, data);
-    server.stop(noop);
-  });
+      const stringError = apmServer.events[5].error;
+      t.ok(stringError.log);
+      t.strictEqual(stringError.log.message, 'custom error');
+      t.ok(stringError.context);
+      t.deepEqual(stringError.context.custom.tags, ['error']);
+      t.deepEqual(stringError.context.custom.data, undefined);
 
-  var server = startServer(function (err, port) {
-    t.error(err);
-    http.get('http://127.0.0.1:' + port + '/hello', function (res) {
-      t.strictEqual(res.statusCode, 200);
-      res.on('data', function (chunk) {
-        t.strictEqual(chunk.toString(), 'hello world');
+      const objectError = apmServer.events[6].error;
+      t.ok(objectError.log);
+      t.strictEqual(
+        objectError.log.message,
+        'hapi server emitted a "log" event tagged "error"',
+      );
+      t.ok(objectError.context);
+      t.deepEqual(objectError.context.custom.tags, ['error']);
+      t.deepEqual(objectError.context.custom.data, {
+        error: 'I forgot to turn this into an actual Error',
       });
-      res.on('end', function () {
-        agent.flush();
+
+      const requestError = apmServer.events[7].error;
+      t.ok(requestError.exception);
+      t.strictEqual(requestError.exception.message, 'custom request error');
+      t.strictEqual(requestError.exception.type, 'Error');
+      t.ok(requestError.context);
+      t.deepEqual(requestError.context.custom.tags, ['elastic-apm', 'error']);
+      t.deepEqual(requestError.context.custom.data, undefined);
+      t.ok(requestError.context.request);
+
+      const requestStringError = apmServer.events[8].error;
+      t.ok(requestStringError.log);
+      t.strictEqual(requestStringError.log.message, 'custom error');
+      t.ok(requestStringError.context);
+      t.deepEqual(requestStringError.context.custom.tags, [
+        'elastic-apm',
+        'error',
+      ]);
+      t.deepEqual(requestStringError.context.custom.data, undefined);
+      t.ok(requestStringError.context.request);
+
+      const requestObjectError = apmServer.events[9].error;
+      t.ok(requestObjectError.log);
+      t.strictEqual(
+        requestObjectError.log.message,
+        'hapi server emitted a "request" event tagged "error"',
+      );
+      t.ok(requestObjectError.context);
+      t.deepEqual(requestObjectError.context.custom.tags, [
+        'elastic-apm',
+        'error',
+      ]);
+      t.deepEqual(requestObjectError.context.custom.data, {
+        error: 'I forgot to turn this into an actual Error',
       });
-    });
-  });
-});
-
-test('captureBody', function (t) {
-  t.plan(9);
-
-  const postData = JSON.stringify({ foo: 'bar' });
-
-  resetAgent(1, function (data) {
-    assert(t, data, { name: 'POST /postSomeData', method: 'POST' });
-    t.equal(
-      data.transactions[0].context.request.body,
-      postData,
-      'body was captured to trans.context.request.body',
-    );
-    server.stop(noop);
-  });
-
-  var server = startServer(function (err, port) {
-    t.error(err);
-    const cReq = http.request(
-      {
-        method: 'POST',
-        hostname: '127.0.0.1',
-        port,
-        path: '/postSomeData',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData),
-        },
-      },
-      function (res) {
-        t.strictEqual(res.statusCode, 200);
-        res.on('data', function (chunk) {
-          t.strictEqual(chunk.toString(), 'your data has been posted');
-        });
-        res.on('end', function () {
-          agent.flush();
-        });
-      },
-    );
-    cReq.write(postData);
-    cReq.end();
-  });
-});
-
-test('connectionless', function (t) {
-  if (semver.satisfies(pkg.version, '<15.0.2')) {
-    t.pass('skipping');
-    t.end();
-    return;
-  }
-
-  t.plan(1);
-
-  resetAgent();
-
-  var server = makeServer();
-  initServer(server, function (err) {
-    server.stop(noop);
-    t.error(err, 'start error');
-  });
-});
-
-test('connectionless server error logging with Error', function (t) {
-  if (semver.satisfies(pkg.version, '<15.0.2')) {
-    t.pass('skipping');
-    t.end();
-    return;
-  }
-
-  t.plan(5);
-
-  var customError = new Error('custom error');
-
-  resetAgent();
-
-  agent.captureError = function (err, opts) {
-    server.stop(noop);
-
-    t.strictEqual(err, customError);
-    t.ok(opts.custom);
-    t.deepEqual(opts.custom.tags, ['error']);
-    t.strictEqual(opts.custom.data, undefined);
-  };
-
-  var server = makeServer();
-  initServer(server, function (err) {
-    t.error(err, 'start error');
-
-    server.log(['error'], customError);
-  });
-});
-
-test('connectionless server error logging with String', function (t) {
-  if (semver.satisfies(pkg.version, '<15.0.2')) {
-    t.pass('skipping');
-    t.end();
-    return;
-  }
-
-  t.plan(5);
-
-  var customError = 'custom error';
-
-  resetAgent();
-
-  agent.captureError = function (err, opts) {
-    server.stop(noop);
-
-    t.strictEqual(err, customError);
-    t.ok(opts.custom);
-    t.deepEqual(opts.custom.tags, ['error']);
-    t.strictEqual(opts.custom.data, undefined);
-  };
-
-  var server = makeServer();
-  initServer(server, function (err) {
-    t.error(err, 'start error');
-
-    server.log(['error'], customError);
-  });
-});
-
-test('connectionless server error logging with Object', function (t) {
-  if (semver.satisfies(pkg.version, '<15.0.2')) {
-    t.pass('skipping');
-    t.end();
-    return;
-  }
-
-  t.plan(5);
-
-  var customError = {
-    error: 'I forgot to turn this into an actual Error',
-  };
-
-  resetAgent();
-
-  agent.captureError = function (err, opts) {
-    server.stop(noop);
-
-    t.strictEqual(err, 'hapi server emitted a "log" event tagged "error"');
-    t.ok(opts.custom);
-    t.deepEqual(opts.custom.tags, ['error']);
-    t.deepEqual(opts.custom.data, customError);
-  };
-
-  var server = makeServer();
-  initServer(server, function (err) {
-    t.error(err, 'start error');
-
-    server.log(['error'], customError);
-  });
-});
-
-test('server error logging with Error', function (t) {
-  t.plan(5);
-
-  var customError = new Error('custom error');
-
-  resetAgent();
-
-  agent.captureError = function (err, opts) {
-    server.stop(noop);
-
-    t.strictEqual(err, customError);
-    t.ok(opts.custom);
-    t.deepEqual(opts.custom.tags, ['error']);
-    t.strictEqual(opts.custom.data, undefined);
-  };
-
-  var server = startServer(function (err) {
-    t.error(err, 'start error');
-
-    server.log(['error'], customError);
-  });
-});
-
-test('server error logging with Error does not affect event tags', function (t) {
-  t.plan(7);
-
-  var customError = new Error('custom error');
-
-  resetAgent();
-
-  agent.captureError = function (err, opts) {
-    server.stop(noop);
-
-    t.strictEqual(err, customError);
-    t.ok(opts.custom);
-    t.deepEqual(opts.custom.tags, ['error']);
-    t.strictEqual(opts.custom.data, undefined);
-  };
-
-  var server = makeServer();
-
-  var emitter = server.events || server;
-  emitter.on('log', function (event, tags) {
-    t.deepEqual(event.tags, ['error']);
-  });
-
-  runServer(server, function (err) {
-    t.error(err, 'start error');
-
-    emitter.on('log', function (event, tags) {
-      t.deepEqual(event.tags, ['error']);
-    });
-
-    server.log(['error'], customError);
-  });
-});
-
-test('server error logging with String', function (t) {
-  t.plan(5);
-
-  var customError = 'custom error';
-
-  resetAgent();
-
-  agent.captureError = function (err, opts) {
-    server.stop(noop);
-
-    t.strictEqual(err, customError);
-    t.ok(opts.custom);
-    t.deepEqual(opts.custom.tags, ['error']);
-    t.strictEqual(opts.custom.data, undefined);
-  };
-
-  var server = startServer(function (err) {
-    t.error(err, 'start error');
-
-    server.log(['error'], customError);
-  });
-});
-
-test('server error logging with Object', function (t) {
-  t.plan(5);
-
-  var customError = {
-    error: 'I forgot to turn this into an actual Error',
-  };
-
-  resetAgent();
-
-  agent.captureError = function (err, opts) {
-    server.stop(noop);
-
-    t.strictEqual(err, 'hapi server emitted a "log" event tagged "error"');
-    t.ok(opts.custom);
-    t.deepEqual(opts.custom.tags, ['error']);
-    t.deepEqual(opts.custom.data, customError);
-  };
-
-  var server = startServer(function (err) {
-    t.error(err, 'start error');
-
-    server.log(['error'], customError);
-  });
-});
-
-test('request error logging with Error', function (t) {
-  t.plan(12);
-
-  var customError = new Error('custom error');
-
-  resetAgent(1, function (data) {
-    assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' });
-
-    server.stop(noop);
-  });
-
-  agent.captureError = function (err, opts) {
-    t.strictEqual(err, customError);
-    t.ok(opts.custom);
-    t.ok(opts.request);
-    t.deepEqual(opts.custom.tags, ['error']);
-    t.strictEqual(opts.custom.data, undefined);
-  };
-
-  var server = makeServer();
-
-  server.route({
-    method: 'GET',
-    path: '/error',
-    handler: handler(function (request) {
-      request.log(['error'], customError);
-
-      return 'hello world';
-    }),
-  });
-
-  runServer(server, function (err) {
-    t.error(err, 'start error');
-
-    http.get('http://127.0.0.1:' + server.info.port + '/error', function (res) {
-      t.strictEqual(res.statusCode, 200);
-
-      res.resume().on('end', function () {
-        agent.flush();
+      t.ok(requestObjectError.context.request);
+
+      const handlerError = apmServer.events[10].error;
+      t.strictEqual(handlerError.context.request.method, 'GET');
+      t.strictEqual(handlerError.context.request.url.pathname, '/error');
+      t.strictEqual(handlerError.context.request.url.search, undefined);
+      t.strictEqual(handlerError.context.request.url.raw, '/error');
+      t.strictEqual(handlerError.context.request.url.hostname, '127.0.0.1');
+      t.strictEqual(handlerError.context.request.url.port, '3000');
+
+      const capturedError = apmServer.events[11].error;
+      t.strictEqual(capturedError.context.request.method, 'GET');
+      t.strictEqual(
+        capturedError.context.request.url.pathname,
+        '/captureError',
+      );
+      t.strictEqual(capturedError.context.request.url.search, '?foo=bar');
+      t.strictEqual(
+        capturedError.context.request.url.raw,
+        '/captureError?foo=bar',
+      );
+      t.strictEqual(capturedError.context.request.url.hostname, '127.0.0.1');
+      t.strictEqual(capturedError.context.request.url.port, '3000');
+    },
+  },
+  {
+    name: 'hapi.js ESM',
+    script: '../fixtures/use-hapi.mjs',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS:
+        '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      NODE_NO_WARNINGS: '1', // skip warnings about --experimental-loader
+      ELASTIC_APM_CAPTURE_BODY: 'all',
+    },
+    versionRanges: {
+      node: NODE_VER_RANGE_IITM_GE14,
+    },
+    testOpts: {
+      // The loader doesn't seem to instrument hapi when on windows
+      skip: os.platform() === 'win32',
+    },
+    checkApmServer: (t, apmServer) => {
+      sortEvents(apmServer.events);
+      t.equal(
+        apmServer.events.length,
+        12,
+        'expected number of APM server events',
+      );
+      t.ok(apmServer.events[0].metadata, 'metadata');
+
+      const trans = apmServer.events[1].transaction;
+      t.equal(trans.name, 'POST /hello/?', 'transaction.name');
+      t.equal(trans.type, 'request', 'transaction.type');
+      t.equal(trans.outcome, 'success', 'transaction.outcome');
+      t.equal(
+        trans.context.request.method,
+        'POST',
+        'transaction.context.request.method',
+      );
+      t.equal(
+        trans.context.request.body,
+        JSON.stringify({ foo: 'bar' }),
+        'transaction.context.request.body',
+      );
+
+      const transError = apmServer.events[2].transaction;
+      t.equal(transError.name, 'GET /error', 'transaction.name');
+      t.equal(transError.type, 'request', 'transaction.type');
+      t.equal(transError.outcome, 'failure', 'transaction.outcome');
+      t.equal(
+        transError.context.request.method,
+        'GET',
+        'transaction.context.request.method',
+      );
+
+      const transCaptureError = apmServer.events[3].transaction;
+      t.equal(transCaptureError.name, 'GET /captureError', 'transaction.name');
+      t.equal(transCaptureError.type, 'request', 'transaction.type');
+      t.equal(transCaptureError.outcome, 'success', 'transaction.outcome');
+      t.equal(
+        transCaptureError.context.request.method,
+        'GET',
+        'transaction.context.request.method',
+      );
+
+      const customError = apmServer.events[4].error;
+      t.ok(customError.exception);
+      t.strictEqual(customError.exception.message, 'custom error');
+      t.strictEqual(customError.exception.type, 'Error');
+      t.ok(customError.context.custom);
+      t.deepEqual(customError.context.custom.tags, ['error']);
+      t.deepEqual(customError.context.custom.data, undefined);
+
+      const stringError = apmServer.events[5].error;
+      t.ok(stringError.log);
+      t.strictEqual(stringError.log.message, 'custom error');
+      t.ok(stringError.context);
+      t.deepEqual(stringError.context.custom.tags, ['error']);
+      t.deepEqual(stringError.context.custom.data, undefined);
+
+      const objectError = apmServer.events[6].error;
+      t.ok(objectError.log);
+      t.strictEqual(
+        objectError.log.message,
+        'hapi server emitted a "log" event tagged "error"',
+      );
+      t.ok(objectError.context);
+      t.deepEqual(objectError.context.custom.tags, ['error']);
+      t.deepEqual(objectError.context.custom.data, {
+        error: 'I forgot to turn this into an actual Error',
       });
-    });
-  });
-});
 
-test('request error logging with Error does not affect event tags', function (t) {
-  t.plan(14);
+      const requestError = apmServer.events[7].error;
+      t.ok(requestError.exception);
+      t.strictEqual(requestError.exception.message, 'custom request error');
+      t.strictEqual(requestError.exception.type, 'Error');
+      t.ok(requestError.context);
+      t.deepEqual(requestError.context.custom.tags, ['elastic-apm', 'error']);
+      t.deepEqual(requestError.context.custom.data, undefined);
+      t.ok(requestError.context.request);
 
-  var customError = new Error('custom error');
+      const requestStringError = apmServer.events[8].error;
+      t.ok(requestStringError.log);
+      t.strictEqual(requestStringError.log.message, 'custom error');
+      t.ok(requestStringError.context);
+      t.deepEqual(requestStringError.context.custom.tags, [
+        'elastic-apm',
+        'error',
+      ]);
+      t.deepEqual(requestStringError.context.custom.data, undefined);
+      t.ok(requestStringError.context.request);
 
-  resetAgent(1, function (data) {
-    assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' });
-
-    server.stop(noop);
-  });
-
-  agent.captureError = function (err, opts) {
-    t.strictEqual(err, customError);
-    t.ok(opts.custom);
-    t.ok(opts.request);
-    t.deepEqual(opts.custom.tags, ['elastic-apm', 'error']);
-    t.strictEqual(opts.custom.data, undefined);
-  };
-
-  var server = makeServer();
-
-  server.route({
-    method: 'GET',
-    path: '/error',
-    handler: handler(function (request) {
-      request.log(['elastic-apm', 'error'], customError);
-
-      return 'hello world';
-    }),
-  });
-
-  var emitter = server.events || server;
-  emitter.on('request', function (req, event, tags) {
-    if (event.channel === 'internal') return;
-    t.deepEqual(event.tags, ['elastic-apm', 'error']);
-  });
-
-  runServer(server, function (err) {
-    t.error(err, 'start error');
-
-    emitter.on('request', function (req, event, tags) {
-      if (event.channel === 'internal') return;
-      t.deepEqual(event.tags, ['elastic-apm', 'error']);
-    });
-
-    http.get('http://127.0.0.1:' + server.info.port + '/error', function (res) {
-      t.strictEqual(res.statusCode, 200);
-
-      res.resume().on('end', function () {
-        agent.flush();
+      const requestObjectError = apmServer.events[9].error;
+      t.ok(requestObjectError.log);
+      t.strictEqual(
+        requestObjectError.log.message,
+        'hapi server emitted a "request" event tagged "error"',
+      );
+      t.ok(requestObjectError.context);
+      t.deepEqual(requestObjectError.context.custom.tags, [
+        'elastic-apm',
+        'error',
+      ]);
+      t.deepEqual(requestObjectError.context.custom.data, {
+        error: 'I forgot to turn this into an actual Error',
       });
-    });
-  });
-});
+      t.ok(requestObjectError.context.request);
 
-test('request error logging with String', function (t) {
-  t.plan(12);
+      const handlerError = apmServer.events[10].error;
+      t.strictEqual(handlerError.context.request.method, 'GET');
+      t.strictEqual(handlerError.context.request.url.pathname, '/error');
+      t.strictEqual(handlerError.context.request.url.search, undefined);
+      t.strictEqual(handlerError.context.request.url.raw, '/error');
+      t.strictEqual(handlerError.context.request.url.hostname, '127.0.0.1');
+      t.strictEqual(handlerError.context.request.url.port, '3000');
 
-  var customError = 'custom error';
+      const capturedError = apmServer.events[11].error;
+      t.strictEqual(capturedError.context.request.method, 'GET');
+      t.strictEqual(
+        capturedError.context.request.url.pathname,
+        '/captureError',
+      );
+      t.strictEqual(capturedError.context.request.url.search, '?foo=bar');
+      t.strictEqual(
+        capturedError.context.request.url.raw,
+        '/captureError?foo=bar',
+      );
+      t.strictEqual(capturedError.context.request.url.hostname, '127.0.0.1');
+      t.strictEqual(capturedError.context.request.url.port, '3000');
+    },
+  },
+  {
+    name: 'hapi.js connectionless',
+    script: '../fixtures/use-hapi-connectionless.js',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--require ../../../../start.js',
+      ELASTIC_APM_CAPTURE_BODY: 'all',
+    },
+    versionRanges: {
+      '@hapi/hapi': '>=15.0.2',
+    },
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      sortEvents(apmServer.events);
+      t.equal(
+        apmServer.events.length,
+        4,
+        'expected number of APM server events',
+      );
+      t.ok(apmServer.events[0].metadata, 'metadata');
 
-  resetAgent(1, function (data) {
-    assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' });
+      const customError = apmServer.events[1].error;
+      t.ok(customError.exception);
+      t.strictEqual(customError.exception.message, 'custom error');
+      t.strictEqual(customError.exception.type, 'Error');
+      t.ok(customError.context.custom);
+      t.deepEqual(customError.context.custom.tags, ['error']);
+      t.deepEqual(customError.context.custom.data, undefined);
 
-    server.stop(noop);
-  });
+      const stringError = apmServer.events[2].error;
+      t.ok(stringError.log);
+      t.strictEqual(stringError.log.message, 'custom error');
+      t.ok(stringError.context);
+      t.deepEqual(stringError.context.custom.tags, ['error']);
+      t.deepEqual(stringError.context.custom.data, undefined);
 
-  agent.captureError = function (err, opts) {
-    t.strictEqual(err, customError);
-    t.ok(opts.custom);
-    t.ok(opts.request);
-    t.deepEqual(opts.custom.tags, ['error']);
-    t.strictEqual(opts.custom.data, undefined);
-  };
-
-  var server = makeServer();
-
-  server.route({
-    method: 'GET',
-    path: '/error',
-    handler: handler(function (request) {
-      request.log(['error'], customError);
-
-      return 'hello world';
-    }),
-  });
-
-  runServer(server, function (err) {
-    t.error(err, 'start error');
-
-    http.get('http://127.0.0.1:' + server.info.port + '/error', function (res) {
-      t.strictEqual(res.statusCode, 200);
-
-      res.resume().on('end', function () {
-        agent.flush();
+      const objectError = apmServer.events[3].error;
+      t.ok(objectError.log);
+      t.strictEqual(
+        objectError.log.message,
+        'hapi server emitted a "log" event tagged "error"',
+      );
+      t.ok(objectError.context);
+      t.deepEqual(objectError.context.custom.tags, ['error']);
+      t.deepEqual(objectError.context.custom.data, {
+        error: 'I forgot to turn this into an actual Error',
       });
-    });
-  });
+    },
+  },
+];
+
+test('hapi fixtures', function (suite) {
+  runTestFixtures(suite, testFixtures);
+  suite.end();
 });
-
-test('request error logging with Object', function (t) {
-  t.plan(12);
-
-  var customError = {
-    error: 'I forgot to turn this into an actual Error',
-  };
-
-  resetAgent(1, function (data) {
-    assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' });
-
-    server.stop(noop);
-  });
-
-  agent.captureError = function (err, opts) {
-    t.strictEqual(err, 'hapi server emitted a "request" event tagged "error"');
-    t.ok(opts.custom);
-    t.ok(opts.request);
-    t.deepEqual(opts.custom.tags, ['error']);
-    t.deepEqual(opts.custom.data, customError);
-  };
-
-  var server = makeServer();
-
-  server.route({
-    method: 'GET',
-    path: '/error',
-    handler: handler(function (request) {
-      request.log(['error'], customError);
-
-      return 'hello world';
-    }),
-  });
-
-  runServer(server, function (err) {
-    t.error(err, 'start error');
-
-    http.get('http://127.0.0.1:' + server.info.port + '/error', function (res) {
-      t.strictEqual(res.statusCode, 200);
-
-      res.resume().on('end', function () {
-        agent.flush();
-      });
-    });
-  });
-});
-
-test('error handling', function (t) {
-  t.plan(10);
-
-  resetAgent(1, function (data) {
-    assert(t, data, { status: 'HTTP 5xx', name: 'GET /error' });
-    server.stop(noop);
-  });
-
-  agent.captureError = function (err, opts) {
-    t.strictEqual(err.message, 'foo');
-    t.ok(opts.request instanceof http.IncomingMessage);
-  };
-
-  var server = startServer(function (err, port) {
-    t.error(err);
-    http.get('http://127.0.0.1:' + port + '/error', function (res) {
-      t.strictEqual(res.statusCode, 500);
-      res.on('data', function (chunk) {
-        var data = JSON.parse(chunk.toString());
-        t.deepEqual(data, {
-          statusCode: 500,
-          error: 'Internal Server Error',
-          message: 'An internal server error occurred',
-        });
-      });
-      res.on('end', function () {
-        agent.flush();
-      });
-    });
-  });
-});
-
-function makeServer(opts) {
-  var server;
-  if (semver.satisfies(pkg.version, '<17')) {
-    server = new Hapi.Server();
-    opts = opts || {};
-    opts.host = opts.host || '127.0.0.1';
-    server.connection(opts);
-  } else {
-    server = new Hapi.Server({ host: '127.0.0.1' });
-  }
-  return server;
-}
-
-function initServer(server, cb) {
-  if (semver.satisfies(pkg.version, '<17')) {
-    server.initialize(cb);
-  } else {
-    server.initialize().then(cb.bind(null, null), cb);
-  }
-}
-
-function runServer(server, cb) {
-  if (semver.satisfies(pkg.version, '<17')) {
-    server.start(function (err) {
-      if (err) throw err;
-      cb(null, server.info.port);
-    });
-  } else {
-    server.start().then(() => cb(null, server.info.port), cb);
-  }
-}
-
-function startServer(cb) {
-  var server = buildServer();
-  runServer(server, cb);
-  return server;
-}
-
-function handler(fn) {
-  if (semver.satisfies(pkg.version, '>=17')) return fn;
-  return function (request, reply) {
-    var p = new Promise(function (resolve, reject) {
-      resolve(fn(request));
-    });
-    p.then(reply, reply);
-  };
-}
-
-function buildServer() {
-  var server = makeServer();
-
-  server.route({
-    method: 'GET',
-    path: '/hello',
-    handler: handler(function (request) {
-      return 'hello world';
-    }),
-  });
-  server.route({
-    method: 'POST',
-    path: '/postSomeData',
-    handler: handler(function (request) {
-      return 'your data has been posted';
-    }),
-  });
-  server.route({
-    method: 'GET',
-    path: '/error',
-    handler: handler(function (request) {
-      throw new Error('foo');
-    }),
-  });
-  server.route({
-    method: 'GET',
-    path: '/captureError',
-    handler: handler(function (request) {
-      agent.captureError(new Error());
-      return '';
-    }),
-  });
-  return server;
-}
-
-function assert(t, data, results) {
-  if (!results) results = {};
-  results.status = results.status || 'HTTP 2xx';
-  results.name = results.name || 'GET /hello';
-  results.method = results.method || 'GET';
-
-  t.strictEqual(data.transactions.length, 1);
-
-  var trans = data.transactions[0];
-
-  t.strictEqual(trans.name, results.name);
-  t.strictEqual(trans.type, 'request');
-  t.strictEqual(trans.result, results.status);
-  t.strictEqual(trans.context.request.method, results.method);
-}
-
-function resetAgent(expected, cb) {
-  agent._instrumentation.testReset();
-  agent._apmClient = mockClient(expected, cb);
-  agent.captureError = function (err) {
-    throw err;
-  };
-}
