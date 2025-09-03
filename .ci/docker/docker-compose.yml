@@ -187,5 +187,3 @@ volumes:
     driver: local
   nodekafkadata:
     driver: local
-  nodezookeeperdata:
-    driver: local
