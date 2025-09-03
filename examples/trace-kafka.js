@@ -23,7 +23,7 @@ const { TextEncoder } = require('util');
 const { Kafka } = require('kafkajs');
 
 const topic = 'trace-kafka-topic';
-const kafka = new Kafka({ clientId: 'my-app', brokers: ['localhost:9093'] });
+const kafka = new Kafka({ clientId: 'my-app', brokers: ['localhost:9094'] });
 const admin = kafka.admin();
 
 const headerStr = 'value inside buffer';
