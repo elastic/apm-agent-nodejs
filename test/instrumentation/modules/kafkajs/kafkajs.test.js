@@ -20,7 +20,7 @@ const test = require('tape');
 const { validateSpan } = require('../../../_validate_schema');
 const { runTestFixtures, sortApmEvents } = require('../../../_utils');
 
-const kafkaHost = process.env.KAFKA_HOST || 'localhost:9093';
+const kafkaHost = process.env.KAFKA_HOST || 'localhost:9094';
 
 const rand = Math.floor(Math.random() * 1000);
 const kafkaTopic = `elasticapmtest-topic-each-${rand}`;

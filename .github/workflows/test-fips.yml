@@ -30,7 +30,7 @@ jobs:
       - run: |
           apk update
           apk add nodejs npm
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Is Node.js running in FIPS mode?
         run: |
           node -e 'const isFips = require("node:crypto").getFips(); console.log("isFips:", isFips); assert(isFips)'

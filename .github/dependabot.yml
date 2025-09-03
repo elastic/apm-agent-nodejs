@@ -32,6 +32,10 @@ updates:
       - dependency-name: "lru-cache" # later lru-cache@10.x toyed with dropping 14.x, we pin to a specific early 10.x; lru-cache@11 dropped 14, 16, 18
       - dependency-name: "rimraf" # rimraf@5 min is 14.20, we need >=14.17; rimraf@6 dropped 14, 16, 18
         update-types: ["version-update:semver-major"]
+      # Packages whose newer versions are not supported by the agent
+      - dependency-name: "koa-router" # support is >=5.2.0 <14.0.0
+      - dependency-name: "next" # support is >=12.0.0 <13.3.0
+      - dependency-name: "redis" # support is >=2.0.0 <5
     groups:
       aws-sdk:
         dependency-type: "development"

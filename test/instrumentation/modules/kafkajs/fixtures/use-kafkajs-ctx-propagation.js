@@ -137,7 +137,7 @@ function main() {
   const mode = process.env.TEST_MODE;
   const clientId = process.env.TEST_CLIENT_ID || 'elastictest-kafka-client';
   const groupId = process.env.TEST_GROUP_ID || 'elastictest-kafka-group';
-  const broker = process.env.TEST_KAFKA_HOST || 'localhost:9093';
+  const broker = process.env.TEST_KAFKA_HOST || 'localhost:9094';
   const topic =
     process.env.TEST_TOPIC ||
     TEST_TOPIC_PREFIX + Math.floor(Math.random() * 1000);
