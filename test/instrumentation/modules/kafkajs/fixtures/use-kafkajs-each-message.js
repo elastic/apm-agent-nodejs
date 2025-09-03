@@ -49,7 +49,7 @@ async function useKafkajsClient(kafkaClient, options) {
   await admin.connect();
   await admin.createTopics({
     waitForLeaders: true,
-    topics: [{ topic, topicToIgnore }],
+    topics: [{ topic }, { topic: topicToIgnore }],
   });
   log.info('topic created');
 
@@ -144,7 +144,7 @@ async function main() {
   // Config vars.
   const clientId = process.env.TEST_CLIENT_ID || 'elastictest-kafka-client';
   const groupId = process.env.TEST_GROUP_ID || 'elastictest-kafka-group';
-  const broker = process.env.TEST_KAFKA_HOST || 'localhost:9093';
+  const broker = process.env.TEST_KAFKA_HOST || 'localhost:9094';
   const topic =
     process.env.TEST_TOPIC ||
     TEST_TOPIC_PREFIX + Math.floor(Math.random() * 1000);

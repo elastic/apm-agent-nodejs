@@ -1,16 +1,10 @@
 version: '2.1'
 
 services:
-  zookeeper:
-    extends:
-      file: docker-compose.yml
-      service: zookeeper
   kafka:
     extends:
       file: docker-compose.yml
       service: kafka
-    depends_on:
-      - zookeeper
   node_tests:
     extends:
       file: docker-compose-node-test.yml
@@ -21,6 +15,4 @@ services:
 
 volumes:
   nodekafkadata:
-    driver: local
-  nodezookeeperdata:
     driver: local
