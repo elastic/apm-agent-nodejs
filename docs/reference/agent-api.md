@@ -243,6 +243,9 @@ Before using custom context, ensure you understand the different types of [metad
 apm_agent_node: ga 0.1.0
 ```
 
+Renamed from `apm.setTag()` to `apm.setLabel()` in version 2.10.0.
+Added `stringify` argument in version 3.11.0.
+
 * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`), as those characters have special meaning in Elasticsearch
 * `value` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) | [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) | [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) If the `stringify` argument is not given, or set to `true` then the given value will be converted to a string.
 * `stringify` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) This defaults to `true` for backwards compatibility, but new usage will typically want `false`. When true, if a non-string `value` is given, it is converted to a string before being sent to the APM Server.
@@ -269,6 +272,9 @@ Avoid defining too many user-specified labels. Defining too many unique fields i
 ```{applies_to}
 apm_agent_node: ga 1.5.0
 ```
+
+Renamed from `apm.addTags()` to `apm.addLabels()` in version 2.10.0.
+Added `stringify` argument in version 3.11.0.
 
 * `labels` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) Contains key/value pairs:
 
@@ -470,6 +476,9 @@ app.listen(3000)
 ```{applies_to}
 apm_agent_node: ga 0.1.0
 ```
+
+Transaction `subtype` and `action` deprecated in version 3.25.0.
+Transaction `subtype` and `action` removed in version 4.0.0.
 
 * `name` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The name of the transaction. You can always set this later via [`transaction.name`](/reference/transaction-api.md#transaction-name) or [`apm.setTransactionName()`](#apm-set-transaction-name). **Default:** `unnamed`
 * `type` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The type of the transaction. You can always set this later via [`transaction.type`](/reference/transaction-api.md#transaction-type).
