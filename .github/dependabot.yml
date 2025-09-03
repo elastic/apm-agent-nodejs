@@ -102,9 +102,7 @@ updates:
 
   # Docker
   - package-ecosystem: "docker"
-    directories:
-      - "/"
-      - ".github/workflows"
+    directories: "/"
     registries: "*"
     schedule:
       interval: "weekly"
