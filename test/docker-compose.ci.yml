@@ -12,7 +12,7 @@ services:
       CASSANDRA_HOST: 'cassandra'
       MEMCACHED_HOST: 'memcached'
       LOCALSTACK_HOST: 'localstack:4566'
-      KAFKA_HOST: 'kafka:9093'
+      KAFKA_HOST: 'kafka:9094'
       PGHOST: 'postgres'
       PGUSER: 'postgres'
     depends_on:
