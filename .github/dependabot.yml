@@ -102,7 +102,7 @@ updates:
 
   # Docker
   - package-ecosystem: "docker"
-    directories: "/"
+    directory: "/"
     registries: "*"
     schedule:
       interval: "weekly"
