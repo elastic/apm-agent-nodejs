@@ -144,6 +144,8 @@ services:
       - nodelocalstackdata:/var/lib/localstack
 
   kafka:
+    # Configuration for Kraft (kafka without zookeeper) taken from
+    # https://www.saybackend.com/blog/05-kafka-in-docker-kraft
     image: apache/kafka:4.1.0
     ports:
       - "9094:9094"
