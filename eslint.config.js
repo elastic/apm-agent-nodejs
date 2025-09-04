@@ -50,8 +50,7 @@ module.exports = [
         fetch: false, // not present in node globals (readonly)
       },
       parserOptions: {
-        ecmaFeatures: {
-        },
+        ecmaFeatures: {},
       },
     },
     plugins: {
