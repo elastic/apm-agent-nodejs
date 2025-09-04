@@ -51,7 +51,6 @@ module.exports = [
       },
       parserOptions: {
         ecmaFeatures: {
-          jsx: true, // to parse nextjs files
         },
       },
     },
