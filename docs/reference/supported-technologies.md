@@ -46,7 +46,6 @@ Though you can use Elastic APM [with any Node.js framework](/reference/custom-st
 | [Fastify](/reference/fastify.md) | >=1.0.0 | See also [Fastify’s own LTS documentation](https://www.fastify.io/docs/latest/Reference/LTS/) |
 | [@hapi/hapi](/reference/hapi.md) | >=17.9.0 <22.0.0 |  |
 | [Koa](/reference/koa.md) via koa-router or @koa/router | >=5.2.0 <14.0.0 | Koa doesn’t have a built in router, so we can’t support Koa directly since we rely on router information for full support. We currently support the most popular Koa router called [koa-router](https://github.com/koajs/koa-router). |
-| [Next.js](/reference/nextjs.md) | >=12.0.0 <13.3.0 | (Technical Preview) This instruments Next.js routing to name transactions for incoming HTTP transactions; and reports errors in user pages. It supports the Next.js production server (`next start`) and development server (`next dev`). See the [Getting Started document](/reference/nextjs.md). |
 | [Restify](/reference/restify.md) | >=5.2.0 <12.0.0 |  |
 
 

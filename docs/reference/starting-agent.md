@@ -52,7 +52,7 @@ Note: As of elastic-apm-node version 3.47.0, the "elastic-apm-node/start.js" wil
 
 ### `node -r elastic-apm-node/start.js ...` [start-option-node-require-opt]
 
-Another way to start the agent is with the `-r elastic-apm-node/start.js` [command line option to `node`](https://nodejs.org/api/cli.md#-r---require-module). This will load and start the APM agent before your application code starts. This method allows you to enable the agent *without touching any code*. This is the recommended start method for [monitoring AWS Lambda functions](/reference/lambda.md) and for tracing [a Next.js server](/reference/nextjs.md).
+Another way to start the agent is with the `-r elastic-apm-node/start.js` [command line option to `node`](https://nodejs.org/api/cli.md#-r---require-module). This will load and start the APM agent before your application code starts. This method allows you to enable the agent *without touching any code*. This is the recommended start method for [monitoring AWS Lambda functions](/reference/lambda.md).
 
 ```bash
 node -r elastic-apm-node/start.js app.js

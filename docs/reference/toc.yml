@@ -9,7 +9,6 @@ toc:
       - file: fastify.md
       - file: hapi.md
       - file: koa.md
-      - file: nextjs.md
       - file: restify.md
       - file: typescript.md
       - file: custom-stack.md
