@@ -64,7 +64,6 @@ The subtype of the transaction. The transaction `subtype` field is deprecated: i
 apm_agent_node: deprecated 3.25.0, ga 3.0.0
 ```
 
-Deprecated in: v3.25.0
 
 * [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `custom`
 
