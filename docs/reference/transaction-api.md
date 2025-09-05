@@ -47,7 +47,7 @@ The type of the transaction.
 There’s a special type called `request` which is used by the agent for the transactions automatically created when an incoming HTTP request is detected.
 
 
-## `transaction.subtype` [v3.25.0] [transaction-subtype]
+## `transaction.subtype` [transaction-subtype]
 
 ```{applies_to}
 apm_agent_node: deprecated 3.25.0, ga 3.0.0
