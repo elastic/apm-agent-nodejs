@@ -174,7 +174,7 @@ Unfortunately, **using a bundler typically breaks the APM agent**. Bundling mult
 1. exclude the `elastic-apm-node` APM agent module from the bundle; and
 2. optionally exclude other modules from the bundle that you would like the APM agent to instrument.
 
-"Excluding" a module *foo* from the bundle (Webpack calls these "externals") means that a `require('foo')` expects "node_modules/foo/… " to exist at runtime. This means that you need to deploy both your bundle file(s) *and* the excluded modules. This may or may not defeat your reasons for using a bundler.
+"Excluding" a module *foo* from the bundle (Webpack calls these "externals") means that a `require('foo')` expects "node_modules/foo/…" to exist at runtime. This means that you need to deploy both your bundle file(s) *and* the excluded modules. This may or may not defeat your reasons for using a bundler.
 
 The rest of this section shows how to configure externals with various bundlers. If you know of a mechanism for a bundler that we haven’t documented, please [let us know.](https://github.com/elastic/apm-agent-nodejs/blob/main/CONTRIBUTING.md#contributing-to-the-apm-agent)
 
