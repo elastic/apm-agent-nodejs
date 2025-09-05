@@ -50,10 +50,8 @@ There’s a special type called `request` which is used by the agent for the tra
 ## `transaction.subtype` [v3.25.0] [transaction-subtype]
 
 ```{applies_to}
-apm_agent_node: ga 3.0.0
+apm_agent_node: deprecated 3.25.0, ga 3.0.0
 ```
-
-Deprecated in: v3.25.0
 
 * [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) **Default:** `custom`
 
