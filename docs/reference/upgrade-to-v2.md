@@ -11,7 +11,7 @@ products:
   - id: cloud-serverless
   - id: observability
   - id: apm
-   ---
+---
 
 # Upgrade to v2.x [upgrade-to-v2]
 
