@@ -6,7 +6,7 @@ applies_to:
   serverless:
     observability:
   product:
-    apm_agent_node: ga
+    apm_agent_node: deprecated
 ---
 
 # OpenTracing bridge [opentracing]
