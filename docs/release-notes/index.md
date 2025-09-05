@@ -9,10 +9,6 @@ applies_to:
     observability:
   product:
     apm_agent_node: ga
-products:
-  - id: cloud-serverless
-  - id: observability
-  - id: apm
 ---
 
 # Elastic APM Node.js Agent release notes

@@ -11,10 +11,6 @@ applies_to:
     observability:
   product:
     apm_agent_node: ga
-products:
-  - id: cloud-serverless
-  - id: observability
-  - id: apm
 ---
 
 # Monitoring AWS Lambda Node.js Functions [lambda]
