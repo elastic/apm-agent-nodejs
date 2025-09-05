@@ -1,6 +1,12 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/supported-technologies.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
 ---
 
 # Supported technologies [supported-technologies]
@@ -113,7 +119,7 @@ The APM agent [can be configured](/reference/configuration.md#span-stack-trace-m
 
 Given the async nature of Node.js, it’s not possible for the APM agent to see further back than the last async boundary. Modules that happen to have an async boundary between a call from your application code and the action that leads to an APM span will limit the utility of these span stack traces.
 
-The modules listed below are those that the APM agent instruments to provide more useful span stack traces — ones that point to your application code — when enabled.
+The modules listed below are those that the APM agent instruments to provide more useful span stack traces — ones that point to your application code — when enabled.
 
 If you don’t see your own code in spans, please create a new topic in the [Elastic APM discuss forum](https://discuss.elastic.co/c/apm) and include information about your dependencies.
 

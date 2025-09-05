@@ -1,6 +1,12 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/performance-tuning.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
 ---
 
 # Performance Tuning [performance-tuning]
@@ -14,7 +20,7 @@ The *sample rate* is the percentage of incoming requests that are recorded and s
 
 The amount of work the APM agent needs to do, generally scales linearly with the number of traced requests. Therefore, the sample rate impacts CPU, memory, network, and storage overhead.
 
-Applications with a high request rate and/or many spans per incoming request may want to lower the the sampling rate. For example, see the example below to trace 20% of incoming requests. Note that incoming HTTP requests that are part of a [distributed trace](/reference/distributed-tracing.md) already have the sampling decision made — the `traceparent` header includes a [sampled flag](https://w3c.github.io/trace-context/#sampled-flag). In these cases the `transactionSampleRate` setting will not apply.
+Applications with a high request rate and/or many spans per incoming request may want to lower the the sampling rate. For example, see the example below to trace 20% of incoming requests. Note that incoming HTTP requests that are part of a [distributed trace](/reference/distributed-tracing.md) already have the sampling decision made — the `traceparent` header includes a [sampled flag](https://w3c.github.io/trace-context/#sampled-flag). In these cases the `transactionSampleRate` setting will not apply.
 
 ```js
 require('elastic-apm-node').start({

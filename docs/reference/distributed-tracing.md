@@ -1,11 +1,17 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/distributed-tracing.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
 ---
 
 # Distributed tracing [distributed-tracing]
 
-Distributed tracing enables you to analyze performance throughout your microservices architecture all in one view. This is accomplished by tracing all of the requests — from the initial web request to your front-end service — to queries made to your back-end services. This makes finding possible bottlenecks throughout your application much easier and faster.
+Distributed tracing enables you to analyze performance throughout your microservices architecture all in one view. This is accomplished by tracing all of the requests — from the initial web request to your front-end service — to queries made to your back-end services. This makes finding possible bottlenecks throughout your application much easier and faster.
 
 Elastic APM automatically supports distributed tracing, but there are some cases, outlined below, where additional setup is necessary.
 
