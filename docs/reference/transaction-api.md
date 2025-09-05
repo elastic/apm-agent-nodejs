@@ -60,7 +60,7 @@ Deprecated in: v3.25.0
 The subtype of the transaction. The transaction `subtype` field is deprecated: it is not used and will be removed in the next major version.
 
 
-## `transaction.action` [v3.25.0] [transaction-action]
+## `transaction.action` [transaction-action]
 
 ```{applies_to}
 apm_agent_node: ga 3.0.0
