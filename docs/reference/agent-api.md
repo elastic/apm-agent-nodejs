@@ -778,7 +778,7 @@ apm_agent_node: ga 2.17.0
 ## `apm.registerMetric(name[, labels], callback)` [apm-register-custom-metrics]
 
 ```{applies_to}
-apm_agent_node: ga 0.1.0
+apm_agent_node: preview 0.1.0
 ```
 
 ::::{warning}
