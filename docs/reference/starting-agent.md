@@ -181,7 +181,7 @@ The rest of this section shows how to configure externals with various bundlers.
 
 ### Webpack [start-webpack]
 
-Webpack supports ["externals"](https://webpack.js.org/configuration/externals/) configuration options to exclude specific modules from its bundle. At a minimum, the *elastic-apm-agent* module must be made external. In addition, any modules that you want the APM agent to instrument (e.g. a database client) must also be made external. The easiest way to do this is to **use the [*webpack-node-externals*](https://github.com/liady/webpack-node-externals) module to make all of "node_modules/… " external**.
+Webpack supports ["externals"](https://webpack.js.org/configuration/externals/) configuration options to exclude specific modules from its bundle. At a minimum, the *elastic-apm-agent* module must be made external. In addition, any modules that you want the APM agent to instrument (e.g. a database client) must also be made external. The easiest way to do this is to **use the [*webpack-node-externals*](https://github.com/liady/webpack-node-externals) module to make all of "node_modules/…" external**.
 
 For webpack@5 ensure your "webpack.config.js" has the following:
 
