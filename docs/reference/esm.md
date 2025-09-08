@@ -1,6 +1,12 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/esm.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: preview
 ---
 
 # ECMAScript module support [esm]
@@ -10,7 +16,7 @@ ECMAScript module support is currently incomplete and experimental. It was added
 ::::
 
 
-The Elastic APM Node.js agent includes *limited and experimental* support for auto-instrumentation of [ECMAScript modules](https://nodejs.org/api/esm.html#modules-ecmascript-modules) (ESM) — i.e. modules loaded via the `import ...` statement or the `import(...)` expression.  Support is based on the experimental [Node.js Loaders API](https://nodejs.org/api/#loaders), which requires passing the `--experimental-loader` option to node.
+The Elastic APM Node.js agent includes *limited and experimental* support for auto-instrumentation of [ECMAScript modules](https://nodejs.org/api/esm.html#modules-ecmascript-modules) (ESM) — i.e. modules loaded via the `import ...` statement or the `import(...)` expression.  Support is based on the experimental [Node.js Loaders API](https://nodejs.org/api/#loaders), which requires passing the `--experimental-loader` option to node.
 
 As a first example, the APM agent can provide HTTP tracing for the following Express server:
 
@@ -40,9 +46,9 @@ node -r elastic-apm-node/start.js \
   node server.mjs
 ```
 
-The current ESM support is limited — only a subset of the modules listed at [*Supported technologies*](/reference/supported-technologies.md) are implemented. More will be added in subsequent releases. See below for full details.
+The current ESM support is limited — only a subset of the modules listed at [*Supported technologies*](/reference/supported-technologies.md) are implemented. More will be added in subsequent releases. See below for full details.
 
-The ESM limitations only affects the agent’s automatic instrumentation. Other functionality — such as metrics collection, manual instrumentation and error capture — still work when using ES modules.
+The ESM limitations only affects the agent’s automatic instrumentation. Other functionality — such as metrics collection, manual instrumentation and error capture — still work when using ES modules.
 
 
 ## Enabling ESM auto-instrumentation [esm-enabling]
@@ -58,7 +64,7 @@ NODE_OPTIONS='--experimental-loader=elastic-apm-node/loader.mjs'
 node server.mjs
 ```
 
-As well, the APM agent must also be separately **started** — for example via `--require=elastic-apm-node/start.js`. See [Starting the agent](/reference/starting-agent.md) for the various ways of starting the APM agent.
+As well, the APM agent must also be separately **started** — for example via `--require=elastic-apm-node/start.js`. See [Starting the agent](/reference/starting-agent.md) for the various ways of starting the APM agent.
 
 
 ## Supported Node.js versions [esm-compat-node]

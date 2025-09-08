@@ -1,6 +1,12 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
 ---
 
 # Configuration options [configuration]
@@ -22,7 +28,7 @@ The only required parameter is [`serviceName`](#service-name). However, the agen
 
 The name to identify this service in Elastic APM. Multiple instances of the same service should use the same name. Allowed characters: `a-z`, `A-Z`, `0-9`, `-`, `_`, and space.
 
-If `serviceName` is not provided, the agent will attempt to use the "name" field from "package.json" — looking up from the current working directory. The name will be normalized to the allowed characters. If the name cannot be inferred from package.json, then a fallback value of "unknown-nodejs-service" is used.
+If `serviceName` is not provided, the agent will attempt to use the "name" field from "package.json" — looking up from the current working directory. The name will be normalized to the allowed characters. If the name cannot be inferred from package.json, then a fallback value of "unknown-nodejs-service" is used.
 
 
 ## `serviceNodeName` [service-node-name]
@@ -189,7 +195,9 @@ This feature requires APM Server v7.3 or later. More information is available in
 
 ## `contextManager` [context-manager]
 
-Added in: v3.37.0<br> The "patch" context manager was removed in: v4.0.0
+```{applies_to}
+apm_agent_node: ga 3.37.0
+```
 
 * **Type:** String
 * **Env:** `ELASTIC_APM_CONTEXT_MANAGER`
@@ -202,6 +210,8 @@ Supported values for `contextManager` are:
 
 * `"asynclocalstorage"` - Use the `AsyncLocalStorage` mechanism, if able. Otherwise it will fallback to using `async_hooks`.
 * `"asynchooks"` - Use the `async_hooks` mechanism. (Using this value will restore the agent behavior from before v3.37.0.)
+
+The "patch" context manager was removed in: v4.0.0
 
 
 ## `transactionIgnoreUrls` [transaction-ignore-urls]
@@ -463,7 +473,7 @@ Normally only `Error` objects have a stack trace associated with them. This stac
 
 But sometimes it’s valuable to know, not where the `Error` was instantiated, but where it was detected. For instance, when an error happens deep within a database driver, the location where the error bubbles up to, is sometimes more useful for debugging, than where the error occurred.
 
-Set this config option to `always` to — besides the error stack trace — also capture a stack trace at the location where [`captureError`](/reference/agent-api.md#apm-capture-error) was called.
+Set this config option to `always` to — besides the error stack trace — also capture a stack trace at the location where [`captureError`](/reference/agent-api.md#apm-capture-error) was called.
 
 By default, this config option has the value `messages`, which means that a stack trace of the capture location will be recorded only when `captureError` is called with either a [string](/reference/agent-api.md#message-strings) or the [special parameterized message object](/reference/agent-api.md#parameterized-message-object), in which case a normal stack trace isn’t available.
 
@@ -474,7 +484,9 @@ A capture location stack trace is never generated for uncaught exceptions.
 
 ## `spanStackTraceMinDuration` [span-stack-trace-min-duration]
 
-Added in: v3.30.0, replaces [`captureSpanStackTraces`](#capture-span-stack-traces) and [`spanFramesMinDuration`](#span-frames-min-duration)
+```{applies_to}
+apm_agent_node: ga 3.30.0
+```
 
 * **Type:** Duration
 * **Default:** `'-1s'` (never capture span stack traces)
@@ -484,12 +496,14 @@ Added in: v3.30.0, replaces [`captureSpanStackTraces`](#capture-span-stack-trace
 Use this option to control if stack traces are never captured for spans (the default), always captured for spans, or only captured for spans that are longer than a given duration. If you choose to enable span stack traces, even if only for slower spans, please read the [possible performance implications](/reference/performance-tuning.md#performance-stack-traces).
 
 * a negative value, e.g. `'-1ms'` or `-1`, means *never* capture stack traces for spans;
-* a zero value, e.g. `'0ms'` or `0`, means *always* capture stack traces for spans, regardless of the span’s duration; and
+* a zero value, e.g. `'0ms'` or `0`, means *always* capture stack traces for spans, regardless of the span's duration; and
 * any positive value, e.g. `'50ms'`, means to capture stack traces for spans longer than that duration.
 
 The duration value should be a string of the form `'<integer><unit>'`. The allowed units are `ms` for milliseconds, `s` for seconds, and `m` for minutes and are case-sensitive. The *<unit>* is optional and defaults to *milliseconds*. A Number value of milliseconds may also be provided. For example, `'10ms'` and `10` are 10 milliseconds, `'2s'` is 2 seconds.
 
 (Note: If you are migrating from the deprecated `spanFramesMinDuration` option, the meaning for negative and zero values has changed *and* the default unit has changed to milliseconds.)
+
+This option replaces [`captureSpanStackTraces`](#capture-span-stack-traces) and [`spanFramesMinDuration`](#span-frames-min-duration)
 
 
 ## `captureSpanStackTraces` [capture-span-stack-traces]
@@ -499,7 +513,7 @@ Deprecated in: v3.30.0, use [`spanStackTraceMinDuration`](#span-stack-trace-min-
 * **Type:** Boolean
 * **Env:** `ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES`
 
-This option is **deprecated** — use [`spanStackTraceMinDuration`](#span-stack-trace-min-duration) instead. In versions before v3.30.0 this option was `true` by default. As of version v3.30.0 this default has *effectively* changed to false, because the default is `spanStackTraceMinDuration: '-1s'`.
+This option is **deprecated** — use [`spanStackTraceMinDuration`](#span-stack-trace-min-duration) instead. In versions before v3.30.0 this option was `true` by default. As of version v3.30.0 this default has *effectively* changed to false, because the default is `spanStackTraceMinDuration: '-1s'`.
 
 If `spanStackTraceMinDuration` is specified, then any provided value for this option is ignored. Otherwise,
 
@@ -514,7 +528,7 @@ Deprecated in: v3.30.0, use [`spanStackTraceMinDuration`](#span-stack-trace-min-
 * **Type:** Duration
 * **Env:** `ELASTIC_APM_SPAN_FRAMES_MIN_DURATION`
 
-This option is **deprecated** — use [`spanStackTraceMinDuration`](#span-stack-trace-min-duration) instead. Note that the sense of a *negative* value and a *zero* value has switched in the new option. Also note that the default unit has changed from `s` to `ms` in the new option.
+This option is **deprecated** — use [`spanStackTraceMinDuration`](#span-stack-trace-min-duration) instead. Note that the sense of a *negative* value and a *zero* value has switched in the new option. Also note that the default unit has changed from `s` to `ms` in the new option.
 
 If `spanStackTraceMinDuration` is specified, then any provided value for this option is ignored. Otherwise,
 
@@ -604,7 +618,7 @@ Deprecated in: v3.21.0, use [`longFieldMaxLength`](#long-field-max-length)
 * **Default:** `longFieldMaxLength`'s value
 * **Env:** `ELASTIC_APM_ERROR_MESSAGE_MAX_LENGTH`
 
-This option is **deprecated** — use [`longFieldMaxLength`](#long-field-max-length) instead.
+This option is **deprecated** — use [`longFieldMaxLength`](#long-field-max-length) instead.
 
 The maximum length allowed for error messages. It is expressed in bytes or includes a size suffix such as `2kb`. Size suffixes are case-insensitive and include `b`, `kb`, `mb`, and `gb`. Messages above this length will be truncated before being sent to the APM Server. Note that while the configuration option accepts a number of **bytes**, truncation is based on a number of unicode characters, not bytes.
 
@@ -711,7 +725,9 @@ The value should include a time suffix (*m* for minutes, *s* for seconds, or *ms
 
 ## `apmClientHeaders` [apm-client-headers]
 
-Added in: v4.3.0
+```{applies_to}
+apm_agent_node: ga 4.3.0
+```
 
 * **Type:** Object
 * **Env:** `ELASTIC_APM_APM_CLIENT_HEADERS`
@@ -893,7 +909,9 @@ Breakdown metrics ([`span.self_time.*`](/reference/metrics.md#metrics-span.self_
 
 ## `disableMetrics` [disable-metrics]
 
-Added in: v3.45.0
+```{applies_to}
+apm_agent_node: ga 3.45.0
+```
 
 * **Type:** Array
 * **Env:** `ELASTIC_APM_DISABLE_METRICS`
@@ -907,7 +925,9 @@ Use `metricsInterval: '0s'` to completely disable metrics collection. See [`metr
 
 ## `customMetricsHistogramBoundaries` [custom-metrics-histogram-boundaries]
 
-Added in: v3.45.0 as experimental
+```{applies_to}
+apm_agent_node: preview 3.45.0
+```
 
 * **Type:** number[]
 * **Default:** (See below.)
@@ -998,7 +1018,9 @@ require('elastic-apm-node').start({
 
 ## `traceContinuationStrategy` [trace-continuation-strategy]
 
-Added in: v3.34.0
+```{applies_to}
+apm_agent_node: ga 3.34.0
+```
 
 * **Type:** String
 * **Default:** `'continue'`
@@ -1074,7 +1096,9 @@ require('elastic-apm-node').start({
 
 ## `opentelemetryBridgeEnabled` [opentelemetry-bridge-enabled]
 
-Added in: v3.34.0 as experimental
+```{applies_to}
+apm_agent_node: preview 3.34.0
+```
 
 * **Type:** Boolean
 * **Default:** `false`
