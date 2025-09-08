@@ -127,7 +127,7 @@
     "unicode-byte-truncate": "^1.0.0"
   },
   "devDependencies": {
-    "@apollo/server": "^4.2.2",
+    "@apollo/server": "^5.0.0",
     "@aws-sdk/client-dynamodb": "^3.379.1",
     "@aws-sdk/client-s3": "^3.379.1",
     "@aws-sdk/client-sns": "^3.379.1",
