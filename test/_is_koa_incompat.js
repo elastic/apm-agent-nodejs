@@ -31,7 +31,7 @@ function isKoaIncompat() {
 
   if (
     semver.satisfies(koaVer, '>=3.0.1') &&
-    semver.satisfies(nodeVer, '<14.17')
+    semver.satisfies(nodeVer, '<14.18')
   ) {
     return msg;
   }
