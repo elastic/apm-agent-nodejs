@@ -6,6 +6,12 @@
 
 'use strict';
 
+const isKoaIncompat = require('../../../_is_koa_incompat')();
+if (isKoaIncompat) {
+  console.log(`# SKIP: ${isKoaIncompat}`);
+  process.exit(0);
+}
+
 const agent = require('../../../..').start({
   captureExceptions: true,
   metricsInterval: 0,
