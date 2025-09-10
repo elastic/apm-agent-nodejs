@@ -177,7 +177,7 @@
     "json": "^11.0.0",
     "kafkajs": "^2.2.4",
     "knex": "^3.0.1",
-    "koa": "^3.0.0",
+    "koa": "^3.0.1",
     "koa-bodyparser": "^4.3.0",
     "koa-router": "^13.0.1",
     "lambda-local": "^2.0.2",
