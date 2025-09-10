@@ -37,7 +37,7 @@ jobs:
         github.actor != 'dependabot[bot]' &&
         github.actor != 'elastic-renovate-prod[bot]' &&
         github.actor != 'elastic-observability-automation[bot]'
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           github.rest.issues.addLabels({

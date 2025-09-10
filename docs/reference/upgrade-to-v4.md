@@ -1,6 +1,12 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/nodejs/current/upgrade-to-v4.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_node: ga
 ---
 
 # Upgrade to v4.x [upgrade-to-v4]
@@ -16,7 +22,7 @@ Version 4.x of `elastic-apm-node` supports Node.js v14.17.0 and later. (The prev
 
 ### `ELASTIC_APM_KUBERNETES_*` [_elastic_apm_kubernetes]
 
-Support for the following Kubernetes environment variables have been removed: `ELASTIC_APM_KUBERNETES_NAMESPACE`, `ELASTIC_APM_KUBERNETES_NODE_NAME`, `ELASTIC_APM_KUBERNETES_POD_NAME`, and `ELASTIC_APM_KUBERNETES_POD_UID`. The correct environment variables for these config vars are *without* the `ELASTIC_APM_` prefix — for example [`KUBERNETES_POD_NAME`](/reference/configuration.md#kubernetes-pod-name) — and has been documented that way since v2.11.0.
+Support for the following Kubernetes environment variables have been removed: `ELASTIC_APM_KUBERNETES_NAMESPACE`, `ELASTIC_APM_KUBERNETES_NODE_NAME`, `ELASTIC_APM_KUBERNETES_POD_NAME`, and `ELASTIC_APM_KUBERNETES_POD_UID`. The correct environment variables for these config vars are *without* the `ELASTIC_APM_` prefix — for example [`KUBERNETES_POD_NAME`](/reference/configuration.md#kubernetes-pod-name) — and has been documented that way since v2.11.0.
 
 **How to check.** Search for any usage of `ELASTIC_APM_KUBERNETES_` in your project. For example, using [ripgrep](https://github.com/BurntSushi/ripgrep), run `rg ELASTIC_APM_KUBERNETES_`. If there are any hits, remove the `ELASTIC_APM_` prefix.
 
