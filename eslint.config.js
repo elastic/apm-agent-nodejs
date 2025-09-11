@@ -50,9 +50,7 @@ module.exports = [
         fetch: false, // not present in node globals (readonly)
       },
       parserOptions: {
-        ecmaFeatures: {
-          jsx: true, // to parse nextjs files
-        },
+        ecmaFeatures: {},
       },
     },
     plugins: {
