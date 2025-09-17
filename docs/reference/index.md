@@ -30,4 +30,4 @@ APM Agents work in conjunction with the [APM Server](docs-content://solutions/ob
 
 ## Troubleshooting
 
-If you're experiencing issues with the APM Node.js agent, refer to [Troubleshooting](docs-content:///troubleshoot/observability/apm-agent-nodejs/apm-nodejs-agent.md).
+If you're experiencing issues with the APM Node.js agent, refer to [Troubleshooting](docs-content://troubleshoot/observability/apm-agent-nodejs/apm-nodejs-agent.md).
