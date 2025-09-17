@@ -28,3 +28,6 @@ These events, called Transactions and Spans, are sent to the APM Server. The APM
 
 APM Agents work in conjunction with the [APM Server](docs-content://solutions/observability/apm/index.md), [Elasticsearch](docs-content://get-started/index.md), and [Kibana](docs-content://get-started/the-stack.md). The [APM Guide](docs-content://solutions/observability/apm/index.md) provides details on how these components work together, and provides a matrix outlining [Agent and Server compatibility](docs-content://solutions/observability/apm/apm-agent-compatibility.md).
 
+## Troubleshooting
+
+If you're experiencing issues with the APM Node.js agent, refer to [Troubleshooting](docs-content:///troubleshoot/observability/apm-agent-nodejs/apm-nodejs-agent.md).
