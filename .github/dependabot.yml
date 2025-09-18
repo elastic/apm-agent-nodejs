@@ -12,7 +12,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 10
     ignore:
       # For mimic-response, ignore all versions https://github.com/elastic/apm-agent-nodejs/pull/3349#issuecomment-1549517238
@@ -63,7 +63,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 5
 
   - package-ecosystem: "npm"
@@ -71,7 +71,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 5
 
   - package-ecosystem: "npm"
@@ -79,7 +79,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 5
 
   - package-ecosystem: "npm"
@@ -87,7 +87,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 5
 
   - package-ecosystem: "npm"
@@ -95,7 +95,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 5
 
   - package-ecosystem: "npm"
@@ -103,7 +103,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 5
 
   # GitHub actions
