@@ -40,3 +40,5 @@ toc:
       - file: upgrade-to-v3.md
       - file: upgrade-to-v2.md
       - file: upgrade-to-v1.md
+  - title: Troubleshooting
+    crosslink: docs-content://troubleshoot/observability/apm-agent-nodejs/apm-nodejs-agent.md

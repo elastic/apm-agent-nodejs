@@ -5,6 +5,13 @@
  */
 
 'use strict';
+
+const isKoaIncompat = require('../_is_koa_incompat')();
+if (isKoaIncompat) {
+  console.log(`# SKIP: ${isKoaIncompat}`);
+  process.exit(0);
+}
+
 const { createAgentConfig } = require('./_shared');
 const agent = require('../..').start(createAgentConfig());
 const {

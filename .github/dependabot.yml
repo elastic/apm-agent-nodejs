@@ -11,6 +11,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
     open-pull-requests-limit: 10
     ignore:
       # For mimic-response, ignore all versions https://github.com/elastic/apm-agent-nodejs/pull/3349#issuecomment-1549517238
@@ -59,36 +61,48 @@ updates:
     directory: "/test/instrumentation/azure-functions/fixtures/azfunc3"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
     open-pull-requests-limit: 5
 
   - package-ecosystem: "npm"
     directory: "/test/instrumentation/azure-functions/fixtures/azfunc4"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
     open-pull-requests-limit: 5
 
   - package-ecosystem: "npm"
     directory: "/test/opentelemetry-bridge"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
     open-pull-requests-limit: 5
 
   - package-ecosystem: "npm"
     directory: "/test/opentelemetry-metrics/fixtures"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
     open-pull-requests-limit: 5
 
   - package-ecosystem: "npm"
     directory: "/examples/opentelemetry-bridge"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
     open-pull-requests-limit: 5
 
   - package-ecosystem: "npm"
     directory: "/examples/opentelemetry-metrics"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
     open-pull-requests-limit: 5
 
   # GitHub actions
