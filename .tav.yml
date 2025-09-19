@@ -420,7 +420,7 @@ restify:
 # - #1086 suggests fastify@2.4.0 was a broken release, skip it.
 # - fastify@4.0.1 is broken: https://github.com/fastify/fastify/issues/3998#issuecomment-1153662513
 # - fastify@4.16.0 - 4.16.2 (inclusive) are broken releases
-# - fastify@4.27.0 bumped to `pino@^9.0.0` which is using `tracingChannel` API. Breaking support for nodejs <18.19.0
+# - fastify@4.27.0 bumped to `pino@^9.0.0`, `pino@9.10.0` is using Node.js' `tracingChannel` API. Breaking support for nodejs <18.19.0
 # - Do not run "test/sanitize-field-names/fastify.test.js" for older fastify,
 #   because the test file uses '@fastify/formbody', which only has versions
 #   for fastify >=3.
