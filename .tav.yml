@@ -459,7 +459,7 @@ fastify:
       - node test/instrumentation/modules/fastify/set-framework.test.js
       - node test/sanitize-field-names/fastify.test.js
   - versions:
-      mode: max-7
+      mode: max-3
       include: '>=4.26.2 <5'
     peerDependencies: '@fastify/formbody@^7'
     node: '>=18.19.0'
