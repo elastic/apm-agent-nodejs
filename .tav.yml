@@ -420,12 +420,13 @@ restify:
 # - #1086 suggests fastify@2.4.0 was a broken release, skip it.
 # - fastify@4.0.1 is broken: https://github.com/fastify/fastify/issues/3998#issuecomment-1153662513
 # - fastify@4.16.0 - 4.16.2 (inclusive) are broken releases
+# - fastify@4.27.0 bumped to `pino@^9.0.0`, `pino@9.10.0` is using Node.js' `tracingChannel` API. Breaking support for nodejs <18.19.0
 # - Do not run "test/sanitize-field-names/fastify.test.js" for older fastify,
 #   because the test file uses '@fastify/formbody', which only has versions
 #   for fastify >=3.
 fastify:
   - versions: '1.0.0 || 1.14.6' # subset of '1.x'
-    node: '>=6 <12'
+    node: '<15'
     commands:
       - node test/instrumentation/modules/fastify/fastify.test.js
       - node test/instrumentation/modules/fastify/async-await.test.js
@@ -448,10 +449,20 @@ fastify:
       - node test/sanitize-field-names/fastify.test.js
   - versions:
       mode: max-7
-      include: '>=4 <5'
+      include: '>=4 <4.26.2'
       exclude: '4.0.1 || >=4.16.0 <=4.16.2'
     peerDependencies: '@fastify/formbody@^7'
     node: '>=14.6.0'
+    commands:
+      - node test/instrumentation/modules/fastify/fastify.test.js
+      - node test/instrumentation/modules/fastify/async-await.test.js
+      - node test/instrumentation/modules/fastify/set-framework.test.js
+      - node test/sanitize-field-names/fastify.test.js
+  - versions:
+      mode: max-3
+      include: '>=4.26.2 <5'
+    peerDependencies: '@fastify/formbody@^7'
+    node: '>=18.19.0'
     commands:
       - node test/instrumentation/modules/fastify/fastify.test.js
       - node test/instrumentation/modules/fastify/async-await.test.js
