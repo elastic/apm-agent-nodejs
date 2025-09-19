@@ -192,9 +192,7 @@ function loadSupportedDoc() {
         );
       }
       var moduleNames;
-      if (match[1] === 'nextjs') {
-        moduleNames = ['next'];
-      } else if (match[2] === '@hapi/hapi') {
+      if (match[2] === '@hapi/hapi') {
         moduleNames = [match[2]];
       } else if (match[2] === '@opentelemetry/api') {
         moduleNames = [match[2]];
@@ -261,12 +259,6 @@ function bitrot(moduleNames) {
     yaml.load(fs.readFileSync('./test/opentelemetry-bridge/.tav.yml', 'utf8')),
     yaml.load(
       fs.readFileSync('./test/opentelemetry-metrics/fixtures/.tav.yml', 'utf8'),
-    ),
-    yaml.load(
-      fs.readFileSync(
-        'test/instrumentation/modules/next/a-nextjs-app/.tav.yml',
-        'utf8',
-      ),
     ),
   ];
   var supported = loadSupportedDoc();

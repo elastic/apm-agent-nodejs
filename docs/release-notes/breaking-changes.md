@@ -23,6 +23,18 @@ To learn how to upgrade, check out [Upgrading](/reference/upgrading.md).
 % **Action**<br> Steps for mitigating deprecation impact.
 % ::::
 
+## Next version [next-version]
+**Release date:** REPLACEME Month day, year
+
+::::{dropdown} Drop support for directly instrumenting Next.js
+Direct instrumentation of the `next` npm package has been removed.
+Instrumentation of Next.js was a technical preview and only ever supported
+instrumenting next versions 12.0.0 - 13.3.0, all of which are now obsolete.
+It is recommended that Next.js users use the [native OpenTelemetry instrumentation](https://nextjs.org/docs/app/guides/open-telemetry)
+included in Next.js itself.
+For more information, check [PR #4757](https://github.com/elastic/apm-agent-nodejs/pull/4757).
+::::
+
 ## 4.2.0 [4-2-0]
 **Release date:** November 23, 2023
 
