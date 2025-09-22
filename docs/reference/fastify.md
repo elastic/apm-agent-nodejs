@@ -151,7 +151,7 @@ But in many cases, information about the HTTP request itself isn’t enough. To 
 
 See [*Supported technologies*](/reference/supported-technologies.md) for details.
 
-See also: [Fastify’s own LTS documentation.](https://www.fastify.io/docs/latest/LTS/)
+See also: [Fastify’s own LTS documentation.](https://fastify.dev/docs/latest/Reference/LTS/)
 
 
 ## Troubleshooting [fastify-troubleshooting]
