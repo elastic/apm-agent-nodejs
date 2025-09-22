@@ -19,7 +19,6 @@ To get you off the ground, we’ve prepared guides for setting up the Agent with
 * [Get started with Fastify](/reference/fastify.md)
 * [Get started with hapi](/reference/hapi.md)
 * [Get started with Koa](/reference/koa.md)
-* [Get started with Next.js](/reference/nextjs.md)
 * [Get started with Restify](/reference/restify.md)
 * [Get started with TypeScript](/reference/typescript.md)
 

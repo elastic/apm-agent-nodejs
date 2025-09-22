@@ -36,7 +36,6 @@ updates:
         update-types: ["version-update:semver-major"]
       # Packages whose newer versions are not supported by the agent
       - dependency-name: "koa-router" # support is >=5.2.0 <14.0.0
-      - dependency-name: "next" # support is >=12.0.0 <13.3.0
       - dependency-name: "redis" # support is >=2.0.0 <5
     groups:
       aws-sdk:
