@@ -2,6 +2,10 @@
   "name": "elastic-apm-node",
   "version": "4.13.0",
   "description": "The official Elastic APM agent for Node.js",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "type": "commonjs",
   "main": "index.js",
   "types": "index.d.ts",

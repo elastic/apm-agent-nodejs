@@ -26,6 +26,16 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 % ### Fixes [next-fixes]
 
+## 4.13.1 [4-13-1]
+**Release date:** Sep 25, 2025
+
+(See [breaking changes](./breaking-changes.md) in this release.)
+
+### Chores [4-13-1-chores]
+
+* Switch to trusted publishing (https://docs.npmjs.com/trusted-publishers) as a security precaution against supply-chain attacks. ([#4793](https://github.com/elastic/apm-agent-nodejs/pull/4793))
+
+
 ## 4.13.0 [4-13-0]
 **Release date:** May 6, 2025
 
@@ -36,7 +46,7 @@ To check for security updates, go to [Security announcements for the Elastic sta
 ## 4.12.0 [4-12-0]
 **Release date:** April 24, 2025
 
-### Features and enhancements [4-12-0-next-features-enhancements]
+### Features and enhancements [4-12-0-features-enhancements]
 
 * Get sourcemap handling for captured exceptions to work with stack frames in
   ES Modules (ESM). Before this, sourcemap handling would only work for stack
