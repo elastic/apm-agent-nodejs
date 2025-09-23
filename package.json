@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "4.13.0",
+  "version": "4.13.1",
   "description": "The official Elastic APM agent for Node.js",
   "publishConfig": {
     "access": "public",
