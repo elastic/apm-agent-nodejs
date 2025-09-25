@@ -10,7 +10,7 @@ on:
 permissions:
   attestations: write
   contents: write
-  id-token: write
+  id-token: write # required for OIDC and provenance (npm publish)
   pull-requests: read
 
 jobs:
@@ -25,7 +25,8 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          node-version: 'v16.20.2'
+          # Require npm 11.5.1 or later for https://docs.npmjs.com/trusted-publishers.
+          node-version: 'v24.8.0'
 
       # Setup a Docker "buildx" builder container, used by "build-push-action"
       # below for multi-platform image builds. Notes on multi-platform images:
@@ -133,9 +134,8 @@ jobs:
 
       - name: npm publish (only for tag release)
         if: startsWith(github.ref, 'refs/tags')
-        run: |-
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
-          npm publish --provenance
+        # https://docs.npmjs.com/trusted-publishers
+        run: npm publish
 
       - if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
         uses: elastic/oblt-actions/slack/notify-result@v1

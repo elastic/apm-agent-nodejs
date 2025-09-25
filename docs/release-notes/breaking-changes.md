@@ -23,8 +23,8 @@ To learn how to upgrade, check out [Upgrading](/reference/upgrading.md).
 % **Action**<br> Steps for mitigating deprecation impact.
 % ::::
 
-## Next version [next-version]
-**Release date:** REPLACEME Month day, year
+## 4.14.0 [4-14-0]
+**Release date:** Sep 25, 2025
 
 ::::{dropdown} Drop support for directly instrumenting Next.js
 Direct instrumentation of the `next` npm package has been removed.
