@@ -21,17 +21,23 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 % ## Next [next]
 % **Release date:** Month day, year
-
+%
 % ### Features and enhancements [next-features-enhancements]
-
+%
 % ### Fixes [next-fixes]
 
-## 4.13.1 [4-13-1]
+## 4.14.0 [4-14-0]
 **Release date:** Sep 25, 2025
 
 (See [breaking changes](./breaking-changes.md) in this release.)
 
-### Chores [4-13-1-chores]
+### Fixes [4-14-0-fixes]
+
+* Mark the published AWS Lambda layers as supporting the "nodejs22.x" Lambda Runtime (`--compatible-runtimes`). The "nodejs22.x" runtime was released by AWS on 2024-11-21. ([#4795](https://github.com/elastic/apm-agent-nodejs/pull/4795))
+
+    Note that this Node.js APM agent supports Node.js 22.x, so the new AWS Lambda runtime was supported when it was released. However, the metadata stating compatible runtimes (which is advisory) was not updated until now.
+
+### Chores [4-14-0-chores]
 
 * Switch to trusted publishing (https://docs.npmjs.com/trusted-publishers) as a security precaution against supply-chain attacks. ([#4793](https://github.com/elastic/apm-agent-nodejs/pull/4793))
 

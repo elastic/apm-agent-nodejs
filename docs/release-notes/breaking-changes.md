@@ -23,7 +23,7 @@ To learn how to upgrade, check out [Upgrading](/reference/upgrading.md).
 % **Action**<br> Steps for mitigating deprecation impact.
 % ::::
 
-## 4.13.1 [4-13-1]
+## 4.14.0 [4-14-0]
 **Release date:** Sep 25, 2025
 
 ::::{dropdown} Drop support for directly instrumenting Next.js
