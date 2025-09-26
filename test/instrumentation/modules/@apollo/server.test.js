@@ -7,9 +7,22 @@
 'use strict';
 
 const semver = require('semver');
+const { safeGetPackageVersion } = require('../../../_utils');
+
 if (semver.lt(process.version, '14.16.0')) {
   console.log(
     `# SKIP @apollo/server does not officially support node ${process.version} (14.16.0 or later required)`,
+  );
+  process.exit();
+}
+const apolloVersion = safeGetPackageVersion('@apollo/server');
+if (
+  semver.lt(process.version, '20.0.0') &&
+  semver.gte(apolloVersion, '5.0.0')
+) {
+  // https://github.com/apollographql/apollo-server/releases/tag/%40apollo%2Fserver%405.0.0
+  console.log(
+    `# SKIP @apollo/server ${apolloVersion} does not officially support node ${process.version} (v20 or later required)`,
   );
   process.exit();
 }
