@@ -71,8 +71,8 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 ### Features and enhancements [4-11-1-features-enhancements]
 
-* Update base image of alpine in `Dockerfile` to version `3.21.3`. ([#4465](https://github.com/elastic/apm-agent-nodejs/pulls/4465))
-* Test FIPS 140 compliance. ([#4441](https://github.com/elastic/apm-agent-nodejs/pulls/4441))
+* Update base image of alpine in `Dockerfile` to version `3.21.3`. ([#4465](https://github.com/elastic/apm-agent-nodejs/pull/4465))
+* Test FIPS 140 compliance. ([#4441](https://github.com/elastic/apm-agent-nodejs/pull/4441))
 
 ### Fixes [4-11-1-fixes]
 
