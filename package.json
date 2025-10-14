@@ -120,7 +120,7 @@
     "pino": "^8.15.0",
     "readable-stream": "^3.6.2",
     "relative-microtime": "^2.0.0",
-    "require-in-the-middle": "^7.1.1",
+    "require-in-the-middle": "^8.0.0",
     "semver": "^7.5.4",
     "shallow-clone-shim": "^2.0.0",
     "source-map": "^0.8.0-beta.0",
