@@ -26,6 +26,40 @@ To check for security updates, go to [Security announcements for the Elastic sta
 %
 % ### Fixes [next-fixes]
 
+## Next [next]
+% **Release date:** Month day, year
+
+### Features and enhancements [next-features-enhancements]
+
+* Redact the `Cookie` HTTP request header by default, because it is often sensitive.
+
+    The `Cookie` pattern has been added to the [`sanitizeFieldNames`](/reference/configuration.md#sanitize-field-names) configuration variable. This means that when headers are captured (if `captureHeaders` is enabled, as it is by default), the `Cookie` header will be fully redacted:
+
+    ```
+    http.request.headers.cookie: "[REDACTED]"
+    ```
+
+    The result in earlier versions was to parse the Cookie header and redact only those fields that matched patterns in `sanitizeFieldNames`, for example:
+
+    ```
+    http.request.headers.cookie: "foo=bar; sessionid=REDACTED"
+    ```
+
+    To restore the previous behavior, specify a `sanitizeFieldNames` configuration value that does *not* include 'cookie'. For example:
+
+    ```js
+    require('elastic-apm-node').start({
+      // ...
+      sanitizeFieldNames: ['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', '*auth*', 'set-cookie', '*principal*', 'pw', 'pass', 'connect.sid']
+    });
+    ```
+
+    or:
+
+    ```
+    export ELASTIC_APM_SANITIZE_FIELD_NAMES=password,passwd,pwd,secret,*key,*token*,*session*,*credit*,*card*,*auth*,set-cookie,*principal*,pw,pass,connect.sid
+    ```
+
 ## 4.14.0 [4-14-0]
 **Release date:** Sep 25, 2025
 
