@@ -751,7 +751,7 @@ require('elastic-apm-node').start({
 ## `sanitizeFieldNames` [sanitize-field-names]
 
 * **Type:** Array
-* **Default:** `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', '*auth*', 'set-cookie', '*principal*', 'pw', 'pass', 'connect.sid']`
+* **Default:** `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', '*auth*', 'set-cookie', '*principal*', 'pw', 'pass', 'connect.sid', 'cookie']`
 * **Env:** `ELASTIC_APM_SANITIZE_FIELD_NAMES`
 * [![dynamic config](images/dynamic-config.svg "") ](/reference/configuring-agent.md#dynamic-configuration) **Central config name:** `sanitize_field_names`
 
