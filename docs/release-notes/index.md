@@ -26,10 +26,10 @@ To check for security updates, go to [Security announcements for the Elastic sta
 %
 % ### Fixes [next-fixes]
 
-## Next [next]
-% **Release date:** Month day, year
+## 4.15.0 [4-15-0]
+**Release date:** Oct 16, 2025
 
-### Features and enhancements [next-features-enhancements]
+### Features and enhancements [4-15-0-features-enhancements]
 
 * Redact the `Cookie` HTTP request header by default, because it is often sensitive.
 
