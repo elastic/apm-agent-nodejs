@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           # Require npm 11.5.1 or later for https://docs.npmjs.com/trusted-publishers.
           node-version: 'v24.8.0'
