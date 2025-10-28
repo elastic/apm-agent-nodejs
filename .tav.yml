@@ -255,7 +255,9 @@ koa-router:
     commands: node test/instrumentation/modules/koa-router/new-name.test.js
 
 elasticsearch:
-  versions: '>=8.0.0'
+  versions:
+    mode: max-5
+    include: '>=8.0.0 <17'
   commands: node test/instrumentation/modules/elasticsearch.test.js
 
 # @elastic/elasticsearch
@@ -308,7 +310,7 @@ handlebars:
 pug:
   - versions: '0.1.0 || >2.0.0 <3.0.0'
     commands: node test/instrumentation/modules/pug.test.js
-  - versions: '>=3.0.0'
+  - versions: '>=3.0.0 <4'
     node: '>8'
     commands: node test/instrumentation/modules/pug.test.js
 
@@ -483,7 +485,7 @@ finalhandler:
     commands: node test/instrumentation/modules/finalhandler.test.js
 
 memcached:
-  versions: '>=2.2.0'
+  versions: '>=2.2.0 <3'
   commands: node test/instrumentation/modules/memcached.test.js
 
 aws-sdk:
