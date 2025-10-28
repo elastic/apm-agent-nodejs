@@ -89,7 +89,7 @@ The Node.js agent will automatically instrument the following modules to give yo
 | [@aws-sdk/client-dynamodb](https://www.npmjs.com/package/@aws-sdk/client-dynamodb) | >=3.15.0 <4 | Will instrument all DynamoDB methods |
 | [cassandra-driver](https://www.npmjs.com/package/cassandra-driver) | >=3.0.0 <5 | Will instrument all queries |
 | [elasticsearch](https://www.npmjs.com/package/elasticsearch) | >=8.0.0 <17 | Will instrument all queries |
-| [@elastic/elasticsearch](https://www.npmjs.com/package/@elastic/elasticsearch) | >=7.0.0 <9.0.0 | Will instrument all queries |
+| [@elastic/elasticsearch](https://www.npmjs.com/package/@elastic/elasticsearch) | >=7.0.0 <10.0.0 | Will instrument all queries |
 | [graphql](https://www.npmjs.com/package/graphql) | >=0.7.0 <17 | Will instrument all queries |
 | [handlebars](https://www.npmjs.com/package/handlebars) | >=1 <5 | Will instrument compile and render calls |
 | [jade](https://www.npmjs.com/package/jade) | >=0.5.6 <2 | Will instrument compile and render calls; Deprecated. No longer tested. Use pug. |
