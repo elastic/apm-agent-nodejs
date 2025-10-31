@@ -73,7 +73,7 @@ By default transactions are named based on their matched HTTP route if the frame
 | --- | --- | --- |
 | [express-graphql](https://www.npmjs.com/package/express-graphql) | >=0.6.1 <0.13.0 | Will name all transactions by the GraphQL query name. There is a [known issue with node <10.4](https://github.com/elastic/apm-agent-nodejs/issues/2516). This module is deprecated and is no longer tested. |
 | [apollo-server-express](https://www.npmjs.com/package/apollo-server-express) | >=2.0.4 <4 | Will name all transactions by the GraphQL query name. Versions before 2.9.6 are no longer tested. |
-| [@apollo/server](https://www.npmjs.com/package/@apollo/server) | >=4.0.0 | Will name all transactions by the GraphQL query name |
+| [@apollo/server](https://www.npmjs.com/package/@apollo/server) | >=4.0.0 <5 | Will name all transactions by the GraphQL query name |
 
 
 ## Tracing and Instrumentation [compatibility-tracing-and-instrumentation]
