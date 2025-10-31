@@ -60,6 +60,8 @@ To check for security updates, go to [Security announcements for the Elastic sta
     export ELASTIC_APM_SANITIZE_FIELD_NAMES=password,passwd,pwd,secret,*key,*token*,*session*,*credit*,*card*,*auth*,set-cookie,*principal*,pw,pass,connect.sid
     ```
 
+### Chores [next-chores]
+
 * Cap the major supported version of `@apollo/server` to v4.
 
 ## 4.14.0 [4-14-0]
