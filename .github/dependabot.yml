@@ -37,6 +37,8 @@ updates:
       # Packages whose newer versions are not supported by the agent
       - dependency-name: "koa-router" # support is >=5.2.0 <14.0.0
       - dependency-name: "redis" # support is >=2.0.0 <5
+      - dependency-name: "@apollo/server" # support is >=4.0.0 <5 so we will ignore any major release
+        update-types: ["version-update:semver-major"]
     groups:
       aws-sdk:
         dependency-type: "development"
