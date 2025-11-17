@@ -56,7 +56,7 @@ require('elastic-apm-node').start({
 
 See [the full APM agent configuration reference](/reference/configuration.md) for other configuration options.
 
-③ Finally, you can use the [OpenTelemetry API](https://open-telemetry.github.io/opentelemetry-js/modules/_opentelemetry_api.html) for any manual tracing in your code. For example, the following script uses [Tracer#startActiveSpan()](https://open-telemetry.github.io/opentelemetry-js/interfaces/_opentelemetry_api.Tracer.html#startActiveSpan) to trace an outgoing HTTPS request:
+③ Finally, you can use the [OpenTelemetry API](https://open-telemetry.github.io/opentelemetry-js/modules/_opentelemetry_api.html) for any manual tracing in your code. For example, the following script uses [Tracer#startActiveSpan()](https://open-telemetry.github.io/opentelemetry-js/interfaces/_opentelemetry_api._opentelemetry_api.Tracer.html#startactivespan) to trace an outgoing HTTPS request:
 
 ```js
 const https = require('https')
@@ -96,7 +96,7 @@ export NODE_OPTIONS='-r elastic-apm-node/start.js'  # Tell node to preload and s
 node my-app.js
 ```
 
-③ Finally, you can use the OpenTelemetry Metrics API, to [create metrics](https://open-telemetry.github.io/opentelemetry-js/interfaces/_opentelemetry_api.Meter.html) and the APM agent will periodically ship those metrics to your Elastic APM deployment where you can visualize them in Kibana.
+③ Finally, you can use the OpenTelemetry Metrics API, to [create metrics](https://open-telemetry.github.io/opentelemetry-js/interfaces/_opentelemetry_api._opentelemetry_api.Meter.html) and the APM agent will periodically ship those metrics to your Elastic APM deployment where you can visualize them in Kibana.
 
 ```js
 // otel-metrics-hello-world.js <1>
@@ -176,9 +176,9 @@ Not all features of the OpenTelemetry API are supported. This section describes 
 
 #### Tracing [otel-caveats-tracing]
 
-* Span Link Attributes. Adding links when [starting a span](https://open-telemetry.github.io/opentelemetry-js/interfaces/\_opentelemetry_api.Tracer.md) is supported, but any added span link **attributes** are silently dropped.
-* Span events ([`Span#addEvent()`](https://open-telemetry.github.io/opentelemetry-js/interfaces/_opentelemetry_api.Span.html#addEvent)) are not currently supported. Events will be silently dropped.
-* [Propagating baggage](https://open-telemetry.github.io/opentelemetry-js/classes/_opentelemetry_api.PropagationAPI.html) within or outside the process is not supported. Baggage items are silently dropped.
+* Span Link Attributes. Adding links when [starting a span](https://open-telemetry.github.io/opentelemetry-js/interfaces/_opentelemetry_api._opentelemetry_api.Tracer.html) is supported, but any added span link **attributes** are silently dropped.
+* Span events ([`Span#addEvent()`](https://open-telemetry.github.io/opentelemetry-js/interfaces/_opentelemetry_api._opentelemetry_api.Span.html#addevent)) are not currently supported. Events will be silently dropped.
+* [Propagating baggage](https://open-telemetry.github.io/opentelemetry-js/classes/_opentelemetry_api._opentelemetry_api.PropagationAPI.html) within or outside the process is not supported. Baggage items are silently dropped.
 
 
 #### Metrics [otel-caveats-metrics]
