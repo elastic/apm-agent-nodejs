@@ -34,7 +34,7 @@ jobs:
       matrix:
         node: [ "23" ]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: .ci/scripts/test.sh -b "nightly" "${{ matrix.node }}"
 
   # This should list all the Node.js major versions listed at
@@ -55,7 +55,7 @@ jobs:
           - "20"
           - "18"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: .ci/scripts/test.sh -b "rc" "${{ matrix.node }}"
         env:
           VERSION: ${{ matrix.node }}
