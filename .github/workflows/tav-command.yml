@@ -41,7 +41,7 @@ jobs:
               return;
             }
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -141,7 +141,7 @@ jobs:
         module_and_node: ${{ fromJSON(needs.command-validation.outputs.permutations) }}
     steps:
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
