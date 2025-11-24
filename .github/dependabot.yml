@@ -39,6 +39,8 @@ updates:
       - dependency-name: "redis" # support is >=2.0.0 <5
       - dependency-name: "@apollo/server" # support is >=4.0.0 <5 so we will ignore any major release
         update-types: ["version-update:semver-major"]
+      - dependency-name: "mongodb" # support is >=3.3.0 <7 so we will ignore any major release
+        update-types: ["version-update:semver-major"]
     groups:
       aws-sdk:
         dependency-type: "development"
