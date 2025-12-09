@@ -33,7 +33,6 @@
     { "name": "mysql2", "minMajorVersion": 8 },
     { "name": "pg", "minMajorVersion": 8 },
     { "name": "redis", "minMajorVersion": 8 },
-    { "name": "restify", "minMajorVersion": 14 },
     { "name": "tedious", "minMajorVersion": 8 },
     { "name": "undici", "minMajorVersion": 8 },
     { "name": "ws", "minMajorVersion": 8 },
