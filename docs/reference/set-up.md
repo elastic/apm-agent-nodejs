@@ -19,7 +19,6 @@ To get you off the ground, we’ve prepared guides for setting up the Agent with
 * [Get started with Fastify](/reference/fastify.md)
 * [Get started with hapi](/reference/hapi.md)
 * [Get started with Koa](/reference/koa.md)
-* [Get started with Restify](/reference/restify.md)
 * [Get started with TypeScript](/reference/typescript.md)
 
 Alternatively, you can [Get started with a custom Node.js stack](/reference/custom-stack.md). For Kubernetes, we support auto-attachment using the [APM attacher](apm-k8s-attacher://reference/index.md).

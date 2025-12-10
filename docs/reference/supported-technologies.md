@@ -52,7 +52,7 @@ Though you can use Elastic APM [with any Node.js framework](/reference/custom-st
 | [Fastify](/reference/fastify.md) | >=2.0.0 <6 | See also [Fastify’s own LTS documentation](https://www.fastify.io/docs/latest/Reference/LTS/) |
 | [@hapi/hapi](/reference/hapi.md) | >=17.9.0 <22.0.0 |  |
 | [Koa](/reference/koa.md) via koa-router or @koa/router | >=5.2.0 <14.0.0 | Koa doesn’t have a built in router, so we can’t support Koa directly since we rely on router information for full support. We currently support the most popular Koa router called [koa-router](https://github.com/koajs/koa-router). |
-| [Restify](/reference/restify.md) | >=5.2.0 <12.0.0 |  |
+| [Restify](https://github.com/restify/node-restify) | >=5.2.0 <12.0.0 | Restify no longer receives maintenance, so this instrumentation is no longer tested. |
 
 
 ## OpenTelemetry [compatibility-opentelemetry]

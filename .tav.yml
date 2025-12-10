@@ -389,32 +389,6 @@ cassandra-driver:
     node: '>=18'
     commands: node test/instrumentation/modules/cassandra-driver/cassandra-driver.test.js
 
-# Restify
-# - restify <v10 doesn't work with node v18+ (https://github.com/restify/node-restify/issues/1888)
-# - restify v9 used `require('node:...')` that requires node >v14.18.0
-#   (https://nodejs.org/api/modules.html#core-modules)
-restify:
-  - versions: '>=5.2.0 <8.0.0'
-    node: '<18.0.0'
-    commands:
-      - node test/instrumentation/modules/restify/basic.test.js
-      - node test/instrumentation/modules/restify/set-framework.test.js
-  - versions: '>=8.0.0 <9.0.0'
-    node: '>=8.6.0 <18.0.0'
-    commands:
-      - node test/instrumentation/modules/restify/basic.test.js
-      - node test/instrumentation/modules/restify/set-framework.test.js
-  - versions: '>=9.0.0 <10.0.0'
-    node: '>=14.18.0 <18.0.0'
-    commands:
-      - node test/instrumentation/modules/restify/basic.test.js
-      - node test/instrumentation/modules/restify/set-framework.test.js
-  - versions: '>=10.0.0 <12.0.0'
-    node: '>=14.18.0'
-    commands:
-      - node test/instrumentation/modules/restify/basic.test.js
-      - node test/instrumentation/modules/restify/set-framework.test.js
-
 # https://www.fastify.io/docs/latest/LTS/
 # - #1086 suggests fastify@2.4.0 was a broken release, skip it.
 # - fastify@4.0.1 is broken: https://github.com/fastify/fastify/issues/3998#issuecomment-1153662513

@@ -9,7 +9,6 @@ toc:
       - file: fastify.md
       - file: hapi.md
       - file: koa.md
-      - file: restify.md
       - file: typescript.md
       - file: custom-stack.md
       - file: starting-agent.md
