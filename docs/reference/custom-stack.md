@@ -13,7 +13,7 @@ applies_to:
 
 Getting Elastic APM set up for your custom Node.js app is easy, and there are various ways you can tweak it to fit your needs. Follow the guide below to get started, and for more advanced topics, check out the [API Reference](/reference/api.md).
 
-If you are using Express, hapi, Koa, Restify, Fastify, or AWS Lambda, we recommend that you read these articles instead:
+If you are using Express, hapi, Koa, Fastify, or AWS Lambda, we recommend that you read these articles instead:
 
 * [Monitoring AWS Lambda Node.js Functions](/reference/lambda.md)
 * [Monitoring Node.js Azure Functions](/reference/azure-functions.md)
@@ -21,7 +21,6 @@ If you are using Express, hapi, Koa, Restify, Fastify, or AWS Lambda, we recomme
 * [Get started with Fastify](/reference/fastify.md)
 * [Get started with hapi](/reference/hapi.md)
 * [Get started with Koa](/reference/koa.md)
-* [Get started with Restify](/reference/restify.md)
 * [Get started with TypeScript](/reference/typescript.md)
 
 
@@ -104,7 +103,7 @@ The Node.js agent tracks incoming HTTP requests to your application in what are 
 
 In a normal web application, you want to name transactions based on the route that matches the incoming HTTP request. So say you have a route to display posts on a blog identified by `GET /posts/{{id}}`. You want requests `GET /posts/12`, `GET /posts/42` etc to be grouped together under a transaction named `GET /posts/{{id}}`.
 
-If you are using Express, hapi, koa-router, Restify, or Fastify this naming happens automatically based on the names of your routes. If you use another framework or a custom router you will see that the transactions are simply grouped together in a few big chunks named "unknown route". In that case, you will need to help us out a little by supplying a name for each transaction. You can do that by calling [`apm.setTransactionName()`](/reference/agent-api.md#apm-set-transaction-name) at any time during the request with the name of the transaction as the first argument.
+If you are using Express, hapi, koa-router, or Fastify this naming happens automatically based on the names of your routes. If you use another framework or a custom router you will see that the transactions are simply grouped together in a few big chunks named "unknown route". In that case, you will need to help us out a little by supplying a name for each transaction. You can do that by calling [`apm.setTransactionName()`](/reference/agent-api.md#apm-set-transaction-name) at any time during the request with the name of the transaction as the first argument.
 
 Excerpt of an application using the [patterns](https://github.com/watson/patterns) module for route handling:
 

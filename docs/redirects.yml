@@ -1,0 +1,5 @@
+# https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/contribute/redirects
+redirects:
+  'reference/restify.md':
+    to: 'release-notes/index.md'
+    anchors: '!'

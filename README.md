@@ -41,7 +41,6 @@ for the web framework or technology that you are using:
 - [Get started with Fastify](https://www.elastic.co/guide/en/apm/agent/nodejs/current/fastify.html)
 - [Get started with Koa](https://www.elastic.co/guide/en/apm/agent/nodejs/current/koa.html)
 - [Get started with hapi](https://www.elastic.co/guide/en/apm/agent/nodejs/current/hapi.html)
-- [Get started with Restify](https://www.elastic.co/guide/en/apm/agent/nodejs/current/restify.html)
 - [Get started with AWS Lambda](https://www.elastic.co/guide/en/apm/agent/nodejs/current/lambda.html)
 - [Get started with Azure Functions](https://www.elastic.co/guide/en/apm/agent/nodejs/current/azure-functions.html)
 - [Get started with TypeScript](https://www.elastic.co/guide/en/apm/agent/nodejs/current/typescript.html)

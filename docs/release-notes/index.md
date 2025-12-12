@@ -26,6 +26,17 @@ To check for security updates, go to [Security announcements for the Elastic sta
 %
 % ### Fixes [next-fixes]
 
+## Next [next]
+**Release date:** Month day, year
+
+### Features and enhancements [next-features-enhancements]
+
+### Fixes [next-fixes]
+
+### Chores [4-16-0-chores]
+
+* Remove the "Get started with Restify" document and stop testing instrumentation against Restify. Restify is no longer getting maintenance. The instrumentation support for restify is unchanged, so this is not a breaking change. ([#4892](https://github.com/elastic/apm-agent-nodejs/pull/4892))
+
 ## 4.15.0 [4-15-0]
 **Release date:** Oct 16, 2025
 
@@ -60,7 +71,7 @@ To check for security updates, go to [Security announcements for the Elastic sta
     export ELASTIC_APM_SANITIZE_FIELD_NAMES=password,passwd,pwd,secret,*key,*token*,*session*,*credit*,*card*,*auth*,set-cookie,*principal*,pw,pass,connect.sid
     ```
 
-### Chores [next-chores]
+### Chores [4-15-0-chores]
 
 * Cap the major supported version of `@apollo/server` to v4.
 
