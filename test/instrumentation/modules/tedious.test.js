@@ -33,7 +33,7 @@ if (
   // Node.js <16 has been broken.
   (semver.gte(tediousVer, '11.0.0') && semver.lt(process.version, '16.0.0')) ||
   // tedious@19 drops support for Node.js <v18.17
-  (semver.gte(tediousVer, '19.0.0') && semver.lt(process.version, '18.17.0'))
+  (semver.gte(tediousVer, '19.0.0') && !semver.satisfies(process.version, '^18.17.0 || >=20.3.0'))
 ) {
   console.log(
     `# SKIP tedious@${tediousVer} does not support node ${process.version}`,
