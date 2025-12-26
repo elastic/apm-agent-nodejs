@@ -30,6 +30,7 @@ To check for security updates, go to [Security announcements for the Elastic sta
 **Release date:** Month day, year
 
 ### Features and enhancements [next-features-enhancements]
+* Support instrumenting `mongodb` v7. ([#4911](https://github.com/elastic/apm-agent-nodejs/pull/4911))
 
 ### Fixes [next-fixes]
 
