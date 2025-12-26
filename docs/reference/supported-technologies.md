@@ -80,36 +80,36 @@ By default transactions are named based on their matched HTTP route if the frame
 
 The Node.js agent will automatically instrument the following modules to give you detailed performance metrics:
 
-| Module | Version | Note |
-| --- | --- | --- |
-| [aws-sdk](https://www.npmjs.com/package/aws-sdk) | >=2.858.0 <3 | Will instrument SQS send/receive/delete messages, all S3 methods, all DynamoDB methods, and the SNS publish method |
-| [@aws-sdk/client-s3](https://www.npmjs.com/package/@aws-sdk/client-s3) | >=3.15.0 <4 | Will instrument all S3 methods |
-| [@aws-sdk/client-sns](https://www.npmjs.com/package/@aws-sdk/client-s3) | >=3.15.0 <4 | Will instrument the SNS publish method |
-| [@aws-sdk/client-sqs](https://www.npmjs.com/package/@aws-sdk/client-s3) | >=3.15.0 <4 | Will instrument SQS send/receive/delete messages |
-| [@aws-sdk/client-dynamodb](https://www.npmjs.com/package/@aws-sdk/client-dynamodb) | >=3.15.0 <4 | Will instrument all DynamoDB methods |
-| [cassandra-driver](https://www.npmjs.com/package/cassandra-driver) | >=3.0.0 <5 | Will instrument all queries |
-| [elasticsearch](https://www.npmjs.com/package/elasticsearch) | >=8.0.0 <17 | Will instrument all queries |
+| Module | Version         | Note |
+| --- |-----------------| --- |
+| [aws-sdk](https://www.npmjs.com/package/aws-sdk) | >=2.858.0 <3    | Will instrument SQS send/receive/delete messages, all S3 methods, all DynamoDB methods, and the SNS publish method |
+| [@aws-sdk/client-s3](https://www.npmjs.com/package/@aws-sdk/client-s3) | >=3.15.0 <4     | Will instrument all S3 methods |
+| [@aws-sdk/client-sns](https://www.npmjs.com/package/@aws-sdk/client-s3) | >=3.15.0 <4     | Will instrument the SNS publish method |
+| [@aws-sdk/client-sqs](https://www.npmjs.com/package/@aws-sdk/client-s3) | >=3.15.0 <4     | Will instrument SQS send/receive/delete messages |
+| [@aws-sdk/client-dynamodb](https://www.npmjs.com/package/@aws-sdk/client-dynamodb) | >=3.15.0 <4     | Will instrument all DynamoDB methods |
+| [cassandra-driver](https://www.npmjs.com/package/cassandra-driver) | >=3.0.0 <5      | Will instrument all queries |
+| [elasticsearch](https://www.npmjs.com/package/elasticsearch) | >=8.0.0 <17     | Will instrument all queries |
 | [@elastic/elasticsearch](https://www.npmjs.com/package/@elastic/elasticsearch) | >=7.0.0 <10.0.0 | Will instrument all queries |
-| [graphql](https://www.npmjs.com/package/graphql) | >=0.7.0 <17 | Will instrument all queries |
-| [handlebars](https://www.npmjs.com/package/handlebars) | >=1 <5 | Will instrument compile and render calls |
-| [jade](https://www.npmjs.com/package/jade) | >=0.5.6 <2 | Will instrument compile and render calls; Deprecated. No longer tested. Use pug. |
-| [pug](https://www.npmjs.com/package/pug) | >=0.1.0 <4 | Will instrument compile and render calls |
-| [ioredis](https://www.npmjs.com/package/ioredis) | >=2.0.0 <6.0.0 | Will instrument all queries |
-| [memcached](https://www.npmjs.com/package/memcached) | >=2.2.0 <3 | Will instrument all commands. |
-| [mongodb-core](https://www.npmjs.com/package/mongodb-core) | >=1.2.19 <4 | Will instrument all queries.A lot of higher level MongoDB modules use mongodb-core,so those should be supported as well. |
-| [mongodb](https://www.npmjs.com/package/mongodb) | >=2.0.0 <3.3.0 | Supported via mongodb-core |
-| [mongodb](https://www.npmjs.com/package/mongodb) | >=3.3.0 <7 | Will instrument all queries |
-| [mongojs](https://www.npmjs.com/package/mongojs) | >=1.0.0 <2.7.0 | Supported via mongodb-core |
-| [mongoose](https://www.npmjs.com/package/mongoose) | >=4.0.0 <5.7.0 | Supported via mongodb-core |
-| [mongoose](https://www.npmjs.com/package/mongoose) | >=5.7.0 <8 | Supported via mongodb |
-| [mysql](https://www.npmjs.com/package/mysql) | >=2.0.0 <3 | Will instrument all queries |
-| [mysql2](https://www.npmjs.com/package/mysql2) | >=1.0.0 <4.0.0 | Will instrument all queries |
-| [pg](https://www.npmjs.com/package/pg) | >=4.0.0 <9.0.0 | Will instrument all queries |
-| [redis](https://www.npmjs.com/package/redis) | >=2.0.0 <5.0.0 | Will instrument all queries |
-| [tedious](https://www.npmjs.com/package/tedious) | >=1.9 <20.0.0 | (Excluding v4.0.0.) Will instrument all queries |
-| [undici](https://www.npmjs.com/package/undici) | >=4.7.1 <8 | Will instrument undici HTTP requests, except HTTP CONNECT. Requires node v14.17.0 or later, or the user to have installed the [*diagnostics_channel* polyfill](https://www.npmjs.com/package/diagnostics_channel). |
-| [ws](https://www.npmjs.com/package/ws) | >=1.0.0 <8.0.0 | Will instrument outgoing WebSocket messages |
-| [kafkajs](https://www.npmjs.com/package/kafkajs) | >=2.0.0 <3.0.0 | Will instrument all send methods for producers and message and batch processing for consumers. |
+| [graphql](https://www.npmjs.com/package/graphql) | >=0.7.0 <17     | Will instrument all queries |
+| [handlebars](https://www.npmjs.com/package/handlebars) | >=1 <5          | Will instrument compile and render calls |
+| [jade](https://www.npmjs.com/package/jade) | >=0.5.6 <2      | Will instrument compile and render calls; Deprecated. No longer tested. Use pug. |
+| [pug](https://www.npmjs.com/package/pug) | >=0.1.0 <4      | Will instrument compile and render calls |
+| [ioredis](https://www.npmjs.com/package/ioredis) | >=2.0.0 <6.0.0  | Will instrument all queries |
+| [memcached](https://www.npmjs.com/package/memcached) | >=2.2.0 <3      | Will instrument all commands. |
+| [mongodb-core](https://www.npmjs.com/package/mongodb-core) | >=1.2.19 <4     | Will instrument all queries.A lot of higher level MongoDB modules use mongodb-core,so those should be supported as well. |
+| [mongodb](https://www.npmjs.com/package/mongodb) | >=2.0.0 <3.3.0  | Supported via mongodb-core |
+| [mongodb](https://www.npmjs.com/package/mongodb) | >=3.3.0 <8      | Will instrument all queries |
+| [mongojs](https://www.npmjs.com/package/mongojs) | >=1.0.0 <2.7.0  | Supported via mongodb-core |
+| [mongoose](https://www.npmjs.com/package/mongoose) | >=4.0.0 <5.7.0  | Supported via mongodb-core |
+| [mongoose](https://www.npmjs.com/package/mongoose) | >=5.7.0 <8      | Supported via mongodb |
+| [mysql](https://www.npmjs.com/package/mysql) | >=2.0.0 <3      | Will instrument all queries |
+| [mysql2](https://www.npmjs.com/package/mysql2) | >=1.0.0 <4.0.0  | Will instrument all queries |
+| [pg](https://www.npmjs.com/package/pg) | >=4.0.0 <9.0.0  | Will instrument all queries |
+| [redis](https://www.npmjs.com/package/redis) | >=2.0.0 <5.0.0  | Will instrument all queries |
+| [tedious](https://www.npmjs.com/package/tedious) | >=1.9 <20.0.0   | (Excluding v4.0.0.) Will instrument all queries |
+| [undici](https://www.npmjs.com/package/undici) | >=4.7.1 <8      | Will instrument undici HTTP requests, except HTTP CONNECT. Requires node v14.17.0 or later, or the user to have installed the [*diagnostics_channel* polyfill](https://www.npmjs.com/package/diagnostics_channel). |
+| [ws](https://www.npmjs.com/package/ws) | >=1.0.0 <8.0.0  | Will instrument outgoing WebSocket messages |
+| [kafkajs](https://www.npmjs.com/package/kafkajs) | >=2.0.0 <3.0.0  | Will instrument all send methods for producers and message and batch processing for consumers. |
 
 
 ## Better Stack Traces [compatibility-better-stack-traces]
