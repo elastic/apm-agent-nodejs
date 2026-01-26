@@ -91,9 +91,9 @@
   "homepage": "https://github.com/elastic/apm-agent-nodejs",
   "dependencies": {
     "@elastic/ecs-pino-format": "^1.5.0",
-    "@opentelemetry/api": "^1.4.1",
-    "@opentelemetry/core": "^1.11.0",
-    "@opentelemetry/sdk-metrics": "^1.12.0",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/core": "^2.0.0",
+    "@opentelemetry/sdk-metrics": "^2.0.0",
     "after-all-results": "^2.0.0",
     "agentkeepalive": "^4.2.1",
     "async-value-promise": "^1.1.1",
