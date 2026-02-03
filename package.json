@@ -141,7 +141,7 @@
     "@elastic/elasticsearch": "^9.0.0",
     "@fastify/formbody": "^8.0.1",
     "@hapi/hapi": "^21.0.0",
-    "@koa/router": "^13.0.1",
+    "@koa/router": "^15.2.0",
     "@types/node": "^25.0.3",
     "ajv": "^8.12.0",
     "apollo-server-core": "^3.0.0",
