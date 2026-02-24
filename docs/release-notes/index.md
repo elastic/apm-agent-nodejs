@@ -33,6 +33,8 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 ### Fixes [next-fixes]
 
+* Fix a possible infinite loop during Lambda runner freeze.
+
 ### Chores [4-16-0-chores]
 
 * Remove the "Get started with Restify" document and stop testing instrumentation against Restify. Restify is no longer getting maintenance. The instrumentation support for restify is unchanged, so this is not a breaking change. ([#4892](https://github.com/elastic/apm-agent-nodejs/pull/4892))
