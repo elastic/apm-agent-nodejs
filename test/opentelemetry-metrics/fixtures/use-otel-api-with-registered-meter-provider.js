@@ -23,8 +23,9 @@ const { MeterProvider } = require('@opentelemetry/sdk-metrics');
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus');
 
 const exporter = new PrometheusExporter({ host: '127.0.0.1' });
-const meterProvider = new MeterProvider();
-meterProvider.addMetricReader(exporter);
+const meterProvider = new MeterProvider({
+  readers: [exporter],
+});
 otel.metrics.setGlobalMeterProvider(meterProvider);
 
 const meter = otel.metrics.getMeter('test-meter');
