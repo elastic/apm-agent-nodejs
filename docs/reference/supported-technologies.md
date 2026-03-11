@@ -13,7 +13,7 @@ applies_to:
 
 The Elastic APM Node.js Agent automatically instruments various APIs in Node.js core and third-party frameworks and packages. This page lists all supported technologies and version ranges.
 
-Elastic supports OpenTelemetry, which allows logs, metrics, and trace signal collection for many of these technologies. Consider using the [EDOT Node.js SDK](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node) for observability data so you continue to get the full power of Elastic's platform.
+Elastic supports OpenTelemetry, which allows logs, metrics, and trace signal collection for many of these technologies. Consider using the [EDOT Node.js SDK](elastic-otel-node://reference/edot-node/index.md) for observability data so you continue to get the full power of Elastic's platform.
 
 
 ## Node.js versions [compatibility-node]
