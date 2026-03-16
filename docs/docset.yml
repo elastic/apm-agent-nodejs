@@ -9,6 +9,7 @@ cross_links:
   - ecs
   - ecs-logging
   - ecs-logging-nodejs
+  - elastic-otel-node
   - elasticsearch
 toc:
   - toc: reference

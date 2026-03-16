@@ -12,7 +12,7 @@ applies_to:
 
 # APM Node.js agent [intro]
 
-The Elastic APM Node.js Agent sends performance metrics and errors to the APM Server. It has built-in support for the most popular frameworks and routers, as well as a simple API which allows you to instrument any application.
+The Elastic APM Node.js Agent sends performance metrics and errors to the APM Server. It has built-in support for the most popular frameworks and routers, as well as a basic API which allows you to instrument any application.
 
 :::::{note}
 Elastic supports OpenTelemetry, which allows logs, metrics, and trace signal collection for many of the [supported technologies](/reference/supported-technologies.md) below. Consider using the [EDOT Node.js SDK](elastic-otel-node://reference/edot-node/index.md) for observability data so you continue to get the full power of Elastic's platform.
