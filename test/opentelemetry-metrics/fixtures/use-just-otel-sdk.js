@@ -16,24 +16,26 @@
 
 const {
   MeterProvider,
-  View,
-  ExplicitBucketHistogramAggregation,
+  AggregationType,
 } = require('@opentelemetry/sdk-metrics');
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus');
 
 const exporter = new PrometheusExporter({ host: '127.0.0.1' });
 const meterProvider = new MeterProvider({
   views: [
-    new View({
+    {
       instrumentName: 'test_histogram_viewbuckets',
-      aggregation: new ExplicitBucketHistogramAggregation(
-        // Use the same default buckets as in `prom-client`.
-        [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
-      ),
-    }),
+      aggregation: {
+        type: AggregationType.EXPLICIT_BUCKET_HISTOGRAM,
+        options: {
+          // Use the same default buckets as in `prom-client`.
+          boundaries: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+        },
+      },
+    },
   ],
+  readers: [exporter],
 });
-meterProvider.addMetricReader(exporter);
 
 const meter = meterProvider.getMeter('test-meter');
 
