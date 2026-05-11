@@ -160,7 +160,9 @@ knex:
   - versions: '1.0.7 || ^2.5.1' # latest majors subset of '>=1 <3'
     node: '>=12.0.0'
     commands: node test/instrumentation/modules/pg/knex.test.js
-  - versions: '^3.0.1'
+  - versions:
+      mode: max-4
+      include: '^3.0.1'
     node: '>=16'
     commands: node test/instrumentation/modules/pg/knex.test.js
 

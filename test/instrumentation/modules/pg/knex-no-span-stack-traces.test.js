@@ -25,7 +25,7 @@ require('../../../..').start({
   spanStackTraceMinDuration: -1,
 });
 
-var knexVersion = require('knex/package').version;
+var knexVersion = require('knex/package.json').version;
 var semver = require('semver');
 
 // knex 0.18.0 min supported node is v8, knex 0.21.0 min supported node is v10

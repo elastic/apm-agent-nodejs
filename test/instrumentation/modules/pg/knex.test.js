@@ -26,7 +26,7 @@ var agent = require('../../../..').start({
   spanCompressionEnabled: false,
 });
 
-var knexVersion = require('knex/package').version;
+var knexVersion = require('knex/package.json').version;
 var semver = require('semver');
 
 if (
