@@ -20,7 +20,7 @@ jobs:
     env:
       DOCKER_IMAGE_NAME: docker.elastic.co/observability/apm-agent-nodejs
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
         with:
           fetch-depth: 0
 
