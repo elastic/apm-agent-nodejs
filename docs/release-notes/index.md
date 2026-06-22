@@ -35,6 +35,9 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 * Fix a possible infinite loop during Lambda runner freeze.
 
+* Fix missing AWS SDK Spans for `@smithy/smithy-client` >= 4.13.0.
+
+
 ### Chores [4-16-0-chores]
 
 * Remove the "Get started with Restify" document and stop testing instrumentation against Restify. Restify is no longer getting maintenance. The instrumentation support for restify is unchanged, so this is not a breaking change. ([#4892](https://github.com/elastic/apm-agent-nodejs/pull/4892))
