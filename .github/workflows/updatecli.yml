@@ -32,14 +32,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: elastic/oblt-actions/updatecli/run@v1
+      - uses: elastic/oblt-actions/updatecli/run@v1.39.7
         with:
           command: --experimental compose diff
           version-file: .tool-versions
         env:
           GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
 
-      - uses: elastic/oblt-actions/updatecli/run@v1
+      - uses: elastic/oblt-actions/updatecli/run@v1.39.7
         with:
           command: --experimental compose apply
           version-file: .tool-versions
@@ -47,7 +47,7 @@ jobs:
           GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
 
       - if: failure()
-        uses: elastic/oblt-actions/slack/send@v1
+        uses: elastic/oblt-actions/slack/send@v1.39.7
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-node"

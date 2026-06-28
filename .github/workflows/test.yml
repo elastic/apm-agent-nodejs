@@ -198,7 +198,7 @@ jobs:
       - test-windows
     steps:
       - id: check
-        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        uses: elastic/oblt-actions/check-dependent-jobs@v1.39.7
         with:
           jobs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.is-success }}

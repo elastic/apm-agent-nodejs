@@ -52,12 +52,12 @@ jobs:
     needs: test-fips
     steps:
       - id: check
-        uses: elastic/oblt-actions/check-dependent-jobs@v1
+        uses: elastic/oblt-actions/check-dependent-jobs@v1.39.7
         with:
           jobs: ${{ toJSON(needs) }}
       - name: Notify in Slack
         if: steps.check.outputs.status == 'failure'
-        uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+        uses: elastic/oblt-actions/slack/notify-result@v1.39.7
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-node"

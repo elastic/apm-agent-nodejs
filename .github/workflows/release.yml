@@ -117,7 +117,7 @@ jobs:
           subject-digest: ${{ steps.docker-push-wolfi.outputs.digest }}
           push-to-registry: true
 
-      - uses: elastic/oblt-actions/aws/auth@v1
+      - uses: elastic/oblt-actions/aws/auth@v1.39.7
         with:
           aws-account-id: "267093732750"
 
@@ -139,7 +139,7 @@ jobs:
         run: npm publish
 
       - if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
-        uses: elastic/oblt-actions/slack/notify-result@v1
+        uses: elastic/oblt-actions/slack/notify-result@v1.39.7
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-node"
