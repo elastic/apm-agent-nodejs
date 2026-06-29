@@ -42,6 +42,8 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 * Remove the "Get started with Restify" document and stop testing instrumentation against Restify. Restify is no longer getting maintenance. The instrumentation support for restify is unchanged, so this is not a breaking change. ([#4892](https://github.com/elastic/apm-agent-nodejs/pull/4892))
 
+* Upgrade `@opentelemetry/core` and `@opentelemetry/sdk-metrics` to 2.x. This includes the upstream fix for [CVE-2026-54285](https://github.com/open-telemetry/opentelemetry-js/security/advisories/GHSA-8988-4f7v-96qf) in `@opentelemetry/core`. The OTel Metrics SDK integration was updated for the 2.x API changes (aggregation configuration objects and `MeterProvider` reader registration via the constructor). ([#5126](https://github.com/elastic/apm-agent-nodejs/pull/5126))
+
 ## 4.15.0 [4-15-0]
 **Release date:** Oct 16, 2025
 
