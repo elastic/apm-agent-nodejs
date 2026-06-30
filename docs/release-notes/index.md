@@ -26,12 +26,10 @@ To check for security updates, go to [Security announcements for the Elastic sta
 %
 % ### Fixes [next-fixes]
 
-## Next [next]
-**Release date:** Month day, year
+## 4.16.0 [4-16-0]
+**Release date:** Jun 30, 2026
 
-### Features and enhancements [next-features-enhancements]
-
-### Fixes [next-fixes]
+### Fixes [4-16-0-fixes]
 
 * Fix a possible infinite loop during Lambda runner freeze.
 
