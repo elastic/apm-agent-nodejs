@@ -37,6 +37,7 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 * Fix missing AWS SDK Spans for `@smithy/smithy-client` >= 4.13.0.
 
+* Fix the adding of destination context to spans for outgoing HTTP requests to *an IPv6 host*. ([#5127](https://github.com/elastic/apm-agent-nodejs/pull/5127))
 
 ### Chores [4-16-0-chores]
 

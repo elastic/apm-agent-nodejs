@@ -779,7 +779,7 @@ if (semver.gte(process.version, '10.0.0')) {
       agent.startTransaction('myTrans');
 
       const client = new es.Client(clientOpts);
-      // eslint-disable-next-line no-undef
+
       const ac = new AbortController();
       setImmediate(() => {
         ac.abort();

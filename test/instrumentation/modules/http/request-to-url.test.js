@@ -159,7 +159,7 @@ tape('getUrlFromRequestAndOptions tests', function (suite) {
   suite.test('ipv6', function (t) {
     const options = {
       hostname: '::1',
-      port: 1234
+      port: 1234,
     };
     const req = requestFromOptions(options);
 
