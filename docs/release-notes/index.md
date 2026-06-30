@@ -26,8 +26,15 @@ To check for security updates, go to [Security announcements for the Elastic sta
 %
 % ### Fixes [next-fixes]
 
-## 4.16.0 [4-16-0]
+## 4.17.0 [4-17-0]
 **Release date:** Jun 30, 2026
+
+### Chores [4-17-0-chores]
+
+* Fix an issue publishing AWS Lambda layers that broke the v4.16.0 release.
+
+## 4.16.0 [4-16-0]
+**Release date:** N/A (release failed)
 
 ### Fixes [4-16-0-fixes]
 
