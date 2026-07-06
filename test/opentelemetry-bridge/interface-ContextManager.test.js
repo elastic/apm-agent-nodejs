@@ -19,7 +19,6 @@ if (!semver.satisfies(process.version, OTEL_SDK_ENGINES_NODE)) {
   process.exit(0);
 }
 
-
 require('../..').start({
   opentelemetryBridgeEnabled: true,
   // Make the agent quiet.
