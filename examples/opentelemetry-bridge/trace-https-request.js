@@ -19,12 +19,12 @@ const otel = require('@opentelemetry/api');
 const tracer = otel.trace.getTracer('trace-https-request');
 
 tracer.startActiveSpan('makeRequest', (span) => {
-  https.get('https://httpstat.us/200', (response) => {
+  https.get('https://www.google.com/', (response) => {
     console.log('STATUS:', response.statusCode);
     const body = [];
     response.on('data', (chunk) => body.push(chunk));
     response.on('end', () => {
-      console.log('BODY:', body.toString());
+      console.log('BODY: "%s..."', body.toString().slice(0, 80));
       span.end();
     });
   });

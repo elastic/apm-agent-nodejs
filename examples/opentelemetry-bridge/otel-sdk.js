@@ -33,8 +33,9 @@ const {
 const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
 
 module.exports = (() => {
-  const provider = new NodeTracerProvider();
-  provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
+  const provider = new NodeTracerProvider({
+    spanProcessors: [new SimpleSpanProcessor(new ConsoleSpanExporter())],
+  });
   provider.register();
   registerInstrumentations({
     instrumentations: [new HttpInstrumentation()],
