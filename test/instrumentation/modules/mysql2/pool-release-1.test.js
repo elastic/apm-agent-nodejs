@@ -17,7 +17,12 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 const semver = require('semver');
 const { safeGetPackageVersion } = require('../../../_utils');
 const mysql2Ver = safeGetPackageVersion('mysql2');
-if (semver.gte(mysql2Ver, '3.0.0') && semver.lt(process.version, '14.6.0')) {
+if (
+  (semver.gte(mysql2Ver, '3.0.0') && semver.lt(process.version, '14.6.0')) ||
+  // https://github.com/sidorares/node-mysql2/releases/tag/v3.17.2
+  // added a dependency that breaks for nodejs <14.18
+  (semver.gte(mysql2Ver, '3.17.2') && semver.lt(process.version, '14.18.0'))
+) {
   console.log(
     `# SKIP mysql2@${mysql2Ver} does not support node ${process.version}`,
   );

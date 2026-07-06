@@ -10,6 +10,11 @@ RELEASE_NOTES_URL = https://www.elastic.co/guide/en/apm/agent/nodejs/current/rel
 ELASTIC_LAYER_NAME = elastic-apm-node-ver-$(ELASTIC_LAYER_VERSION)
 export AWS_FOLDER
 
+# AWS Regions to skip when publishing Lambda layers.
+# This can be when a region is known to be down for a long while.
+# Check for operational issues at: https://health.aws.amazon.com/health/status
+SKIP_THESE_AWS_REGIONS = me-central-1 me-south-1
+
 .PHONY: dist
 dist: validate-ref-name
 	../dev-utils/make-distribution.sh
@@ -47,6 +52,10 @@ get-all-aws-regions:
 publish-in-all-aws-regions: validate-layer-name get-all-aws-regions
 	@mkdir -p $(AWS_FOLDER)
 	@while read AWS_DEFAULT_REGION; do \
+		if [[ "$(SKIP_THESE_AWS_REGIONS)" == *"$${AWS_DEFAULT_REGION}"* ]]; then \
+			echo "skip publish to region $${AWS_DEFAULT_REGION}"; \
+			continue; \
+		fi; \
 		echo "publish '$(ELASTIC_LAYER_NAME)' in $${AWS_DEFAULT_REGION}"; \
 		AWS_DEFAULT_REGION="$${AWS_DEFAULT_REGION}" ELASTIC_LAYER_NAME=$(ELASTIC_LAYER_NAME) $(MAKE) publish > $(AWS_FOLDER)/$${AWS_DEFAULT_REGION}.publish; \
 		AWS_DEFAULT_REGION="$${AWS_DEFAULT_REGION}" ELASTIC_LAYER_NAME=$(ELASTIC_LAYER_NAME) $(MAKE) grant-public-layer-access; \

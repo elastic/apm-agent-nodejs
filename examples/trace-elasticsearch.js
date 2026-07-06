@@ -72,7 +72,7 @@ async function main() {
 
   // Example aborting requests using AbortController.
   const t3 = apm.startTransaction('t3');
-  const ac = new AbortController(); // eslint-disable-line no-undef
+  const ac = new AbortController();
   setImmediate(() => {
     ac.abort();
   });

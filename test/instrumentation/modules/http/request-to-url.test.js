@@ -155,5 +155,18 @@ tape('getUrlFromRequestAndOptions tests', function (suite) {
     t.equals(url, 'http://localhost/get', 'protocol falls back correctly');
     t.end();
   });
+
+  suite.test('ipv6', function (t) {
+    const options = {
+      hostname: '::1',
+      port: 1234,
+    };
+    const req = requestFromOptions(options);
+
+    const url = getUrlFromRequestAndOptions(req, options);
+    t.equals(url, 'http://[::1]:1234/');
+    t.end();
+  });
+
   suite.end();
 });

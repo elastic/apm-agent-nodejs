@@ -218,7 +218,7 @@ if (global.AbortController) {
     const aTrans = apm.startTransaction('aTransName', 'manual');
 
     const url = origin + '/ping';
-    const ac = new AbortController(); // eslint-disable-line no-undef
+    const ac = new AbortController();
     setTimeout(() => {
       ac.abort();
     }, 5); // Abort before the ~10ms expected response time of the request.

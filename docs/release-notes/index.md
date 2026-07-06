@@ -26,17 +26,23 @@ To check for security updates, go to [Security announcements for the Elastic sta
 %
 % ### Fixes [next-fixes]
 
-## Next [next]
-**Release date:** Month day, year
+## 4.17.0 [4-17-0]
+**Release date:** Jun 30, 2026
 
-### Features and enhancements [next-features-enhancements]
+### Chores [4-17-0-chores]
 
-### Fixes [next-fixes]
+* Fix an issue publishing AWS Lambda layers that broke the v4.16.0 release.
+
+## 4.16.0 [4-16-0]
+**Release date:** N/A (release failed)
+
+### Fixes [4-16-0-fixes]
 
 * Fix a possible infinite loop during Lambda runner freeze.
 
 * Fix missing AWS SDK Spans for `@smithy/smithy-client` >= 4.13.0.
 
+* Fix the adding of destination context to spans for outgoing HTTP requests to *an IPv6 host*. ([#5127](https://github.com/elastic/apm-agent-nodejs/pull/5127))
 
 ### Chores [4-16-0-chores]
 
