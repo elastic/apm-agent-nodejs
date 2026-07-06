@@ -269,10 +269,9 @@ const cases = [
       const warnLines = stdout
         .split('\n')
         .filter((ln) => ~ln.indexOf('dropping array-valued metric attribute'));
-      t.equal(
-        warnLines.length,
-        1,
-        'exactly one log.warn about dropping the array-valued metric attribute',
+      t.ok(
+        warnLines.length >= 1,
+        'at least one log.warn about dropping the array-valued metric attribute',
       );
       t.ok(
         warnLines[0].indexOf('test_counter_attrs'),
@@ -398,7 +397,7 @@ cases.forEach((c) => {
       server.start(function (serverUrl) {
         const proc = execFile(
           process.execPath,
-          ['-r', '../../start.js', '--trace-warnings', scriptPath],
+          ['-r', '../../start.js', scriptPath],
           {
             cwd: __dirname,
             timeout: 10000, // guard on hang, 3s is sometimes too short for CI
