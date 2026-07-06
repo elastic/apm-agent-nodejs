@@ -19,6 +19,7 @@ This directory shows how you can use the OpenTelemetry Metrics API with the Elas
     ```
     export ELASTIC_APM_SERVER_URL=https://...  # your Elastic APM Server URL
     export ELASTIC_APM_SECRET_TOKEN=...
+    export ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true
     node -r elastic-apm-node/start.js otel-metrics-hello-world.js
     ```
 
@@ -39,6 +40,7 @@ This directory shows how you can use the OpenTelemetry Metrics API with the Elas
     ```
     export ELASTIC_APM_SERVER_URL=https://...  # your Elastic APM Server URL
     export ELASTIC_APM_SECRET_TOKEN=...
+    export ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true
     node -r elastic-apm-node/start.js use-otel-metrics-sdk.js
     ```
 
@@ -48,7 +50,7 @@ This directory shows how you can use the OpenTelemetry Metrics API with the Elas
     while true; do curl http://127.0.0.1:3000/; sleep 1; done
     ```
 
-    **The a percentile of the `latency` custom histogram metric can now be visualized in Kibana.**
+    **Then a percentile of the `latency` custom histogram metric can now be visualized in Kibana.**
 
 
 See https://www.elastic.co/guide/en/apm/agent/nodejs/current/opentelemetry-bridge.html
