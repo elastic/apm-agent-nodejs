@@ -15,6 +15,9 @@ applies_to:
 Integration with the OpenTelemetry Tracing API was added as experimental in v3.34.0. Integration with the OpenTelemetry Metrics API was added as experimental in v3.45.0.
 ::::
 
+::::{note}
+For OpenTelemetry-based observability, consider using [Elastic's OTel-native Node.js SDK (`@elastic/opentelemetry-node`)](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node). Using an OTel-native SDK provides the full functionality of the OpenTelemetry ecosystem, without the limitations in this experimental bridge.
+::::
 
 The Elastic APM OpenTelemetry bridge allows one to use the vendor-neutral [OpenTelemetry API](https://opentelemetry.io/docs/instrumentation/js/) ([`@opentelemetry/api`](https://www.npmjs.com/package/@opentelemetry/api)) in your code, and have the Elastic Node.js APM agent handle those API calls. This allows one to use the Elastic APM agent for tracing and metrics without any vendor lock-in to the APM agent’s own [public API](/reference/api.md) when adding manual tracing or custom metrics.
 
