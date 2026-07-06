@@ -398,12 +398,13 @@ cases.forEach((c) => {
       server.start(function (serverUrl) {
         const proc = execFile(
           process.execPath,
-          ['-r', '../../start.js', scriptPath],
+          ['-r', '../../start.js', '--trace-warnings', scriptPath],
           {
             cwd: __dirname,
             timeout: 10000, // guard on hang, 3s is sometimes too short for CI
             env: Object.assign({}, process.env, c.env, {
               ELASTIC_APM_SERVER_URL: serverUrl,
+              ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED: 'true',
               ELASTIC_APM_METRICS_INTERVAL: '500ms',
               ELASTIC_APM_API_REQUEST_TIME: '500ms',
               ELASTIC_APM_CENTRAL_CONFIG: 'false',
