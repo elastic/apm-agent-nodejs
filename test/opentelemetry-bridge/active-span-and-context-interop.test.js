@@ -10,6 +10,17 @@
 // the OTel API. Cases are described here:
 // https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md#active-spans-and-context
 
+const semver = require('semver');
+const OTEL_SDK_ENGINES_NODE = '^18.19.0 || >=20.6.0';
+if (!semver.satisfies(process.version, OTEL_SDK_ENGINES_NODE)) {
+  console.log(
+    '# SKIP: skipping %s, OTel SDK does not support node %s',
+    __filename,
+    process.version,
+  );
+  process.exit(0);
+}
+
 const apm = require('../..').start({
   opentelemetryBridgeEnabled: true,
   // Make the agent quiet.
@@ -22,7 +33,6 @@ const apm = require('../..').start({
 });
 
 const otel = require('@opentelemetry/api');
-const semver = require('semver');
 const tape = require('tape');
 
 const { safeGetPackageVersion } = require('../_utils');

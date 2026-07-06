@@ -20,6 +20,17 @@
 // - Currently at commit 4412a55 of https://github.com/elastic/apm/commits/main/tests/agents/gherkin-specs/otel_bridge.feature
 // - Each "Scenario: ..." from "otel_bridge.feature" is a separate test case below.
 
+const semver = require('semver');
+const OTEL_SDK_ENGINES_NODE = '^18.19.0 || >=20.6.0';
+if (!semver.satisfies(process.version, OTEL_SDK_ENGINES_NODE)) {
+  console.log(
+    '# SKIP: skipping %s, OTel SDK does not support node %s',
+    __filename,
+    process.version,
+  );
+  process.exit(0);
+}
+
 const otel = require('@opentelemetry/api');
 const tape = require('tape');
 

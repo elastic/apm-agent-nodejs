@@ -32,11 +32,14 @@ const {
   formatForTComment,
 } = require('../_utils');
 
-if (!semver.satisfies(process.version, '>=14')) {
+const OTEL_SDK_ENGINES_NODE = '^18.19.0 || >=20.6.0';
+if (!semver.satisfies(process.version, OTEL_SDK_ENGINES_NODE)) {
   console.log(
-    `# SKIP @opentelemetry/sdk-metrics only supports node >=14 (node ${process.version})`,
+    '# SKIP: skipping %s, OTel SDK does not support node %s',
+    __filename,
+    process.version,
   );
-  process.exit();
+  process.exit(0);
 }
 
 const isUndiciIncompat = require('../_is_undici_incompat')();

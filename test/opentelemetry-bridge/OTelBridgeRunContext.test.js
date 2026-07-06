@@ -6,6 +6,17 @@
 
 'use strict';
 
+const semver = require('semver');
+const OTEL_SDK_ENGINES_NODE = '^18.19.0 || >=20.6.0';
+if (!semver.satisfies(process.version, OTEL_SDK_ENGINES_NODE)) {
+  console.log(
+    '# SKIP: skipping %s, OTel SDK does not support node %s',
+    __filename,
+    process.version,
+  );
+  process.exit(0);
+}
+
 require('../..').start({
   opentelemetryBridgeEnabled: true,
   // Make the agent quiet.
