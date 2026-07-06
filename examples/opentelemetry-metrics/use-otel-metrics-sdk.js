@@ -19,6 +19,7 @@
 // periodically be exported to the configured Elastic APM server:
 //    export ELASTIC_APM_SERVER_URL='<url of your APM server>'
 //    export ELASTIC_APM_SECRET_TOKEN='<secret token for your APM server>'
+//    export ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true
 //    node -r elastic-apm-node/start.js use-otel-metrics-sdk.js
 
 'use strict';
