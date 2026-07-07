@@ -407,6 +407,7 @@ cases.forEach((c) => {
             cwd: __dirname,
             timeout: 10000, // guard on hang, 3s is sometimes too short for CI
             env: Object.assign({}, process.env, c.env, {
+              ELASTIC_APM_LOG_LEVEL: 'trace',
               ELASTIC_APM_SERVER_URL: serverUrl,
               ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED: 'true',
               ELASTIC_APM_METRICS_INTERVAL: '500ms',
