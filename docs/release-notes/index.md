@@ -26,13 +26,10 @@ To check for security updates, go to [Security announcements for the Elastic sta
 %
 % ### Fixes [next-fixes]
 
-## Next [next]
-**Release date:** Month day, year
+## 4.18.0 [4-18-0]
+**Release date:** July 9, 2026
 
-### Features and enhancements [next-features-enhancements]
-
-
-### Fixes [next-fixes]
+### Fixes [4-18-0-fixes]
 
 * Update [*OpenTelemetry bridge*](/reference/opentelemetry-bridge.md) to use OTel SDK 2.x. [#5126](https://github.com/elastic/apm-agent-nodejs/pull/5126))
   * **Possibly breaking for users of the OpenTelemetry bridge.**
