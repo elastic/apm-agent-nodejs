@@ -18,6 +18,11 @@
 // `.setGlobalMeterProvider()` usage.
 
 const otel = require('@opentelemetry/api');
+console.log(
+  'XXX hi from script',
+  process.version,
+  require('@opentelemetry/api/package.json').version,
+);
 
 const { MeterProvider } = require('@opentelemetry/sdk-metrics');
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus');
