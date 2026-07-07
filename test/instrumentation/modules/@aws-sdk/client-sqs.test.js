@@ -27,7 +27,7 @@ const test = require('tape');
 
 const { validateSpan } = require('../../../_validate_schema');
 const { runTestFixtures, sortApmEvents } = require('../../../_utils');
-const { NODE_VER_RANGE_IITM_GE14 } = require('../../../testconsts');
+const { NODE_VER_RANGE_IITM_GE20 } = require('../../../testconsts');
 
 const localstackHost = process.env.LOCALSTACK_HOST || 'localhost:4566';
 const localstackHostname = localstackHost.split(':')[0];
@@ -48,7 +48,7 @@ const testFixtures = [
       TEST_QUEUE_NAME: 'elasticapmtest-queue-1',
     },
     versionRanges: {
-      node: '>=14',
+      node: '>=20',
     },
     verbose: false,
     checkApmServer: (t, apmServer) => {
@@ -278,7 +278,7 @@ const testFixtures = [
       TEST_QUEUE_NAME: 'elasticapmtest-queue-2',
     },
     versionRanges: {
-      node: NODE_VER_RANGE_IITM_GE14,
+      node: NODE_VER_RANGE_IITM_GE20,
     },
     verbose: false,
     checkApmServer: (t, apmServer) => {
