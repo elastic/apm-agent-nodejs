@@ -154,6 +154,7 @@ async function checkHasPrometheusMetrics(t) {
   );
   t.equal(statusCode, 200, 'prometheus exporter is still working');
   const text = await body.text();
+  console.log('XXX text: ', text);
   t.ok(
     text.indexOf('\ntest_counter') !== -1,
     'prometheus metrics include "test_counter"',
@@ -191,25 +192,27 @@ tape.test(
 );
 
 const cases = [
-  {
-    script: 'use-just-otel-api.js',
-    checkEvents: async (t, events) => {
-      t.ok(events[0].metadata, 'APM server got event metadata object');
-      await checkEventsHaveTestMetrics(t, events, [
-        'test_histogram_defbuckets',
-      ]);
-    },
-  },
-  {
-    script: 'use-just-otel-sdk.js',
-    checkEvents: async (t, events) => {
-      t.ok(events[0].metadata, 'APM server got event metadata object');
-      await checkEventsHaveTestMetrics(t, events, [
-        'test_histogram_viewbuckets',
-      ]);
-      await checkHasPrometheusMetrics(t);
-    },
-  },
+  // {
+  //   script: 'use-just-otel-api.js',
+  //   checkEvents: async (t, events) => {
+  //     t.ok(events[0].metadata, 'APM server got event metadata object');
+  //     await checkEventsHaveTestMetrics(t, events, [
+  //       'test_histogram_defbuckets',
+  //     ]);
+  //   },
+  // },
+  // {
+  //   script: 'use-just-otel-sdk.js',
+  //   checkEvents: async (t, events) => {
+  //     t.ok(events[0].metadata, 'APM server got event metadata object');
+  //     await checkEventsHaveTestMetrics(t, events, [
+  //       'test_histogram_viewbuckets',
+  //     ]);
+  //     await checkHasPrometheusMetrics(t);
+  //   },
+  // },
+
+  // XXX trying to isolate issue in CI
   {
     script: 'use-otel-api-with-registered-meter-provider.js',
     env: {
@@ -223,168 +226,170 @@ const cases = [
       await checkHasPrometheusMetrics(t);
     },
   },
-  {
-    script: 'various-attrs.js',
-    checkEvents: async (t, events) => {
-      t.ok(events[0].metadata, 'APM server got event metadata object');
 
-      // Test that there are 3 separate metricsets for 'test_counter_attrs'
-      // for a given timestamp -- one for each of the expected attr sets.
-      const firstTimestamp = findObjInArray(
-        events,
-        'metricset.samples.test_counter_attrs',
-      ).metricset.timestamp;
-      const eventsAttrs = findObjsInArray(
-        events,
-        'metricset.samples.test_counter_attrs',
-      ).filter((e) => e.metricset.timestamp === firstTimestamp);
-      t.equal(eventsAttrs.length, 3, '3 attr sets for test_counter_attrs');
-      t.ok(
-        eventsAttrs.some(
-          (e) =>
-            e.metricset.tags['http.request.method'] === 'POST' &&
-            e.metricset.tags['http.response.status_code'] === '200',
-        ),
-      );
-      t.ok(
-        eventsAttrs.some(
-          (e) =>
-            e.metricset.tags['http.request.method'] === 'GET' &&
-            e.metricset.tags['http.response.status_code'] === '200',
-        ),
-      );
-      t.ok(
-        eventsAttrs.some(
-          (e) =>
-            e.metricset.tags['http.request.method'] === 'GET' &&
-            e.metricset.tags['http.response.status_code'] === '400',
-        ),
-      );
-      t.ok(
-        !eventsAttrs.some((e) => e.metricset.tags.array_valued_attr),
-        'no test_counter_attrs metricset with "array_valued_attr" label',
-      );
-    },
-    checkOutput: async (t, stdout, _stderr) => {
-      const warnLines = stdout
-        .split('\n')
-        .filter((ln) => ~ln.indexOf('dropping array-valued metric attribute'));
-      t.ok(
-        warnLines.length >= 1,
-        'at least one log.warn about dropping the array-valued metric attribute',
-      );
-      t.ok(
-        warnLines[0].indexOf('test_counter_attrs'),
-        'log.warn mentions the metric name',
-      );
-      t.ok(
-        warnLines[0].indexOf('array_valued_attr'),
-        'log.warn mentions the attribute name',
-      );
-    },
-  },
-  {
-    script: 'instrumentation-scopes.js',
-    checkEvents: async (t, events) => {
-      let e;
-      t.ok(events[0].metadata, 'APM server got event metadata object');
+  // XXX
+  // {
+  //   script: 'various-attrs.js',
+  //   checkEvents: async (t, events) => {
+  //     t.ok(events[0].metadata, 'APM server got event metadata object');
 
-      // Test that there are 4 separate metricsets for 'test_counter_{a,b,c,d,e}'
-      // for a given timestamp -- one for each of the instrumentation scopes.
-      const firstTimestamp = findObjInArray(
-        events,
-        'metricset.samples.test_counter_a',
-      ).metricset.timestamp;
-      const eventGroup = findObjsInArray(events, 'metricset.samples').filter(
-        (e) => e.metricset.timestamp === firstTimestamp,
-      );
-      t.equal(
-        eventGroup.length,
-        4,
-        '4 instrumentation scopes test_counter_* metrics',
-      );
-      e = findObjInArray(eventGroup, 'metricset.samples.test_counter_a');
-      t.deepEqual(Object.keys(e.metricset.samples), ['test_counter_a']);
-      e = findObjInArray(eventGroup, 'metricset.samples.test_counter_b');
-      t.deepEqual(Object.keys(e.metricset.samples), ['test_counter_b']);
-      e = findObjInArray(eventGroup, 'metricset.samples.test_counter_c');
-      t.deepEqual(Object.keys(e.metricset.samples), ['test_counter_c']);
-      e = findObjInArray(eventGroup, 'metricset.samples.test_counter_d');
-      t.deepEqual(Object.keys(e.metricset.samples), [
-        'test_counter_d',
-        'test_counter_e',
-      ]);
-    },
-  },
-  {
-    script: 'use-disable-metrics-conf.js',
-    env: {
-      ELASTIC_APM_DISABLE_METRICS:
-        'nodejs.*,system*cpu*,system.memory.actual.free,foo-counter-*',
-    },
-    checkEvents: async (t, events) => {
-      t.ok(events[0].metadata, 'APM server got event metadata object');
+  //     // Test that there are 3 separate metricsets for 'test_counter_attrs'
+  //     // for a given timestamp -- one for each of the expected attr sets.
+  //     const firstTimestamp = findObjInArray(
+  //       events,
+  //       'metricset.samples.test_counter_attrs',
+  //     ).metricset.timestamp;
+  //     const eventsAttrs = findObjsInArray(
+  //       events,
+  //       'metricset.samples.test_counter_attrs',
+  //     ).filter((e) => e.metricset.timestamp === firstTimestamp);
+  //     t.equal(eventsAttrs.length, 3, '3 attr sets for test_counter_attrs');
+  //     t.ok(
+  //       eventsAttrs.some(
+  //         (e) =>
+  //           e.metricset.tags['http.request.method'] === 'POST' &&
+  //           e.metricset.tags['http.response.status_code'] === '200',
+  //       ),
+  //     );
+  //     t.ok(
+  //       eventsAttrs.some(
+  //         (e) =>
+  //           e.metricset.tags['http.request.method'] === 'GET' &&
+  //           e.metricset.tags['http.response.status_code'] === '200',
+  //       ),
+  //     );
+  //     t.ok(
+  //       eventsAttrs.some(
+  //         (e) =>
+  //           e.metricset.tags['http.request.method'] === 'GET' &&
+  //           e.metricset.tags['http.response.status_code'] === '400',
+  //       ),
+  //     );
+  //     t.ok(
+  //       !eventsAttrs.some((e) => e.metricset.tags.array_valued_attr),
+  //       'no test_counter_attrs metricset with "array_valued_attr" label',
+  //     );
+  //   },
+  //   checkOutput: async (t, stdout, _stderr) => {
+  //     const warnLines = stdout
+  //       .split('\n')
+  //       .filter((ln) => ~ln.indexOf('dropping array-valued metric attribute'));
+  //     t.ok(
+  //       warnLines.length >= 1,
+  //       'at least one log.warn about dropping the array-valued metric attribute',
+  //     );
+  //     t.ok(
+  //       warnLines[0].indexOf('test_counter_attrs'),
+  //       'log.warn mentions the metric name',
+  //     );
+  //     t.ok(
+  //       warnLines[0].indexOf('array_valued_attr'),
+  //       'log.warn mentions the attribute name',
+  //     );
+  //   },
+  // },
+  // {
+  //   script: 'instrumentation-scopes.js',
+  //   checkEvents: async (t, events) => {
+  //     let e;
+  //     t.ok(events[0].metadata, 'APM server got event metadata object');
 
-      // Test all metricsets:
-      // - There should be no samples for metrics matching the above config patterns.
-      // - There should not be any empty metricsets (ones with no samples).
-      const reportedMetricNames = new Set();
-      events
-        .filter((e) => !!e.metricset)
-        .forEach((e) => {
-          const names = Object.keys(e.metricset.samples);
-          t.ok(names.length > 0, 'metricset is not empty');
-          const unexpectedNames = names.filter(
-            (n) =>
-              /^nodejs\..*$/.test(n) ||
-              /^system.*cpu.*$/.test(n) ||
-              n === 'system.memory.actual.free' ||
-              /^foo-counter-.*$/.test(n),
-          );
-          t.equal(
-            unexpectedNames.length,
-            0,
-            `no unexpected metric names (unexpectedNames=${JSON.stringify(
-              unexpectedNames,
-            )})`,
-          );
-          names.forEach((n) => reportedMetricNames.add(n));
-        });
+  //     // Test that there are 4 separate metricsets for 'test_counter_{a,b,c,d,e}'
+  //     // for a given timestamp -- one for each of the instrumentation scopes.
+  //     const firstTimestamp = findObjInArray(
+  //       events,
+  //       'metricset.samples.test_counter_a',
+  //     ).metricset.timestamp;
+  //     const eventGroup = findObjsInArray(events, 'metricset.samples').filter(
+  //       (e) => e.metricset.timestamp === firstTimestamp,
+  //     );
+  //     t.equal(
+  //       eventGroup.length,
+  //       4,
+  //       '4 instrumentation scopes test_counter_* metrics',
+  //     );
+  //     e = findObjInArray(eventGroup, 'metricset.samples.test_counter_a');
+  //     t.deepEqual(Object.keys(e.metricset.samples), ['test_counter_a']);
+  //     e = findObjInArray(eventGroup, 'metricset.samples.test_counter_b');
+  //     t.deepEqual(Object.keys(e.metricset.samples), ['test_counter_b']);
+  //     e = findObjInArray(eventGroup, 'metricset.samples.test_counter_c');
+  //     t.deepEqual(Object.keys(e.metricset.samples), ['test_counter_c']);
+  //     e = findObjInArray(eventGroup, 'metricset.samples.test_counter_d');
+  //     t.deepEqual(Object.keys(e.metricset.samples), [
+  //       'test_counter_d',
+  //       'test_counter_e',
+  //     ]);
+  //   },
+  // },
+  // {
+  //   script: 'use-disable-metrics-conf.js',
+  //   env: {
+  //     ELASTIC_APM_DISABLE_METRICS:
+  //       'nodejs.*,system*cpu*,system.memory.actual.free,foo-counter-*',
+  //   },
+  //   checkEvents: async (t, events) => {
+  //     t.ok(events[0].metadata, 'APM server got event metadata object');
 
-      // Spot test that some expected metrics are being reported.
-      t.ok(
-        reportedMetricNames.has('bar-counter-1'),
-        '"bar-counter-1" metric is being reported',
-      );
-      t.ok(
-        reportedMetricNames.has('system.memory.total'),
-        '"system.memory.total" metric is being reported',
-      );
-    },
-  },
-  {
-    script: 'await-agent-destroy.js',
-    checkOutput: async (t, stdout, _stderr) => {
-      // Ensure there is no log.warn line: "cannot flush agent before it is started".
-      // https://github.com/elastic/apm-agent-nodejs/pull/3547#discussion_r1283430790
-      const warnLines = stdout
-        .split('\n')
-        .filter((ln) => ~ln.indexOf('"log.level":"warn"'))
-        // Skip a log.warn about this being a pre-release version.
-        .filter((ln) => !~ln.indexOf('pre-release'));
-      t.equal(warnLines.length, 0, `no log.warn lines: warnLines=${warnLines}`);
-    },
-    checkEvents: async (t, events) => {
-      t.ok(events[0].metadata, 'APM server got event metadata object');
+  //     // Test all metricsets:
+  //     // - There should be no samples for metrics matching the above config patterns.
+  //     // - There should not be any empty metricsets (ones with no samples).
+  //     const reportedMetricNames = new Set();
+  //     events
+  //       .filter((e) => !!e.metricset)
+  //       .forEach((e) => {
+  //         const names = Object.keys(e.metricset.samples);
+  //         t.ok(names.length > 0, 'metricset is not empty');
+  //         const unexpectedNames = names.filter(
+  //           (n) =>
+  //             /^nodejs\..*$/.test(n) ||
+  //             /^system.*cpu.*$/.test(n) ||
+  //             n === 'system.memory.actual.free' ||
+  //             /^foo-counter-.*$/.test(n),
+  //         );
+  //         t.equal(
+  //           unexpectedNames.length,
+  //           0,
+  //           `no unexpected metric names (unexpectedNames=${JSON.stringify(
+  //             unexpectedNames,
+  //           )})`,
+  //         );
+  //         names.forEach((n) => reportedMetricNames.add(n));
+  //       });
 
-      // Check that got at least one 'test_counter' metricset.
-      const metricset = findObjInArray(
-        events,
-        'metricset.samples.test_counter',
-      ).metricset;
-      t.ok(metricset, 'got a "test_counter" metricset');
-    },
-  },
+  //     // Spot test that some expected metrics are being reported.
+  //     t.ok(
+  //       reportedMetricNames.has('bar-counter-1'),
+  //       '"bar-counter-1" metric is being reported',
+  //     );
+  //     t.ok(
+  //       reportedMetricNames.has('system.memory.total'),
+  //       '"system.memory.total" metric is being reported',
+  //     );
+  //   },
+  // },
+  // {
+  //   script: 'await-agent-destroy.js',
+  //   checkOutput: async (t, stdout, _stderr) => {
+  //     // Ensure there is no log.warn line: "cannot flush agent before it is started".
+  //     // https://github.com/elastic/apm-agent-nodejs/pull/3547#discussion_r1283430790
+  //     const warnLines = stdout
+  //       .split('\n')
+  //       .filter((ln) => ~ln.indexOf('"log.level":"warn"'))
+  //       // Skip a log.warn about this being a pre-release version.
+  //       .filter((ln) => !~ln.indexOf('pre-release'));
+  //     t.equal(warnLines.length, 0, `no log.warn lines: warnLines=${warnLines}`);
+  //   },
+  //   checkEvents: async (t, events) => {
+  //     t.ok(events[0].metadata, 'APM server got event metadata object');
+
+  //     // Check that got at least one 'test_counter' metricset.
+  //     const metricset = findObjInArray(
+  //       events,
+  //       'metricset.samples.test_counter',
+  //     ).metricset;
+  //     t.ok(metricset, 'got a "test_counter" metricset');
+  //   },
+  // },
 ];
 
 cases.forEach((c) => {
