@@ -458,7 +458,7 @@ finalhandler:
   - versions:
       mode: max-3
       include: '>=2 <3'
-    node: '>=16'
+    node: '>=18'
     commands: node test/instrumentation/modules/finalhandler.test.js
 
 memcached:
