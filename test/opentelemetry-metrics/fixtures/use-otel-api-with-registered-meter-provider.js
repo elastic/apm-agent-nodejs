@@ -17,13 +17,7 @@
 // This test case checks that the APM agent does *not* interfere with the
 // `.setGlobalMeterProvider()` usage.
 
-const path = require('path');
 const otel = require('@opentelemetry/api');
-console.log(
-  'XXX hi from script',
-  process.version,
-  require(path.resolve(require.resolve('@opentelemetry/api'), '../../../package.json')).version,
-);
 
 const { MeterProvider } = require('@opentelemetry/sdk-metrics');
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus');
@@ -39,7 +33,6 @@ const meter = otel.metrics.getMeter('test-meter');
 const counter = meter.createCounter('test_counter', {
   description: 'A test Counter',
 });
-console.log('XXX counter: ', counter);
 
 let n = 0;
 const asyncCounter = meter.createObservableCounter('test_async_counter', {
