@@ -744,9 +744,7 @@ const cases = [
   },
 ];
 
-// XXX
-// cases.forEach((c) => {
-[cases[0]].forEach((c) => {
+cases.forEach((c) => {
   tape.test(
     `test/opentelemetry-bridge/fixtures/${c.script}`,
     c.testOpts || {},
