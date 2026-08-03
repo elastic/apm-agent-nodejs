@@ -40,10 +40,8 @@ const apm = require('../../../..').start({
 });
 
 const http = require('http');
-const { promisify } = require('util');
 const test = require('tape');
 
-const promisyApmFlush = promisify(apm.flush.bind(apm));
 let server;
 let origin;
 let lastServerReq;
@@ -116,7 +114,7 @@ test('fetch', async (t) => {
   t.equal(text, 'pong', 'response body');
 
   aTrans.end();
-  t.error(await promisyApmFlush(), 'no apm.flush() error');
+  t.error(await apm.flush(), 'no apm.flush() error');
 
   t.equal(apm._apmClient.spans.length, 1);
   const span = apm._apmClient.spans[0];
