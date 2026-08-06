@@ -45,13 +45,11 @@ if (isUndiciIncompat) {
 
 const http = require('http');
 const { Writable } = require('stream');
-const { promisify } = require('util');
 const semver = require('semver');
 const test = require('tape');
 const undici = require('undici');
 const undiciVer = require('undici/package.json').version;
 
-const promisyApmFlush = promisify(apm.flush.bind(apm));
 let server;
 let origin;
 let lastServerReq;
@@ -137,7 +135,7 @@ test('undici.request', async (t) => {
   await consumeResponseBody(body);
 
   aTrans.end();
-  t.error(await promisyApmFlush(), 'no apm.flush() error');
+  t.error(await apm.flush(), 'no apm.flush() error');
 
   t.equal(apm._apmClient.spans.length, 1);
   const span = apm._apmClient.spans[0];
@@ -181,7 +179,7 @@ test('undici.stream', async (t) => {
   t.equal(chunks.join(''), 'pong', 'response body');
 
   aTrans.end();
-  t.error(await promisyApmFlush(), 'no apm.flush() error');
+  t.error(await apm.flush(), 'no apm.flush() error');
 
   t.equal(apm._apmClient.spans.length, 1);
   const span = apm._apmClient.spans[0];
@@ -202,7 +200,7 @@ if (undici.fetch) {
     t.equal(text, 'pong', 'response body');
 
     aTrans.end();
-    t.error(await promisyApmFlush(), 'no apm.flush() error');
+    t.error(await apm.flush(), 'no apm.flush() error');
 
     t.equal(apm._apmClient.spans.length, 1);
     const span = apm._apmClient.spans[0];
@@ -229,7 +227,7 @@ if (global.AbortController) {
       t.ok(reqErr, 'got a request error');
 
       aTrans.end();
-      t.error(await promisyApmFlush(), 'no apm.flush() error');
+      t.error(await apm.flush(), 'no apm.flush() error');
 
       t.equal(apm._apmClient.spans.length, 1);
       const span = apm._apmClient.spans[0];
@@ -291,7 +289,7 @@ test('undici no duplicate headers', async (t) => {
   await consumeResponseBody(body);
 
   aTrans.end();
-  t.error(await promisyApmFlush(), 'no apm.flush() error');
+  t.error(await apm.flush(), 'no apm.flush() error');
 
   t.equal(apm._apmClient.spans.length, 1);
   const span = apm._apmClient.spans[0];
