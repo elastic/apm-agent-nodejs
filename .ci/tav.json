@@ -13,7 +13,6 @@
     { "name": "@elastic/elasticsearch", "minMajorVersion": 10 },
     { "name": "@hapi/hapi", "minMajorVersion": 8 },
     { "name": "@opentelemetry/api", "minMajorVersion": 14 },
-    { "name": "apollo-server-express", "minMajorVersion": 8 },
     { "name": "aws-sdk", "minMajorVersion": 8 },
     { "name": "cassandra-driver", "minMajorVersion": 16 },
     { "name": "elasticsearch", "minMajorVersion": 8 },
