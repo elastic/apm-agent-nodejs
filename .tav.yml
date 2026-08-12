@@ -203,35 +203,6 @@ express:
       - node test/instrumentation/modules/express/capture-exceptions-on.test.js
       - node test/instrumentation/modules/express/set-framework.test.js
 
-apollo-server-express:
-  - versions:
-      include: '>=2.9.16 <3'
-      mode: latest-minors
-    peerDependencies:
-      - graphql@^14.0.0
-      - express@^4.17.1
-    node: '>=6'
-    commands: node test/instrumentation/modules/apollo-server-express.test.js
-  # We want this version range (2.12.0 was the first release of
-  # apollo-server-express after graphql@15 was released)
-  - versions:
-      include: '>=2.12.0 <3'
-      mode: latest-minors
-    peerDependencies:
-      - graphql@^15.0.0
-      - express@^4.17.1
-    # Per https://github.com/graphql/graphql-js/releases/tag/v15.0.0
-    # graphql v15 supports node v8 as a minimum.
-    node: '>=8'
-    commands: node test/instrumentation/modules/apollo-server-express.test.js
-  - versions:
-      include: '>=3.0.0 <4'
-      mode: latest-minors
-    peerDependencies:
-      - graphql@^15.0.0
-      - express@^4.17.1
-    commands: node test/instrumentation/modules/apollo-server-express.test.js
-
 express-queue:
   versions: '>=0.0.11'
   commands: node test/instrumentation/modules/express-queue.test.js

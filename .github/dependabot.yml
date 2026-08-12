@@ -56,7 +56,6 @@ updates:
       apollo:
         dependency-type: "development"
         patterns:
-        - "apollo-server-*"
         - "@apollo/*"
       eslint:
         dependency-type: "development"
