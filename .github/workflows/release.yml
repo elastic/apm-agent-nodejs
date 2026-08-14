@@ -35,7 +35,7 @@ jobs:
       - uses: docker/setup-buildx-action@v4.2.0
 
       - name: Log in to the Elastic Container registry
-        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ${{ secrets.ELASTIC_DOCKER_REGISTRY }}
           username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
@@ -46,7 +46,7 @@ jobs:
       - run: make -C .ci dist
 
       - name: Attest Lambda layer zip
-        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6  # v4.2.0
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d  # v4.2.1
         with:
           subject-path: "${{ github.workspace }}/build/aws/elastic-apm-node-lambda-layer-*.zip"
 
@@ -77,7 +77,7 @@ jobs:
             AGENT_DIR=/build/dist/nodejs
 
       - name: Attest Docker image
-        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6  # v4.2.0
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d  # v4.2.1
         with:
           subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
           subject-digest: ${{ steps.docker-push.outputs.digest }}
@@ -111,7 +111,7 @@ jobs:
             AGENT_DIR=/build/dist/nodejs
 
       - name: Attest Docker image (wolfi)
-        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6  # v4.2.0
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d  # v4.2.1
         with:
           subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
           subject-digest: ${{ steps.docker-push-wolfi.outputs.digest }}
