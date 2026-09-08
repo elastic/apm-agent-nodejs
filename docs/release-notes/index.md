@@ -26,15 +26,6 @@ To check for security updates, go to [Security announcements for the Elastic sta
 %
 % ### Fixes [next-fixes]
 
-## Next [next]
-**Release date:** Month day, year
-
-### Features and enhancements [next-features-enhancements]
-
-### Chores [next-chores]
-
-* Update TAV tests for `knex` module to avoid peer dependencies problems. [#5197](https://github.com/elastic/apm-agent-nodejs/pull/5197)
-
 ## 4.18.0 [4-18-0]
 **Release date:** July 9, 2026
 
