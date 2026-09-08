@@ -77,7 +77,7 @@ async function useClientDynamoDB(dynamoDBClient, tableName) {
   let command;
   let data;
 
-  command = new ListTablesCommand();
+  command = new ListTablesCommand({});
   data = await dynamoDBClient.send(command);
   assert(
     apm.currentSpan === null,
