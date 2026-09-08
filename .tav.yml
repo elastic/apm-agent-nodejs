@@ -142,19 +142,13 @@ bluebird:
     - node test/instrumentation/modules/bluebird/cancel.test.js
 
 # knex (https://github.com/knex/knex/blob/master/UPGRADING.md)
-# - knex 0.18.0 min supported node is v8
 # - knex 0.21.0 min supported node is v10
 # - knex 1.0.0 min supported node is v12
 # - knex 3.0.0 min supported node is v16
 knex:
-  # Latest 0.16 release was in 2019, therefore only test first and last in this range.
-  - versions: '0.10.0 || 0.16.5'
-    commands: node test/instrumentation/modules/pg/knex.test.js
-  # Latest 0.20.x release was 2020-04, there only test first and last in this range.
-  - versions: '0.17.0 || 0.20.15'
-    node: '>=8.6.0'
-    commands: node test/instrumentation/modules/pg/knex.test.js
   - versions: '0.21.21 || ^0.95.15' # latest majors subset of '>=0.21 <1'
+    peerDependencies:
+      - mysql2@^2.1.0
     node: '>=10.22.0'
     commands: node test/instrumentation/modules/pg/knex.test.js
   - versions: '1.0.7 || ^2.5.1' # latest majors subset of '>=1 <3'
