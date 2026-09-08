@@ -22,7 +22,7 @@ import assert from 'assert';
 
 async function useClientDynamoDB(dynamoDBClient, tableName) {
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/command/ListTablesCommand/
-  const command = new ListTablesCommand();
+  const command = new ListTablesCommand({});
   const data = await dynamoDBClient.send(command);
   assert(
     apm.currentSpan === null,
