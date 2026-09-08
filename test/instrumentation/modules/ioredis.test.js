@@ -100,13 +100,16 @@ test('nested', function (t) {
     var calls = 0;
 
     redis.set('foo', 'bar');
-    redis.get('foo', function (err, result) {
-      t.error(err);
-      t.strictEqual(result, 'bar');
-      calls++;
+    var callbackGetDone = new Promise(function (resolve) {
+      redis.get('foo', function (err, result) {
+        t.error(err);
+        t.strictEqual(result, 'bar');
+        calls++;
+        resolve();
+      });
     });
 
-    redis.get('foo').then(function (result) {
+    var promiseGetDone = redis.get('foo').then(function (result) {
       t.strictEqual(result, 'bar');
       calls++;
     });
@@ -119,11 +122,14 @@ test('nested', function (t) {
     redis.keys('*', function testing123(err, replies) {
       t.error(err);
       t.deepEqual(replies.sort(), ['foo', 'key', 'set']);
-      t.strictEqual(calls, 2);
 
-      agent.endTransaction();
-      redis.disconnect();
-      agent.flush();
+      Promise.all([callbackGetDone, promiseGetDone]).then(function () {
+        t.strictEqual(calls, 2);
+
+        agent.endTransaction();
+        redis.disconnect();
+        agent.flush();
+      });
     });
   });
 });
