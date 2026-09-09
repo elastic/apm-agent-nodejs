@@ -92,7 +92,7 @@ pg:
   - versions:
       mode: latest-minors
       include: '>=8.0.3 <8.16.0'
-      node: '>=14'
+    node: '>=14'
     commands:
       - node test/instrumentation/modules/pg/pg.test.js
       - node test/instrumentation/modules/pg/knex.test.js
@@ -100,7 +100,7 @@ pg:
       mode: latest-minors
       # 8.16.1 set engines to nodejs v16
       include: '>=8.16.0 <9'
-      node: '>=16'
+    node: '>=16'
     commands:
       - node test/instrumentation/modules/pg/pg.test.js
       - node test/instrumentation/modules/pg/knex.test.js
