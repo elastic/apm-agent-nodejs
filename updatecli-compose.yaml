@@ -20,6 +20,6 @@ policies:
       - .ci/updatecli/values.d/update-compose.yml
 
   - name: Update Updatecli version
-    policy: ghcr.io/elastic/oblt-updatecli-policies/updatecli/version:0.2.2@sha256:3c884a6a1004d383ac3747a5d400001be355ebca5d3e12749247a000b2221139
+    policy: ghcr.io/elastic/oblt-updatecli-policies/updatecli/version:0.3.0@sha256:5feadcdeb66bd1ab8dab111b975201cc9b379cda11ba1896b1cade4467314068
     values:
       - .ci/updatecli/values.d/scm.yml
