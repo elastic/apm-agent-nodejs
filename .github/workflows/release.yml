@@ -24,7 +24,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v7.0.0
+      - uses: actions/setup-node@v7.1.0
         with:
           # Require npm 11.5.1 or later for https://docs.npmjs.com/trusted-publishers.
           node-version: 'v24.8.0'
@@ -117,7 +117,7 @@ jobs:
           subject-digest: ${{ steps.docker-push-wolfi.outputs.digest }}
           push-to-registry: true
 
-      - uses: elastic/oblt-actions/aws/auth@v1.41.4
+      - uses: elastic/oblt-actions/aws/auth@v1.42.0
         with:
           aws-account-id: "267093732750"
 
@@ -139,7 +139,7 @@ jobs:
         run: npm publish
 
       - if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
-        uses: elastic/oblt-actions/slack/notify-result@v1.41.4
+        uses: elastic/oblt-actions/slack/notify-result@v1.42.0
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-node"
