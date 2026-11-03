@@ -26,6 +26,12 @@ To check for security updates, go to [Security announcements for the Elastic sta
 %
 % ### Fixes [next-fixes]
 
+## Next [next]
+
+### Features and enhancements [next-features-enhancements]
+
+* Support instrumenting `mongodb` v7 (requires Node.js v20.19.0 or later).
+
 ## 4.18.0 [4-18-0]
 **Release date:** July 9, 2026
 
