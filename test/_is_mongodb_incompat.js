@@ -38,8 +38,12 @@ function isMongodbIncompat() {
     if (!semver.satisfies(nodeVer, '>=14.20.1')) {
       return msg;
     }
-  } else if (semver.satisfies(mongodbVer, '>=6.0.0')) {
+  } else if (semver.satisfies(mongodbVer, '>=6.0.0 <7')) {
     if (!semver.satisfies(nodeVer, '>=16.20.1')) {
+      return msg;
+    }
+  } else if (semver.satisfies(mongodbVer, '>=7.0.0')) {
+    if (!semver.satisfies(nodeVer, '>=20.19.0')) {
       return msg;
     }
   }

@@ -100,7 +100,7 @@ The Node.js agent will automatically instrument the following modules to give yo
 | [memcached](https://www.npmjs.com/package/memcached) | >=2.2.0 <3 | Will instrument all commands. |
 | [mongodb-core](https://www.npmjs.com/package/mongodb-core) | >=1.2.19 <4 | Will instrument all queries.A lot of higher level MongoDB modules use mongodb-core,so those should be supported as well. |
 | [mongodb](https://www.npmjs.com/package/mongodb) | >=2.0.0 <3.3.0 | Supported via mongodb-core |
-| [mongodb](https://www.npmjs.com/package/mongodb) | >=3.3.0 <7 | Will instrument all queries |
+| [mongodb](https://www.npmjs.com/package/mongodb) | >=3.3.0 <8 | Will instrument all queries |
 | [mongojs](https://www.npmjs.com/package/mongojs) | >=1.0.0 <2.7.0 | Supported via mongodb-core |
 | [mongoose](https://www.npmjs.com/package/mongoose) | >=4.0.0 <5.7.0 | Supported via mongodb-core |
 | [mongoose](https://www.npmjs.com/package/mongoose) | >=5.7.0 <8 | Supported via mongodb |
