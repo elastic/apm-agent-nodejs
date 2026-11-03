@@ -36,9 +36,9 @@ test('lambda usage', (suite) => {
           res.end();
         });
         return;
-      } else if (
-        !(req.method === 'POST' && req.url.startsWith('/intake/v2/events'))
-      ) {
+      } else if (!(
+        req.method === 'POST' && req.url.startsWith('/intake/v2/events')
+      )) {
         req.resume();
         req.on('end', () => {
           res.writeHead(404);
