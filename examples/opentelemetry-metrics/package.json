@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@opentelemetry/api": "^1.4.1",
-    "@opentelemetry/exporter-prometheus": ">=0.200.0 <0.300.0",
+    "@opentelemetry/exporter-prometheus": ">=0.200.0 <0.301.0",
     "@opentelemetry/sdk-metrics": "^2.9.0",
     "elastic-apm-node": "file:../.."
   }
