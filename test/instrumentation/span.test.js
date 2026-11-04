@@ -320,6 +320,42 @@ test('span.sync', function (t) {
   });
 });
 
+test('span.sync with promises', async function (t) {
+  await Promise.resolve();
+
+  const trans = agent.startTransaction();
+  const span1 = agent.startSpan('span1');
+  const span2 = agent.startSpan('span2');
+  span2.end();
+  t.strictEqual(span2.sync, true, 'span2.sync=true immediately after end');
+
+  await Promise.resolve();
+
+  span1.end();
+  t.strictEqual(span1.sync, false, 'span1.sync=false immediately after end');
+  t.strictEqual(
+    span2.sync,
+    true,
+    'span2.sync=true later after having ended sync',
+  );
+  trans.end();
+  t.end();
+});
+
+test('span.sync when ended from another promise callback', async function (t) {
+  await Promise.resolve();
+
+  const trans = agent.startTransaction();
+  let span;
+  const ended = Promise.resolve().then(() => span.end());
+  span = agent.startSpan('span');
+  await ended;
+
+  t.strictEqual(span.sync, false, 'span.sync=false immediately after end');
+  trans.end();
+  t.end();
+});
+
 test('#_encode() - un-ended', function (t) {
   var trans = new Transaction(agent);
   var span = new Span(trans);
