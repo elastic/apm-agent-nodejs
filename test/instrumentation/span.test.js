@@ -8,6 +8,8 @@
 
 process.env.ELASTIC_APM_TEST = true;
 
+const vm = require('vm');
+
 const { CapturingTransport } = require('../_capturing_transport');
 const agent = require('../..').start({
   serviceName: 'test-span',
@@ -352,6 +354,25 @@ test('span.sync when ended from another promise callback', async function (t) {
   await ended;
 
   t.strictEqual(span.sync, false, 'span.sync=false immediately after end');
+  trans.end();
+  t.end();
+});
+
+test('span.sync for synchronous work with nested promise callbacks', async function (t) {
+  await Promise.resolve();
+
+  const trans = agent.startTransaction();
+  const span = agent.startSpan('span');
+  vm.runInNewContext(
+    'Promise.resolve().then(() => {})',
+    {},
+    {
+      microtaskMode: 'afterEvaluate',
+    },
+  );
+  span.end();
+
+  t.strictEqual(span.sync, true, 'span.sync=true after synchronous work');
   trans.end();
   t.end();
 });
