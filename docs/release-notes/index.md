@@ -32,6 +32,13 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 * Support instrumenting `mongodb` v7 (requires Node.js v20.19.0 or later).
 
+### Fixes [next-fixes]
+
+* Fix `removeListener()` for listeners added with `once()` or
+  `prependOnceListener()` on emitters bound by the agent, e.g. the HTTP
+  `ServerResponse`. Before this fix the listeners stayed registered, which
+  could cause `MaxListenersExceededWarning`.
+
 ## 4.18.0 [4-18-0]
 **Release date:** July 9, 2026
 
