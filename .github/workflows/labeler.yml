@@ -1,29 +1,32 @@
 name: "Issue Labeler"
+
+# pull_request_target is kept so that PRs from forks can be labeled (the pull_request token
+# is read-only for forks and has no access to secrets). No PR code is checked out or run:
+# only event metadata is read.
 on:
   issues:
     types: [opened]
   pull_request_target:
     types: [opened]
 
-# '*: write' permissions for https://docs.github.com/en/rest/issues/labels?apiVersion=2022-11-28#add-labels-to-an-issue
-permissions:
-  contents: read
-  issues: write
-  pull-requests: write
+permissions: {}
 
 jobs:
   triage:
     runs-on: ubuntu-24.04
+    permissions:
+      issues: write
+      pull-requests: write
     steps:
     - name: Get token
       id: get_token
-      uses: actions/create-github-app-token@v3
+      uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
       with:
         app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
         private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
         permission-members: read
     - id: is_elastic_member
-      uses: elastic/oblt-actions/github/is-member-of@v1.42.0
+      uses: elastic/oblt-actions/github/is-member-of@208d03b3c3dfec874e5f2d73b2c938e493fc6953 # v1.43.0
       with:
         github-org: "elastic"
         github-user: ${{ github.actor }}
@@ -34,7 +37,7 @@ jobs:
         github.actor != 'dependabot[bot]' &&
         github.actor != 'elastic-renovate-prod[bot]' &&
         github.actor != 'elastic-observability-automation[bot]'
-      uses: actions/github-script@v9
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
         script: |
           github.rest.issues.addLabels({
