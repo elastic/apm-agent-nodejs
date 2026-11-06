@@ -35,7 +35,7 @@ jobs:
       - uses: docker/setup-buildx-action@v4.4.1
 
       - name: Log in to the Elastic Container registry
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ${{ secrets.ELASTIC_DOCKER_REGISTRY }}
           username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
@@ -117,7 +117,7 @@ jobs:
           subject-digest: ${{ steps.docker-push-wolfi.outputs.digest }}
           push-to-registry: true
 
-      - uses: elastic/oblt-actions/aws/auth@v1.42.0
+      - uses: elastic/oblt-actions/aws/auth@v1.42.1
         with:
           aws-account-id: "267093732750"
 
@@ -139,7 +139,7 @@ jobs:
         run: npm publish
 
       - if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
-        uses: elastic/oblt-actions/slack/notify-result@v1.42.0
+        uses: elastic/oblt-actions/slack/notify-result@v1.42.1
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-node"
