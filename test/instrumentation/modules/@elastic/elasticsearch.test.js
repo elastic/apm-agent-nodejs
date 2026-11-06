@@ -35,7 +35,7 @@ const agent = require('../../../..').start({
 
 const { URL } = require('url');
 
-const { safeGetPackageVersion } = require('../../../_utils');
+const { expectedSpanSync, safeGetPackageVersion } = require('../../../_utils');
 
 // Support running these tests with a different package name -- typically
 // the '@elastic/elasticsearch-canary' package that is sometimes used for
@@ -1158,7 +1158,7 @@ function checkDataAndEnd(
     t.strictEqual(esSpan.type, 'db');
     t.strictEqual(esSpan.subtype, 'elasticsearch');
     t.strictEqual(esSpan.action, 'request');
-    t.strictEqual(esSpan.sync, false, 'span.sync=false');
+    t.strictEqual(esSpan.sync, expectedSpanSync(false), 'span.sync');
     t.equal(
       esSpan.name,
       'Elasticsearch: ' + expectedName,

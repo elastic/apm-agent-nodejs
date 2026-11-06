@@ -34,7 +34,7 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 ### Fixes [next-fixes]
 
-* Fix asynchronous spans being reported with `sync: true` when `AsyncLocalStorage` uses `AsyncContextFrame`.
+* Stop reporting the span `sync` field on Node.js v24 and later, where it cannot be determined reliably without additional overhead.
 
 ## 4.18.0 [4-18-0]
 **Release date:** July 9, 2026
