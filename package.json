@@ -198,7 +198,7 @@
     "redis": "^4.3.0",
     "rimraf": "^3.0.2",
     "tape": "^5.0.0",
-    "tedious": "^19.0.0",
+    "tedious": "^20.3.8",
     "test-all-versions": "^6.1.0",
     "thunky": "^1.1.0",
     "tree-kill": "^1.2.2",
