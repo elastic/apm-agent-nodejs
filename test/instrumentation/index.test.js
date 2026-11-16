@@ -414,6 +414,13 @@ test('bind', function (t) {
     listeners = emitter.listeners('bar');
     t.strictEqual(listeners.length, 0, 'now have 0 listeners for "bar"');
 
+    ['once', 'prependOnceListener'].forEach(function (method) {
+      emitter[method]('baz', myHandler);
+      emitter.removeListener('baz', myHandler);
+      listeners = emitter.listeners('baz');
+      t.strictEqual(listeners.length, 0, `removeListener after ${method}()`);
+    });
+
     trans.end();
   });
 
