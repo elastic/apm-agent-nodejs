@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [ "23" ]
+        node: [ "27" ]
     steps:
       - uses: actions/checkout@v7.0.1
       - run: .ci/scripts/test.sh -b "nightly" "${{ matrix.node }}"
@@ -50,7 +50,9 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - "23"
+          - "27"
+          - "26"
+          - "24"
           - "22"
           - "20"
           - "18"
