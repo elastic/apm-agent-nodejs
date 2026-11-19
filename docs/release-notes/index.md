@@ -32,6 +32,10 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 * Support instrumenting `mongodb` v7 (requires Node.js v20.19.0 or later).
 
+### Fixes [next-fixes]
+
+* End outgoing HTTP request spans and capture errors when a request fails before receiving a response. [#2856](https://github.com/elastic/apm-agent-nodejs/issues/2856)
+
 ## 4.18.0 [4-18-0]
 **Release date:** July 9, 2026
 
