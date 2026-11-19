@@ -23,7 +23,11 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 const test = require('tape');
 
 const { validateSpan } = require('../../../_validate_schema');
-const { runTestFixtures, sortApmEvents } = require('../../../_utils');
+const {
+  expectedSpanSync,
+  runTestFixtures,
+  sortApmEvents,
+} = require('../../../_utils');
 const { NODE_VER_RANGE_IITM_GE20 } = require('../../../testconsts');
 const NODE_VER_RANGE_AWS_SDK = '>=20.0.0';
 const AWS_REGION = 'us-east-2';
@@ -73,9 +77,9 @@ const testFixtures = [
         'all spans have the same transaction_id',
       );
       t.equal(
-        spans.filter((s) => s.sync === false).length,
+        spans.filter((s) => s.sync === expectedSpanSync(false)).length,
         spans.length,
-        'all spans have sync=false',
+        `all spans have sync=${expectedSpanSync(false)}`,
       );
       t.equal(
         spans.filter((s) => s.sample_rate === 1).length,

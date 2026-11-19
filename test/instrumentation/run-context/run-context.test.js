@@ -24,7 +24,7 @@ const path = require('path');
 const tape = require('tape');
 
 const { MockAPMServer } = require('../../_mock_apm_server');
-const { findObjInArray } = require('../../_utils');
+const { expectedSpanSync, findObjInArray } = require('../../_utils');
 
 const cases = [
   {
@@ -40,11 +40,11 @@ const cases = [
       const t1 = findObjInArray(events, 'transaction.name', 't1').transaction;
       const s2 = findObjInArray(events, 'span.name', 's2').span;
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1');
-      t.equal(s2.sync, false, 's2.sync=false');
+      t.equal(s2.sync, expectedSpanSync(false), 's2.sync');
       const t4 = findObjInArray(events, 'transaction.name', 't4').transaction;
       const s5 = findObjInArray(events, 'span.name', 's5').span;
       t.equal(s5.parent_id, t4.id, 's5 is a child of t4');
-      t.equal(s5.sync, true, 's5.sync=true');
+      t.equal(s5.sync, expectedSpanSync(true), 's5.sync');
     },
   },
   {
@@ -62,9 +62,9 @@ const cases = [
       const s4 = findObjInArray(events, 'span.name', 's4').span;
       const s5 = findObjInArray(events, 'span.name', 's5').span;
       t.equal(s4.parent_id, t3.id, 's4 is a child of t3');
-      t.equal(s4.sync, true, 's4.sync=true');
+      t.equal(s4.sync, expectedSpanSync(true), 's4.sync');
       t.equal(s5.parent_id, s4.id, 's5 is a child of s4');
-      t.equal(s5.sync, true, 's5.sync=true');
+      t.equal(s5.sync, expectedSpanSync(true), 's5.sync');
     },
   },
   {
@@ -76,9 +76,9 @@ const cases = [
       const s2 = findObjInArray(events, 'span.name', 'cwd').span;
       const s3 = findObjInArray(events, 'span.name', 'readdir').span;
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1');
-      t.equal(s2.sync, true, 's2.sync=true');
+      t.equal(s2.sync, expectedSpanSync(true), 's2.sync');
       t.equal(s3.parent_id, t1.id, 's3 is a child of t1');
-      t.equal(s3.sync, false, 's3.sync=false');
+      t.equal(s3.sync, expectedSpanSync(false), 's3.sync');
     },
   },
   {
@@ -126,15 +126,15 @@ const cases = [
       const s2 = findObjInArray(events, 'span.name', 's2').span;
       const s3 = findObjInArray(events, 'span.name', 's3').span;
       t.equal(s1.parent_id, t0.id, 's1 is a child of t0');
-      t.equal(s1.sync, false, 's1.sync=false');
+      t.equal(s1.sync, expectedSpanSync(false), 's1.sync');
       t.equal(
         s2.parent_id,
         t0.id,
         's2 is a child of t0 (because s1 ended before s2 was started, in the same async task)',
       );
-      t.equal(s2.sync, false, 's2.sync=false');
+      t.equal(s2.sync, expectedSpanSync(false), 's2.sync');
       t.equal(s3.parent_id, s1.id, 's3 is a child of s1');
-      t.equal(s3.sync, false, 's3.sync=false');
+      t.equal(s3.sync, expectedSpanSync(false), 's3.sync');
     },
   },
   {

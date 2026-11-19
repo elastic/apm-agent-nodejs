@@ -40,6 +40,7 @@ const {
 const fixtures = require('./fixtures/sns');
 const mockClient = require('../../../_mock_http_client');
 const mockExpressApp = require('../../../_mock_express_app');
+const { expectedSpanSync } = require('../../../_utils');
 
 initializeAwsSdk();
 
@@ -302,7 +303,7 @@ tape.test('AWS SNS: End to End Test', function (test) {
         t.equals(span.type, 'messaging', 'span type correctly set');
         t.equals(span.subtype, 'sns', 'span subtype set correctly');
         t.equals(span.action, 'publish', 'span action set correctly');
-        t.equals(span.sync, false, 'span.sync is false');
+        t.equals(span.sync, expectedSpanSync(false), 'span.sync');
         t.equals(span.context.message.queue.name, 'topic-name');
         t.deepEquals(
           span.context.service.target,
@@ -417,7 +418,7 @@ tape.test('AWS SNS: End to End Test', function (test) {
         t.equals(span.type, 'messaging', 'span type correctly set');
         t.equals(span.subtype, 'sns', 'span subtype set correctly');
         t.equals(span.action, 'publish', 'span action set correctly');
-        t.equals(span.sync, false, 'span.sync is false');
+        t.equals(span.sync, expectedSpanSync(false), 'span.sync');
         t.equals(span.context.message.queue.name, 'topic-name');
         t.deepEquals(
           span.context.service.target,

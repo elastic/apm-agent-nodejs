@@ -32,6 +32,10 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 * Support instrumenting `mongodb` v7 (requires Node.js v20.19.0 or later).
 
+### Fixes [next-fixes]
+
+* Stop reporting the span `sync` field on Node.js v24 and later, where it cannot be determined reliably without additional overhead.
+
 ## 4.18.0 [4-18-0]
 **Release date:** July 9, 2026
 
