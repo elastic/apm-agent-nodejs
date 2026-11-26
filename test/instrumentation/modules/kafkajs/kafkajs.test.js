@@ -18,7 +18,11 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 const test = require('tape');
 
 const { validateSpan } = require('../../../_validate_schema');
-const { runTestFixtures, sortApmEvents } = require('../../../_utils');
+const {
+  expectedSpanSync,
+  runTestFixtures,
+  sortApmEvents,
+} = require('../../../_utils');
 
 const kafkaHost = process.env.KAFKA_HOST || 'localhost:9094';
 
@@ -71,9 +75,9 @@ const testFixtures = [
         'all spans have the same transaction_id',
       );
       t.equal(
-        spans.filter((s) => s.sync === false).length,
+        spans.filter((s) => s.sync === expectedSpanSync(false)).length,
         spans.length,
-        'all spans have sync=false',
+        `all spans have sync=${expectedSpanSync(false)}`,
       );
       t.equal(
         spans.filter((s) => s.sample_rate === 1).length,
@@ -280,9 +284,9 @@ const testFixtures = [
         'all spans have the same transaction_id',
       );
       t.equal(
-        spans.filter((s) => s.sync === false).length,
+        spans.filter((s) => s.sync === expectedSpanSync(false)).length,
         spans.length,
-        'all spans have sync=false',
+        `all spans have sync=${expectedSpanSync(false)}`,
       );
       t.equal(
         spans.filter((s) => s.sample_rate === 1).length,
@@ -408,9 +412,9 @@ const testFixtures = [
         'all spans have the same transaction_id',
       );
       t.equal(
-        spans.filter((s) => s.sync === false).length,
+        spans.filter((s) => s.sync === expectedSpanSync(false)).length,
         spans.length,
-        'all spans have sync=false',
+        `all spans have sync=${expectedSpanSync(false)}`,
       );
       t.equal(
         spans.filter((s) => s.sample_rate === 1).length,
@@ -553,9 +557,9 @@ const testFixtures = [
         'all spans have the same transaction_id',
       );
       t.equal(
-        spans.filter((s) => s.sync === false).length,
+        spans.filter((s) => s.sync === expectedSpanSync(false)).length,
         spans.length,
-        'all spans have sync=false',
+        `all spans have sync=${expectedSpanSync(false)}`,
       );
       t.equal(
         spans.filter((s) => s.sample_rate === 1).length,

@@ -8,6 +8,8 @@
 
 process.env.ELASTIC_APM_TEST = true;
 
+const semver = require('semver');
+
 const { CapturingTransport } = require('../_capturing_transport');
 const agent = require('../..').start({
   serviceName: 'test-span',
@@ -25,6 +27,7 @@ const agent = require('../..').start({
 var test = require('tape');
 
 var assert = require('../_assert');
+const { expectedSpanSync } = require('../_utils');
 var Transaction = require('../../lib/instrumentation/transaction');
 var Span = require('../../lib/instrumentation/span');
 
@@ -299,25 +302,68 @@ test('span.sync', function (t) {
   var trans = agent.startTransaction();
 
   var span1 = agent.startSpan('span1');
-  t.strictEqual(span1.sync, true);
+  t.strictEqual(span1.sync, expectedSpanSync(true));
 
-  // This span will be *ended* synchronously. It should stay `span.sync=true`.
+  // This span will be *ended* synchronously.
   var span2 = agent.startSpan('span2');
-  t.strictEqual(span2.sync, true, 'span2.sync=true immediately after creation');
+  t.strictEqual(
+    span2.sync,
+    expectedSpanSync(true),
+    'span2.sync immediately after creation',
+  );
   span2.end();
-  t.strictEqual(span2.sync, true, 'span2.sync=true immediately after end');
+  t.strictEqual(
+    span2.sync,
+    expectedSpanSync(true),
+    'span2.sync immediately after end',
+  );
 
   setImmediate(() => {
     span1.end();
-    t.strictEqual(span1.sync, false, 'span1.sync=false immediately after end');
+    t.strictEqual(
+      span1.sync,
+      expectedSpanSync(false),
+      'span1.sync immediately after end',
+    );
     trans.end();
     t.strictEqual(
       span2.sync,
-      true,
-      'span2.sync=true later after having ended sync',
+      expectedSpanSync(true),
+      'span2.sync later after having ended sync',
     );
     t.end();
   });
+});
+
+test('span.sync is only reported before Node.js v24', async function (t) {
+  await Promise.resolve();
+
+  const trans = agent.startTransaction();
+  const asyncSpan = agent.startSpan('async');
+  const syncSpan = agent.startSpan('sync');
+  syncSpan.end();
+
+  await Promise.resolve();
+
+  asyncSpan.end();
+  trans.end();
+  await agent.flush();
+
+  const spans = JSON.parse(JSON.stringify(agent._apmClient.spans));
+  const reportedSyncSpan = spans.find((s) => s.id === syncSpan.id);
+  const reportedAsyncSpan = spans.find((s) => s.id === asyncSpan.id);
+  if (semver.gte(process.version, '24.0.0')) {
+    t.notOk('sync' in reportedSyncSpan, 'synchronous span omits sync');
+    t.notOk('sync' in reportedAsyncSpan, 'asynchronous span omits sync');
+  } else {
+    t.strictEqual(reportedSyncSpan.sync, true, 'synchronous span.sync=true');
+    t.strictEqual(
+      reportedAsyncSpan.sync,
+      false,
+      'asynchronous span.sync=false',
+    );
+  }
+  t.end();
 });
 
 test('#_encode() - un-ended', function (t) {

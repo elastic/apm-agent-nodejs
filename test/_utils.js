@@ -16,6 +16,11 @@ const semver = require('semver');
 
 const { MockAPMServer } = require('./_mock_apm_server');
 
+// Expected span.sync value: Node.js v24 and later do not report it.
+function expectedSpanSync(sync) {
+  return semver.lt(process.version, '24.0.0') ? sync : undefined;
+}
+
 // Lookup the property "str" (given in dot-notation) in the object "obj".
 // If the property isn't found, then `undefined` is returned.
 function dottedLookup(obj, str) {
@@ -375,6 +380,7 @@ function runTestFixtures(suite, testFixtures) {
 }
 
 module.exports = {
+  expectedSpanSync,
   dottedLookup,
   findObjInArray,
   findObjsInArray,

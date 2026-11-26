@@ -22,6 +22,7 @@ const tape = require('tape');
 const logging = require('../../../../lib/logging');
 const { MockAPMServer } = require('../../../_mock_apm_server');
 const { validateSpan } = require('../../../_validate_schema');
+const { expectedSpanSync } = require('../../../_utils');
 
 const {
   getToFromFromOperation,
@@ -275,9 +276,9 @@ tape.test('SQS usage scenario', function (t) {
           'all spans have the same transaction_id',
         );
         t.equal(
-          spans.filter((s) => s.sync === false).length,
+          spans.filter((s) => s.sync === expectedSpanSync(false)).length,
           spans.length,
-          'all spans have sync=false',
+          `all spans have sync=${expectedSpanSync(false)}`,
         );
         t.equal(
           spans.filter((s) => s.sample_rate === 1).length,
