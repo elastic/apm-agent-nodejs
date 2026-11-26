@@ -230,7 +230,11 @@ function done(t, query) {
     var trans = data.transactions[0];
     var span = data.spans[0];
 
-    t.strictEqual(trans.name, query + ' (/)');
+    // The GraphQL instrumentation will append ` ({route})` to the transaction
+    // name if it can determine it. With @apollo/server@4, express was being
+    // used under the hood so a route *could* be found. No longer with
+    // @apollo/server@5.
+    t.ok([query, query + ' (/)'].includes(trans.name), 'trans.name');
     t.strictEqual(trans.type, 'graphql');
     t.strictEqual(span.name, 'GraphQL: ' + query);
     t.strictEqual(span.type, 'db');
