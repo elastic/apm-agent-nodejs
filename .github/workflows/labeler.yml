@@ -26,7 +26,7 @@ jobs:
         private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
         permission-members: read
     - id: is_elastic_member
-      uses: elastic/oblt-actions/github/is-member-of@208d03b3c3dfec874e5f2d73b2c938e493fc6953 # v1.43.0
+      uses: elastic/oblt-actions/github/is-member-of@37d142a1daa0cac6eaa7bb622a6dfaf1124eea0e # v1.44.0
       with:
         github-org: "elastic"
         github-user: ${{ github.actor }}
