@@ -148,6 +148,8 @@ jobs:
       fail-fast: false
       matrix:
         node:
+          - '24'
+          - '24.0'
           - '22'
           - '22.0'
           - '20'
