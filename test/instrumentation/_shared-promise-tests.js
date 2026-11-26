@@ -6,6 +6,7 @@
 
 'use strict';
 
+// oxlint-disable-next-line no-redeclare
 module.exports = function (test, Promise, ins) {
   test('new Promise -> resolve -> then', function (t) {
     t.plan(4);

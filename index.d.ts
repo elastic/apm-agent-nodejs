@@ -13,6 +13,8 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import { Connect } from './types/connect';
 import { AwsLambda } from './types/aws-lambda';
 
+// TODO: understand if oxlint is correct on this redeclare of `apm` is invalid
+// oxlint-disable-next-line no-redeclare
 declare namespace apm {
   // Agent API
   // https://www.elastic.co/guide/en/apm/agent/nodejs/current/agent-api.html
@@ -394,7 +396,5 @@ declare namespace apm {
   }
 }
 
-// TODO: understand if oxlint is correct on this redeclare of `apm` is invalid
-// oxlint-disable-next-line no-redeclare
 declare const apm: apm.Agent;
 export = apm;

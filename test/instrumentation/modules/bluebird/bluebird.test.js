@@ -27,6 +27,7 @@ var agent = require('../../../..').start({
 });
 
 var BLUEBIRD_VERSION = require('bluebird/package').version;
+// oxlint-disable-next-line no-redeclare
 var Promise = require('bluebird');
 var semver = require('semver');
 var test = require('tape');
