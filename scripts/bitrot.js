@@ -14,7 +14,7 @@
 // - list new releases of modules that the agent doesn't yet support
 //
 // Usage:
-//      node dev-utils/bitrot.js [MODULE-NAME...]
+//      node scripts/bitrot.js [MODULE-NAME...]
 
 const { execSync } = require('child_process');
 const fs = require('fs');
@@ -392,7 +392,7 @@ function main(argv) {
   if (opts.help) {
     var help = parser.help().trimRight();
     process.stdout.write(`Synopsis:
-    dev-utils/bitrot.js [OPTIONS]
+    scripts/bitrot.js [OPTIONS]
 
 Description:
     Compare ".tav.yml", "docs/supported-technologies.asciidoc"

@@ -5,9 +5,9 @@
 # (This is typically only run from the release.yml CI workflow.)
 #
 # Usage:
-#   ./dev-utils/github-release.sh TAG_NAME RELEASE_NOTES_FILE
+#   ./scripts/github-release.sh TAG_NAME RELEASE_NOTES_FILE
 # Example:
-#   ./dev-utils/github-release.sh v3.49.1 ../build/aws/arn-file.md
+#   ./scripts/github-release.sh v3.49.1 ../build/aws/arn-file.md
 #
 # - For auth, this expects the 'GH_TOKEN' envvar to have been set.
 # - The 'TAG_NAME' is typically from the 'GITHUB_REF_NAME' variable

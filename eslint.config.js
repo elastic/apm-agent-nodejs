@@ -64,7 +64,7 @@ module.exports = [
       ...eslintJs.configs.recommended.rules,
       ...prettierConfig.rules,
       'prettier/prettier': ['error'],
-      'license-header/header': ['error', './dev-utils/license-header.js'],
+      'license-header/header': ['error', './scripts/license-header.js'],
 
       // Restoring some config from standardjs that we want to maintain at least
       // for now -- to assist with transition to prettier.
