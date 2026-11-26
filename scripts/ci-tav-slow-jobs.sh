@@ -5,7 +5,7 @@
 # for improvement.
 #
 # Usage:
-#   ./dev-utils/ci-tav-slow-jobs.sh
+#   ./scripts/ci-tav-slow-jobs.sh
 #
 # The columns are:
 #   1. duration in seconds
@@ -25,7 +25,7 @@ if [ ! -f "$json" ]; then
     echo "   - install npm dependencies"
     echo "   - cd into root folder of the project"
     echo "Usage:"
-    echo "   ./dev-utils/ci-tav-slow-jobs.sh"
+    echo "   ./scripts/ci-tav-slow-jobs.sh"
     exit 1;
 fi
 

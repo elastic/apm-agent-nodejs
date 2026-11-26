@@ -12,7 +12,7 @@
 // in the supported-technologies.asciidoc file.
 //
 // Usage:
-//      node dev-utils/update-otel-deps.js
+//      node scripts/update-otel-deps.js
 
 const assert = require('assert');
 const { execSync } = require('child_process');

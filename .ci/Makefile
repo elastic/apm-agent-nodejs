@@ -17,7 +17,7 @@ SKIP_THESE_AWS_REGIONS = me-central-1 me-south-1
 
 .PHONY: dist
 dist: validate-ref-name
-	../dev-utils/make-distribution.sh
+	../scripts/make-distribution.sh
 	@mkdir -p $(AWS_FOLDER)
 	cp $(LAMBDA_LAYER_ZIP_FILE) $(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(GITHUB_REF_NAME).zip
 
@@ -97,7 +97,7 @@ create-arn-file: validate-release-notes-url
 	@RELEASE_NOTES_URL=$(RELEASE_NOTES_URL) ./scripts/create-arn-table.sh
 
 github-release: validate-ref-name
-	../dev-utils/github-release.sh "$(GITHUB_REF_NAME)" "$(AWS_FOLDER)/$(SUFFIX_ARN_FILE)"
+	../scripts/github-release.sh "$(GITHUB_REF_NAME)" "$(AWS_FOLDER)/$(SUFFIX_ARN_FILE)"
 
 validate-ref-name:
 ifndef GITHUB_REF_NAME

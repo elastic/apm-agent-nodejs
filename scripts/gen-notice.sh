@@ -7,8 +7,8 @@
 # the known ones.
 #
 # Usage:
-#   ./dev-utils/gen-notice.sh DIST_DIR
-#   ./dev-utils/gen-notice.sh --lint DIST_DIR   # lint mode
+#   ./scripts/gen-notice.sh DIST_DIR
+#   ./scripts/gen-notice.sh --lint DIST_DIR   # lint mode
 #
 # where DIST_DIR is the distribution directory (the dir that holds the
 # "package.json" and "node_modules/" dir).
