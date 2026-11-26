@@ -394,5 +394,7 @@ declare namespace apm {
   }
 }
 
+// TODO: understand if oxlint is correct on this redeclare of `apm` is invalid
+// oxlint-disable-next-line no-redeclare
 declare const apm: apm.Agent;
 export = apm;
