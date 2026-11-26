@@ -6,10 +6,17 @@
 
 'use strict';
 
+// Skip (exit the process) if this package version doesn't support this version
+// of node.
 const semver = require('semver');
-if (semver.lt(process.version, '14.16.0')) {
+const { safeGetPackageVersion } = require('../../../_utils');
+const asVer = safeGetPackageVersion('@apollo/server');
+if (
+  (semver.lt(process.version, '14.16.0') && semver.satisfies(asVer, '^4.0.0')) ||
+  (semver.lt(process.version, '22.18.0') && semver.satisfies(asVer, '^5.0.0'))
+) {
   console.log(
-    `# SKIP @apollo/server does not officially support node ${process.version} (14.16.0 or later required)`,
+    `# SKIP @apollo/server@${asVer} does not support node ${process.version}`,
   );
   process.exit();
 }
