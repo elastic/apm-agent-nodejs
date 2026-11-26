@@ -12,7 +12,8 @@ const semver = require('semver');
 const { safeGetPackageVersion } = require('../../../_utils');
 const asVer = safeGetPackageVersion('@apollo/server');
 if (
-  (semver.lt(process.version, '14.16.0') && semver.satisfies(asVer, '^4.0.0')) ||
+  (semver.lt(process.version, '14.16.0') &&
+    semver.satisfies(asVer, '^4.0.0')) ||
   (semver.lt(process.version, '22.18.0') && semver.satisfies(asVer, '^5.0.0'))
 ) {
   console.log(
