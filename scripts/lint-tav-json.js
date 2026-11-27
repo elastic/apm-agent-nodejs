@@ -33,7 +33,7 @@ function main(argv) {
   // Find all module names in ".tav.yml" files.
   const moduleNamesFromYaml = new Set();
   const tavYmlPaths = glob.sync('**/.tav.yml', {
-    ignore: ['**/node_modules/**'],
+    ignore: ['**/node_modules/**', 'build/**'],
   });
   // console.log('tavYmlPaths:', tavYmlPaths);
   tavYmlPaths.forEach((p) => {
