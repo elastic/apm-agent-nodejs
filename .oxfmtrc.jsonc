@@ -6,6 +6,7 @@
     "test/lambda/fixtures/esbuild-bundled-handler/hello.js",
     "test/sourcemaps/fixtures/lib/**",
     "test/sourcemaps/fixtures/src/**",
+    "test/stacktraces/fixtures/dist/**",
     // No thanks are auto-formatting Markdown, at least for now.
     "**/*.md",
     // I am not a fan of the sorting of JSON keys.
