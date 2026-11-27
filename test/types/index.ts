@@ -12,10 +12,12 @@
 
 import apm, {
   AgentConfigOptions,
+  // oxlint-disable no-unused-vars
   Transaction,
   Span,
   TransactionOptions,
   SpanOptions
+  // oxlint-enable no-unused-vars
 } from '../../'
 import assert from 'assert'
 
@@ -40,6 +42,7 @@ let traceId = currentTraceIds['trace.id'] || ''
 traceId += '-' + (currentTraceIds['transaction.id'] === undefined
   ? currentTraceIds['transaction.id']
   : currentTraceIds['span.id'])
+assert(traceId);
 if (span) {
   assert('span.id' in span.ids)
   span.end()
@@ -59,7 +62,7 @@ apm.addPatch('foo', 'bar')
 apm.addPatch(['foo'], 'bar')
 apm.addPatch('foo', function (exports, agent, options) {
   agent.isStarted()
-  if (options.enabled) {}
+  if (options.enabled) { /* empty */ }
 })
 apm.removePatch('foo', 'bar')
 apm.removePatch(['foo'], 'bar')

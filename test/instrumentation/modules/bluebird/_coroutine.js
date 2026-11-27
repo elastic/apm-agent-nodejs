@@ -9,6 +9,7 @@
 var semver = require('semver');
 var BLUEBIRD_VERSION = require('bluebird/package').version;
 
+// oxlint-disable-next-line no-redeclare
 module.exports = function (test, Promise, ins) {
   var bluebird = Promise;
 
@@ -49,6 +50,7 @@ module.exports = function (test, Promise, ins) {
     test('Promise.coroutine.addYieldHandler', function (t) {
       t.plan(10);
 
+      // oxlint-disable-next-line no-redeclare
       var Promise = bluebird.getNewLibraryCopy();
 
       Promise.coroutine.addYieldHandler(function (value) {

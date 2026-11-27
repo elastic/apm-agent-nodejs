@@ -1,0 +1,170 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "unicorn",
+    "node",
+    "promise",
+    "import"
+  ],
+  "jsPlugins": [
+    // Note: *style* (e.g. as with `prettier`) is handled separately with 'oxfmt'.
+    "eslint-plugin-license-header"
+  ],
+  "categories": {
+    "correctness": "off"
+  },
+  "env": {
+    "builtin": true,
+    "es2022": true,
+    "node": true
+  },
+  "ignorePatterns": [
+    "*.example.js",
+    "*.example.mjs",
+    "tmp/**",
+    ".nyc_output/**",
+    "build/**",
+    "node_modules/**",
+    "**/elastic-apm-node.js",
+    "**/.next/**",
+    "examples/esbuild/dist/**",
+    "examples/typescript/dist/**",
+    "examples/azure-function-app/**",
+    "lib/opentelemetry-bridge/opentelemetry-core-mini/**",
+    "test/babel/out.js",
+    "test/lambda/fixtures/esbuild-bundled-handler/hello.js",
+    "test/sourcemaps/fixtures/lib/**",
+    "test/sourcemaps/fixtures/src/**",
+    "test/stacktraces/fixtures/dist/**",
+    "test/types/transpile/index.js",
+    "test/types/transpile-default/index.js"
+  ],
+  "rules": {
+    "constructor-super": "error",
+    "for-direction": "error",
+    "getter-return": "error",
+    "no-async-promise-executor": "error",
+    "no-case-declarations": "error",
+    "no-class-assign": "error",
+    "no-compare-neg-zero": "error",
+    "no-cond-assign": "error",
+    "no-const-assign": "error",
+    "no-constant-binary-expression": "error",
+    "no-constant-condition": [
+      "error",
+      {
+        "checkLoops": false
+      }
+    ],
+    "no-control-regex": "error",
+    "no-debugger": "error",
+    "no-delete-var": "error",
+    "no-dupe-class-members": "error",
+    "no-dupe-else-if": "error",
+    "no-dupe-keys": "error",
+    "no-duplicate-case": "error",
+    "no-empty": [
+      "error",
+      {
+        "allowEmptyCatch": true
+      }
+    ],
+    "no-empty-character-class": "error",
+    "no-empty-pattern": "error",
+    "no-empty-static-block": "error",
+    "no-ex-assign": "error",
+    "no-extra-boolean-cast": "error",
+    "no-fallthrough": "error",
+    "no-func-assign": "error",
+    "no-global-assign": "error",
+    "no-import-assign": "error",
+    "no-invalid-regexp": "error",
+    "no-irregular-whitespace": "error",
+    "no-loss-of-precision": "error",
+    "no-misleading-character-class": "error",
+    "no-new-native-nonconstructor": "error",
+    "no-nonoctal-decimal-escape": "error",
+    "no-obj-calls": "error",
+    "no-prototype-builtins": "error",
+    "no-redeclare": "error",
+    "no-regex-spaces": "error",
+    "no-self-assign": "error",
+    "no-setter-return": "error",
+    "no-shadow-restricted-names": "error",
+    "no-sparse-arrays": "error",
+    "no-this-before-super": "error",
+    "no-unreachable": "error",
+    "no-unsafe-finally": "error",
+    "no-unsafe-negation": "error",
+    "no-unsafe-optional-chaining": "error",
+    "no-unused-labels": "error",
+    "no-unused-private-class-members": "error",
+    "no-unused-vars": [
+      "error",
+      {
+        "args": "none",
+        "caughtErrors": "none",
+        "ignoreRestSiblings": true,
+        "vars": "all"
+      }
+    ],
+    "no-useless-backreference": "error",
+    "no-useless-catch": "error",
+    "no-useless-escape": "error",
+    "no-with": "error",
+    "use-isnan": "error",
+    "valid-typeof": [
+      "error"
+    ],
+    "license-header/header": [
+      "error",
+      "./scripts/license-header.js"
+    ],
+    "promise/param-names": [
+      "error"
+    ],
+    "import/first": "error",
+    "import/no-absolute-path": [
+      "error",
+      {
+        "esmodule": true,
+        "commonjs": true,
+        "amd": false
+      }
+    ],
+    "import/no-duplicates": "error",
+    "import/no-named-default": "error",
+    "import/no-webpack-loader-syntax": "error",
+    "new-cap": [
+      "error",
+      {
+        "capIsNew": false
+      }
+    ],
+    "no-eval": [
+      "error",
+      {
+        "allowIndirect": true
+      }
+    ],
+    "no-new": [
+      "error"
+    ],
+    "yoda": [
+      "error"
+    ],
+    "node/handle-callback-err": [
+      "error",
+      "^(err|error)$"
+    ],
+    "node/no-exports-assign": [
+      "error"
+    ],
+    "node/no-new-require": [
+      "error"
+    ],
+    "node/no-path-concat": [
+      "error"
+    ]
+  }
+}
