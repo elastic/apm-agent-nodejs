@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 80,
+  "singleQuote": true,
+  "ignorePatterns": [
+    // No thanks are auto-formatting Markdown, at least for now.
+    "**/*.md",
+    // I am not a fan of the sorting of JSON keys.
+    "**/*.json"
+  ]
+}
