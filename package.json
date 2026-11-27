@@ -110,6 +110,7 @@
     "http-headers": "^3.0.2",
     "import-in-the-middle": "1.15.0",
     "json-bigint": "^1.0.0",
+    "load-source-map": "^3.0.1",
     "lru-cache": "10.2.0",
     "measured-reporting": "^1.51.1",
     "module-details-from-path": "^1.0.3",
@@ -123,7 +124,6 @@
     "require-in-the-middle": "^8.0.0",
     "semver": "^7.5.4",
     "shallow-clone-shim": "^2.0.0",
-    "source-map": "^0.8.0-beta.0",
     "sql-summary": "^1.0.1",
     "stream-chopper": "^3.0.1",
     "unicode-byte-truncate": "^1.0.0"
