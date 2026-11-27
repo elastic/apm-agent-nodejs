@@ -72,17 +72,17 @@ const conn2 = new tedious.Connection(connOpts);
 conn2.on('connect', onConnect2);
 conn2.connect();
 function onConnect2() {
-  const req = new tedious.Request("select @mynum=42, @mystr='qaz'", function (
-    err,
-    rowCount,
-  ) {
-    console.log(
-      'select @mynum ...: err=%s rowCount=%s',
-      err && err.message,
-      rowCount,
-    );
-    conn2.close();
-  });
+  const req = new tedious.Request(
+    "select @mynum=42, @mystr='qaz'",
+    function (err, rowCount) {
+      console.log(
+        'select @mynum ...: err=%s rowCount=%s',
+        err && err.message,
+        rowCount,
+      );
+      conn2.close();
+    },
+  );
   req.addOutputParameter('mynum', tedious.TYPES.Int);
   req.addOutputParameter('mystr', tedious.TYPES.VarChar);
   req.on('returnValue', function (parameterName, value, _metadata) {

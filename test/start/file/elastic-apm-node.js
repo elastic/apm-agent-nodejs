@@ -4,9 +4,9 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 module.exports = {
   serviceName: 'from-file',
-  active: false
-}
+  active: false,
+};

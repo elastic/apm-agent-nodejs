@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-const { CapturingTransport } = require('../_capturing_transport')
+const { CapturingTransport } = require('../_capturing_transport');
 
 module.exports = {
   serviceName: 'test-babel',
@@ -12,6 +12,6 @@ module.exports = {
   // Setup a transport that captures sent data, so we can assert that expected
   // data was sent.
   transport: () => {
-    return new CapturingTransport()
-  }
-}
+    return new CapturingTransport();
+  },
+};

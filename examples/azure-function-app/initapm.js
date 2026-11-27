@@ -1,1 +1,1 @@
-require('elastic-apm-node').start()
+require('elastic-apm-node').start();

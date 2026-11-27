@@ -1,22 +1,17 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "unicorn",
-    "node",
-    "promise",
-    "import"
-  ],
+  "plugins": ["unicorn", "node", "promise", "import"],
   "jsPlugins": [
     // Note: *style* (e.g. as with `prettier`) is handled separately with 'oxfmt'.
-    "eslint-plugin-license-header"
+    "eslint-plugin-license-header",
   ],
   "categories": {
-    "correctness": "off"
+    "correctness": "off",
   },
   "env": {
     "builtin": true,
     "es2022": true,
-    "node": true
+    "node": true,
   },
   "ignorePatterns": [
     "*.example.js",
@@ -37,7 +32,7 @@
     "test/sourcemaps/fixtures/src/**",
     "test/stacktraces/fixtures/dist/**",
     "test/types/transpile/index.js",
-    "test/types/transpile-default/index.js"
+    "test/types/transpile-default/index.js",
   ],
   "rules": {
     "constructor-super": "error",
@@ -53,8 +48,8 @@
     "no-constant-condition": [
       "error",
       {
-        "checkLoops": false
-      }
+        "checkLoops": false,
+      },
     ],
     "no-control-regex": "error",
     "no-debugger": "error",
@@ -66,8 +61,8 @@
     "no-empty": [
       "error",
       {
-        "allowEmptyCatch": true
-      }
+        "allowEmptyCatch": true,
+      },
     ],
     "no-empty-character-class": "error",
     "no-empty-pattern": "error",
@@ -105,32 +100,25 @@
         "args": "none",
         "caughtErrors": "none",
         "ignoreRestSiblings": true,
-        "vars": "all"
-      }
+        "vars": "all",
+      },
     ],
     "no-useless-backreference": "error",
     "no-useless-catch": "error",
     "no-useless-escape": "error",
     "no-with": "error",
     "use-isnan": "error",
-    "valid-typeof": [
-      "error"
-    ],
-    "license-header/header": [
-      "error",
-      "./scripts/license-header.js"
-    ],
-    "promise/param-names": [
-      "error"
-    ],
+    "valid-typeof": ["error"],
+    "license-header/header": ["error", "./scripts/license-header.js"],
+    "promise/param-names": ["error"],
     "import/first": "error",
     "import/no-absolute-path": [
       "error",
       {
         "esmodule": true,
         "commonjs": true,
-        "amd": false
-      }
+        "amd": false,
+      },
     ],
     "import/no-duplicates": "error",
     "import/no-named-default": "error",
@@ -138,33 +126,20 @@
     "new-cap": [
       "error",
       {
-        "capIsNew": false
-      }
+        "capIsNew": false,
+      },
     ],
     "no-eval": [
       "error",
       {
-        "allowIndirect": true
-      }
+        "allowIndirect": true,
+      },
     ],
-    "no-new": [
-      "error"
-    ],
-    "yoda": [
-      "error"
-    ],
-    "node/handle-callback-err": [
-      "error",
-      "^(err|error)$"
-    ],
-    "node/no-exports-assign": [
-      "error"
-    ],
-    "node/no-new-require": [
-      "error"
-    ],
-    "node/no-path-concat": [
-      "error"
-    ]
-  }
+    "no-new": ["error"],
+    "yoda": ["error"],
+    "node/handle-callback-err": ["error", "^(err|error)$"],
+    "node/no-exports-assign": ["error"],
+    "node/no-new-require": ["error"],
+    "node/no-path-concat": ["error"],
+  },
 }

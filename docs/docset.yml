@@ -15,5 +15,5 @@ toc:
   - toc: reference
   - toc: release-notes
 subs:
-  ecloud:   "Elastic Cloud"
-  apm-lambda-ext:   "Elastic APM AWS Lambda extension"
+  ecloud: 'Elastic Cloud'
+  apm-lambda-ext: 'Elastic APM AWS Lambda extension'

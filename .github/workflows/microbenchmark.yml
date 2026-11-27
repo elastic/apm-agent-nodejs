@@ -23,7 +23,7 @@ jobs:
       - name: Run microbenchmark
         uses: elastic/oblt-actions/buildkite/run@v1.44.0
         with:
-          pipeline: "apm-agent-microbenchmark"
+          pipeline: 'apm-agent-microbenchmark'
           token: ${{ secrets.BUILDKITE_TOKEN }}
           wait-for: false
           env-vars: |

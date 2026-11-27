@@ -20,38 +20,42 @@ declare namespace apm {
   // https://www.elastic.co/guide/en/apm/agent/nodejs/current/agent-api.html
   export interface Agent {
     // Configuration
-    start (options?: AgentConfigOptions): Agent;
-    isStarted (): boolean;
-    getServiceName (): string | undefined;
-    getServiceVersion (): string | undefined;
-    getServiceEnvironment (): string;
-    getServiceNodeName (): string | undefined;
-    setFramework (options: {
+    start(options?: AgentConfigOptions): Agent;
+    isStarted(): boolean;
+    getServiceName(): string | undefined;
+    getServiceVersion(): string | undefined;
+    getServiceEnvironment(): string;
+    getServiceNodeName(): string | undefined;
+    setFramework(options: {
       name?: string;
       version?: string;
       overwrite?: boolean;
     }): void;
-    addPatch (modules: string | Array<string>, handler: string | PatchHandler): void;
-    removePatch (modules: string | Array<string>, handler: string | PatchHandler): void;
-    clearPatches (modules: string | Array<string>): void;
+    addPatch(
+      modules: string | Array<string>,
+      handler: string | PatchHandler,
+    ): void;
+    removePatch(
+      modules: string | Array<string>,
+      handler: string | PatchHandler,
+    ): void;
+    clearPatches(modules: string | Array<string>): void;
 
     // Data collection hooks
-    middleware: { connect (): Connect.ErrorHandleFunction };
-    lambda (handler: AwsLambda.Handler): AwsLambda.Handler;
-    lambda (type: string, handler: AwsLambda.Handler): AwsLambda.Handler;
-    handleUncaughtExceptions (
-      fn?: (err: Error) => void
-    ): void;
+    middleware: { connect(): Connect.ErrorHandleFunction };
+    lambda(handler: AwsLambda.Handler): AwsLambda.Handler;
+    lambda(type: string, handler: AwsLambda.Handler): AwsLambda.Handler;
+    handleUncaughtExceptions(fn?: (err: Error) => void): void;
 
     // Errors
-    captureError (
+    captureError(
       err: Error | string | ParameterizedMessageObject,
-      callback?: CaptureErrorCallback
+      callback?: CaptureErrorCallback,
     ): void;
-    captureError (
+    captureError(
       err: Error | string | ParameterizedMessageObject,
       options?: CaptureErrorOptions,
-      callback?: CaptureErrorCallback
+      callback?: CaptureErrorCallback,
     ): void;
 
     // Distributed Tracing
@@ -60,63 +64,60 @@ declare namespace apm {
       'trace.id'?: string;
       'transaction.id'?: string;
       'span.id'?: string;
-    }
+    };
 
     // Transactions
     startTransaction(
       name?: string | null,
-      options?: TransactionOptions
+      options?: TransactionOptions,
     ): Transaction;
     startTransaction(
       name: string | null,
       type: string | null,
-      options?: TransactionOptions
+      options?: TransactionOptions,
     ): Transaction;
-    setTransactionName (name: string): void;
-    endTransaction (result?: string | number, endTime?: number): void;
+    setTransactionName(name: string): void;
+    endTransaction(result?: string | number, endTime?: number): void;
     currentTransaction: Transaction | null;
 
     // Spans
-    startSpan(
-      name?: string | null,
-      options?: SpanOptions
-    ): Span | null;
+    startSpan(name?: string | null, options?: SpanOptions): Span | null;
     startSpan(
       name: string | null,
       type: string | null,
-      options?: SpanOptions
+      options?: SpanOptions,
     ): Span | null;
     startSpan(
       name: string | null,
       type: string | null,
       subtype: string | null,
-      options?: SpanOptions
+      options?: SpanOptions,
     ): Span | null;
     startSpan(
       name: string | null,
       type: string | null,
       subtype: string | null,
       action: string | null,
-      options?: SpanOptions
+      options?: SpanOptions,
     ): Span | null;
     currentSpan: Span | null;
 
     // Context
-    setGlobalLabel (name: string, value: LabelValue): void;
-    setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
-    addLabels (labels: Labels, stringify?: boolean): boolean;
-    setUserContext (user: UserObject): void;
-    setCustomContext (custom: object): void;
+    setGlobalLabel(name: string, value: LabelValue): void;
+    setLabel(name: string, value: LabelValue, stringify?: boolean): boolean;
+    addLabels(labels: Labels, stringify?: boolean): boolean;
+    setUserContext(user: UserObject): void;
+    setCustomContext(custom: object): void;
 
     // Transport
-    addFilter (fn: FilterFn): void;
-    addErrorFilter (fn: FilterFn): void;
-    addSpanFilter (fn: FilterFn): void;
-    addTransactionFilter (fn: FilterFn): void;
-    addMetadataFilter (fn: FilterFn): void;
-    flush (): Promise<void>;
-    flush (callback?: Function): void;
-    destroy (): Promise<void>;
+    addFilter(fn: FilterFn): void;
+    addErrorFilter(fn: FilterFn): void;
+    addSpanFilter(fn: FilterFn): void;
+    addTransactionFilter(fn: FilterFn): void;
+    addMetadataFilter(fn: FilterFn): void;
+    flush(): Promise<void>;
+    flush(callback?: Function): void;
+    destroy(): Promise<void>;
 
     // Utils
     logger: Logger;
@@ -146,39 +147,36 @@ declare namespace apm {
     ids: {
       'trace.id': string;
       'transaction.id': string;
-    }
+    };
 
-    setType (type?: string | null): void;
-    setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
-    addLabels (labels: Labels, stringify?: boolean): boolean;
+    setType(type?: string | null): void;
+    setLabel(name: string, value: LabelValue, stringify?: boolean): boolean;
+    addLabels(labels: Labels, stringify?: boolean): boolean;
     setOutcome(outcome: Outcome): void;
-    addLink (link: Link): void;
-    addLinks (links: Link[]): void;
+    addLink(link: Link): void;
+    addLinks(links: Link[]): void;
 
-    startSpan(
-      name?: string | null,
-      options?: SpanOptions
-    ): Span | null;
+    startSpan(name?: string | null, options?: SpanOptions): Span | null;
     startSpan(
       name: string | null,
       type: string | null,
-      options?: SpanOptions
+      options?: SpanOptions,
     ): Span | null;
     startSpan(
       name: string | null,
       type: string | null,
       subtype: string | null,
-      options?: SpanOptions
+      options?: SpanOptions,
     ): Span | null;
     startSpan(
       name: string | null,
       type: string | null,
       subtype: string | null,
       action: string | null,
-      options?: SpanOptions
+      options?: SpanOptions,
     ): Span | null;
-    ensureParentId (): string;
-    end (result?: string | number | null, endTime?: number): void;
+    ensureParentId(): string;
+    end(result?: string | number | null, endTime?: number): void;
   }
 
   // Span API
@@ -198,16 +196,20 @@ declare namespace apm {
     ids: {
       'trace.id': string;
       'span.id': string;
-    }
+    };
 
-    setType (type?: string | null, subtype?: string | null, action?: string | null): void;
-    setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
-    addLabels (labels: Labels, stringify?: boolean): boolean;
+    setType(
+      type?: string | null,
+      subtype?: string | null,
+      action?: string | null,
+    ): void;
+    setLabel(name: string, value: LabelValue, stringify?: boolean): boolean;
+    addLabels(labels: Labels, stringify?: boolean): boolean;
     setOutcome(outcome: Outcome): void;
     setServiceTarget(type?: string | null, name?: string | null): void;
-    addLink (link: Link): void;
-    addLinks (links: Link[]): void;
-    end (endTime?: number): void;
+    addLink(link: Link): void;
+    addLinks(links: Link[]): void;
+    end(endTime?: number): void;
   }
 
   // https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html
@@ -333,18 +335,18 @@ declare namespace apm {
     // Defining overloaded methods rather than a separate `interface LogFn`
     // as @types/pino does, because the IDE completion shows these as *methods*
     // rather than as properties, which is slightly nicer.
-    fatal (msg: string, ...args: any[]): void;
-    fatal (obj: {}, msg?: string, ...args: any[]): void;
-    error (msg: string, ...args: any[]): void;
-    error (obj: {}, msg?: string, ...args: any[]): void;
-    warn (msg: string, ...args: any[]): void;
-    warn (obj: {}, msg?: string, ...args: any[]): void;
-    info (msg: string, ...args: any[]): void;
-    info (obj: {}, msg?: string, ...args: any[]): void;
-    debug (msg: string, ...args: any[]): void;
-    debug (obj: {}, msg?: string, ...args: any[]): void;
-    trace (msg: string, ...args: any[]): void;
-    trace (obj: {}, msg?: string, ...args: any[]): void;
+    fatal(msg: string, ...args: any[]): void;
+    fatal(obj: {}, msg?: string, ...args: any[]): void;
+    error(msg: string, ...args: any[]): void;
+    error(obj: {}, msg?: string, ...args: any[]): void;
+    warn(msg: string, ...args: any[]): void;
+    warn(obj: {}, msg?: string, ...args: any[]): void;
+    info(msg: string, ...args: any[]): void;
+    info(obj: {}, msg?: string, ...args: any[]): void;
+    debug(msg: string, ...args: any[]): void;
+    debug(obj: {}, msg?: string, ...args: any[]): void;
+    trace(msg: string, ...args: any[]): void;
+    trace(obj: {}, msg?: string, ...args: any[]): void;
     // Allow a passed in Logger that has other properties, as a Pino logger
     // does. Discussion:
     // https://github.com/elastic/apm-agent-nodejs/pull/926/files#r266239656
@@ -356,7 +358,7 @@ declare namespace apm {
   // span link attributes are not supported.
   export interface Link {
     /** A W3C trace-context 'traceparent' string, Transaction, Span, or OTel SpanContext. */
-    context: Transaction | Span | {traceId: string, spanId: string} | string;
+    context: Transaction | Span | { traceId: string; spanId: string } | string;
   }
 
   export interface TransactionOptions {
@@ -377,17 +379,30 @@ declare namespace apm {
 
   type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
   type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
-  type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'warning' | 'error' | 'fatal' | 'critical' | 'off';
+  type LogLevel =
+    | 'trace'
+    | 'debug'
+    | 'info'
+    | 'warn'
+    | 'warning'
+    | 'error'
+    | 'fatal'
+    | 'critical'
+    | 'off';
   type TraceContinuationStrategy = 'continue' | 'restart' | 'restart_external';
 
   type CaptureErrorCallback = (err: Error | null, id: string) => void;
   type FilterFn = (payload: Payload) => Payload | boolean | void;
   type LabelValue = string | number | boolean | null | undefined;
-  type KeyValueConfig = string | Labels | Array<Array<LabelValue>>
+  type KeyValueConfig = string | Labels | Array<Array<LabelValue>>;
 
-  type Payload = { [propName: string]: any }
+  type Payload = { [propName: string]: any };
 
-  type PatchHandler = (exports: any, agent: Agent, options: PatchOptions) => any;
+  type PatchHandler = (
+    exports: any,
+    agent: Agent,
+    options: PatchOptions,
+  ) => any;
 
   interface PatchOptions {
     name: string;

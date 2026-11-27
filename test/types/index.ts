@@ -16,230 +16,285 @@ import apm, {
   Transaction,
   Span,
   TransactionOptions,
-  SpanOptions
+  SpanOptions,
   // oxlint-enable no-unused-vars
-} from '../../'
-import assert from 'assert'
+} from '../../';
+import assert from 'assert';
 
 const agentOpts: AgentConfigOptions = {
   captureExceptions: false,
   metricsInterval: '0s',
-  centralConfig: false
-}
-apm.start(agentOpts)
+  centralConfig: false,
+};
+apm.start(agentOpts);
 
-function started (aBool: boolean) {
-  console.log(`aBool is: ${aBool}`)
+function started(aBool: boolean) {
+  console.log(`aBool is: ${aBool}`);
 }
-started(apm.isStarted())
+started(apm.isStarted());
 
-const trans = apm.currentTransaction
-const span = apm.currentSpan
-const traceparent = apm.currentTraceparent
-if (traceparent) traceparent.split('-')
-const currentTraceIds = apm.currentTraceIds
-let traceId = currentTraceIds['trace.id'] || ''
-traceId += '-' + (currentTraceIds['transaction.id'] === undefined
-  ? currentTraceIds['transaction.id']
-  : currentTraceIds['span.id'])
+const trans = apm.currentTransaction;
+const span = apm.currentSpan;
+const traceparent = apm.currentTraceparent;
+if (traceparent) traceparent.split('-');
+const currentTraceIds = apm.currentTraceIds;
+let traceId = currentTraceIds['trace.id'] || '';
+traceId +=
+  '-' +
+  (currentTraceIds['transaction.id'] === undefined
+    ? currentTraceIds['transaction.id']
+    : currentTraceIds['span.id']);
 assert(traceId);
 if (span) {
-  assert('span.id' in span.ids)
-  span.end()
+  assert('span.id' in span.ids);
+  span.end();
 }
 if (trans) {
-  assert('transaction.id' in trans.ids)
-  trans.end()
+  assert('transaction.id' in trans.ids);
+  trans.end();
 }
 
-apm.setFramework({})
-apm.setFramework({ name: 'foo' })
-apm.setFramework({ name: 'foo', version: 'bar' })
-apm.setFramework({ version: 'bar' })
-apm.setFramework({ name: 'foo', version: 'bar', overwrite: false })
+apm.setFramework({});
+apm.setFramework({ name: 'foo' });
+apm.setFramework({ name: 'foo', version: 'bar' });
+apm.setFramework({ version: 'bar' });
+apm.setFramework({ name: 'foo', version: 'bar', overwrite: false });
 
-apm.addPatch('foo', 'bar')
-apm.addPatch(['foo'], 'bar')
+apm.addPatch('foo', 'bar');
+apm.addPatch(['foo'], 'bar');
 apm.addPatch('foo', function (exports, agent, options) {
-  agent.isStarted()
-  if (options.enabled) { /* empty */ }
-})
-apm.removePatch('foo', 'bar')
-apm.removePatch(['foo'], 'bar')
-apm.clearPatches('foo')
-apm.clearPatches(['foo'])
+  agent.isStarted();
+  if (options.enabled) {
+    /* empty */
+  }
+});
+apm.removePatch('foo', 'bar');
+apm.removePatch(['foo'], 'bar');
+apm.clearPatches('foo');
+apm.clearPatches(['foo']);
 
-apm.lambda(() => {})
-apm.lambda('foo', () => {})
+apm.lambda(() => {});
+apm.lambda('foo', () => {});
 
-apm.handleUncaughtExceptions()
+apm.handleUncaughtExceptions();
 apm.handleUncaughtExceptions((err: Error) => {
-  console.error(err.stack)
-  process.exit(1)
-})
+  console.error(err.stack);
+  process.exit(1);
+});
 
-apm.captureError(new Error('foo'))
-apm.captureError('foo')
-apm.captureError({ message: 'hello %s', params: ['world'] })
-apm.captureError(new Error('foo'), { tags: { foo: 'bar' } })
-apm.captureError('foo', { tags: { foo: 'bar' } })
-apm.captureError({ message: 'hello %s', params: ['world'] }, { tags: { foo: 'bar' } })
-apm.captureError(new Error('foo'), { tags: { foo: 'bar' } }, () => {})
-apm.captureError('foo', { tags: { foo: 'bar' } }, () => {})
-apm.captureError({ message: 'hello %s', params: ['world'] }, { tags: { foo: 'bar' } }, () => {})
-apm.captureError(new Error('foo'), () => {})
-apm.captureError('foo', () => {})
-apm.captureError({ message: 'hello %s', params: ['world'] }, () => {})
-apm.captureError(new Error('an error on the transaction'), { parent: trans })
-apm.captureError(new Error('an error on the span'), { parent: span })
-apm.captureError(new Error('an error with explicitly no parent'), { parent: null })
+apm.captureError(new Error('foo'));
+apm.captureError('foo');
+apm.captureError({ message: 'hello %s', params: ['world'] });
+apm.captureError(new Error('foo'), { tags: { foo: 'bar' } });
+apm.captureError('foo', { tags: { foo: 'bar' } });
+apm.captureError(
+  { message: 'hello %s', params: ['world'] },
+  { tags: { foo: 'bar' } },
+);
+apm.captureError(new Error('foo'), { tags: { foo: 'bar' } }, () => {});
+apm.captureError('foo', { tags: { foo: 'bar' } }, () => {});
+apm.captureError(
+  { message: 'hello %s', params: ['world'] },
+  { tags: { foo: 'bar' } },
+  () => {},
+);
+apm.captureError(new Error('foo'), () => {});
+apm.captureError('foo', () => {});
+apm.captureError({ message: 'hello %s', params: ['world'] }, () => {});
+apm.captureError(new Error('an error on the transaction'), { parent: trans });
+apm.captureError(new Error('an error on the span'), { parent: span });
+apm.captureError(new Error('an error with explicitly no parent'), {
+  parent: null,
+});
 
-apm.startTransaction()
-apm.startTransaction('foo')
-apm.startTransaction('foo', 'type')
-apm.startTransaction('foo', { startTime: 1 })
-apm.startTransaction('foo', 'type', { startTime: 1 })
-apm.startTransaction('foo', { childOf: '00-12345678901234567890123456789012-1234567890123456-01' })
-apm.startTransaction('foo', { tracestate: 'foo=42,bar=43' })
-apm.startTransaction('foo', { links: [{ context: '00-12345678901234567890123456789012-1234567890123456-01' }] })
+apm.startTransaction();
+apm.startTransaction('foo');
+apm.startTransaction('foo', 'type');
+apm.startTransaction('foo', { startTime: 1 });
+apm.startTransaction('foo', 'type', { startTime: 1 });
+apm.startTransaction('foo', {
+  childOf: '00-12345678901234567890123456789012-1234567890123456-01',
+});
+apm.startTransaction('foo', { tracestate: 'foo=42,bar=43' });
+apm.startTransaction('foo', {
+  links: [
+    { context: '00-12345678901234567890123456789012-1234567890123456-01' },
+  ],
+});
 
-apm.setTransactionName('foo')
+apm.setTransactionName('foo');
 
-apm.endTransaction()
+apm.endTransaction();
 
-apm.startSpan()
-apm.startSpan('foo')
-apm.startSpan('foo', 'type')
-apm.startSpan('foo', 'type', 'subtype')
-apm.startSpan('foo', 'type', 'subtype', 'action')
-apm.startSpan('foo', { childOf: 'baz' })
-apm.startSpan('foo', 'type', { childOf: 'baz' })
-apm.startSpan('foo', 'type', 'subtype', { childOf: 'baz' })
-apm.startSpan('foo', 'type', 'subtype', 'action', { childOf: 'baz' })
-apm.startSpan('foo', 'type', 'subtype', 'action', { startTime: 42 })
-apm.startSpan('foo', 'type', 'subtype', { exitSpan: true })
+apm.startSpan();
+apm.startSpan('foo');
+apm.startSpan('foo', 'type');
+apm.startSpan('foo', 'type', 'subtype');
+apm.startSpan('foo', 'type', 'subtype', 'action');
+apm.startSpan('foo', { childOf: 'baz' });
+apm.startSpan('foo', 'type', { childOf: 'baz' });
+apm.startSpan('foo', 'type', 'subtype', { childOf: 'baz' });
+apm.startSpan('foo', 'type', 'subtype', 'action', { childOf: 'baz' });
+apm.startSpan('foo', 'type', 'subtype', 'action', { startTime: 42 });
+apm.startSpan('foo', 'type', 'subtype', { exitSpan: true });
 
-apm.setLabel('foo', 'bar')
-apm.setLabel('foo', 1)
-apm.setLabel('foo', false)
-apm.setLabel('foo', 1, false)
-apm.setLabel('foo', false, false)
+apm.setLabel('foo', 'bar');
+apm.setLabel('foo', 1);
+apm.setLabel('foo', false);
+apm.setLabel('foo', 1, false);
+apm.setLabel('foo', false, false);
 
-apm.addLabels({ s: 'bar', n: 42, b: false })
-apm.addLabels({ s: 'bar', n: 42, b: false }, false)
+apm.addLabels({ s: 'bar', n: 42, b: false });
+apm.addLabels({ s: 'bar', n: 42, b: false }, false);
 
 apm.setUserContext({
   id: 'foo',
   username: 'bar',
-  email: 'baz'
-})
+  email: 'baz',
+});
 
-apm.setCustomContext({ foo: { bar: { baz: true } } })
+apm.setCustomContext({ foo: { bar: { baz: true } } });
 
-function filter1 (payload: any) {
-  payload.foo = 'bar'
-  return payload
+function filter1(payload: any) {
+  payload.foo = 'bar';
+  return payload;
 }
-function filter2 (payload: any) {
-  return false
+function filter2(payload: any) {
+  return false;
 }
-function filter3 (payload: any) {}
-apm.addFilter(filter1)
-apm.addFilter(filter2)
-apm.addFilter(filter3)
-apm.addErrorFilter(filter1)
-apm.addErrorFilter(filter2)
-apm.addErrorFilter(filter3)
-apm.addTransactionFilter(filter1)
-apm.addTransactionFilter(filter2)
-apm.addTransactionFilter(filter3)
-apm.addSpanFilter(filter1)
-apm.addSpanFilter(filter2)
-apm.addSpanFilter(filter3)
-apm.addMetadataFilter(filter1)
-apm.addMetadataFilter(filter2)
-apm.addMetadataFilter(filter3)
+function filter3(payload: any) {}
+apm.addFilter(filter1);
+apm.addFilter(filter2);
+apm.addFilter(filter3);
+apm.addErrorFilter(filter1);
+apm.addErrorFilter(filter2);
+apm.addErrorFilter(filter3);
+apm.addTransactionFilter(filter1);
+apm.addTransactionFilter(filter2);
+apm.addTransactionFilter(filter3);
+apm.addSpanFilter(filter1);
+apm.addSpanFilter(filter2);
+apm.addSpanFilter(filter3);
+apm.addMetadataFilter(filter1);
+apm.addMetadataFilter(filter2);
+apm.addMetadataFilter(filter3);
 
-apm.flush().finally(() => {})
-apm.flush(() => {})
+apm.flush().finally(() => {});
+apm.flush(() => {});
 
-apm.destroy()
+apm.destroy();
 
-apm.logger.trace('')
-apm.logger.debug('')
-apm.logger.info('')
-apm.logger.warn('')
-apm.logger.error('')
-apm.logger.fatal('')
+apm.logger.trace('');
+apm.logger.debug('');
+apm.logger.info('');
+apm.logger.warn('');
+apm.logger.error('');
+apm.logger.fatal('');
 
 {
-  const trans = apm.startTransaction()
+  const trans = apm.startTransaction();
   if (trans) {
-    trans.traceparent.split('-')
+    trans.traceparent.split('-');
 
-    trans.setLabel('foo', 'bar')
-    trans.setLabel('foo', 42)
-    trans.setLabel('foo', false)
+    trans.setLabel('foo', 'bar');
+    trans.setLabel('foo', 42);
+    trans.setLabel('foo', false);
 
-    trans.addLabels({ s: 'bar', n: 42, b: false })
+    trans.addLabels({ s: 'bar', n: 42, b: false });
 
-    trans.startSpan()
-    trans.startSpan('foo')
-    trans.startSpan('foo', 'type')
-    trans.startSpan('foo', 'type', 'subtype')
-    trans.startSpan('foo', 'type', 'subtype', 'action')
-    trans.startSpan('foo', { childOf: 'baz' })
-    trans.startSpan('foo', 'type', { childOf: 'baz' })
-    trans.startSpan('foo', 'type', 'subtype', { childOf: 'baz' })
-    trans.startSpan('foo', 'type', 'subtype', 'action', { childOf: 'baz' })
-    trans.startSpan('foo', 'type', 'subtype', { exitSpan: true })
-    trans.startSpan('foo', { links: [{ context: '00-12345678901234567890123456789012-1234567890123456-01' }] })
+    trans.startSpan();
+    trans.startSpan('foo');
+    trans.startSpan('foo', 'type');
+    trans.startSpan('foo', 'type', 'subtype');
+    trans.startSpan('foo', 'type', 'subtype', 'action');
+    trans.startSpan('foo', { childOf: 'baz' });
+    trans.startSpan('foo', 'type', { childOf: 'baz' });
+    trans.startSpan('foo', 'type', 'subtype', { childOf: 'baz' });
+    trans.startSpan('foo', 'type', 'subtype', 'action', { childOf: 'baz' });
+    trans.startSpan('foo', 'type', 'subtype', { exitSpan: true });
+    trans.startSpan('foo', {
+      links: [
+        { context: '00-12345678901234567890123456789012-1234567890123456-01' },
+      ],
+    });
 
-    trans.addLink({ context: '00-12345678901234567890123456789012-1234567890123456-01' })
-    trans.addLink({ context: { traceId: '12345678901234567890123456789012', spanId: '1234567890123456' }})
-    trans.addLinks([{ context: '00-12345678901234567890123456789012-1234567890123456-01' }])
-    trans.addLinks([{ context: { traceId: '12345678901234567890123456789012', spanId: '1234567890123456' }}])
+    trans.addLink({
+      context: '00-12345678901234567890123456789012-1234567890123456-01',
+    });
+    trans.addLink({
+      context: {
+        traceId: '12345678901234567890123456789012',
+        spanId: '1234567890123456',
+      },
+    });
+    trans.addLinks([
+      { context: '00-12345678901234567890123456789012-1234567890123456-01' },
+    ]);
+    trans.addLinks([
+      {
+        context: {
+          traceId: '12345678901234567890123456789012',
+          spanId: '1234567890123456',
+        },
+      },
+    ]);
 
-    function ensureParentId (id: string) {}
-    ensureParentId(trans.ensureParentId())
+    function ensureParentId(id: string) {}
+    ensureParentId(trans.ensureParentId());
 
-    trans.setOutcome('failure')
+    trans.setOutcome('failure');
 
-    trans.end()
-    trans.end('foo')
-    trans.end('foo', 42)
-    trans.end(null, 42)
-    trans.end(undefined, 42)
+    trans.end();
+    trans.end('foo');
+    trans.end('foo', 42);
+    trans.end(null, 42);
+    trans.end(undefined, 42);
   }
 }
 
 {
-  const trans = apm.startTransaction()
+  const trans = apm.startTransaction();
   if (trans) {
-    const span = trans.startSpan()
+    const span = trans.startSpan();
     if (span) {
-      span.traceparent.split('-')
+      span.traceparent.split('-');
 
-      span.setLabel('foo', 'bar')
-      span.setLabel('foo', 42)
-      span.setLabel('foo', false)
+      span.setLabel('foo', 'bar');
+      span.setLabel('foo', 42);
+      span.setLabel('foo', false);
 
-      span.addLabels({ s: 'bar', n: 42, b: false })
+      span.addLabels({ s: 'bar', n: 42, b: false });
 
-      span.setOutcome('failure')
+      span.setOutcome('failure');
 
-      span.setServiceTarget('myServiceTargetType')
-      span.setServiceTarget('myServiceTargetType', 'myServiceTargetName')
-      span.setServiceTarget(null, null)
-      span.setServiceTarget()
+      span.setServiceTarget('myServiceTargetType');
+      span.setServiceTarget('myServiceTargetType', 'myServiceTargetName');
+      span.setServiceTarget(null, null);
+      span.setServiceTarget();
 
-      span.addLink({ context: '00-12345678901234567890123456789012-1234567890123456-01' })
-      span.addLink({ context: { traceId: '12345678901234567890123456789012', spanId: '1234567890123456' }})
-      span.addLinks([{ context: '00-12345678901234567890123456789012-1234567890123456-01' }])
-      span.addLinks([{ context: { traceId: '12345678901234567890123456789012', spanId: '1234567890123456' }}])
+      span.addLink({
+        context: '00-12345678901234567890123456789012-1234567890123456-01',
+      });
+      span.addLink({
+        context: {
+          traceId: '12345678901234567890123456789012',
+          spanId: '1234567890123456',
+        },
+      });
+      span.addLinks([
+        { context: '00-12345678901234567890123456789012-1234567890123456-01' },
+      ]);
+      span.addLinks([
+        {
+          context: {
+            traceId: '12345678901234567890123456789012',
+            spanId: '1234567890123456',
+          },
+        },
+      ]);
 
-      span.end()
-      span.end(42)
+      span.end();
+      span.end(42);
     }
   }
 }
