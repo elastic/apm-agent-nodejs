@@ -118,7 +118,7 @@
     ],
     "license-header/header": [
       "error",
-      "./dev-utils/license-header.js"
+      "./scripts/license-header.js"
     ],
     "promise/param-names": [
       "error"
