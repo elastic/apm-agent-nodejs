@@ -6,10 +6,10 @@ on:
     branches:
       - main
     paths-ignore:
-    - '**/*.md'
-    - '**/*.asciidoc'
-    - 'docs/**'
-    - 'examples/**'
+      - '**/*.md'
+      - '**/*.asciidoc'
+      - 'docs/**'
+      - 'examples/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -26,7 +26,6 @@ jobs:
     outputs:
       permutations: ${{ steps.transform.outputs.permutations }}
     steps:
-
       - uses: actions/checkout@v7.0.1
 
       - id: transform

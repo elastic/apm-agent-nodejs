@@ -60,5 +60,5 @@ jobs:
         uses: elastic/oblt-actions/slack/notify-result@v1.44.0
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
-          channel-id: "#apm-agent-node"
+          channel-id: '#apm-agent-node'
           message: ':warning: test-fips workflow run ${{ github.run_id }} failed'

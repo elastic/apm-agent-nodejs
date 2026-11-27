@@ -64,7 +64,10 @@ export declare namespace AwsLambda {
     locale: string;
   }
 
-  type Callback<TResult = any> = (error?: Error | null | string, result?: TResult) => void;
+  type Callback<TResult = any> = (
+    error?: Error | null | string,
+    result?: TResult,
+  ) => void;
 
   interface Context {
     // Properties

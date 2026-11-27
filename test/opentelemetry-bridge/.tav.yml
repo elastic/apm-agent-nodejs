@@ -1,4 +1,4 @@
-"@opentelemetry/api":
+'@opentelemetry/api':
   versions: '>=1.0.0 <1.10.0'
   node: '>=8.0.0'
   commands:
@@ -8,4 +8,3 @@
     - node fixtures.test.js
     - node interface-ContextManager.test.js
     - node otel-bridge-feature.test.js
-

@@ -14,7 +14,7 @@
 name: slack-lite
 
 env:
-  SLACK_CHANNEL: "#apm-agent-node"
+  SLACK_CHANNEL: '#apm-agent-node'
 
 on:
   issues:
@@ -31,9 +31,9 @@ jobs:
     # - dependabot or renovate PRs, too noisy
     # - draft PRs
     if: ${{ !(
-        (github.event.action == 'opened' && github.event.pull_request.draft) ||
-        github.event.pull_request.user.login == 'dependabot[bot]' ||
-        github.event.pull_request.user.login == 'elastic-renovate-prod[bot]'
+      (github.event.action == 'opened' && github.event.pull_request.draft) ||
+      github.event.pull_request.user.login == 'dependabot[bot]' ||
+      github.event.pull_request.user.login == 'elastic-renovate-prod[bot]'
       ) }}
     runs-on: ubuntu-24.04
     steps:

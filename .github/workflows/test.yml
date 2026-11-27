@@ -5,20 +5,20 @@ on:
   workflow_dispatch:
   push:
     branches:
-    - main
+      - main
     paths-ignore:
-    - '**/*.md'
-    - '**/*.asciidoc'
-    - 'docs/**'
-    - 'examples/**'
+      - '**/*.md'
+      - '**/*.asciidoc'
+      - 'docs/**'
+      - 'examples/**'
   pull_request:
     branches:
-    - main
+      - main
     paths-ignore:
-    - '**/*.md'
-    - '**/*.asciidoc'
-    - 'docs/**'
-    - 'examples/**'
+      - '**/*.md'
+      - '**/*.asciidoc'
+      - 'docs/**'
+      - 'examples/**'
 
 ## Concurrency only allowed in the main branch.
 ## So old builds running for old commits within the same Pull Request are cancelled
@@ -30,7 +30,6 @@ permissions:
   contents: read
 
 jobs:
-
   lint:
     runs-on: ubuntu-24.04
     steps:
@@ -42,7 +41,6 @@ jobs:
       - run: npm run lint
 
   test-vers:
-
     # These services and their configuration should match test/docker-compose.yml.
     services:
       redis:
@@ -121,7 +119,7 @@ jobs:
         env:
           DATA_DIR: '/var/lib/localstack'
         ports:
-          - "4566:4566"
+          - '4566:4566'
         volumes:
           - nodelocalstackdata:/var/lib/localstack
 
@@ -130,7 +128,7 @@ jobs:
         # https://www.saybackend.com/blog/05-kafka-in-docker-kraft
         image: apache/kafka:4.1.0
         ports:
-          - "9094:9094"
+          - '9094:9094'
         env:
           KAFKA_NODE_ID: '1'
           KAFKA_PROCESS_ROLES: 'broker,controller'
@@ -160,31 +158,31 @@ jobs:
           - '14.17'
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v7.0.1
-    - uses: actions/setup-node@v7.1.0
-      with:
-        node-version: ${{ matrix.node }}
-    - run: docker ps  # show the services against which we'll be testing
-    - run: npm ci
-    - run: npm ls --all || true
-    - name: npm test
-      run: npm test
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - run: docker ps # show the services against which we'll be testing
+      - run: npm ci
+      - run: npm ls --all || true
+      - name: npm test
+        run: npm test
 
   test-windows:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v7.0.1
-    - uses: actions/setup-node@v7.1.0
-      with:
-        # What Node.js version to test on Windows is a balance between which
-        # is the current LTS version (https://github.com/nodejs/release) and
-        # which version more of our users are using.
-        node-version: 16
-        cache: 'npm'
-    - run: npm ci
-    - run: npm ls --all || true
-    # Run a subset of tests that we can reasonably get running on Windows CI.
-    - run: node test/test.js
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          # What Node.js version to test on Windows is a balance between which
+          # is the current LTS version (https://github.com/nodejs/release) and
+          # which version more of our users are using.
+          node-version: 16
+          cache: 'npm'
+      - run: npm ci
+      - run: npm ls --all || true
+      # Run a subset of tests that we can reasonably get running on Windows CI.
+      - run: node test/test.js
 
   # single status check that can be set as required in branch protection rules.
   # success if all jobs listed in "needs" are successful.

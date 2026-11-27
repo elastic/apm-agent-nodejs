@@ -5,5 +5,5 @@
  */
 
 export const main = async (event, context) => {
-  return 'hi'
-}
+  return 'hi';
+};

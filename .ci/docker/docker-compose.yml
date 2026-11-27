@@ -5,7 +5,7 @@ services:
     user: postgres
     image: postgres:9.6
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - nodepgdata:/var/lib/postgresql/data
     environment:
@@ -13,7 +13,7 @@ services:
       POSTGRES_DB: 'test_elastic_apm'
       POSTGRES_HOST_AUTH_METHOD: 'trust'
     healthcheck:
-      test: ["CMD", "pg_isready"]
+      test: ['CMD', 'pg_isready']
       interval: 1s
       timeout: 10s
       retries: 30
@@ -21,11 +21,11 @@ services:
   mongodb:
     image: mongo:5
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - nodemongodata:/data/db
     healthcheck:
-      test: ["CMD", "mongo", "--quiet"]
+      test: ['CMD', 'mongo', '--quiet']
       interval: 1s
       timeout: 10s
       retries: 30
@@ -40,11 +40,24 @@ services:
       - MSSQL_SA_PASSWORD=Very(!)Secure
       - MSSQL_PID=Developer
     ports:
-      - "1433:1433"
+      - '1433:1433'
     volumes:
       - nodemssqldata:/var/opt/mssql
     healthcheck:
-      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-C", "-S", "mssql", "-U", "sa", "-P", "Very(!)Secure", "-Q", "select 1"]
+      test:
+        [
+          'CMD',
+          '/opt/mssql-tools18/bin/sqlcmd',
+          '-C',
+          '-S',
+          'mssql',
+          '-U',
+          'sa',
+          '-P',
+          'Very(!)Secure',
+          '-Q',
+          'select 1',
+        ]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -54,11 +67,23 @@ services:
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
     ports:
-      - "3306:3306"
+      - '3306:3306'
     volumes:
       - nodemysqldata:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysql" ,"-h", "mysql", "-P", "3306", "-u", "root", "-e", "SELECT 1"]
+      test:
+        [
+          'CMD',
+          'mysql',
+          '-h',
+          'mysql',
+          '-P',
+          '3306',
+          '-u',
+          'root',
+          '-e',
+          'SELECT 1',
+        ]
       interval: 1s
       timeout: 10s
       retries: 30
@@ -66,9 +91,9 @@ services:
   redis:
     image: redis
     ports:
-      - "6379:6379"
+      - '6379:6379'
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 1s
       timeout: 10s
       retries: 30
@@ -76,17 +101,17 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.0.0
     environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "network.host=_site_"
-      - "transport.host=127.0.0.1"
-      - "http.host=0.0.0.0"
-      - "xpack.security.enabled=false"
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+      - 'network.host=_site_'
+      - 'transport.host=127.0.0.1'
+      - 'http.host=0.0.0.0'
+      - 'xpack.security.enabled=false'
     ports:
-      - "9200:9200"
+      - '9200:9200'
     volumes:
       - nodeesdata:/usr/share/elasticsearch/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9200']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -97,25 +122,25 @@ services:
     # released to https://hub.docker.com/_/cassandra?tab=tags
     image: cassandra:3.11.11
     environment:
-      MAX_HEAP_SIZE: "1G"
+      MAX_HEAP_SIZE: '1G'
       HEAP_NEWSIZE: 400m
     ports:
-      - "9042:9042"
+      - '9042:9042'
     volumes:
       - nodecassandradata:/var/lib/cassandra
     healthcheck:
-      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+      test: ['CMD-SHELL', '[ $$(nodetool statusgossip) = running ]']
       interval: 30s
       timeout: 10s
       retries: 5
 
   memcached:
     image: memcached:alpine
-    user: "11211"
+    user: '11211'
     ports:
-      - "11211:11211"
+      - '11211:11211'
     healthcheck:
-      test: ["CMD", "nc", "127.0.0.1:11211", "-z"]
+      test: ['CMD', 'nc', '127.0.0.1:11211', '-z']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -134,9 +159,9 @@ services:
       - SQS_ENDPOINT_STRATEGY=path
       - DATA_DIR=/var/lib/localstack
     ports:
-      - "4566:4566"
+      - '4566:4566'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:4566/_localstack/health']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -148,25 +173,25 @@ services:
     # https://www.saybackend.com/blog/05-kafka-in-docker-kraft
     image: apache/kafka:4.1.0
     ports:
-      - "9094:9094"
+      - '9094:9094'
     volumes:
       - nodekafkadata:/var/lib/kafka/data
     environment:
-      - "KAFKA_NODE_ID=1"
-      - "KAFKA_PROCESS_ROLES=broker,controller"
-      - "KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094"
-      - "KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,EXTERNAL://kafka:9094"
-      - "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT"
-      - "KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9093"
-      - "KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER"
-      - "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1"
-      - "KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1"
-      - "KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1"
+      - 'KAFKA_NODE_ID=1'
+      - 'KAFKA_PROCESS_ROLES=broker,controller'
+      - 'KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094'
+      - 'KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,EXTERNAL://kafka:9094'
+      - 'KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      - 'KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9093'
+      - 'KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER'
+      - 'KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1'
+      - 'KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1'
+      - 'KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1'
     healthcheck:
       test:
         [
-          "CMD-SHELL",
-          "./opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1",
+          'CMD-SHELL',
+          './opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1',
         ]
       interval: 10s
       timeout: 10s
