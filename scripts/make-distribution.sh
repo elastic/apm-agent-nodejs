@@ -49,7 +49,7 @@ mkdir -p nodejs/node_modules/elastic-apm-node
 
 # Generate a NOTICE file including the licenses of all included deps.
 NOTICE=nodejs/node_modules/elastic-apm-node/NOTICE.md
-$TOP/dev-utils/gen-notice.sh nodejs/node_modules/elastic-apm-node >$NOTICE
+$TOP/scripts/gen-notice.sh nodejs/node_modules/elastic-apm-node >$NOTICE
 
 echo ""
 zip -q -r elastic-apm-node-lambda-layer.zip nodejs

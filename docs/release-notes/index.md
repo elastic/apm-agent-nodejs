@@ -30,6 +30,7 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 ### Features and enhancements [next-features-enhancements]
 
+* Support instrumenting `@apollo/server` v5.
 * Support instrumenting `mongodb` v7 (requires Node.js v20.19.0 or later).
 
 ## 4.18.0 [4-18-0]

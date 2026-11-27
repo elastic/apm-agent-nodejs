@@ -68,13 +68,13 @@ step can take a long time (installing and testing a large number of module
 versions).  Part of maintaining this is to look at particularly slow steps
 as candidates for speeding up.
 
-    ./dev-utils/ci-tav-slow-jobs.sh
+    ./scripts/ci-tav-slow-jobs.sh
 
 This script will list all the TAV test steps, from the latest run, with the
 slowest last. For example:
 
 ```sh
-% ./dev-utils/ci-tav-slow-jobs.sh | tail
+% ./scripts/ci-tav-slow-jobs.sh | tail
 1256 20m56s test-tav (14, next)
 1307 21m47s test-tav (12, knex)
 1307 21m47s test-tav (14, knex)
@@ -144,14 +144,14 @@ version range is expressed in three places:
 Two maintenance tasks are (a) to keep these three places in sync and (b) to
 know when support for newer versions of module needs to be added. The latter
 is partially handled by automated dependabot PRs (see ".github/dependabot.yml").
-Both tasks are also partially supported by the **`./dev-utils/bitrot.js`** tool.
+Both tasks are also partially supported by the **`./scripts/bitrot.js`** tool.
 It will list inconsistences between ".tav.yml" and
 "supported-technologies.asciidoc", and will note newer releases of a module
 that isn't covered. For example, redis@5 is not covered by the ranges above,
 so the tool looks like this:
 
 ```
-% ./dev-utils/bitrot.js
+% ./scripts/bitrot.js
 redis bitrot: latest redis@4.3.1 (released 2022-09-06): is not in .tav.yml ranges (>=2.0.0 <4.0.0), is not in supported-technologies.asciidoc ranges (>=2.0.0 <4.0.0)
 ```
 
