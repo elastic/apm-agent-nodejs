@@ -42,6 +42,12 @@ if (
   process.exit();
 }
 
+const isPgIncompat = require('../../../_is_pg_incompat')();
+if (isPgIncompat) {
+  console.log(`# SKIP knex dependency issue. ${isPgIncompat}`);
+  process.exit();
+}
+
 var Knex = require('knex');
 var test = require('tape');
 
